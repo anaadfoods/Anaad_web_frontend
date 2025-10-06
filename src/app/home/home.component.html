@@ -1,89 +1,71 @@
-<!-- Top gradient banner -->
-<section class="top-banner"></section>
-
 <!-- Cream headline band with CTA -->
-<section class="cream-band">
+<section class="cream-band" revealOnScroll>
   <div class="container center">
     <h1>Growing Health,<br/>Cultivating Tomorrow.</h1>
     <p>ANAAD Foods is not just about what you eat.<br/>It’s about a world we build, together!</p>
     <div class="cta"><a routerLink="/about" class="btn btn-primary pill">Explore Our Story</a></div>
   </div>
 </section>
-<!-- End CTA / Info block -->
-<section class="end-cta" aria-labelledby="journey-title">
-  <div class="container">
-    <div class="cta-head">
-      <h2 id="journey-title">Your Journey Awaits.</h2>
-      <p>Explore our offerings, connect with our story, and experience a new way of living.</p>
-      <div class="cta">
-        <a class="btn btn-surface pill" routerLink="/about">Download the APP Now!</a>
-      </div>
-    </div>
-
-    <div class="cta-columns">
-      <div class="col about">
-        <h3>About ANAAD</h3>
-        <p>Anaad champions climate-positive farming through the Indian Cow Based Natural (ICBN) method, rejuvenating soil health, restoring nutrition naturally, and empowering farmers to combat climate change while nourishing people and mitigating modern lifestyle diseases.</p>
-        <div class="inquiry"><a class="btn btn-surface pill" routerLink="/contact">SUBMIT YOUR INQUIRY HERE</a></div>
-      </div>
-
-      <nav class="col links" aria-label="Quick Links">
-        <h3>Quick Links</h3>
-        <ul>
-          <li><a routerLink="/">Home</a></li>
-          <li><a routerLink="/shop">ICBN Staples</a></li>
-          <li><a routerLink="/about">RFP</a></li>
-          <li><a routerLink="/about">GRINITY</a></li>
-          <li><a routerLink="/about">KRINITY</a></li>
-          <li><a routerLink="/about">Blogs</a></li>
-          <li><a routerLink="/contact">Contract Farming</a></li>
-        </ul>
-      </nav>
-
-      <div class="col contact">
-        <h3>Contact Us</h3>
-        <p>+91 9996166186</p>
-        <p>connect@anaadfoods.com</p>
-        <p>complaints@anaadfoods.com</p>
-        <p>ANAAD, Farmlands of Bhuri,<br/>Sonipat - 131001, Haryana, IND</p>
-        <h3 class="follow">Follow Our Journey</h3>
-      </div>
-    </div>
-
-    <div class="copyright">© 2025. All rights reserved.</div>
+<!-- Three gradient cards -->
+<section class="trio">
+  <div class="container trio-grid">
+    <article class="panel gold" revealOnScroll>
+      <h3>Ancient Wisdom</h3>
+      <div class="thumb"></div>
+      <p>Reviving ancestral farming practices to restore health and pride in every Indian home.</p>
+      <a class="link" routerLink="/about">Learn More</a>
+    </article>
+    <article class="panel gold-green" revealOnScroll>
+      <h3>The Global<br/>Commitment</h3>
+      <div class="thumb"></div>
+      <p>Cultivating climate-resilient crops that nurture both human health and planetary well-being.</p>
+      <a class="link" routerLink="/about">See Our Impact</a>
+    </article>
+    <article class="panel gold" revealOnScroll>
+      <h3>The Revolution</h3>
+      <div class="thumb"></div>
+      <p>Pioneering a profitable, scalable business model that is reshaping the future of food.</p>
+      <a class="link" routerLink="/about">Discover the Opportunity</a>
+    </article>
   </div>
 </section>
-<!-- ANAAD’s Communities section -->
-<section class="communities" aria-labelledby="comm-title">
+<!-- Subscription Plans section -->
+<section class="plans-block">
   <div class="container">
-    <h2 id="comm-title" class="comm-head">ANAAD’s Communities</h2>
-    <div class="comm-grid">
-      <article class="comm-card green">
-        <div class="media-window">
-          <div class="badge">Coming Soon <span class="leaf" aria-hidden="true"></span></div>
+    <app-plans-carousel [plans]="[
+      { id: 'pathik', title: 'Pathik', description: 'Ideal for people beginning their switch to clean eating with cold-pressed flours.', durationLabel: '3 Months', allowsInstallments: 'No', allowanceLabel: '3 Months', savingsLabel: '23% Discount' },
+      { id: 'sarthi', title: 'Sarthi', description: 'Steady progress plan with balanced variety and seasonal picks.', durationLabel: '6 Months', allowsInstallments: 'Yes', allowanceLabel: '6 Months', savingsLabel: '28% Discount' },
+      { id: 'sanyasi', title: 'Sanyasi', description: 'For the committed—premium curation and maximum savings.', durationLabel: '12 Months', allowsInstallments: 'Yes', allowanceLabel: '12 Months', savingsLabel: '35% Discount' }
+    ]" [intervalMs]="5000"></app-plans-carousel>
+  </div>
+</section>
+<!-- Categories section (under Subscription Plans) -->
+<section class="categories-block" aria-labelledby="cat-title">
+  <div class="container">
+    <div class="categories-card">
+      <div class="panel-content">
+        <h2 id="cat-title">Rejuvenating Earth<br/>Nourishing Lives</h2>
+        <p class="eyebrow">Our Categories you can browse through</p>
+        <div class="category-tiles">
+          <a class="tile" routerLink="/shop" aria-label="Natural Farming">
+            <div class="tile-media nf" role="img" aria-label="Lush green crops"></div>
+            <div class="tile-title">Natural Farming</div>
+          </a>
+          <a class="tile" routerLink="/shop" aria-label="Naturally Grown Vegetables">
+            <div class="tile-media veg" role="img" aria-label="Basket of fresh vegetables"></div>
+            <div class="tile-title">Naturally Grown Vegetables</div>
+          </a>
         </div>
-        <div class="comm-body">
-          <h3 class="brand">KRINITY</h3>
-          <h4 class="tag">A Farmer’s Community</h4>
-          <p>The heart of ANAAD Foods beats with our farmers.
-            We share in their wisdom, their hard work and their future.</p>
-          <div class="pill"></div>
-        </div>
-      </article>
-      <article class="comm-card maroon">
-        <div class="media-window">
-          <div class="badge">Coming Soon <span class="leaf" aria-hidden="true"></span></div>
-        </div>
-        <div class="comm-body">
-          <h3 class="brand">GRINITY</h3>
-          <h4 class="tag">Flavours of ANAAD</h4>
-          <p>A celebration of taste and tradition.
-            Discover recipes and stories that bring our food to life.</p>
-          <div class="pill"></div>
-        </div>
-      </article>
+      </div>
+    </div>
+
+    <div class="offerings-cta center">
+      <h3 class="headline">Taste the Goodness</h3>
+      <p>From our farm to your doorstep, every product is a step towards a healthier you and the planet.</p>
+      <div class="cta"><a class="btn btn-primary pill" routerLink="/shop">View All Offerings</a></div>
     </div>
   </div>
+  
 </section>
 <!-- End-of-homepage products panel -->
 <section class="end-products" aria-label="Featured products">
@@ -123,64 +105,79 @@
   </div>
 </section>
 
-<!-- Subscription Plans section -->
-<section class="plans-block">
+<!-- ANAAD’s Communities section -->
+<section class="communities" aria-labelledby="comm-title">
   <div class="container">
-    <app-plans-carousel [plans]="[
-      { id: 'pathik', title: 'Pathik', description: 'Ideal for people beginning their switch to clean eating with cold-pressed flours.', durationLabel: '3 Months', allowsInstallments: 'No', allowanceLabel: '3 Months', savingsLabel: '23% Discount' },
-      { id: 'sarthi', title: 'Sarthi', description: 'Steady progress plan with balanced variety and seasonal picks.', durationLabel: '6 Months', allowsInstallments: 'Yes', allowanceLabel: '6 Months', savingsLabel: '28% Discount' },
-      { id: 'sanyasi', title: 'Sanyasi', description: 'For the committed—premium curation and maximum savings.', durationLabel: '12 Months', allowsInstallments: 'Yes', allowanceLabel: '12 Months', savingsLabel: '35% Discount' }
-    ]" [intervalMs]="5000"></app-plans-carousel>
+    <h2 id="comm-title" class="comm-head">ANAAD’s Communities</h2>
+    <div class="comm-grid">
+      <article class="comm-card green">
+        <div class="media-window">
+          <div class="badge">Coming Soon <span class="leaf" aria-hidden="true"></span></div>
+        </div>
+        <div class="comm-body">
+          <h3 class="brand">KRINITY</h3>
+          <h4 class="tag">A Farmer’s Community</h4>
+          <p>The heart of ANAAD Foods beats with our farmers.
+            We share in their wisdom, their hard work and their future.</p>
+          <div class="pill"></div>
+        </div>
+      </article>
+      <article class="comm-card maroon">
+        <div class="media-window">
+          <div class="badge">Coming Soon <span class="leaf" aria-hidden="true"></span></div>
+        </div>
+        <div class="comm-body">
+          <h3 class="brand">GRINITY</h3>
+          <h4 class="tag">Flavours of ANAAD</h4>
+          <p>A celebration of taste and tradition.
+            Discover recipes and stories that bring our food to life.</p>
+          <div class="pill"></div>
+        </div>
+      </article>
+    </div>
   </div>
 </section>
-<!-- Categories section (under Subscription Plans) -->
-<section class="categories-block" aria-labelledby="cat-title">
+<!-- Footer section -->
+<section class="end-cta" aria-labelledby="journey-title">
   <div class="container">
-    <div class="categories-card">
-      <div class="panel-content">
-        <h2 id="cat-title">Rejuvenating Earth<br/>Nourishing Lives</h2>
-        <p class="eyebrow">Our Categories you can browse through</p>
-        <div class="category-tiles">
-          <a class="tile" routerLink="/shop" aria-label="Natural Farming">
-            <div class="tile-media nf" role="img" aria-label="Lush green crops"></div>
-            <div class="tile-title">Natural Farming</div>
-          </a>
-          <a class="tile" routerLink="/shop" aria-label="Naturally Grown Vegetables">
-            <div class="tile-media veg" role="img" aria-label="Basket of fresh vegetables"></div>
-            <div class="tile-title">Naturally Grown Vegetables</div>
-          </a>
-        </div>
+    <div class="cta-head">
+      <h2 id="journey-title">Your Journey Awaits.</h2>
+      <p>Explore our offerings, connect with our story, and experience a new way of living.</p>
+      <div class="cta center">
+        <a class="btn btn-surface pill" routerLink="/about">Download the APP Now!</a>
       </div>
     </div>
 
-    <div class="offerings-cta center">
-      <h3 class="headline">Taste the Goodness</h3>
-      <p>From our farm to your doorstep, every product is a step towards a healthier you and the planet.</p>
-      <div class="cta"><a class="btn btn-primary pill" routerLink="/shop">View All Offerings</a></div>
+    <div class="cta-columns">
+      <div class="col about">
+        <h3>About ANAAD</h3>
+        <p>Anaad champions climate-positive farming through the Indian Cow Based Natural (ICBN) method, rejuvenating soil health, restoring nutrition naturally, and empowering farmers to combat climate change while nourishing people and mitigating modern lifestyle diseases.</p>
+        <div class="inquiry center"><a class="btn btn-surface pill" routerLink="/contact">SUBMIT YOUR INQUIRY HERE</a></div>
+      </div>
+
+      <nav class="col links" aria-label="Quick Links">
+        <h3>Quick Links</h3>
+        <ul>
+          <li><a routerLink="/">Home</a></li>
+          <li><a routerLink="/shop">ICBN Staples</a></li>
+          <li><a routerLink="/about">RFP</a></li>
+          <li><a routerLink="/about">GRINITY</a></li>
+          <li><a routerLink="/about">KRINITY</a></li>
+          <li><a routerLink="/about">Blogs</a></li>
+          <li><a routerLink="/contact">Contract Farming</a></li>
+        </ul>
+      </nav>
+
+      <div class="col contact">
+        <h3>Contact Us</h3>
+        <p>+91 9996166186</p>
+        <p>connect@anaadfoods.com</p>
+        <p>complaints@anaadfoods.com</p>
+        <p>ANAAD, Farmlands of Bhuri,<br/>Sonipat - 131001, Haryana, IND</p>
+        <h3 class="follow">Follow Our Journey</h3>
+      </div>
     </div>
-  </div>
-  
-</section>
-<!-- Three gradient cards -->
-<section class="trio">
-  <div class="container trio-grid">
-    <article class="panel gold" revealOnScroll>
-      <h3>Ancient Wisdom</h3>
-      <div class="thumb"></div>
-      <p>Reviving ancestral farming practices to restore health and pride in every Indian home.</p>
-      <a class="link" routerLink="/about">Learn More</a>
-    </article>
-    <article class="panel gold-green" revealOnScroll>
-      <h3>The Global<br/>Commitment</h3>
-      <div class="thumb"></div>
-      <p>Cultivating climate-resilient crops that nurture both human health and planetary well-being.</p>
-      <a class="link" routerLink="/about">See Our Impact</a>
-    </article>
-    <article class="panel gold" revealOnScroll>
-      <h3>The Revolution</h3>
-      <div class="thumb"></div>
-      <p>Pioneering a profitable, scalable business model that is reshaping the future of food.</p>
-      <a class="link" routerLink="/about">Discover the Opportunity</a>
-    </article>
+
+    <div class="copyright">© 2025. All rights reserved.</div>
   </div>
 </section>
