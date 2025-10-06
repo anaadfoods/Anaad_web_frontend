@@ -1,0 +1,13 @@
+<article class="card">
+  <div class="media">
+    <img [src]="product.image" [alt]="product.name" loading="lazy" />
+    <span class="badge" *ngIf="product.badge">{{ product.badge }}</span>
+  </div>
+  <div class="info">
+    <h4>{{ product.name }}</h4>
+    <div class="row">
+      <div class="price">₹ {{ product.price | number:'1.0-0' }}</div>
+      <button class="btn btn-primary" type="button">Add</button>
+    </div>
+  </div>
+</article>

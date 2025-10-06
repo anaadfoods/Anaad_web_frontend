@@ -1,0 +1,139 @@
+// Design tokens: swap values with your brand colors and typography
+
+// SCSS variables (authoring-time)
+// Brand colors from design board
+$color-primary: #3f5e46; // Deep organic green
+$color-primary-600: #2f4634; // Darker shade
+$color-secondary: #ad8441; // Gold/ochre accent
+$color-accent: #6b1e1e; // Rich burgundy/red
+$color-bg: #faf8f2; // Warm off-white background
+$color-surface: #ffffff;
+$color-text: #1f1b16; // Warm near-black
+$color-text-muted: #6f665c; // Warm gray
+$color-success: #3f5e46;
+$color-warning: #ad8441;
+$color-error: #6b1e1e;
+
+$radius-sm: 8px;
+$radius-md: 14px;
+$radius-lg: 22px;
+
+$shadow-sm: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+$shadow-md: 0 8px 24px rgba(0,0,0,0.08);
+$shadow-lg: 0 20px 60px rgba(0,0,0,0.1);
+
+$space-1: 4px;
+$space-2: 8px;
+$space-3: 12px;
+$space-4: 16px;
+$space-5: 20px;
+$space-6: 24px;
+$space-7: 28px;
+$space-8: 32px;
+$space-10: 40px;
+$space-12: 48px;
+$space-16: 64px;
+
+// CSS custom properties (runtime)
+:root {
+  --color-primary: #{$color-primary};
+  --color-primary-600: #{$color-primary-600};
+  --color-secondary: #{$color-secondary};
+  --color-accent: #{$color-accent};
+  --color-bg: #{$color-bg};
+  --color-surface: #{$color-surface};
+  --color-text: #{$color-text};
+  --color-text-muted: #{$color-text-muted};
+  --color-success: #{$color-success};
+  --color-warning: #{$color-warning};
+  --color-error: #{$color-error};
+
+  /* Typography families (Google alternatives for now) */
+  --font-sans: 'Outfit', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+  --font-serif: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  --font-script: 'Allura', 'Segoe Script', cursive;
+
+  --radius-sm: #{$radius-sm};
+  --radius-md: #{$radius-md};
+  --radius-lg: #{$radius-lg};
+
+  --shadow-sm: #{$shadow-sm};
+  --shadow-md: #{$shadow-md};
+  --shadow-lg: #{$shadow-lg};
+
+  --space-1: #{$space-1};
+  --space-2: #{$space-2};
+  --space-3: #{$space-3};
+  --space-4: #{$space-4};
+  --space-5: #{$space-5};
+  --space-6: #{$space-6};
+  --space-7: #{$space-7};
+  --space-8: #{$space-8};
+  --space-10: #{$space-10};
+  --space-12: #{$space-12};
+  --space-16: #{$space-16};
+}
+
+// Typography helpers
+body { color: var(--color-text); background: var(--color-bg); font-family: var(--font-sans); }
+
+.container {
+  width: min(1200px, 100% - 32px);
+  margin-inline: auto;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 18px;
+  border-radius: var(--radius-md);
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  transition: transform 200ms ease, box-shadow 200ms ease, background-color 200ms ease;
+}
+
+.btn-primary {
+  background: var(--color-primary);
+  color: white;
+  box-shadow: var(--shadow-sm);
+}
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+  background: var(--color-primary-600);
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--color-primary);
+  border: 2px solid var(--color-primary);
+}
+.btn-outline:hover {
+  background: color-mix(in srgb, var(--color-primary) 10%, transparent);
+}
+
+// Reveal-on-scroll base classes
+.reveal {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 600ms ease, transform 600ms ease;
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Skip link for accessibility */
+.skip-link {
+  position: absolute;
+  left: 8px;
+  top: -40px;
+  background: var(--color-primary);
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  transition: top 0.2s ease;
+}
+.skip-link:focus { top: 8px; outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, #fff 60%, transparent); }

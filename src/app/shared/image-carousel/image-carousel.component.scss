@@ -1,0 +1,13 @@
+.carousel { position: relative; height: var(--h); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-lg); }
+.track { position: absolute; inset: 0; }
+.slide { position: absolute; inset: 0; opacity: 0; transition: opacity .6s ease; }
+.slide.active { opacity: 1; }
+.slide img { width: 100%; height: 100%; object-fit: cover; }
+.nav { position: absolute; top: 50%; transform: translateY(-50%); background: color-mix(in srgb, #000 24%, transparent); color: #fff; border: 0; width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; cursor: pointer; }
+.prev { left: 8px; }
+.next { right: 8px; }
+.dots { position: absolute; left: 0; right: 0; bottom: 10px; display: flex; justify-content: center; gap: 8px; }
+.dots button { width: 8px; height: 8px; border-radius: 50%; border: 0; background: color-mix(in srgb, #fff 50%, transparent); cursor: pointer; }
+.dots button.active { background: var(--color-secondary); }
+
+@media (prefers-reduced-motion: reduce) { .slide { transition: none; } }

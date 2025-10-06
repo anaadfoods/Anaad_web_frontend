@@ -1,0 +1,16 @@
+<div class="carousel" [style.--h.px]="height" role="region" aria-label="Image carousel">
+  <button class="nav prev" type="button" aria-label="Previous" (click)="prev()">‹</button>
+  <div class="track">
+    @for (img of images; let i = $index; track img.src) {
+      <figure class="slide" [class.active]="i === index()">
+        <img [src]="img.src" [alt]="img.alt" loading="lazy"/>
+      </figure>
+    }
+  </div>
+  <button class="nav next" type="button" aria-label="Next" (click)="next()">›</button>
+  <div class="dots" role="tablist">
+    @for (img of images; let i = $index; track img.src) {
+      <button type="button" [class.active]="i === index()" (click)="go(i)" aria-label="Go to slide {{ i + 1 }}"></button>
+    }
+  </div>
+</div>

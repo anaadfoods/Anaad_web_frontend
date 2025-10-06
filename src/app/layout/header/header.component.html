@@ -1,0 +1,13 @@
+<header class="site-header">
+  <div class="container bar">
+    <a class="logo" routerLink="/" (click)="close()">A</a>
+    <nav class="nav" [class.open]="isOpen()">
+      <a class="pill-link" routerLink="/about" (click)="close()">About US</a>
+      <a class="pill-link" routerLink="/shop" (click)="close()">Offerings</a>
+      <a class="pill-link strong" href="#app" (click)="close()">Get Our APP</a>
+    </nav>
+    <button class="menu" type="button" aria-label="Menu" (click)="toggle()">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>

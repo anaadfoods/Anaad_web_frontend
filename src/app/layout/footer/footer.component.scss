@@ -1,0 +1,4 @@
+.site-footer { margin-top: 64px; padding: 32px 0; background: var(--color-primary); color: #f6fff9; }
+.rows { display: grid; grid-template-columns: 1fr; gap: 16px; }
+.logo { font-weight: 800; margin-bottom: 8px; font-family: var(--font-serif); }
+.legal { color: color-mix(in srgb, #fff 78%, black); font-size: 14px; }

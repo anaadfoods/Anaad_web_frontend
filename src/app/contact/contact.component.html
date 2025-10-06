@@ -1,0 +1,27 @@
+<section class="contact container">
+  <h2>Contact Us</h2>
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+    <label>
+      Name
+      <input type="text" formControlName="name" placeholder="Your name" />
+      @if (f.name.touched && f.name.invalid) {
+        <small class="err">Name is required (min 2 chars)</small>
+      }
+    </label>
+    <label>
+      Email
+      <input type="email" formControlName="email" placeholder="you@example.com" />
+      @if (f.email.touched && f.email.invalid) {
+        <small class="err">Valid email required</small>
+      }
+    </label>
+    <label>
+      Message
+      <textarea rows="5" formControlName="message" placeholder="How can we help?"></textarea>
+      @if (f.message.touched && f.message.invalid) {
+        <small class="err">Message is required (min 10 chars)</small>
+      }
+    </label>
+    <button class="btn btn-primary" type="submit">Send</button>
+  </form>
+</section>
