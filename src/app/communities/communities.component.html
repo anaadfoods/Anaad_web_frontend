@@ -1,0 +1,94 @@
+<div class="communities-page">
+  <!-- Main Communities Section -->
+  <section class="communities-main">
+    <div class="container">
+      <h1 class="page-title">ANAAD's Communities</h1>
+
+      <!-- Row 1: KRINITY (board left, text right) -->
+      <div class="row" revealOnScroll>
+        <div class="board board-green" revealOnScroll tiltOnHover [parallaxOnScroll]="true" style="--reveal-delay: 400ms;">
+          <span class="badge">Coming Soon <span class="leaf" aria-hidden="true">🍃</span></span>
+          <div class="board-surface">
+            <h4 class="board-title">Benefits</h4>
+            <ul class="board-list">
+              <li>Vestibulum sapien montes fames morbi dui quisque enim.</li>
+              <li>Convallis amet ullamcorper pretium.</li>
+              <li>Nibh natoque sed at egestas Sed.</li>
+              <li>Semper donec in arcu eget gravida.</li>
+              <li>Quis fermentum elementum auctor.</li>
+              <li>Enim morbi quis at nam tempus et leo.</li>
+              <li>Facilisi aliquam per eget tellus blandit pellentesque.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="text-block" revealOnScroll [parallaxOnScroll]="true" style="--reveal-delay: 600ms;">
+          <h2 class="brand">KRINITY</h2>
+          <h3 class="tag">A Farmer's Community</h3>
+          <p>
+            Lorem ipsum dolor sit amet consectetur. Vitae adipiscing maecenas ultrices viverra tellus amet tincidunt.
+            Turpis nullam sed neque sit ut lorem duis sed. Orci consequat eros cursus dui rutrum pellentesque sed sed.
+            Leo in mauris nibh habitant lectus pellentesque mauris. Pellentesque urna at dolor ultrices sagittis molestie.
+          </p>
+          <p>
+            Morbi non feugiat ultrices et facilisis duis nulla. Amet eget sapien vulputate et rhoncus nisi
+            curabitur est lectus. Ipsum ultrices lectus in aliquet purus tellus nam. Proin felis viverra in sed.
+          </p>
+          <button 
+            class="btn-register" 
+            type="button"
+            routerLink="/register"
+            (mouseenter)="onButtonHover($event)"
+            (mouseleave)="onButtonLeave($event)"
+            (click)="onButtonClick($event)"
+          >
+            <span>Register</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Row 2: GRINITY (text left, board right) -->
+      <div class="row" revealOnScroll>
+        <div class="text-block maroon" revealOnScroll [parallaxOnScroll]="true" style="--reveal-delay: 1000ms;">
+          <h2 class="brand">GRINITY</h2>
+          <h3 class="tag">Flavours of ANAAD</h3>
+          <p>
+            Lorem ipsum dolor sit amet consectetur. Vitae adipiscing maecenas ultrices viverra tellus amet tincidunt.
+            Turpis nullam sed neque sit ut lorem duis sed. Orci consequat eros cursus dui rutrum pellentesque sed sed.
+            Leo in mauris nibh habitant lectus pellentesque mauris. Pellentesque urna at dolor ultrices sagittis molestie.
+          </p>
+          <p>
+            Morbi non feugiat ultrices et facilisis duis nulla. Amet eget sapien vulputate et rhoncus nisi
+            curabitur est lectus. Ipsum ultrices lectus in aliquet purus tellus nam. Proin felis viverra in sed.
+          </p>
+          <button 
+            class="btn-register" 
+            type="button"
+            routerLink="/register"
+            (mouseenter)="onButtonHover($event)"
+            (mouseleave)="onButtonLeave($event)"
+            (click)="onButtonClick($event)"
+          >
+            <span>Register</span>
+          </button>
+        </div>
+
+        <div class="board board-maroon" revealOnScroll tiltOnHover [parallaxOnScroll]="true" style="--reveal-delay: 1200ms;">
+          <span class="badge">Coming Soon <span class="leaf" aria-hidden="true">🍃</span></span>
+          <div class="board-surface">
+            <h4 class="board-title">Benefits</h4>
+            <ul class="board-list">
+              <li>Vestibulum sapien montes fames morbi dui quisque enim.</li>
+              <li>Convallis amet ullamcorper pretium.</li>
+              <li>Nibh natoque sed at egestas Sed.</li>
+              <li>Semper donec in arcu eget gravida.</li>
+              <li>Quis fermentum elementum auctor.</li>
+              <li>Et commodo quis at nam tempus et leo.</li>
+              <li>Facilisi aliquam per eget tellus blandit pellentesque.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

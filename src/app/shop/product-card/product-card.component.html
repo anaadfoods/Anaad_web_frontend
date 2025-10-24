@@ -1,12 +1,21 @@
 <article class="card">
   <div class="media">
-    <img [src]="product.image" [alt]="product.name" loading="lazy" />
+    <img *ngIf="product.image && !imageError"
+         [src]="product.image"
+         [alt]="product.name"
+         loading="lazy"
+         (error)="onImgError()" />
+    <div class="placeholder" *ngIf="!product.image || imageError" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="36" height="36" fill="currentColor" aria-hidden="true">
+        <path d="M21 19V5a2 2 0 0 0-2-2H5C3.9 3 3 3.9 3 5v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2zM8 11a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm-3 7l4.5-6 3.5 4.5 2.5-3L19 18H5z"/>
+      </svg>
+    </div>
     <span class="badge" *ngIf="product.badge">{{ product.badge }}</span>
   </div>
   <div class="info">
-    <h4>{{ product.name }}</h4>
+    <h4 class="name">{{ product.name }}</h4>
     <div class="row">
-      <div class="price">₹ {{ product.price | number:'1.0-0' }}</div>
+      <div class="price">₹ {{ product.price | number:'1.0-0' }}/kg</div>
       <button class="btn btn-primary" type="button">Add</button>
     </div>
   </div>

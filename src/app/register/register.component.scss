@@ -1,0 +1,554 @@
+/* Hero section to match screenshot */
+.register-hero {
+  background: radial-gradient(120% 80% at 50% 20%, rgba(62, 89, 69, 0.45) 0%, rgba(62, 89, 69, 0.9) 45%, rgba(62, 89, 69, 0.98) 100%);
+  color: #fff;
+  padding: 64px 0 72px;
+  text-align: center;
+  animation: heroBreathing 8s ease-in-out infinite;
+  position: relative;
+  overflow: hidden;
+}
+
+.register-hero::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    45deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.05) 50%,
+    transparent 70%
+  );
+  animation: shimmerMove 8s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes shimmerMove {
+  0% {
+    transform: translate(-100%, -100%) rotate(45deg);
+  }
+  100% {
+    transform: translate(100%, 100%) rotate(45deg);
+  }
+}
+
+.register-hero .container { 
+  max-width: 900px;
+  position: relative;
+  z-index: 1;
+}
+
+.register-hero .title {
+  font-family: var(--font-serif);
+  font-size: clamp(40px, 6vw, 56px);
+  font-weight: 700;
+  margin: 0 0 12px;
+  animation: fadeInUp 1s ease-out, titleShine 4s ease-in-out infinite;
+  text-shadow: 
+    0 2px 12px rgba(0,0,0,.2),
+    0 0 40px rgba(255,255,255,.1);
+  background: linear-gradient(120deg, #fff 0%, #e8f5e9 50%, #fff 100%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+@keyframes titleShine {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.register-hero .subtitle { 
+  opacity: .9; 
+  font-size: 18px;
+  animation: fadeInUp 1.2s ease-out; /* remove continuous float */
+  text-shadow: 0 1px 8px rgba(0,0,0,.15);
+}
+
+@keyframes subtitleFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+@keyframes heroBreathing {
+  0%, 100% {
+    box-shadow: inset 0 0 80px rgba(0,0,0,.15);
+  }
+  50% {
+    box-shadow: inset 0 0 120px rgba(0,0,0,.25);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Form card */
+.register-form-block { 
+  background: #f6efdf; 
+  padding: 28px 0 72px;
+  animation: fadeIn 1.4s ease-out;
+  position: relative;
+  overflow: hidden;
+}
+
+.register-form-block::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    radial-gradient(circle at 20% 50%, rgba(161, 130, 63, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 80% 30%, rgba(55, 88, 68, 0.08) 0%, transparent 50%);
+  animation: bgPulse 10s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes bgPulse {
+  0%, 100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.register-form-block .container { 
+  max-width: 860px;
+  position: relative;
+  z-index: 1;
+}
+
+.form-card {
+  margin: 0 auto;
+  background: linear-gradient(180deg, #a1823f 0%, #375844 100%);
+  color: #fff;
+  border-radius: 28px;
+  padding: 36px 28px 28px;
+  box-shadow: 
+    0 20px 60px rgba(0,0,0,.18), 
+    inset 0 1px 0 rgba(255,255,255,.2),
+    0 0 80px rgba(161, 130, 63, 0.15);
+  /* Make the register box static: keep only entrance, remove infinite float */
+  animation: cardEntrance 0.8s ease-out;
+  transform-origin: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.form-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    135deg,
+    transparent 40%,
+    rgba(255, 255, 255, 0.05) 50%,
+    transparent 60%
+  );
+  animation: cardShimmer 10s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes cardShimmer {
+  0% {
+    transform: translate(-100%, -100%) rotate(45deg);
+  }
+  100% {
+    transform: translate(50%, 50%) rotate(45deg);
+  }
+}
+
+.form-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at bottom, rgba(180, 140, 67, 0.1) 0%, transparent 60%);
+  pointer-events: none;
+  animation: bottomGlow 5s ease-in-out infinite;
+}
+
+@keyframes bottomGlow {
+  0%, 100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes cardEntrance {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes cardFloat {
+  0%, 100% {
+    transform: translateY(0px);
+    box-shadow: 
+      0 20px 60px rgba(0,0,0,.18), 
+      inset 0 1px 0 rgba(255,255,255,.2),
+      0 0 80px rgba(161, 130, 63, 0.15);
+  }
+  50% {
+    transform: translateY(-6px);
+    box-shadow: 
+      0 28px 70px rgba(0,0,0,.22), 
+      inset 0 1px 0 rgba(255,255,255,.3),
+      0 0 100px rgba(161, 130, 63, 0.25);
+  }
+}
+
+.form-title { 
+  text-align: center; 
+  font-family: var(--font-serif); 
+  font-size: 32px; 
+  margin: 0 0 24px;
+  animation: titleGlow 3s ease-in-out infinite;
+  text-shadow: 0 2px 12px rgba(0,0,0,.3);
+  position: relative;
+  z-index: 2;
+  background: linear-gradient(120deg, #fff 0%, #ffd700 50%, #fff 100%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: titleGlow 3s ease-in-out infinite, titleShineMove 6s linear infinite;
+}
+
+@keyframes titleShineMove {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes titleGlow {
+  0%, 100% {
+    filter: drop-shadow(0 2px 12px rgba(0,0,0,.3));
+  }
+  50% {
+    filter: drop-shadow(0 2px 20px rgba(255,255,255,.4)) drop-shadow(0 0 30px rgba(255,255,255,.2));
+  }
+}
+
+/* Fields */
+.field { 
+  position: relative; 
+  margin-bottom: 18px;
+  animation: fieldSlideIn 0.6s ease-out backwards;
+}
+.field:nth-child(1) { animation-delay: 0.1s; }
+.field:nth-child(2) { animation-delay: 0.2s; }
+.field:nth-child(3) { animation-delay: 0.3s; }
+.field:nth-child(4) { animation-delay: 0.4s; }
+.field:nth-child(5) { animation-delay: 0.5s; }
+
+@keyframes fieldSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.field input,
+.field textarea,
+.field select {
+  width: 100%;
+  background: rgba(255,255,255,.18);
+  border: 0;
+  color: #fff;
+  padding: 18px 20px;
+  border-radius: 999px;
+  outline: none;
+  font-size: 16px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.15);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.field input:focus,
+.field textarea:focus,
+.field select:focus {
+  background: rgba(255,255,255,.25);
+  box-shadow: 
+    inset 0 1px 0 rgba(255,255,255,.25),
+    0 0 0 3px rgba(255,255,255,.2),
+    0 4px 20px rgba(255,255,255,.15),
+    0 0 40px rgba(180,140,67,.25);
+  /* Make focused fields static */
+  transform: none;
+  animation: none;
+}
+
+@keyframes inputGlow {
+  0%, 100% {
+    box-shadow: 
+      inset 0 1px 0 rgba(255,255,255,.25),
+      0 0 0 3px rgba(255,255,255,.2),
+      0 4px 20px rgba(255,255,255,.15),
+      0 0 40px rgba(180,140,67,.25);
+  }
+  50% {
+    box-shadow: 
+      inset 0 1px 0 rgba(255,255,255,.3),
+      0 0 0 3px rgba(255,255,255,.3),
+      0 4px 20px rgba(255,255,255,.2),
+      0 0 50px rgba(180,140,67,.35);
+  }
+}
+
+.field textarea { 
+  border-radius: 20px; 
+  resize: vertical;
+}
+
+.field ::placeholder { 
+  color: rgba(255,255,255,.85);
+  transition: color 0.3s ease;
+}
+
+.field input:focus::placeholder,
+.field textarea:focus::placeholder,
+.field select:focus::placeholder {
+  color: rgba(255,255,255,.95);
+}
+
+/* Custom select */
+.field.select { position: relative; }
+.field.select select { 
+  appearance: none; 
+  -webkit-appearance: none; 
+  -moz-appearance: none; 
+  padding-right: 48px;
+  cursor: pointer;
+  /* Keep white text while closed (matches card) */
+  color: #ffffff;
+}
+.field.select .arrow {
+  position: absolute; 
+  right: 18px; 
+  top: 50%; 
+  transform: translateY(-50%);
+  width: 24px; 
+  height: 24px; 
+  border-radius: 50%;
+  background: rgba(255,255,255,.25);
+  pointer-events: none;
+  transition: all 0.3s ease;
+}
+.field.select select:focus ~ .arrow {
+  background: rgba(255,255,255,.4);
+  transform: translateY(-50%) rotate(180deg);
+}
+
+/* When the select is opened/focused, switch to light surface for contrast */
+.field.select select:focus,
+.field.select select:active,
+.field.select select:focus-visible {
+  /* Themed light surface for open state */
+  background: #fff7e6 !important; /* cream */
+  color: #26443a !important;      /* deep green text */
+  box-shadow:
+    inset 0 1px 0 rgba(0,0,0,0.02),
+    0 0 0 3px rgba(180,140,67,0.28),    /* golden focus ring */
+    0 12px 30px rgba(0,0,0,0.2);
+  /* Make the select static on open/focus */
+  transform: none !important;
+  animation: none !important;
+}
+
+/* Ensure dropdown options are legible (browser-native list) */
+.field.select option { 
+  color: #26443a;            /* deep green */
+  background: #fff7e6;       /* cream */
+}
+.field.select option[disabled] { 
+  color: #9a8f7a;            /* muted theme-friendly */
+}
+.field.select option:checked {
+  background: #ecdcbf;       /* slightly darker cream for selection */
+  color: #1f2d26;
+}
+
+/* Errors */
+.err { 
+  color: #ffebc2; 
+  font-size: 12px; 
+  margin: 6px 10px 0;
+  animation: errShake 0.5s ease;
+}
+
+@keyframes errShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+/* Submit button */
+.btn-submit {
+  margin-top: 22px;
+  width: 100%; 
+  height: 54px; 
+  border-radius: 999px; 
+  border: 0;
+  background: linear-gradient(135deg, #b48c43 0%, #d4a960 50%, #b48c43 100%);
+  background-size: 200% 100%;
+  color: #fff; 
+  font-weight: 700; 
+  letter-spacing: .2px;
+  box-shadow: 
+    0 12px 30px rgba(180,140,67,.35),
+    0 0 40px rgba(180,140,67,.2),
+    inset 0 1px 0 rgba(255,255,255,.2);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  animation: btnPulse 3s ease-in-out infinite, btnGradientShift 4s linear infinite;
+  position: relative;
+  overflow: hidden;
+  z-index: 2;
+}
+
+@keyframes btnGradientShift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.btn-submit::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.6s ease, height 0.6s ease, opacity 0.6s ease;
+  opacity: 0;
+}
+
+.btn-submit::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    45deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.2) 50%,
+    transparent 70%
+  );
+  animation: btnShimmer 3s linear infinite;
+}
+
+@keyframes btnShimmer {
+  0% {
+    transform: translate(-100%, -100%) rotate(45deg);
+  }
+  100% {
+    transform: translate(100%, 100%) rotate(45deg);
+  }
+}
+
+.btn-submit:hover::before {
+  width: 300px;
+  height: 300px;
+  opacity: 1;
+}
+
+.btn-submit:hover { 
+  filter: brightness(1.1); 
+  transform: translateY(-4px) scale(1.03);
+  box-shadow: 
+    0 18px 40px rgba(180,140,67,.5),
+    0 0 70px rgba(180,140,67,.4),
+    inset 0 1px 0 rgba(255,255,255,.3);
+  animation: btnPulse 1.5s ease-in-out infinite, btnGradientShift 2s linear infinite;
+}
+
+.btn-submit:active {
+  transform: translateY(-1px) scale(0.98);
+  box-shadow: 
+    0 8px 20px rgba(180,140,67,.3),
+    0 0 30px rgba(180,140,67,.2),
+    inset 0 1px 0 rgba(255,255,255,.15);
+}
+
+.btn-submit:disabled { 
+  opacity: .7; 
+  cursor: not-allowed;
+  animation: none;
+  transform: none;
+  filter: none;
+}
+
+@keyframes btnPulse {
+  0%, 100% {
+    box-shadow: 
+      0 12px 30px rgba(180,140,67,.35),
+      0 0 40px rgba(180,140,67,.2),
+      inset 0 1px 0 rgba(255,255,255,.2);
+  }
+  50% {
+    box-shadow: 
+      0 12px 30px rgba(180,140,67,.5),
+      0 0 60px rgba(180,140,67,.35),
+      inset 0 1px 0 rgba(255,255,255,.25);
+  }
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .register-hero { padding: 48px 0 56px; }
+  .form-card { padding: 28px 20px 22px; }
+}

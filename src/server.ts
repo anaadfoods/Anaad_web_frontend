@@ -6,23 +6,64 @@ import {
 } from '@angular/ssr/node';
 import express from 'express';
 import { join } from 'node:path';
+import type { Request, Response } from 'express';
 
 const browserDistFolder = join(import.meta.dirname, '../browser');
 
 const app = express();
 const angularApp = new AngularNodeAppEngine();
 
-/**
- * Example Express Rest API endpoints can be defined here.
- * Uncomment and define endpoints as necessary.
- *
- * Example:
- * ```ts
- * app.get('/api/{*splat}', (req, res) => {
- *   // Handle API request
- * });
- * ```
- */
+// Lightweight proxy to avoid CORS and browser cross-origin issues during dev/SSR
+app.get('/api/plans', async (req: Request, res: Response) => {
+  const upstream = 'https://app.anaadfoods.com/api/subscriptions/plans/';
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 10000);
+  try {
+    const r = await fetch(upstream, { signal: controller.signal });
+    const ct = r.headers.get('content-type') || '';
+    if (!r.ok) {
+      res.status(r.status).json({ error: 'upstream_error', status: r.status, statusText: r.statusText });
+      return;
+    }
+    if (ct.includes('application/json')) {
+      const data = await r.json();
+      res.json(data);
+    } else {
+      const text = await r.text();
+      res.type('text/plain').send(text);
+    }
+  } catch (err) {
+    res.status(502).json({ error: 'proxy_fetch_failed', detail: String(err) });
+  } finally {
+    clearTimeout(timeout);
+  }
+});
+
+// Proxy for product variants
+app.get('/api/products/variants/', async (req: Request, res: Response) => {
+  const upstream = 'https://app.anaadfoods.com/api/products/variants/';
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 10000);
+  try {
+    const r = await fetch(upstream, { signal: controller.signal });
+    const ct = r.headers.get('content-type') || '';
+    if (!r.ok) {
+      res.status(r.status).json({ error: 'upstream_error', status: r.status, statusText: r.statusText });
+      return;
+    }
+    if (ct.includes('application/json')) {
+      const data = await r.json();
+      res.json(data);
+    } else {
+      const text = await r.text();
+      res.type('text/plain').send(text);
+    }
+  } catch (err) {
+    res.status(502).json({ error: 'proxy_fetch_failed', detail: String(err) });
+  } finally {
+    clearTimeout(timeout);
+  }
+});
 
 /**
  * Serve static files from /browser

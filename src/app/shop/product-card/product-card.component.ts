@@ -18,4 +18,9 @@ export interface Product {
 })
 export class ProductCardComponent {
   @Input() product!: Product;
+  imageError = false;
+
+  onImgError() {
+    this.imageError = true;
+  }
 }

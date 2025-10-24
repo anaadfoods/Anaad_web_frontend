@@ -1,0 +1,463 @@
+/* Page background like cream paper */
+.communities-page { background: var(--color-bg); }
+
+
+
+.communities-main { padding: 64px 0 48px; }
+.communities-main .container { max-width: 1120px; padding: 0 20px; }
+
+.page-title {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  font-size: clamp(40px, 6vw, 62px);
+  line-height: 1.1;
+  letter-spacing: .2px;
+  color: #2c3d2e; /* deep green similar to screenshot */
+  text-align: center;
+  margin: 4px 0 52px;
+}
+
+/* Two-column rows */
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: clamp(24px, 4.5vw, 56px);
+  margin-bottom: clamp(56px, 7vw, 96px);
+}
+
+
+/* Framed boards (outer frame + inner soft card) */
+.board {
+  position: relative;
+  border-radius: 24px;
+  padding: 22px; /* thicker dark frame */
+  box-shadow: 0 22px 46px rgba(0,0,0,.16); /* base depth */
+  cursor: pointer;
+  will-change: transform; /* Optimize for animations */
+}
+.board-green { 
+  background: #2f4634; /* dark green frame */
+  /* subtle green glow shadow */
+  filter: drop-shadow(0 18px 28px rgba(47,70,52,.3));
+}
+.board-maroon { 
+  background: #5b2222; /* dark maroon frame */
+  /* subtle maroon glow shadow */
+  filter: drop-shadow(0 18px 28px rgba(91,34,34,.28));
+}
+
+/* Enhanced magnetic hover effects */
+.board:hover {
+  box-shadow: 0 28px 58px rgba(0,0,0,.22);
+  z-index: 1;
+}
+
+.board-green:hover {
+  filter: drop-shadow(0 24px 38px rgba(47,70,52,.45));
+}
+
+.board-maroon:hover {
+  filter: drop-shadow(0 24px 38px rgba(91,34,34,.42));
+}
+
+.badge {
+  position: absolute;
+  top: 10px;
+  left: 14px;
+  background: #2f4634;
+  color: #e8f1eb;
+  border-radius: 16px;
+  padding: 4px 12px;
+  font-size: 11px;
+  box-shadow: 0 2px 6px rgba(0,0,0,.2);
+}
+.board-maroon .badge { background: #6b1e1e; color: #f4e8e8; }
+
+.board-surface {
+  /* warm parchment with subtle center glow like screenshot */
+  background: radial-gradient(120% 100% at 50% 20%, #fffef9 0%, #f6f0e5 55%, #eee6d8 100%);
+  border-radius: 18px;
+  padding: 28px;
+  box-shadow: inset 0 10px 32px rgba(0,0,0,.14), 0 1px 0 rgba(255,255,255,.6) inset;
+  border: 1px solid #e4d8c3;
+  min-height: 260px;
+}
+
+.board-title {
+  margin: 0 0 10px;
+  font-weight: 700;
+  color: #2e3a2e;
+}
+.board-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  color: #2f2a23;
+}
+.board-list li { padding: 7px 0; font-size: 14px; }
+.board-list li::before { content: "✓"; color: #3f5e46; margin-right: 8px; font-weight: 700; }
+.board-maroon .board-list li::before { color: #a35050; }
+
+/* Text block */
+.text-block h2.brand {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  letter-spacing: .5px;
+  font-size: clamp(30px, 4.5vw, 36px);
+  color: #2f4634;
+  margin: 0 0 4px;
+}
+.text-block .tag {
+  margin: 0 0 16px;
+  font-size: 18px;
+  color: #2f4634;
+}
+.text-block p { color: #5b5248; line-height: 1.7; margin: 0 0 10px; }
+
+/* Maroon variant for GRINITY text block */
+.text-block.maroon .brand,
+.text-block.maroon .tag { color: #6b1e1e; }
+
+.btn-register {
+  margin-top: 12px;
+  background: var(--color-secondary); /* gold pill from theme */
+  color: #fff;
+  border: none;
+  height: 38px;
+  padding: 0 24px;
+  border-radius: 22px;
+  font-weight: 600;
+  letter-spacing: .2px;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+}
+.btn-register:hover { filter: brightness(.96); transform: translateY(-1px); }
+
+/* Reveal animation (scoped fallback) */
+.reveal { opacity: 0; transform: translateY(18px) scale(.97); transition: opacity .7s ease, transform .7s ease; }
+.reveal.is-visible { opacity: 1; transform: translateY(0) scale(1); }
+
+/* Tilt effects for boards (matches home page style) */
+.board.has-tilt {
+  transform: translateY(var(--scroll-ty, 0px)) perspective(800px) rotateX(calc(var(--tilt-x, 0deg))) rotateY(calc(var(--tilt-y, 0deg)));
+  transition: transform 180ms ease, filter 200ms ease;
+}
+.board.has-tilt:hover { 
+  filter: brightness(1.05);
+}
+
+/* Enhanced shadows on hover */
+.board-green.has-tilt:hover {
+  filter: drop-shadow(0 22px 35px rgba(47,70,52,.4)) brightness(1.05);
+}
+.board-maroon.has-tilt:hover {
+  filter: drop-shadow(0 22px 35px rgba(91,34,34,.38)) brightness(1.05);
+}
+
+/* Parallax support (matches home implementation) */
+.board.has-parallax,
+.text-block.has-parallax {
+  transform: translateY(var(--scroll-ty, 0px));
+  transition: transform 0.1s linear;
+}
+
+/* Enhanced Register Button Effects */
+.btn-register {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: center;
+  will-change: transform, box-shadow, filter;
+}
+
+/* Scroll-triggered entrance animation */
+.btn-register.scroll-revealed {
+  animation: btnScrollReveal 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+}
+
+@keyframes btnScrollReveal {
+  0% {
+    opacity: 0;
+    transform: translateY(30px) scale(0.8) rotateX(15deg);
+    filter: blur(3px);
+  }
+  60% {
+    opacity: 0.8;
+    transform: translateY(-5px) scale(1.05) rotateX(-2deg);
+    filter: blur(1px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1) rotateX(0deg);
+    filter: blur(0);
+  }
+}
+
+/* Floating base animation */
+.btn-register.floating {
+  animation: gentleFloat 3s ease-in-out infinite;
+}
+
+@keyframes gentleFloat {
+  0%, 100% { 
+    transform: translateY(0px) scale(1); 
+  }
+  50% { 
+    transform: translateY(-4px) scale(1.02); 
+  }
+}
+
+/* Magnetic hover effect */
+.btn-register:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 
+    0 8px 25px rgba(199, 153, 33, 0.4),
+    0 0 20px rgba(199, 153, 33, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  filter: brightness(1.1) contrast(1.05);
+}
+
+.btn-register:active {
+  transform: translateY(-1px) scale(1.02);
+  transition: all 0.1s ease;
+}
+
+/* Glowing particle effect */
+.btn-register::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, transparent 70%);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: all 0.6s ease;
+  opacity: 0;
+  z-index: 1;
+}
+
+.btn-register:hover::before {
+  width: 120px;
+  height: 120px;
+  opacity: 0.2;
+  animation: particleExpand 1.2s ease-out infinite;
+}
+
+@keyframes particleExpand {
+  0% {
+    width: 0;
+    height: 0;
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 0.3;
+  }
+  100% {
+    width: 140px;
+    height: 140px;
+    opacity: 0;
+  }
+}
+
+/* Ripple click effect */
+.btn-register::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: all 0.6s ease;
+  opacity: 0;
+  z-index: 1;
+}
+
+.btn-register:active::after {
+  width: 100px;
+  height: 100px;
+  opacity: 0.8;
+  transition: all 0.3s ease;
+}
+
+/* Shimmer effect on scroll */
+.btn-register.shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-register.shimmer::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    45deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.3) 50%,
+    transparent 70%
+  );
+  transform: translateX(-100%) translateY(-100%) rotate(45deg);
+  transition: transform 0.8s ease;
+}
+
+.btn-register.shimmer:hover::after {
+  transform: translateX(100%) translateY(100%) rotate(45deg);
+}
+
+/* Scroll-based scale animation */
+.btn-register.scroll-scale {
+  animation: scrollScale 2s ease-in-out infinite;
+}
+
+@keyframes scrollScale {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.03);
+  }
+}
+
+/* Enhanced glow on focus */
+.btn-register:focus-visible {
+  outline: none;
+  box-shadow: 
+    0 0 0 3px rgba(199, 153, 33, 0.3),
+    0 8px 25px rgba(199, 153, 33, 0.4),
+    0 0 30px rgba(199, 153, 33, 0.2);
+  animation: focusGlow 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes focusGlow {
+  0% {
+    box-shadow: 
+      0 0 0 3px rgba(199, 153, 33, 0.3),
+      0 8px 25px rgba(199, 153, 33, 0.4),
+      0 0 30px rgba(199, 153, 33, 0.2);
+  }
+  100% {
+    box-shadow: 
+      0 0 0 3px rgba(199, 153, 33, 0.5),
+      0 8px 25px rgba(199, 153, 33, 0.6),
+      0 0 40px rgba(199, 153, 33, 0.4);
+  }
+}
+
+/* Bounce entrance on scroll */
+.btn-register.bounce-in {
+  animation: bounceIn 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+}
+
+@keyframes bounceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.3) rotateY(180deg);
+  }
+  25% {
+    opacity: 0.5;
+    transform: scale(1.1) rotateY(90deg);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(0.95) rotateY(45deg);
+  }
+  75% {
+    opacity: 0.9;
+    transform: scale(1.02) rotateY(10deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotateY(0deg);
+  }
+}
+
+/* Staggered reveal using CSS custom properties */
+.reveal { 
+  transition-delay: var(--reveal-delay, 0ms); 
+}
+
+/* Focus styles */
+.btn-register:focus-visible, .app-download-btn:focus-visible { outline: 3px solid color-mix(in srgb, var(--color-secondary) 60%, white); outline-offset: 2px; }
+
+/* Bottom CTA like screenshot */
+/* Page-level Journey section removed; global footer supplies CTA. */
+
+/* Additional button animations */
+.glow-particle {
+  pointer-events: none;
+  z-index: 1000;
+}
+
+@keyframes floatAway {
+  0% {
+    opacity: 0.8;
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-50px) scale(0.3);
+  }
+}
+
+@keyframes feedbackPop {
+  0% {
+    opacity: 0;
+    transform: scale(0.5) rotate(-15deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2) rotate(5deg);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.8) rotate(0deg);
+  }
+}
+
+/* Magnetic field effect */
+.btn-register.magnetic-active {
+  transform: scale(1.03);
+  box-shadow: 
+    0 0 30px rgba(199, 153, 33, 0.6),
+    0 8px 25px rgba(199, 153, 33, 0.4);
+  animation: magneticPulse 2s ease-in-out infinite;
+}
+
+@keyframes magneticPulse {
+  0%, 100% {
+    box-shadow: 
+      0 0 30px rgba(199, 153, 33, 0.6),
+      0 8px 25px rgba(199, 153, 33, 0.4);
+  }
+  50% {
+    box-shadow: 
+      0 0 40px rgba(199, 153, 33, 0.8),
+      0 12px 35px rgba(199, 153, 33, 0.6);
+  }
+}
+
+/* Click feedback effect */
+.btn-register.clicked {
+  transform: scale(0.95) !important;
+  transition: transform 0.1s ease;
+}
+
+.click-feedback {
+  position: absolute;
+  animation: feedbackPop 1s ease-out forwards;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .row { grid-template-columns: 1fr; }
+}

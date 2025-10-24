@@ -1,8 +1,35 @@
-<section class="shop container">
-  <h2>Shop</h2>
-  <div class="grid">
-    @for (p of products; track p.id) {
-      <app-product-card [product]="p" />
-    }
+<!-- Hero with gradient background and serif title -->
+<section class="shop-hero">
+  <div class="container center">
+    <h1 class="title">Products of ICBN Soil</h1>
+    <p class="subtitle">Discover a wide range of natural, traditional and nutrient rich staples for a sustainable lifestyle.</p>
+    <div class="hero-frame" aria-label="Hero showcase (image/video coming soon)">
+      <div class="frame-inner"></div>
+    </div>
+  </div>
+  <div class="filters">
+    <div class="container filters-row">
+      <input class="search" placeholder="Search our offerings..." />
+      <div class="chips">
+        <button class="chip active" type="button">All Products</button>
+        <button class="chip" type="button">Cold Pressed Flours</button>
+        <button class="chip" type="button">Millets</button>
+        <button class="chip" type="button">Grains</button>
+        <button class="chip" type="button">Best Sellers</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Featured panel with 4 product cards -->
+<section class="featured">
+  <div class="container">
+    <div class="panel">
+      <div class="cards">
+        @for (p of products.slice(0,4); track p.id) {
+          <app-product-card [product]="p" />
+        }
+      </div>
+    </div>
   </div>
 </section>

@@ -1,0 +1,51 @@
+<section class="register-hero">
+  <div class="container">
+    <h1 class="title">Products of ICBN Soil</h1>
+    <p class="subtitle">Discover a wide range of natural, traditional and nutrient rich staples for a sustainable lifestyle.</p>
+  </div>
+</section>
+
+<section class="register-form-block">
+  <div class="container">
+    <div class="form-card">
+      <h2 class="form-title">Register Here</h2>
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+        <div class="field">
+          <input type="text" placeholder="Full name*" formControlName="fullName" />
+          <div class="err" *ngIf="submitted && f.fullName.errors">Please enter your full name.</div>
+        </div>
+
+        <div class="field select">
+          <select formControlName="requirementType">
+            <option value="" disabled selected>Requirement Type*</option>
+            <option>Individual</option>
+            <option>Family</option>
+            <option>Business</option>
+          </select>
+          <div class="arrow" aria-hidden="true"></div>
+          <div class="err" *ngIf="submitted && f.requirementType.errors">Please choose a requirement type.</div>
+        </div>
+
+        <div class="field">
+          <input type="text" placeholder="Business/ Family Name*" formControlName="familyName" />
+          <div class="err" *ngIf="submitted && f.familyName.errors">Please enter a name.</div>
+        </div>
+
+        <div class="field">
+          <input type="email" placeholder="Email*" formControlName="email" />
+          <div class="err" *ngIf="submitted && f.email.errors">Please enter a valid email.</div>
+        </div>
+
+        <div class="field">
+          <textarea rows="4" placeholder="Message*" formControlName="message"></textarea>
+          <div class="err" *ngIf="submitted && f.message.errors">Please enter a brief message.</div>
+        </div>
+
+        <button class="btn-submit" type="submit" [disabled]="submitting">
+          {{ submitting ? 'Submitting…' : 'Submit' }}
+        </button>
+      </form>
+    </div>
+  </div>
+</section>

@@ -1,52 +1,32 @@
 <div class="plans" role="region" aria-label="Subscription plans">
   <div class="title"><h2>SUBSCRIPTION PLANS</h2></div>
   <div class="stage">
-    <article class="card side" (click)="prev()">
-      @if (plans.length) {
-        <header><h4>{{ plans[leftIndex].title }}</h4><span class="leaf"></span></header>
-        <div class="divider"></div>
-        <ul class="bullets">
-          <li>Duration <span class="chip">{{ plans[leftIndex].durationLabel }}</span></li>
-          <li>Allows Installments <span class="chip">{{ plans[leftIndex].allowsInstallments }}</span></li>
-          <li>Duration <span class="chip">{{ plans[leftIndex].allowanceLabel }}</span></li>
-          <li>Savings <span class="chip">{{ plans[leftIndex].savingsLabel }}</span></li>
-        </ul>
-        <div class="select">Select Product <span>▾</span></div>
+    <div #track class="track" aria-live="off">
+      @for (plan of clonedPlans; track $index) {
+        <article #cardEl class="card" 
+                 [class.featured]="$index % plans.length === (plans.length === 4 ? 2 : 1)"
+                 [class.highlighted]="highlightedIndex() === $index % plans.length"
+                 [class.dimmed]="highlightedIndex() !== -1 && highlightedIndex() !== $index % plans.length"
+                 (mouseenter)="onCardHover($index)"
+                 (mouseleave)="onCardLeave()">
+          <div class="card-glow"></div>
+          <header>
+            <div>
+              <h4>{{ plan.title }}</h4>
+              <p class="desc">{{ plan.description }}</p>
+            </div>
+            <span class="leaf" [class.big]="$index % plans.length === (plans.length === 4 ? 2 : 1)"></span>
+          </header>
+          <div class="divider"></div>
+          <ul class="bullets">
+            <li>Duration <span class="chip">{{ plan.durationLabel }}</span></li>
+            <li>Allows Installments <span class="chip">{{ plan.allowsInstallments }}</span></li>
+            <li>Allowance <span class="chip">{{ plan.allowanceLabel }}</span></li>
+            <li>Savings <span class="chip" [class.fire]="$index % plans.length === 1">{{ plan.savingsLabel }}</span></li>
+          </ul>
+          <div class="select" [class.pill]="$index % plans.length === 1" role="button" tabindex="0" (click)="onSelect(plan)" (keydown.enter)="onSelect(plan)">Select Product <span>▾</span></div>
+        </article>
       }
-    </article>
-
-    <article class="card center-card">
-      @if (plans.length) {
-        <header><div><h4>{{ plans[index()].title }}</h4><p>{{ plans[index()].description }}</p></div><span class="leaf big"></span></header>
-        <div class="divider"></div>
-        <ul class="bullets">
-          <li>Duration <span class="chip">{{ plans[index()].durationLabel }}</span></li>
-          <li>Allows Installments <span class="chip">{{ plans[index()].allowsInstallments }}</span></li>
-          <li>Duration <span class="chip">{{ plans[index()].allowanceLabel }}</span></li>
-          <li>Savings <span class="chip fire">{{ plans[index()].savingsLabel }}</span></li>
-        </ul>
-        <div class="select pill">Select Product <span>▾</span></div>
-      }
-    </article>
-
-    <article class="card side" (click)="next()">
-      @if (plans.length) {
-        <header><h4>{{ plans[rightIndex].title }}</h4><span class="leaf"></span></header>
-        <div class="divider"></div>
-        <ul class="bullets">
-          <li>Duration <span class="chip">{{ plans[rightIndex].durationLabel }}</span></li>
-          <li>Allows Installments <span class="chip">{{ plans[rightIndex].allowsInstallments }}</span></li>
-          <li>Duration <span class="chip">{{ plans[rightIndex].allowanceLabel }}</span></li>
-          <li>Savings <span class="chip">{{ plans[rightIndex].savingsLabel }}</span></li>
-        </ul>
-        <div class="select">Select Product <span>▾</span></div>
-      }
-    </article>
-  </div>
-
-  <div class="dots">
-    @for (p of plans; let i = $index; track p.id) {
-      <button type="button" [class.active]="i === index()" (click)="go(i)" aria-label="Go to plan {{ p.title }}"></button>
-    }
+    </div>
   </div>
 </div>

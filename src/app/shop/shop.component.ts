@@ -9,12 +9,14 @@ import { ProductCardComponent, Product } from './product-card/product-card.compo
   styleUrls: ['./shop.component.scss']
 })
 export class ShopComponent {
+  // Prepared for future API integration; currently seeded with sample products.
   products: Product[] = [
-    { id: 'ghee', name: 'Organic Ghee', price: 699, image: 'https://images.unsplash.com/photo-1618311112204-56ce91d6ad09?q=80&w=1200&auto=format&fit=crop', badge: 'Best Seller' },
-    { id: 'honey', name: 'Raw Forest Honey', price: 399, image: 'https://images.unsplash.com/photo-1513639776629-7b61b0ac49cb?q=80&w=1200&auto=format&fit=crop', badge: '100% Natural' },
-    { id: 'flour', name: 'Stone‑Ground Flour', price: 249, image: 'https://images.unsplash.com/photo-1551218808-94e220e084d2?q=80&w=1200&auto=format&fit=crop' },
-    { id: 'spices', name: 'Hand‑pounded Spices', price: 299, image: 'https://images.unsplash.com/photo-1511910849309-0dffb060177e?q=80&w=1200&auto=format&fit=crop' },
-    { id: 'oil', name: 'Cold‑Pressed Oil', price: 499, image: 'https://images.unsplash.com/photo-1474978528673-4a50a4508dcf?q=80&w=1200&auto=format&fit=crop' },
-    { id: 'millets', name: 'Organic Millets', price: 199, image: 'https://images.unsplash.com/photo-1472145246862-b24cf25c4a36?q=80&w=1200&auto=format&fit=crop' }
+    { id: 'sona-moti-flour', name: 'Cold-Pressed Sona Moti Wheat Flour', price: 320, image: '/assets/images/placeholder-product.svg', badge: 'Benefits' },
+    { id: 'sona-moti-flour-2', name: 'Cold-Pressed Sona Moti Wheat Flour', price: 320, image: '/assets/images/placeholder-product.svg', badge: 'Benefits' },
+    { id: 'sona-moti-flour-3', name: 'Cold-Pressed Sona Moti Wheat Flour', price: 320, image: '/assets/images/placeholder-product.svg', badge: 'Benefits' },
+    { id: 'sona-moti-flour-4', name: 'Cold-Pressed Sona Moti Wheat Flour', price: 320, image: '/assets/images/placeholder-product.svg', badge: 'Benefits' },
+    // More placeholders for future API expansion
+    { id: 'millet-1', name: 'Organic Millets', price: 199, image: '/assets/images/placeholder-product.svg' },
+    { id: 'grain-1', name: 'Traditional Grains', price: 249, image: '/assets/images/placeholder-product.svg' }
   ];
 }
