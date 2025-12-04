@@ -1,4 +1,4 @@
-import { Component, OnInit, PLATFORM_ID, inject } from '@angular/core';
+ import { Component, OnInit, PLATFORM_ID, inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { RevealOnScrollDirective } from '../shared/reveal-on-scroll.directive';

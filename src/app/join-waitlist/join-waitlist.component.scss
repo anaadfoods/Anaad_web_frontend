@@ -1,0 +1,723 @@
+/* ========= Keyframes ========= */
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeSlideLeft {
+  from { opacity: 0; transform: translateX(30px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes fadeSlideRight {
+  from { opacity: 0; transform: translateX(-30px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes gentleFloat {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-6px); }
+}
+@keyframes floatSlow {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50%      { transform: translateY(-20px) rotate(6deg); }
+}
+@keyframes floatMedium {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50%      { transform: translateY(-14px) rotate(-5deg); }
+}
+@keyframes floatFast {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-10px); }
+}
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15); }
+  50%      { box-shadow: 0 12px 36px rgba(0, 0, 0, 0.22); }
+}
+@keyframes subtleBreathe {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.008); }
+}
+@keyframes gentleBob {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-4px); }
+}
+@keyframes softGlow {
+  0%, 100% { filter: brightness(1); }
+  50%      { filter: brightness(1.05); }
+}
+@keyframes textReveal {
+  from { opacity: 0; letter-spacing: 0.15em; }
+  to   { opacity: 1; letter-spacing: 0.03em; }
+}
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50%      { background-position: 100% 50%; }
+}
+@keyframes featuredPulse {
+  0%, 100% {
+    box-shadow: 0 4px 12px rgba(58, 95, 58, 0.3), 0 0 0 0 rgba(58, 95, 58, 0.4);
+  }
+  50% {
+    box-shadow: 0 8px 24px rgba(58, 95, 58, 0.5), 0 0 0 10px rgba(58, 95, 58, 0);
+  }
+}
+@keyframes borderGlow {
+  0%, 100% { border-color: rgba(74, 122, 187, 0.5); }
+  50%      { border-color: rgba(74, 122, 187, 0.9); }
+}
+@keyframes waveMove {
+  0%, 100% { transform: translateX(0); }
+  50%      { transform: translateX(-2%); }
+}
+
+/* New particle and sparkle animations */
+@keyframes particleDrift {
+  0% { transform: translateY(0) translateX(0) scale(1); opacity: 0.4; }
+  25% { transform: translateY(-30px) translateX(10px) scale(1.1); opacity: 0.7; }
+  50% { transform: translateY(-50px) translateX(-5px) scale(0.9); opacity: 0.5; }
+  75% { transform: translateY(-70px) translateX(15px) scale(1.05); opacity: 0.3; }
+  100% { transform: translateY(-100px) translateX(0) scale(1); opacity: 0; }
+}
+
+@keyframes particleDrift2 {
+  0% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 0.3; }
+  50% { transform: translateY(-40px) translateX(-20px) rotate(180deg); opacity: 0.6; }
+  100% { transform: translateY(-80px) translateX(10px) rotate(360deg); opacity: 0; }
+}
+
+@keyframes sparkle {
+  0%, 100% { opacity: 0; transform: scale(0); }
+  50% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.2; transform: scale(0.8); }
+  25% { opacity: 1; transform: scale(1.2); }
+  50% { opacity: 0.4; transform: scale(0.9); }
+  75% { opacity: 0.9; transform: scale(1.1); }
+}
+
+@keyframes raysPulse {
+  0%, 100% { opacity: 0.03; transform: rotate(0deg) scale(1); }
+  50% { opacity: 0.08; transform: rotate(3deg) scale(1.02); }
+}
+
+@keyframes colorWave {
+  0%, 100% { 
+    background-position: 0% 50%;
+    filter: hue-rotate(0deg);
+  }
+  50% { 
+    background-position: 100% 50%;
+    filter: hue-rotate(10deg);
+  }
+}
+
+/* ========= Hero ========= */
+.waitlist-hero {
+  position: relative;
+  min-height: 52vh;
+  padding: 5rem 8vw 6rem;
+  /* Enhanced gradient with more depth */
+  background:
+    radial-gradient(ellipse 80% 50% at 20% 20%, rgba(255, 200, 120, 0.25) 0%, transparent 50%),
+    radial-gradient(ellipse 60% 40% at 80% 30%, rgba(255, 180, 100, 0.2) 0%, transparent 45%),
+    radial-gradient(ellipse 100% 80% at 50% 100%, rgba(90, 40, 27, 0.4) 0%, transparent 60%),
+    radial-gradient(circle at 15% 0%, #d9a872 0%, transparent 55%),
+    radial-gradient(circle at 85% 10%, #945740 0%, transparent 60%),
+    linear-gradient(160deg, #5a281b 0%, #944028 40%, #c26a3a 75%, #e0a86a 100%);
+  background-size: 200% 200%;
+  animation: colorWave 18s ease infinite;
+  color: #fff6ea;
+  overflow: hidden;
+}
+
+/* Floating decorative shapes */
+.waitlist-hero__shape {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0.08;
+  pointer-events: none;
+  background: radial-gradient(circle, #fff8e0, transparent 70%);
+}
+.waitlist-hero__shape--1 {
+  width: 200px; height: 200px;
+  top: -50px; left: -60px;
+  animation: floatSlow 10s ease-in-out infinite;
+}
+.waitlist-hero__shape--2 {
+  width: 130px; height: 130px;
+  top: 40%; right: 8%;
+  animation: floatMedium 8s ease-in-out infinite;
+}
+.waitlist-hero__shape--3 {
+  width: 90px; height: 90px;
+  bottom: 20%; left: 12%;
+  animation: floatFast 6s ease-in-out infinite;
+}
+
+/* Floating particles */
+.waitlist-hero__particle {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(circle, rgba(255, 230, 180, 0.8), rgba(255, 200, 120, 0.3) 60%, transparent);
+}
+
+.waitlist-hero__particle--1 {
+  width: 8px; height: 8px;
+  top: 25%; left: 20%;
+  animation: particleDrift 8s ease-in-out infinite;
+}
+.waitlist-hero__particle--2 {
+  width: 6px; height: 6px;
+  top: 40%; left: 35%;
+  animation: particleDrift2 10s ease-in-out infinite 1s;
+}
+.waitlist-hero__particle--3 {
+  width: 10px; height: 10px;
+  top: 60%; left: 55%;
+  animation: particleDrift 12s ease-in-out infinite 2s;
+}
+.waitlist-hero__particle--4 {
+  width: 5px; height: 5px;
+  top: 30%; right: 25%;
+  animation: particleDrift2 9s ease-in-out infinite 0.5s;
+}
+.waitlist-hero__particle--5 {
+  width: 7px; height: 7px;
+  top: 50%; right: 40%;
+  animation: particleDrift 11s ease-in-out infinite 1.5s;
+}
+.waitlist-hero__particle--6 {
+  width: 9px; height: 9px;
+  top: 70%; left: 25%;
+  animation: particleDrift2 7s ease-in-out infinite 3s;
+}
+.waitlist-hero__particle--7 {
+  width: 6px; height: 6px;
+  top: 15%; right: 15%;
+  animation: particleDrift 13s ease-in-out infinite 2.5s;
+}
+.waitlist-hero__particle--8 {
+  width: 8px; height: 8px;
+  top: 55%; left: 10%;
+  animation: particleDrift2 8s ease-in-out infinite 4s;
+}
+
+/* Sparkle effects */
+.waitlist-hero__sparkle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  pointer-events: none;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 
+    0 0 6px 2px rgba(255, 255, 255, 0.8),
+    0 0 12px 4px rgba(255, 220, 150, 0.5);
+}
+
+.waitlist-hero__sparkle--1 {
+  top: 20%; left: 15%;
+  animation: twinkle 3s ease-in-out infinite;
+}
+.waitlist-hero__sparkle--2 {
+  top: 35%; right: 20%;
+  animation: sparkle 4s ease-in-out infinite 0.5s;
+}
+.waitlist-hero__sparkle--3 {
+  top: 55%; left: 45%;
+  animation: twinkle 3.5s ease-in-out infinite 1s;
+}
+.waitlist-hero__sparkle--4 {
+  top: 25%; right: 35%;
+  animation: sparkle 5s ease-in-out infinite 1.5s;
+}
+.waitlist-hero__sparkle--5 {
+  bottom: 30%; left: 30%;
+  animation: twinkle 4s ease-in-out infinite 2s;
+}
+
+/* Light rays effect */
+.waitlist-hero__rays {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  pointer-events: none;
+  background: 
+    conic-gradient(
+      from 0deg at 50% 50%,
+      transparent 0deg,
+      rgba(255, 220, 150, 0.05) 10deg,
+      transparent 20deg,
+      transparent 40deg,
+      rgba(255, 200, 120, 0.04) 50deg,
+      transparent 60deg,
+      transparent 80deg,
+      rgba(255, 230, 180, 0.05) 90deg,
+      transparent 100deg,
+      transparent 120deg,
+      rgba(255, 210, 140, 0.04) 130deg,
+      transparent 140deg,
+      transparent 160deg,
+      rgba(255, 220, 150, 0.05) 170deg,
+      transparent 180deg,
+      transparent 200deg,
+      rgba(255, 200, 120, 0.04) 210deg,
+      transparent 220deg,
+      transparent 240deg,
+      rgba(255, 230, 180, 0.05) 250deg,
+      transparent 260deg,
+      transparent 280deg,
+      rgba(255, 210, 140, 0.04) 290deg,
+      transparent 300deg,
+      transparent 320deg,
+      rgba(255, 220, 150, 0.05) 330deg,
+      transparent 340deg,
+      transparent 360deg
+    );
+  animation: raysPulse 8s ease-in-out infinite;
+}
+
+/* Wavy bottom edge */
+.waitlist-hero__wave {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 110%;
+  margin-left: -5%;
+  height: 90px;
+  background: #f7f3ef;
+  clip-path: ellipse(55% 100% at 50% 100%);
+  animation: waveMove 8s ease-in-out infinite;
+}
+
+.waitlist-hero__tagline {
+  margin: 0 0 1.25rem;
+  font-size: 0.88rem;
+  font-style: normal;
+  line-height: 1.6;
+  letter-spacing: 0.02em;
+  color: #f9e9d3;
+  animation: fadeSlideUp 0.7s ease-out both, softGlow 4s ease-in-out infinite 1s;
+}
+
+.waitlist-hero__title {
+  margin: 0;
+  font-family: 'Playfair Display', 'Times New Roman', serif;
+  font-size: clamp(2.1rem, 5.4vw, 3.3rem);
+  font-weight: 500;
+  line-height: 1.18;
+  letter-spacing: 0.03em;
+  color: #fdf3e4;
+  text-shadow: 
+    0 2px 10px rgba(0, 0, 0, 0.35),
+    0 0 40px rgba(255, 200, 120, 0.15);
+  animation: textReveal 1s 0.2s ease-out both;
+  position: relative;
+}
+
+.waitlist-hero__title::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.08),
+    transparent
+  );
+  animation: titleShine 6s ease-in-out infinite 2s;
+}
+
+@keyframes titleShine {
+  0% { left: -100%; }
+  50%, 100% { left: 150%; }
+}
+
+.waitlist-hero__featured {
+  position: absolute;
+  top: 50%;
+  right: 6vw;
+  transform: translateY(-50%);
+  padding: 0.6rem 1.6rem;
+  border: none;
+  border-radius: 999px;
+  background: #3a5f3a;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  animation: fadeSlideUp 0.6s 0.3s ease-out both, featuredPulse 2s ease-in-out infinite 1s;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.waitlist-hero__featured:hover {
+  transform: translateY(-50%) scale(1.08);
+  box-shadow: 0 12px 32px rgba(58, 95, 58, 0.5);
+}
+
+/* ========= Cards Section ========= */
+.waitlist-cards {
+  background: #f7f3ef;
+  padding: 0 8vw 5rem;
+}
+
+.waitlist-cards__grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  grid-template-rows: auto auto;
+  gap: 1.25rem;
+  max-width: 900px;
+  margin: 0 auto;
+  /* Pull cards up into hero wave */
+  margin-top: -2rem;
+}
+
+.waitlist-card {
+  border-radius: 18px;
+  padding: 1.75rem 1.5rem;
+  min-height: 140px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+  animation: pulseGlow 5s ease-in-out infinite;
+}
+.waitlist-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 22px 50px rgba(0,0,0,0.2);
+}
+
+/* Variant: large empty tan gradient */
+.waitlist-card--tan {
+  background: linear-gradient(135deg, #ddbb7a 0%, #b89260 100%);
+}
+
+/* Variant: "The Old Way" */
+.waitlist-card--old {
+  background: linear-gradient(135deg, #707670 0%, #858c86 100%);
+  color: #fff;
+}
+
+/* Variant: "The ANAAD Way" */
+.waitlist-card--anaad {
+  background: linear-gradient(135deg, #4a7a4a 0%, #5b8b5b 100%);
+  color: #fff;
+}
+
+/* Variant: large empty olive gradient */
+.waitlist-card--olive {
+  background: linear-gradient(135deg, #a4925c 0%, #7a6a44 100%);
+  grid-column: span 1;
+}
+
+/* Large cards span more */
+.waitlist-card--large.waitlist-card--tan {
+  grid-row: span 1;
+}
+
+.waitlist-card__title {
+  margin: 0 0 0.35rem;
+  font-size: 1.15rem;
+  font-weight: 700;
+  transition: transform 0.3s ease;
+}
+.waitlist-card:hover .waitlist-card__title {
+  transform: translateX(3px);
+}
+
+.waitlist-card__desc {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  opacity: 0.9;
+  transition: opacity 0.3s ease;
+}
+.waitlist-card:hover .waitlist-card__desc {
+  opacity: 1;
+}
+
+/* Staggered reveal with gentle float */
+.waitlist-card:nth-child(1) { animation: fadeSlideUp 0.5s 0.1s ease-out both, gentleFloat 6s ease-in-out infinite 0.6s; }
+.waitlist-card:nth-child(2) { animation: fadeSlideUp 0.5s 0.2s ease-out both, gentleFloat 7s ease-in-out infinite 0.8s; }
+.waitlist-card:nth-child(3) { animation: fadeSlideUp 0.5s 0.3s ease-out both, gentleFloat 6.5s ease-in-out infinite 1s; }
+.waitlist-card:nth-child(4) { animation: fadeSlideUp 0.5s 0.4s ease-out both, gentleFloat 5.5s ease-in-out infinite 1.2s; }
+
+/* Responsive */
+@media (max-width: 700px) {
+  .waitlist-cards__grid {
+    grid-template-columns: 1fr;
+  }
+  .waitlist-hero__featured {
+    position: static;
+    transform: none;
+    margin-top: 2rem;
+  }
+}
+
+/* ========= Ecosystem Section (ICBN tile) ========= */
+.ecosystem-section {
+  background: linear-gradient(180deg, #e9e1d6 0%, #f7f3ef 40%, #dad5cc 100%);
+  padding: 4rem 6vw 4.5rem;
+  display: flex;
+  justify-content: center;
+}
+
+.ecosystem-section__inner {
+  max-width: 1000px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.ecosystem-section__frame {
+  width: 100%;
+  padding: 1.75rem 1.75rem 1.5rem;
+  border-radius: 22px;
+  background: radial-gradient(circle at 50% 0%, #ffffff 0%, #f5f2ec 45%, #f0ede7 100%);
+  box-shadow:
+    0 18px 45px rgba(0, 0, 0, 0.25),
+    0 0 0 3px rgba(56, 92, 140, 0.1);
+  border: 3px solid #4a7abb;
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+  animation: fadeSlideUp 0.6s 0.2s ease-out both, borderGlow 4s ease-in-out infinite 1s;
+}
+.ecosystem-section__frame:hover {
+  transform: translateY(-6px) scale(1.01);
+  box-shadow:
+    0 26px 55px rgba(0, 0, 0, 0.28),
+    0 0 0 4px rgba(56, 92, 140, 0.18);
+}
+
+.ecosystem-section__image {
+  display: block;
+  width: 100%;
+  border-radius: 16px;
+  background: #fdfbf7;
+  transition: transform 0.4s ease;
+}
+.ecosystem-section__frame:hover .ecosystem-section__image {
+  transform: scale(1.01);
+}
+
+@media (max-width: 700px) {
+  .ecosystem-section {
+    padding: 3rem 4vw 3.5rem;
+  }
+
+  .ecosystem-section__frame {
+    padding: 1.25rem 1.25rem 1rem;
+    border-radius: 18px;
+  }
+}
+
+/* ========= Waitlist Form Tile ========= */
+.waitlist-form-section {
+  background: #f6f0dd;
+  padding: 4rem 6vw 0;
+}
+
+.waitlist-form-section__inner {
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.waitlist-form-section__header {
+  display: flex;
+  align-items: stretch;
+  gap: 1.5rem;
+  margin-bottom: 3.5rem;
+}
+
+.waitlist-form-section__badge {
+  width: 190px;
+  border-radius: 14px;
+  background: linear-gradient(145deg, #fdfdfd 0%, #f3f0e5 55%, #e2dcc9 100%);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+  animation: fadeSlideUp 0.5s 0.1s ease-out both, subtleBreathe 6s ease-in-out infinite 1s;
+}
+
+.waitlist-form-section__headline-block {
+  flex: 1;
+  border-radius: 14px;
+  background: linear-gradient(105deg, #b37b3e 0%, #793727 40%, #521f22 100%);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.22);
+  padding: 1.4rem 1.9rem 1.6rem;
+  color: #fef6e7;
+  animation: fadeSlideUp 0.5s 0.2s ease-out both;
+  transition: transform 0.35s ease, box-shadow 0.35s ease;
+}
+.waitlist-form-section__headline-block:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.28);
+}
+
+.waitlist-form-section__headline {
+  margin: 0 0 1rem;
+  font-size: 1.15rem;
+  line-height: 1.45;
+}
+
+.waitlist-form-section__cta {
+  display: block;
+  width: 100%;
+  margin-bottom: 1rem;
+  padding: 0.85rem 1rem;
+  border-radius: 999px;
+  border: none;
+  background: linear-gradient(90deg, #274424, #3a6038, #274424);
+  background-size: 200% 100%;
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+  transition: transform 0.3s, box-shadow 0.3s;
+  animation: subtleBreathe 4s ease-in-out infinite;
+}
+.waitlist-form-section__cta:hover {
+  transform: scale(1.04);
+  box-shadow: 0 8px 24px rgba(39, 68, 36, 0.4);
+  animation: shimmer 1.6s linear infinite;
+}
+
+.waitlist-form-section__links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+}
+
+.waitlist-form-section__links span {
+  color: #fdf4df;
+  transition: transform 0.25s ease, color 0.25s ease;
+}
+.waitlist-form-section__links span:hover {
+  transform: translateX(4px);
+  color: #fff;
+}
+
+.waitlist-form {
+  margin: 0 auto 0;
+  margin-top: 4.5rem;
+  padding: 3rem 3.2rem 2.4rem;
+  border-radius: 32px;
+  background: #fbf7eb;
+  box-shadow: 0 16px 38px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(192, 174, 134, 0.8);
+  animation: fadeSlideUp 0.6s 0.3s ease-out both, subtleBreathe 8s ease-in-out infinite 1s;
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+.waitlist-form:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 24px 50px rgba(0, 0, 0, 0.24);
+}
+
+.waitlist-form__title {
+  margin: 0 0 2rem;
+  text-align: center;
+  font-size: 1.7rem;
+  color: #3f5d3d;
+  animation: gentleBob 5s ease-in-out infinite;
+}
+
+.waitlist-form__field {
+  border-radius: 999px;
+  background: #445d3e;
+  color: #f7f0e0;
+  padding: 1.05rem 1.7rem;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+  cursor: pointer;
+}
+.waitlist-form__field:hover {
+  transform: translateX(4px);
+  background: #4a6a44;
+  box-shadow: 0 4px 14px rgba(68, 93, 62, 0.3);
+}
+
+.waitlist-form__field--select {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.waitlist-form__chevron {
+  font-size: 0.9rem;
+}
+
+.waitlist-form__note {
+  margin: 0.75rem 0 1.55rem;
+  font-size: 0.85rem;
+  color: #7a6853;
+  text-align: left;
+}
+
+.waitlist-form__submit {
+  display: block;
+  width: 100%;
+  border-radius: 999px;
+  border: none;
+  background: linear-gradient(90deg, #ba9148, #d4a75a, #ba9148);
+  background-size: 200% 100%;
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 1rem 1.5rem;
+  margin-bottom: 3.5rem;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.waitlist-form__submit:hover {
+  transform: scale(1.05);
+  box-shadow: 0 10px 30px rgba(186, 145, 72, 0.45);
+  animation: shimmer 1.6s linear infinite;
+}
+
+.waitlist-form-section__hero {
+  position: relative;
+  margin-top: 0;
+  overflow: hidden;
+}
+
+.waitlist-form-section__hero-image {
+  display: block;
+  width: 100%;
+  object-fit: cover;
+  transition: transform 0.6s ease;
+}
+.waitlist-form-section__hero:hover .waitlist-form-section__hero-image {
+  transform: scale(1.02);
+}
+
+@media (max-width: 800px) {
+  .waitlist-form-section__header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .waitlist-form-section__badge {
+    width: 100%;
+    height: 120px;
+  }
+
+  .waitlist-form-section__headline-block {
+    padding: 1.2rem 1.4rem 1.5rem;
+  }
+
+  .waitlist-form {
+    padding: 2.2rem 1.8rem 2.2rem;
+    border-radius: 26px;
+  }
+}
