@@ -1,19 +1,56 @@
 <!-- Your Journey Awaits section -->
-<section class="end-cta" aria-labelledby="journey-title">
-  <div class="container">
+<section class="journey-section" aria-labelledby="journey-title">
+  <!-- Floating particles overlay -->
+  <div class="particles-overlay">
+    <span class="particle"></span>
+    <span class="particle"></span>
+    <span class="particle"></span>
+    <span class="particle"></span>
+    <span class="particle"></span>
+    <span class="particle"></span>
+    <span class="particle"></span>
+    <span class="particle"></span>
+  </div>
+
+  <!-- Desert wave background -->
+  <div class="desert-waves">
+    <svg class="wave-svg" viewBox="0 0 1440 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Back wave - lighter -->
+      <path class="wave-back" d="M0,120 C180,80 360,160 540,140 C720,120 900,60 1080,100 C1260,140 1380,100 1440,120 L1440,400 L0,400 Z"/>
+      <!-- Middle wave -->
+      <path class="wave-mid" d="M0,180 C200,140 400,220 600,180 C800,140 1000,200 1200,160 C1350,130 1400,170 1440,180 L1440,400 L0,400 Z"/>
+      <!-- Front wave - darker -->
+      <path class="wave-front" d="M0,240 C150,200 350,280 550,240 C750,200 950,260 1150,230 C1300,210 1380,250 1440,240 L1440,400 L0,400 Z"/>
+    </svg>
+  </div>
+
+  <!-- Subtle light rays -->
+  <div class="light-rays"></div>
+
+  <div class="journey-content">
     <div class="cta-head">
-      <h2 id="journey-title">Your Journey Awaits.</h2>
-      <p>Explore our offerings, connect with our story, and experience a new way of living.</p>
-      <div class="cta center">
-        <a class="btn btn-surface pill" routerLink="/about">Download the APP Now!</a>
+      <h2 id="journey-title" class="animate-title">Your Journey Awaits.</h2>
+      <p class="animate-subtitle">Explore our offerings, connect with our story, and experience a new way of living.</p>
+      <div class="cta-button-wrap">
+        <a class="btn-download" routerLink="/about">
+          <span class="btn-text">Download the APP Now!</span>
+          <span class="btn-shimmer"></span>
+        </a>
       </div>
     </div>
+  </div>
+</section>
 
-    <div class="cta-columns">
+<!-- Footer section -->
+<footer class="footer-main">
+  <div class="footer-container">
+    <div class="footer-columns">
       <div class="col about">
         <h3>About ANAAD</h3>
         <p>Anaad champions climate-positive farming through the Indian Cow Based Natural (ICBN) method, rejuvenating soil health, restoring nutrition naturally, and empowering farmers to combat climate change while nourishing people and mitigating modern lifestyle diseases.</p>
-  <div class="inquiry center"><a class="btn btn-surface pill" routerLink="/register" (click)="goToRegister($event)">SUBMIT YOUR INQUIRY HERE</a></div>
+        <div class="inquiry-wrap">
+          <a class="btn-inquiry" routerLink="/register" (click)="goToRegister($event)">SUBMIT YOUR INQUIRY HERE</a>
+        </div>
       </div>
 
       <nav class="col links" aria-label="Quick Links">
@@ -31,10 +68,10 @@
 
       <div class="col contact">
         <h3>Contact Us</h3>
-        <p>+91 9996166186</p>
-        <p>connect@anaadfoods.com</p>
-        <p>complaints@anaadfoods.com</p>
-        <p>ANAAD, Farmlands of Bhuri,<br/>Sonipat - 131001, Haryana, IND</p>
+        <p class="contact-item">+91 9996166186</p>
+        <p class="contact-item">connect&#64;anaadfoods.com</p>
+        <p class="contact-item">complaints&#64;anaadfoods.com</p>
+        <p class="contact-item address">ANAAD, Farmlands of Bhuri,<br/>Sonipat - 131001, Haryana, IND</p>
         <h3 class="follow">Follow Our Journey</h3>
         <div class="social-links" role="list">
           <!-- YouTube -->
@@ -76,4 +113,4 @@
 
     <div class="copyright">© 2025. All rights reserved.</div>
   </div>
-</section>
+</footer>

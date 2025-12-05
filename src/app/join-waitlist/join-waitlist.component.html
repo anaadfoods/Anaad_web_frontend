@@ -24,8 +24,17 @@
   <!-- Light ray effect -->
   <div class="waitlist-hero__rays"></div>
 
-  <!-- Wavy divider shape -->
-  <div class="waitlist-hero__wave"></div>
+  <!-- Wavy desert dunes divider -->
+  <div class="waitlist-hero__waves">
+    <svg class="waitlist-hero__wave-svg" viewBox="0 0 1440 200" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Back wave - darker brown -->
+      <path class="wave-layer wave-layer--back" d="M0,80 C180,40 360,100 540,70 C720,40 900,90 1080,60 C1260,30 1380,80 1440,60 L1440,200 L0,200 Z"/>
+      <!-- Middle wave - medium brown -->
+      <path class="wave-layer wave-layer--mid" d="M0,100 C200,70 400,130 600,100 C800,70 1000,120 1200,90 C1350,65 1400,100 1440,90 L1440,200 L0,200 Z"/>
+      <!-- Front wave - cream/beige (matches next section) -->
+      <path class="wave-layer wave-layer--front" d="M0,130 C150,100 350,160 550,130 C750,100 950,150 1150,120 C1300,100 1380,140 1440,130 L1440,200 L0,200 Z"/>
+    </svg>
+  </div>
 
   <p class="waitlist-hero__tagline">
     ANAAD Foods is not just about what you eat.<br />
@@ -103,18 +112,50 @@
     <div class="waitlist-form">
       <h2 class="waitlist-form__title">Join The Waitlist</h2>
 
-      <div class="waitlist-form__field">Full name*</div>
-      <div class="waitlist-form__field waitlist-form__field--select">
-        <span>Requirement Type*</span>
-        <span class="waitlist-form__chevron">⌵</span>
-      </div>
-      <div class="waitlist-form__field">Business/ Family Name*</div>
-      <div class="waitlist-form__field">Email*</div>
-      <div class="waitlist-form__field">Message*</div>
+      <div class="waitlist-form__error-banner" *ngIf="errorMessage">{{ errorMessage }}</div>
 
-      <p class="waitlist-form__note">Pss.. 1240+ Members have already joined.</p>
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+        <div class="waitlist-form__field-wrapper">
+          <input type="text" class="waitlist-form__input" placeholder="Full name*" formControlName="fullName" />
+          <div class="waitlist-form__err" *ngIf="submitted && f.fullName.errors">Please enter your full name.</div>
+        </div>
 
-      <button type="button" class="waitlist-form__submit">Join Now</button>
+        <div class="waitlist-form__field-wrapper">
+          <input type="tel" class="waitlist-form__input" placeholder="Phone Number*" formControlName="phoneNumber" maxlength="10" />
+          <div class="waitlist-form__err" *ngIf="submitted && f.phoneNumber.errors">Please enter a valid 10-digit phone number.</div>
+        </div>
+
+        <div class="waitlist-form__field-wrapper">
+          <input type="email" class="waitlist-form__input" placeholder="Email*" formControlName="email" />
+          <div class="waitlist-form__err" *ngIf="submitted && f.email.errors">Please enter a valid email.</div>
+        </div>
+
+        <div class="waitlist-form__field-wrapper waitlist-form__field--select">
+          <select class="waitlist-form__select" formControlName="requirementType">
+            <option value="" disabled selected>Requirement Type*</option>
+            <option value="Individual">Individual</option>
+            <option value="Family">Family</option>
+            <option value="Business">Business</option>
+          </select>
+          <span class="waitlist-form__chevron">⌵</span>
+          <div class="waitlist-form__err" *ngIf="submitted && f.requirementType.errors">Please choose a requirement type.</div>
+        </div>
+
+        <div class="waitlist-form__field-wrapper">
+          <input type="text" class="waitlist-form__input" placeholder="Business/ Family Name*" formControlName="familyName" />
+          <div class="waitlist-form__err" *ngIf="submitted && f.familyName.errors">Please enter a name.</div>
+        </div>
+
+        <div class="waitlist-form__field-wrapper">
+          <textarea class="waitlist-form__textarea" rows="3" placeholder="Message (optional)" formControlName="message"></textarea>
+        </div>
+
+        <p class="waitlist-form__note">Pss.. 1240+ Members have already joined.</p>
+
+        <button type="submit" class="waitlist-form__submit" [disabled]="submitting">
+          {{ submitting ? 'Joining…' : 'Join Now' }}
+        </button>
+      </form>
     </div>
 
     <div class="waitlist-form-section__hero">

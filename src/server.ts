@@ -5,6 +5,8 @@ import {
   writeResponseToNodeResponse,
 } from '@angular/ssr/node';
 import express from 'express';
+require('dotenv').config();
+
 import { join } from 'node:path';
 import type { Request, Response } from 'express';
 
@@ -13,9 +15,12 @@ const browserDistFolder = join(import.meta.dirname, '../browser');
 const app = express();
 const angularApp = new AngularNodeAppEngine();
 
+// Add JSON body parser for POST requests
+app.use(express.json());
+
 // Lightweight proxy to avoid CORS and browser cross-origin issues during dev/SSR
 app.get('/api/plans', async (req: Request, res: Response) => {
-  const upstream = 'https://app.anaadfoods.com/api/subscriptions/plans/';
+  const upstream = `${process.env['BASE_API_CLIENT']}/api/subscriptions/plans/`;
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 10000);
   try {
@@ -39,9 +44,45 @@ app.get('/api/plans', async (req: Request, res: Response) => {
   }
 });
 
+// Proxy for user queries (registration and waitlist forms)
+app.post('/api/user-queries/', async (req: Request, res: Response) => {
+  const upstream = `${process.env['BASE_API_CLIENT']}/api/user-queries/`;
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 15000);
+  try {
+    req.body = req.body || {};   // to be deleted 
+    req.body.requirement_type = "B2B" // to be deleted
+    const r = await fetch(upstream, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(req.body),
+      signal: controller.signal
+    });
+    const ct = r.headers.get('content-type') || '';
+    if (!r.ok) {
+      const errorData = ct.includes('application/json') ? await r.json() : { error: r.statusText };
+      res.status(r.status).json(errorData);
+      return;
+    }
+    if (ct.includes('application/json')) {
+      const data = await r.json();
+      res.json(data);
+    } else {
+      const text = await r.text();
+      res.type('text/plain').send(text);
+    }
+  } catch (err) {
+    res.status(502).json({ error: 'proxy_fetch_failed', detail: String(err) });
+  } finally {
+    clearTimeout(timeout);
+  }
+});
+
 // Proxy for product variants
 app.get('/api/products/variants/', async (req: Request, res: Response) => {
-  const upstream = 'https://app.anaadfoods.com/api/products/variants/';
+  const upstream = `${process.env['BASE_API_CLIENT']}/api/products/variants/`;
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 10000);
   try {
