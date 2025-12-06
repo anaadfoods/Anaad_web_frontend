@@ -50,8 +50,7 @@ app.post('/api/user-queries/', async (req: Request, res: Response) => {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 15000);
   try {
-    req.body = req.body || {};   // to be deleted 
-    req.body.requirement_type = "B2B" // to be deleted
+
     const r = await fetch(upstream, {
       method: 'POST',
       headers: {

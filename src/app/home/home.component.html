@@ -1,5 +1,24 @@
 ﻿<!-- Reddish hero band with wavy design - blank panel -->
 <section class="hero-band" revealOnScroll>
+  <!-- Animated gradient overlay -->
+  <div class="hero-gradient-overlay"></div>
+
+  <!-- Floating background shapes -->
+  <div class="hero-shape hero-shape--1"></div>
+  <div class="hero-shape hero-shape--2"></div>
+  <div class="hero-shape hero-shape--3"></div>
+  <div class="hero-shape hero-shape--4"></div>
+  <div class="hero-shape hero-shape--5"></div>
+
+  <!-- Floating orbs with glow -->
+  <div class="hero-orb hero-orb--1"></div>
+  <div class="hero-orb hero-orb--2"></div>
+  <div class="hero-orb hero-orb--3"></div>
+
+  <!-- Glow rings -->
+  <div class="hero-ring hero-ring--1"></div>
+  <div class="hero-ring hero-ring--2"></div>
+
   <!-- Floating particles -->
   <div class="hero-particle hero-particle--1"></div>
   <div class="hero-particle hero-particle--2"></div>
@@ -9,15 +28,25 @@
   <div class="hero-particle hero-particle--6"></div>
   <div class="hero-particle hero-particle--7"></div>
   <div class="hero-particle hero-particle--8"></div>
+  <div class="hero-particle hero-particle--9"></div>
+  <div class="hero-particle hero-particle--10"></div>
 
   <!-- Sparkle effects -->
   <div class="hero-sparkle hero-sparkle--1"></div>
   <div class="hero-sparkle hero-sparkle--2"></div>
   <div class="hero-sparkle hero-sparkle--3"></div>
   <div class="hero-sparkle hero-sparkle--4"></div>
+  <div class="hero-sparkle hero-sparkle--5"></div>
+  <div class="hero-sparkle hero-sparkle--6"></div>
+  <div class="hero-sparkle hero-sparkle--7"></div>
 
   <!-- Light rays -->
   <div class="hero-rays"></div>
+
+  <!-- Picture container - add your image here later -->
+  <div class="hero-picture-container">
+    <!-- <img src="assets/images/hero-image.jpg" alt="Hero" class="hero-picture" /> -->
+  </div>
 
   <!-- Wavy desert dunes divider -->
   <div class="hero-waves">
@@ -64,22 +93,131 @@
 </section>
 
 <!-- Subscription Plans section -->
-<section class="plans-block">
+<section class="plans-block plans-block--coming-soon">
   <div class="container">
-    @if (loadingPlans) {
-      <div aria-live="polite">Loading plans…</div>
-    } @else if (plansError) {
-      <div role="alert">{{ plansError }}</div>
-    } @else if (subscriptionPlans.length === 0) {
-      <div aria-live="polite">No plans available right now. Please check back later.</div>
-    } @else {
-      <app-plans-carousel 
-        [plans]="subscriptionPlans" 
-        [intervalMs]="4000"
-        [enableAutoHighlight]="true"
-        (selectPlan)="onPlanSelected($event)">
-      </app-plans-carousel>
-    }
+    <!-- Blurred carousel wrapper -->
+    <div class="plans-carousel-wrapper">
+      <!-- Floating particles for overlay -->
+      <div class="plans-particle plans-particle--1"></div>
+      <div class="plans-particle plans-particle--2"></div>
+      <div class="plans-particle plans-particle--3"></div>
+      <div class="plans-particle plans-particle--4"></div>
+      <div class="plans-particle plans-particle--5"></div>
+      <div class="plans-particle plans-particle--6"></div>
+      
+      <!-- Animated rings -->
+      <div class="plans-ring plans-ring--1"></div>
+      <div class="plans-ring plans-ring--2"></div>
+      <div class="plans-ring plans-ring--3"></div>
+      
+      <!-- Sparkles -->
+      <div class="plans-sparkle plans-sparkle--1"></div>
+      <div class="plans-sparkle plans-sparkle--2"></div>
+      <div class="plans-sparkle plans-sparkle--3"></div>
+      <div class="plans-sparkle plans-sparkle--4"></div>
+      
+      <!-- Floating orbs -->
+      <div class="plans-orb plans-orb--1"></div>
+      <div class="plans-orb plans-orb--2"></div>
+      
+      <!-- Coming Soon overlay (on top of blurred carousel) -->
+      <div class="plans-overlay">
+        <!-- Aurora/Northern Lights waves -->
+        <div class="aurora">
+          <div class="aurora__wave aurora__wave--1"></div>
+          <div class="aurora__wave aurora__wave--2"></div>
+          <div class="aurora__wave aurora__wave--3"></div>
+          <div class="aurora__wave aurora__wave--4"></div>
+        </div>
+        
+        <!-- Falling snowflakes -->
+        <div class="snowflake snowflake--1">❄</div>
+        <div class="snowflake snowflake--2">❅</div>
+        <div class="snowflake snowflake--3">❆</div>
+        <div class="snowflake snowflake--4">❄</div>
+        <div class="snowflake snowflake--5">❅</div>
+        <div class="snowflake snowflake--6">❆</div>
+        <div class="snowflake snowflake--7">❄</div>
+        <div class="snowflake snowflake--8">❅</div>
+        
+        <div class="plans-overlay__content">
+          <div class="plans-overlay__icon">
+            <!-- Rotating ring around clock -->
+            <div class="rotating-ring"></div>
+            <div class="rotating-ring rotating-ring--reverse"></div>
+            <!-- Santa hat on clock -->
+            <div class="santa-hat">
+              <svg viewBox="0 0 100 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- Hat shadow -->
+                <ellipse cx="52" cy="72" rx="40" ry="6" fill="rgba(0,0,0,0.15)"/>
+                <!-- Main hat body with gradient -->
+                <defs>
+                  <linearGradient id="hatGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#d42a2a"/>
+                    <stop offset="30%" stop-color="#c41e3a"/>
+                    <stop offset="70%" stop-color="#a01830"/>
+                    <stop offset="100%" stop-color="#8b1528"/>
+                  </linearGradient>
+                  <linearGradient id="furGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#ffffff"/>
+                    <stop offset="50%" stop-color="#f5f5f5"/>
+                    <stop offset="100%" stop-color="#e8e8e8"/>
+                  </linearGradient>
+                </defs>
+                <!-- Hat cone shape -->
+                <path d="M15 65 Q20 25 50 8 Q80 25 85 65" fill="url(#hatGradient)"/>
+                <!-- Hat highlight/shine -->
+                <path d="M25 55 Q30 30 50 15" stroke="rgba(255,255,255,0.3)" stroke-width="8" stroke-linecap="round" fill="none"/>
+                <!-- Fur trim band -->
+                <ellipse cx="50" cy="65" rx="42" ry="10" fill="url(#furGradient)"/>
+                <!-- Fur texture dots -->
+                <circle cx="20" cy="65" r="2" fill="#ddd"/>
+                <circle cx="35" cy="62" r="1.5" fill="#ddd"/>
+                <circle cx="50" cy="68" r="2" fill="#ddd"/>
+                <circle cx="65" cy="63" r="1.5" fill="#ddd"/>
+                <circle cx="80" cy="65" r="2" fill="#ddd"/>
+                <!-- Pompom with fluff -->
+                <circle cx="50" cy="8" r="10" fill="url(#furGradient)"/>
+                <circle cx="45" cy="5" r="4" fill="#fff"/>
+                <circle cx="55" cy="6" r="3" fill="#fff"/>
+                <circle cx="50" cy="12" r="3.5" fill="#f0f0f0"/>
+                <circle cx="48" cy="3" r="2" fill="#fff"/>
+              </svg>
+            </div>
+            <!-- Clock icon -->
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M12 6v6l4 2"/>
+            </svg>
+          </div>
+          <span class="plans-overlay__badge">
+            Coming Soon
+          </span>
+          <p class="plans-overlay__text">Exciting subscription plans arriving this holiday season!</p>
+          <div class="plans-overlay__dots">
+            <span></span><span></span><span></span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Blurred carousel content -->
+      <div class="plans-blur-content">
+        @if (loadingPlans) {
+          <div aria-live="polite">Loading plans…</div>
+        } @else if (plansError) {
+          <div role="alert">{{ plansError }}</div>
+        } @else if (subscriptionPlans.length === 0) {
+          <div aria-live="polite">No plans available right now. Please check back later.</div>
+        } @else {
+          <app-plans-carousel 
+            [plans]="subscriptionPlans" 
+            [intervalMs]="4000"
+            [enableAutoHighlight]="true"
+            (selectPlan)="onPlanSelected($event)">
+          </app-plans-carousel>
+        }
+      </div>
+    </div>
   </div>
   
 </section>
@@ -113,27 +251,98 @@
 </section>
 
 <!-- Featured products panel -->
-<section class="end-products" aria-label="Featured products">
+<section class="end-products end-products--coming-soon" aria-label="Featured products">
   <div class="container">
     <div class="products-panel">
-      <div class="products-grid">
-        @if (loadingProducts) {
-          <div aria-live="polite" class="loading-message">Loading products…</div>
-        } @else if (productsError) {
-          <div role="alert" class="error-message">{{ productsError }}</div>
-        } @else if (products.length === 0) {
-          <div aria-live="polite" class="no-products-message">No products available right now.</div>
-        } @else {
-          @for (product of products; track product.id) {
-            <article class="prod">
-              <div class="prod-media" [style.backgroundImage]="formatBg(product.image)" [attr.aria-label]="product.altText"></div>
-              <div class="prod-meta">
-                <h4>{{ product.name }}</h4>
-                <div class="price">{{ product.pricePerKg }}</div>
-              </div>
-            </article>
+      <!-- Aurora waves for products -->
+      <div class="products-aurora">
+        <div class="aurora__wave aurora__wave--1"></div>
+        <div class="aurora__wave aurora__wave--2"></div>
+        <div class="aurora__wave aurora__wave--3"></div>
+      </div>
+      
+      <!-- Floating particles -->
+      <div class="products-particle products-particle--1"></div>
+      <div class="products-particle products-particle--2"></div>
+      <div class="products-particle products-particle--3"></div>
+      <div class="products-particle products-particle--4"></div>
+      
+      <!-- Sparkles -->
+      <div class="products-sparkle products-sparkle--1"></div>
+      <div class="products-sparkle products-sparkle--2"></div>
+      <div class="products-sparkle products-sparkle--3"></div>
+      
+      <!-- Snowflakes -->
+      <div class="products-snow products-snow--1">❄</div>
+      <div class="products-snow products-snow--2">❅</div>
+      <div class="products-snow products-snow--3">❆</div>
+      <div class="products-snow products-snow--4">❄</div>
+      <div class="products-snow products-snow--5">❅</div>
+      
+      <!-- Coming Soon overlay -->
+      <div class="products-overlay">
+        <div class="products-overlay__content">
+          <div class="products-overlay__icon">
+            <!-- Rotating rings -->
+            <div class="products-ring"></div>
+            <div class="products-ring products-ring--reverse"></div>
+            <!-- Santa hat -->
+            <div class="products-santa-hat">
+              <svg viewBox="0 0 100 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <ellipse cx="52" cy="72" rx="40" ry="6" fill="rgba(0,0,0,0.15)"/>
+                <defs>
+                  <linearGradient id="prodHatGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#d42a2a"/>
+                    <stop offset="30%" stop-color="#c41e3a"/>
+                    <stop offset="70%" stop-color="#a01830"/>
+                    <stop offset="100%" stop-color="#8b1528"/>
+                  </linearGradient>
+                  <linearGradient id="prodFurGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#ffffff"/>
+                    <stop offset="50%" stop-color="#f5f5f5"/>
+                    <stop offset="100%" stop-color="#e8e8e8"/>
+                  </linearGradient>
+                </defs>
+                <path d="M15 65 Q20 25 50 8 Q80 25 85 65" fill="url(#prodHatGrad)"/>
+                <path d="M25 55 Q30 30 50 15" stroke="rgba(255,255,255,0.3)" stroke-width="8" stroke-linecap="round" fill="none"/>
+                <ellipse cx="50" cy="65" rx="42" ry="10" fill="url(#prodFurGrad)"/>
+                <circle cx="50" cy="8" r="10" fill="url(#prodFurGrad)"/>
+                <circle cx="45" cy="5" r="4" fill="#fff"/>
+                <circle cx="55" cy="6" r="3" fill="#fff"/>
+              </svg>
+            </div>
+            <!-- Clock icon -->
+            <svg class="products-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M12 6v6l4 2"/>
+            </svg>
+          </div>
+          <span class="products-overlay__badge">Coming Soon</span>
+          <p class="products-overlay__text">Premium offerings arriving this holiday season!</p>
+        </div>
+      </div>
+      
+      <!-- Blurred products grid -->
+      <div class="products-blur-content">
+        <div class="products-grid">
+          @if (loadingProducts) {
+            <div aria-live="polite" class="loading-message">Loading products…</div>
+          } @else if (productsError) {
+            <div role="alert" class="error-message">{{ productsError }}</div>
+          } @else if (products.length === 0) {
+            <div aria-live="polite" class="no-products-message">No products available right now.</div>
+          } @else {
+            @for (product of products; track product.id) {
+              <article class="prod">
+                <div class="prod-media" [style.backgroundImage]="formatBg(product.image)" [attr.aria-label]="product.altText"></div>
+                <div class="prod-meta">
+                  <h4>{{ product.name }}</h4>
+                  <div class="price">{{ product.pricePerKg }}</div>
+                </div>
+              </article>
+            }
           }
-        }
+        </div>
       </div>
     </div>
   </div>

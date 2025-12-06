@@ -15,7 +15,7 @@ import { JoinWaitlistComponent } from './join-waitlist/join-waitlist.component';
 
 export const routes: Routes = [
 	{ path: '', component: HomeComponent, title: 'Home • Annad Foods' },
-		{ path: 'shop', component: ShopComponent, title: 'Shop • Annad Foods' },
+		{ path: 'shop', component: ShopComponent, title: 'Shop • Annad Foods'  , },
 		{ path: 'offerings', component: OfferingsComponent, title: 'Offerings • Annad Foods' },
 	{ path: 'our-story', component: OurStoryComponent, title: 'Our Story • Annad Foods' },
 	{ path: 'about', component: AboutComponent, title: 'About • Annad Foods' },
