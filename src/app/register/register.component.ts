@@ -1,8 +1,9 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { UserQueriesService, UserQueryPayload } from '../shared/services/user-queries.service';
+import { RegistrationSourceService } from '../shared/services/registration-source.service';
 
 @Component({
   selector: 'app-register',
@@ -11,10 +12,11 @@ import { UserQueriesService, UserQueryPayload } from '../shared/services/user-qu
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss'
 })
-export class RegisterComponent {
+export class RegisterComponent implements OnInit {
   private fb = inject(FormBuilder);
   private router = inject(Router);
   private userQueriesService = inject(UserQueriesService);
+  private registrationSourceService = inject(RegistrationSourceService);
 
   form = this.fb.group({
     fullName: ['', [Validators.required, Validators.minLength(2)]],
@@ -31,12 +33,24 @@ export class RegisterComponent {
 
   get f() { return this.form.controls; }
 
+  ngOnInit(): void {
+    // Only set USER_QUERY if no source is already set (user came directly)
+    // This preserves sources set from other pages (like PDF_REQUEST or RFP)
+    const currentSource = this.registrationSourceService.getSource();
+    if (currentSource === 'USER_QUERY') {
+      // Default source for direct registration page visits
+      this.registrationSourceService.setSource('USER_QUERY');
+    }
+  }
+
   onSubmit() {
     this.submitted = true;
     this.errorMessage = '';
     if (this.form.invalid) return;
 
     this.submitting = true;
+
+    const articleId = this.registrationSourceService.getArticleId();
 
     const payload: UserQueryPayload = {
       name: this.form.value.fullName || '',
@@ -45,7 +59,9 @@ export class RegisterComponent {
       message: this.form.value.message || '',
       requirement_type: this.form.value.requirementType || '',
       business_or_family_name: this.form.value.familyName || '',
-      is_from_rfp: false
+      is_from_rfp: false,
+      redirection_from: this.registrationSourceService.getSource(),
+      ...(articleId && { article_id: articleId })
     };
 
     this.userQueriesService.submitQuery(payload).subscribe({
@@ -53,6 +69,8 @@ export class RegisterComponent {
         this.submitting = false;
         this.form.reset();
         this.submitted = false;
+        // Clear source data after successful submission
+        this.registrationSourceService.clearAll();
         this.router.navigateByUrl('/thank-you');
       },
       error: (err) => {
