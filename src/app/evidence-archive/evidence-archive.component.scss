@@ -150,6 +150,42 @@
   padding: 0 10vw 4rem;
 }
 
+/* Loading & Error States */
+.evidence-list__loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+  color: #1a2a4a;
+  font-size: 1rem;
+}
+
+.evidence-list__spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(26, 42, 74, 0.2);
+  border-top-color: #26457a;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.evidence-list__error {
+  text-align: center;
+  padding: 3rem 2rem;
+  font-size: 1.1rem;
+  color: #c41e3a;
+  background: rgba(196, 30, 58, 0.08);
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+}
+
 .evidence-card {
   position: relative;
   border-radius: 12px;
@@ -158,6 +194,7 @@
   margin-bottom: 1.25rem;
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
   transition: transform 0.35s ease, box-shadow 0.35s ease;
+  cursor: pointer;
 }
 .evidence-card:hover {
   transform: translateY(-6px) scale(1.008);
@@ -242,6 +279,71 @@
   color: #26457a;
   letter-spacing: 0.03em;
   transform: translateX(3px);
+}
+
+/* Dynamic content from API */
+.evidence-card__content {
+  font-size: 0.95rem;
+  line-height: 1.7;
+
+  strong {
+    display: block;
+    font-weight: 700;
+    font-size: 0.95rem;
+    margin: 1rem 0 0.5rem;
+    color: #1a2a4a;
+  }
+
+  p {
+    margin: 0.5rem 0;
+  }
+
+  li {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  ul, ol {
+    padding: 0;
+    margin: 0;
+  }
+}
+
+.evidence-card__date {
+  font-size: 0.8rem;
+  color: #666;
+  margin: 1.25rem 0 0.5rem;
+  opacity: 0.85;
+}
+
+.evidence-card__actions {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.5rem;
+}
+
+.evidence-card__download-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1.2rem;
+  border: none;
+  border-radius: 6px;
+  background: linear-gradient(135deg, #26457a, #3a5a8a);
+  color: #ffffff;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.25s, box-shadow 0.25s, background 0.25s;
+}
+
+.evidence-card__download-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(38, 69, 122, 0.35);
+  background: linear-gradient(135deg, #1a2a4a, #26457a);
 }
 
 /* ========= CTA Section ========= */

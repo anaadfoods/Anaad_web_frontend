@@ -18,62 +18,58 @@
 </section>
 
 <section class="evidence-list">
-  <article class="evidence-card evidence-card--primary evidence-card--reveal" style="--reveal-delay: 0s;">
-    <header class="evidence-card__header">
-      <h2>STUDY 1: The 'Gluten' Myth and Urea</h2>
-      <p class="evidence-card__source">Source: Down-To-Earth</p>
-    </header>
-
-    <div class="evidence-card__body">
-      <h3 class="evidence-card__subheading">The Findings</h3>
-      <p>
-        Studies suggest that Celiac disease and gluten intolerance are often misdiagnosed. The
-        real culprit is often Glyphosate (used in drying wheat) and high Urea content, which
-        destroys the gut lining (Leaky Gut Syndrome).
-      </p>
-      <p class="evidence-card__note">
-        (Number of lines will vary according to requirement.)
-      </p>
-
-      <h3 class="evidence-card__subheading">The ANAAD Standard</h3>
-      <p>
-        We use Khapli (Emmer) Wheat grown with Zero Urea. It is naturally low-gluten and
-        chemical-free.
-      </p>
-
-      <button type="button" class="evidence-card__summary-button">
-        [READ SUMMARY SOURCE]
-      </button>
+  @if (loading) {
+    <div class="evidence-list__loading">
+      <div class="evidence-list__spinner"></div>
+      <p>Loading research papers...</p>
     </div>
-  </article>
+  }
 
-  <article class="evidence-card evidence-card--reveal" style="--reveal-delay: 0.1s;">
-    <header class="evidence-card__header">
-      <h2>STUDY 1: The 'Gluten' Myth and Urea</h2>
-      <p class="evidence-card__source">Source: Down-To-Earth</p>
-    </header>
-  </article>
+  @if (error) {
+    <div class="evidence-list__error">{{ error }}</div>
+  }
 
-  <article class="evidence-card evidence-card--reveal" style="--reveal-delay: 0.2s;">
-    <header class="evidence-card__header">
-      <h2>STUDY 1: The 'Gluten' Myth and Urea</h2>
-      <p class="evidence-card__source">Source: Down-To-Earth</p>
-    </header>
-  </article>
+  @for (paper of papers; track paper.id; let i = $index) {
+    <article 
+      class="evidence-card evidence-card--reveal" 
+      [class.evidence-card--primary]="isSelected(paper.id)"
+      [style.--reveal-delay]="(i * 0.1) + 's'"
+      (click)="selectPaper(paper.id)">
+      
+      <header class="evidence-card__header">
+        <h2>STUDY {{ i + 1 }}: {{ paper.title }}</h2>
+        <p class="evidence-card__source">Source: {{ paper.subtitle }}</p>
+      </header>
 
-  <article class="evidence-card evidence-card--reveal" style="--reveal-delay: 0.3s;">
-    <header class="evidence-card__header">
-      <h2>STUDY 1: The 'Gluten' Myth and Urea</h2>
-      <p class="evidence-card__source">Source: Down-To-Earth</p>
-    </header>
-  </article>
+      @if (isSelected(paper.id)) {
+        <div class="evidence-card__body">
+          <div class="evidence-card__content" [innerHTML]="paper.description"></div>
+          
+          <p class="evidence-card__date">Published: {{ formatDate(paper.publication_date) }}</p>
 
-  <article class="evidence-card evidence-card--reveal" style="--reveal-delay: 0.4s;">
-    <header class="evidence-card__header">
-      <h2>STUDY 1: The 'Gluten' Myth and Urea</h2>
-      <p class="evidence-card__source">Source: Down-To-Earth</p>
-    </header>
-  </article>
+          <div class="evidence-card__actions">
+            @if (paper.external_link) {
+              <button 
+                type="button" 
+                class="evidence-card__summary-button" 
+                (click)="openExternalLink($event, paper.external_link)">
+                [READ SUMMARY SOURCE]
+              </button>
+            }
+            
+            @if (paper.pdf_file) {
+              <button 
+                type="button" 
+                class="evidence-card__download-button" 
+                (click)="downloadPdf($event, paper.pdf_file)">
+                Download PDF
+              </button>
+            }
+          </div>
+        </div>
+      }
+    </article>
+  }
 </section>
 
 <section class="evidence-cta">

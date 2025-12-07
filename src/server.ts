@@ -105,6 +105,32 @@ app.get('/api/products/variants/', async (req: Request, res: Response) => {
   }
 });
 
+// Proxy for research papers (evidence archive)
+app.get('/api/research-papers/', async (req: Request, res: Response) => {
+  const upstream = `${process.env['BASE_API_CLIENT']}/api/blog/research-papers/`;
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 10000);
+  try {
+    const r = await fetch(upstream, { signal: controller.signal });
+    const ct = r.headers.get('content-type') || '';
+    if (!r.ok) {
+      res.status(r.status).json({ error: 'upstream_error', status: r.status, statusText: r.statusText });
+      return;
+    }
+    if (ct.includes('application/json')) {
+      const data = await r.json();
+      res.json(data);
+    } else {
+      const text = await r.text();
+      res.type('text/plain').send(text);
+    }
+  } catch (err) {
+    res.status(502).json({ error: 'proxy_fetch_failed', detail: String(err) });
+  } finally {
+    clearTimeout(timeout);
+  }
+});
+
 /**
  * Serve static files from /browser
  */
