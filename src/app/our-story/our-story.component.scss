@@ -1,6 +1,5 @@
 .story-hero { 
   height: 360px; 
-  background: radial-gradient(1100px 560px at 15% 10%, color-mix(in srgb, var(--color-primary) 40%, #2f4634) 0%, transparent 70%), radial-gradient(1000px 520px at 100% 0%, color-mix(in srgb, var(--color-secondary) 30%, #ad8441) 0%, transparent 75%), linear-gradient(135deg, #3f5e46, #2f4634); 
   display: flex; 
   align-items: stretch; 
   box-shadow: 0 2px 0 rgba(0,0,0,0.05), 0 8px 32px rgba(0,0,0,0.12);
@@ -18,12 +17,25 @@
   height: 100%;
   background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
   animation: heroShimmer 6s ease-in-out infinite;
+  z-index: 2;
+  pointer-events: none;
 }
 
-.story-hero .hero-inner { 
-  height: 100%; 
-  flex: 1; 
-  animation: gentleFloat 3.5s ease-in-out infinite;
+.hero-media {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+.hero-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 @keyframes heroBreathing {
@@ -38,11 +50,6 @@
 @keyframes heroShimmer {
   0%, 100% { left: -100%; }
   50% { left: 100%; }
-}
-
-@keyframes gentleFloat {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-3px); }
 }
 
 .story-content { 
@@ -302,8 +309,24 @@
   0%, 100% { transform: translateX(-100%); opacity: 0; }
   50% { transform: translateX(100%); opacity: 1; }
 }
-.frame .inner { width: 100%; height: 100%; background: radial-gradient(600px 480px at 50% 0%, #fffef9, #f8f4ec); border-radius: 8px; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.25); transition: all 0.3s ease; }
-.frame:hover .inner { background: radial-gradient(600px 480px at 50% 0%, #ffffff, #fdf9f0); box-shadow: inset 0 0 0 1px rgba(0,0,0,0.15), inset 0 0 20px rgba(255,255,255,0.8); }
+.frame .inner { 
+  width: 100%; 
+  height: 100%; 
+  border-radius: 8px; 
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.25); 
+  transition: all 0.3s ease;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.frame .inner img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+}
+.frame:hover .inner { box-shadow: inset 0 0 0 1px rgba(0,0,0,0.15), inset 0 0 20px rgba(255,255,255,0.8); }
 .variant-green { background: linear-gradient(180deg, var(--color-primary) 0%, #3f5e46 30%, #ad8441 100%); border: 4px solid rgba(255,255,255,0.12); }
 .variant-maroon { background: linear-gradient(180deg, #6b1e1e 0%, #ad8441 30%, #6b1e1e 100%); border: 4px solid rgba(255,255,255,0.12); }
 

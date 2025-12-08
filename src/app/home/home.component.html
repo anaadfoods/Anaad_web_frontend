@@ -43,9 +43,9 @@
   <!-- Light rays -->
   <div class="hero-rays"></div>
 
-  <!-- Picture container - add your image here later -->
+  <!-- Picture container -->
   <div class="hero-picture-container">
-    <!-- <img src="assets/images/hero-image.jpg" alt="Hero" class="hero-picture" /> -->
+    <img src="assets/images/hero-image.svg" alt="Hero" class="hero-picture" />
   </div>
 
   <!-- Wavy desert dunes divider -->
@@ -58,12 +58,31 @@
   </div>
 </section>
 
-<!-- Cream text section with pattern background -->
+<!-- Cream text section with clean background -->
 <section class="cream-text-section" revealOnScroll>
-  <div class="cream-pattern-overlay"></div>
+  <!-- Ambient floating elements -->
+  <div class="cream-ambient cream-ambient--1"></div>
+  <div class="cream-ambient cream-ambient--2"></div>
+  <div class="cream-ambient cream-ambient--3"></div>
+  
+  <!-- Leaf particles -->
+  <div class="cream-leaf cream-leaf--1">🌿</div>
+  <div class="cream-leaf cream-leaf--2">🍃</div>
+  <div class="cream-leaf cream-leaf--3">🌱</div>
+  
   <div class="container center">
-    <h1 class="cream-title">Growing Health,<br/>Cultivating Tomorrow.</h1>
-    <p class="cream-tagline">ANAAD Foods is not just about what you eat.<br/>It's about a world we build, together!</p>
+    <h1 class="cream-title">
+      <span class="cream-title__word cream-title__word--1">Growing</span>
+      <span class="cream-title__word cream-title__word--2">Health,</span>
+      <br/>
+      <span class="cream-title__word cream-title__word--3">Cultivating</span>
+      <span class="cream-title__word cream-title__word--4">Tomorrow.</span>
+    </h1>
+    <p class="cream-tagline">
+      <span class="cream-tagline__line cream-tagline__line--1">ANAAD Foods is not just about what you eat.</span>
+      <br/>
+      <span class="cream-tagline__line cream-tagline__line--2">It's about a world we build, together!</span>
+    </p>
     <div class="cta"><a routerLink="/our-story" class="btn btn-green pill">Explore Our Story</a></div>
   </div>
 </section>
@@ -73,19 +92,25 @@
   <div class="container trio-grid">
     <article class="panel gold" revealOnScroll tiltOnHover [parallaxOnScroll]="true" [style.--reveal-delay.ms]="0">
       <h3>For The Indian Home</h3>
-      <div class="thumb"></div>
+      <div class="thumb">
+        <img src="assets/images/box-1.svg" alt="For The Indian Home" />
+      </div>
       <p>The poison stops here. Reclaim your kitchen from industrial toxins with daily staples grown the way nature intended.</p>
       <a class="link" routerLink="/join-waitlist">Join the Domestic List</a>
     </article>
     <article class="panel gold-green" revealOnScroll tiltOnHover [parallaxOnScroll]="true" [style.--reveal-delay.ms]="120">
       <h3>For The Global Citizen</h3>
-      <div class="thumb"></div>
+      <div class="thumb">
+        <img src="assets/images/box-2.svg" alt="For The Global Citizen" />
+      </div>
       <p>Cultivating climate-resilient crops that nurture both human health and planetary well-being.</p>
       <a class="link" routerLink="/join-waitlist">Join the Global List</a>
     </article>
     <article class="panel gold" revealOnScroll tiltOnHover [parallaxOnScroll]="true" [style.--reveal-delay.ms]="240">
       <h3>For The Conscious Enterprise</h3>
-      <div class="thumb"></div>
+      <div class="thumb">
+        <img src="assets/images/box-3.svg" alt="For The Conscious Enterprise" />
+      </div>
       <p>For HORECA and brands that refuse to serve mediocrity, secure a chemical-free supply chain for your business.</p>
       <a class="link" routerLink="/contact">Partner With Us</a>
     </article>
@@ -231,11 +256,15 @@
         <p class="eyebrow">Our Categories you can browse through</p>
         <div class="category-tiles">
           <a class="tile" routerLink="/shop" aria-label="The Ancestral Pantry">
-            <div class="tile-media nf" role="img" aria-label="Lush green crops"></div>
+            <div class="tile-media">
+              <img src="assets/images/category-1.svg" alt="The Ancestral Pantry" />
+            </div>
             <div class="tile-title">The Ancestral Pantry</div>
           </a>
           <a class="tile" routerLink="/shop" aria-label="Your Remote Farm">
-            <div class="tile-media veg" role="img" aria-label="Basket of fresh vegetables"></div>
+            <div class="tile-media">
+              <img src="assets/images/category-2.svg" alt="Your Remote Farm" />
+            </div>
             <div class="tile-title">Your Remote Farm</div>
           </a>
         </div>
@@ -278,6 +307,17 @@
       <div class="products-snow products-snow--3">❆</div>
       <div class="products-snow products-snow--4">❄</div>
       <div class="products-snow products-snow--5">❅</div>
+      
+      <!-- Push bulges - products trying to break through -->
+      <div class="products-push-bulge products-push-bulge--1"></div>
+      <div class="products-push-bulge products-push-bulge--2"></div>
+      <div class="products-push-bulge products-push-bulge--3"></div>
+      <div class="products-push-bulge products-push-bulge--4"></div>
+      
+      <!-- Stress cracks on the sheet -->
+      <div class="products-stress-line products-stress-line--1"></div>
+      <div class="products-stress-line products-stress-line--2"></div>
+      <div class="products-stress-line products-stress-line--3"></div>
       
       <!-- Coming Soon overlay -->
       <div class="products-overlay">
@@ -355,6 +395,7 @@
     <div class="comm-grid">
       <article class="comm-card green" routerLink="/communities">
         <div class="media-window">
+          <img src="assets/images/krinity.svg" alt="KRINITY - The Guardians" />
           <div class="badge">Coming Soon <span class="leaf" aria-hidden="true"></span></div>
         </div>
         <div class="comm-body">
@@ -366,6 +407,7 @@
       </article>
       <article class="comm-card maroon" routerLink="/communities">
         <div class="media-window">
+          <img src="assets/images/grinity.svg" alt="GRINITY - The Connoisseurs" />
           <div class="badge">Coming Soon <span class="leaf" aria-hidden="true"></span></div>
         </div>
         <div class="comm-body">

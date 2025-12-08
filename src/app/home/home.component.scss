@@ -239,20 +239,22 @@
   }
 }
 
-/* Picture container for future image */
+/* Picture container for hero image */
 .hero-picture-container {
   position: absolute;
   inset: 0;
+  bottom: 80px; /* Leave more space for waves - brings image up */
   display: flex;
-  align-items: center;
+  align-items: stretch;
   justify-content: center;
   pointer-events: none;
-  z-index: 1;
+  z-index: 0; /* Behind the effects */
+  padding: 0;
 }
 
 .hero-picture {
-  max-width: 100%;
-  max-height: 100%;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
   pointer-events: auto;
 }
@@ -271,33 +273,132 @@
 }
 
 /* ========================================
-   Cream Text Section with Pattern
+   Cream Text Section - Clean Background
    ======================================== */
 .cream-text-section {
   position: relative;
-  background: #f0e9dc;
+  background: #faf8f2;
   padding: 4rem 2rem 3.5rem;
   text-align: center;
   overflow: hidden;
 }
 
-/* Pattern overlay - subtle food/farm icons */
-.cream-pattern-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg fill='%23c5b89a' fill-opacity='0.25'%3E%3Cpath d='M20 20c2-3 5-5 8-5s6 2 8 5c-2 3-5 5-8 5s-6-2-8-5zm0 40c2-3 5-5 8-5s6 2 8 5c-2 3-5 5-8 5s-6-2-8-5zm40-40c2-3 5-5 8-5s6 2 8 5c-2 3-5 5-8 5s-6-2-8-5zm0 40c2-3 5-5 8-5s6 2 8 5c-2 3-5 5-8 5s-6-2-8-5z'/%3E%3Ccircle cx='10' cy='10' r='3'/%3E%3Ccircle cx='70' cy='10' r='3'/%3E%3Ccircle cx='10' cy='70' r='3'/%3E%3Ccircle cx='70' cy='70' r='3'/%3E%3Ccircle cx='40' cy='40' r='4'/%3E%3Cpath d='M35 15c0-2 2-4 5-4s5 2 5 4-2 4-5 4-5-2-5-4zm0 50c0-2 2-4 5-4s5 2 5 4-2 4-5 4-5-2-5-4z'/%3E%3C/g%3E%3C/svg%3E");
-  background-size: 120px 120px;
-  opacity: 0.6;
-  pointer-events: none;
-  z-index: 0;
-}
-
 .cream-text-section .center {
   position: relative;
   z-index: 1;
+}
+
+/* Ambient floating orbs */
+.cream-ambient {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(40px);
+  z-index: 0;
+}
+
+.cream-ambient--1 {
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle, rgba(63, 94, 70, 0.08) 0%, transparent 70%);
+  top: 10%;
+  left: 5%;
+  animation: ambientFloat 12s ease-in-out infinite;
+}
+
+.cream-ambient--2 {
+  width: 150px;
+  height: 150px;
+  background: radial-gradient(circle, rgba(202, 166, 110, 0.1) 0%, transparent 70%);
+  top: 50%;
+  right: 8%;
+  animation: ambientFloat 10s ease-in-out infinite 2s;
+}
+
+.cream-ambient--3 {
+  width: 180px;
+  height: 180px;
+  background: radial-gradient(circle, rgba(63, 94, 70, 0.06) 0%, transparent 70%);
+  bottom: 5%;
+  left: 50%;
+  transform: translateX(-50%);
+  animation: ambientFloat 14s ease-in-out infinite 4s;
+}
+
+@keyframes ambientFloat {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.6;
+  }
+  33% {
+    transform: translate(20px, -15px) scale(1.1);
+    opacity: 0.8;
+  }
+  66% {
+    transform: translate(-15px, 10px) scale(0.95);
+    opacity: 0.5;
+  }
+}
+
+/* Floating leaf particles */
+.cream-leaf {
+  position: absolute;
+  font-size: 20px;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.4;
+}
+
+.cream-leaf--1 {
+  top: 15%;
+  left: 10%;
+  animation: leafFloat1 8s ease-in-out infinite;
+}
+
+.cream-leaf--2 {
+  top: 60%;
+  right: 12%;
+  animation: leafFloat2 10s ease-in-out infinite 1s;
+}
+
+.cream-leaf--3 {
+  bottom: 20%;
+  left: 20%;
+  animation: leafFloat1 9s ease-in-out infinite 2s;
+}
+
+@keyframes leafFloat1 {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 0.4;
+  }
+  25% {
+    transform: translateY(-15px) rotate(15deg);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translateY(-5px) rotate(-10deg);
+    opacity: 0.5;
+  }
+  75% {
+    transform: translateY(-20px) rotate(20deg);
+    opacity: 0.7;
+  }
+}
+
+@keyframes leafFloat2 {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg) scale(1);
+    opacity: 0.3;
+  }
+  33% {
+    transform: translateY(-18px) rotate(-15deg) scale(1.1);
+    opacity: 0.6;
+  }
+  66% {
+    transform: translateY(-8px) rotate(12deg) scale(0.95);
+    opacity: 0.45;
+  }
 }
 
 .cream-title {
@@ -309,7 +410,80 @@
   letter-spacing: 0.02em;
   color: #3f5e46;
   margin: 0 0 1.25rem;
-  animation: fadeSlideUp 0.8s ease-out both;
+}
+
+/* Individual word animations */
+.cream-title__word {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(30px);
+  animation: wordReveal 0.8s ease-out forwards;
+  position: relative;
+}
+
+.cream-title__word--1 { animation-delay: 0.1s; }
+.cream-title__word--2 { animation-delay: 0.25s; }
+.cream-title__word--3 { animation-delay: 0.4s; }
+.cream-title__word--4 { animation-delay: 0.55s; }
+
+@keyframes wordReveal {
+  0% {
+    opacity: 0;
+    transform: translateY(30px) rotateX(-15deg);
+    filter: blur(4px);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(-5px) rotateX(0deg);
+    filter: blur(0);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) rotateX(0deg);
+    filter: blur(0);
+  }
+}
+
+/* Shimmer effect on title words */
+.cream-title__word::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  animation: titleWordShimmer 4s ease-in-out infinite;
+}
+
+.cream-title__word--1::after { animation-delay: 0.5s; }
+.cream-title__word--2::after { animation-delay: 1s; }
+.cream-title__word--3::after { animation-delay: 1.5s; }
+.cream-title__word--4::after { animation-delay: 2s; }
+
+@keyframes titleWordShimmer {
+  0%, 70%, 100% {
+    left: -100%;
+  }
+  35% {
+    left: 100%;
+  }
+}
+
+/* Gentle breathing effect on whole title */
+.cream-title {
+  animation: titleBreathing 5s ease-in-out infinite 1.5s;
+}
+
+@keyframes titleBreathing {
+  0%, 100% {
+    transform: scale(1);
+    text-shadow: 0 2px 10px rgba(63, 94, 70, 0.15);
+  }
+  50% {
+    transform: scale(1.02);
+    text-shadow: 0 4px 20px rgba(63, 94, 70, 0.25);
+  }
 }
 
 .cream-tagline {
@@ -319,7 +493,71 @@
   letter-spacing: 0.01em;
   color: #4a4a4a;
   margin: 0 0 2rem;
-  animation: fadeSlideUp 0.8s 0.15s ease-out both;
+}
+
+/* Tagline line animations */
+.cream-tagline__line {
+  display: inline-block;
+  opacity: 0;
+  animation: taglineReveal 0.9s ease-out forwards;
+}
+
+.cream-tagline__line--1 {
+  animation-delay: 0.7s;
+}
+
+.cream-tagline__line--2 {
+  animation-delay: 0.95s;
+  position: relative;
+}
+
+/* Underline animation on second tagline */
+.cream-tagline__line--2::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(202, 166, 110, 0.6), rgba(63, 94, 70, 0.4), transparent);
+  transform: translateX(-50%);
+  animation: underlineGrow 1.2s ease-out 1.8s forwards;
+}
+
+@keyframes taglineReveal {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+    filter: blur(3px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+@keyframes underlineGrow {
+  0% {
+    width: 0;
+  }
+  100% {
+    width: 60%;
+  }
+}
+
+/* Subtle glow pulse on tagline */
+.cream-tagline {
+  animation: taglineGlow 4s ease-in-out infinite 2s;
+}
+
+@keyframes taglineGlow {
+  0%, 100% {
+    text-shadow: 0 0 0 transparent;
+  }
+  50% {
+    text-shadow: 0 0 15px rgba(63, 94, 70, 0.15), 0 0 30px rgba(202, 166, 110, 0.1);
+  }
 }
 
 .btn-green {
@@ -337,8 +575,31 @@
   border: none;
   box-shadow: 0 4px 16px rgba(63, 94, 70, 0.3);
   transition: all 0.3s ease;
-  animation: fadeSlideUp 0.8s 0.3s ease-out both;
+  animation: fadeSlideUp 0.8s 1.2s ease-out both;
   white-space: nowrap;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Button shimmer effect */
+.btn-green::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  animation: buttonShimmer 3s ease-in-out infinite 2s;
+}
+
+@keyframes buttonShimmer {
+  0%, 60%, 100% {
+    left: -100%;
+  }
+  30% {
+    left: 100%;
+  }
 }
 
 .btn-green:hover {
@@ -355,6 +616,14 @@
   .btn-green {
     padding: 16px 40px;
     font-size: 15px;
+  }
+  
+  .cream-ambient {
+    display: none;
+  }
+  
+  .cream-leaf {
+    font-size: 16px;
   }
 }
 
@@ -621,7 +890,22 @@
 .panel.gold { background: linear-gradient(180deg, #ad8441, #caa66e 40%, #3f5e46 100%); }
 .panel.gold-green { background: linear-gradient(180deg, #ad8441 0%, #3f5e46 100%); }
 .panel h3 { margin: 0 0 10px; font-family: var(--font-sans); }
-.panel .thumb { height: 140px; border-radius: 10px; background: #f1ece1; mix-blend-mode: screen; margin-bottom: 10px; }
+.panel .thumb { 
+  height: 140px; 
+  border-radius: 10px; 
+  background: transparent; 
+  margin-bottom: 10px; 
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.panel .thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 10px;
+}
 .panel p { color: color-mix(in srgb, #fff 85%, black); }
 .panel .link { color: #fff; text-decoration: underline; }
 
@@ -700,6 +984,30 @@
   transition: filter 0.5s ease, opacity 0.5s ease;
   border-radius: 16px;
   overflow: hidden;
+  animation: blurHeartbeat 4.5s ease-in-out infinite;
+}
+
+@keyframes blurHeartbeat {
+  0%, 100% { 
+    transform: scale(1);
+    opacity: 0.4;
+  }
+  14% { 
+    transform: scale(1.015);
+    opacity: 0.5;
+  }
+  28% { 
+    transform: scale(1);
+    opacity: 0.4;
+  }
+  42% { 
+    transform: scale(1.02);
+    opacity: 0.55;
+  }
+  70% { 
+    transform: scale(1);
+    opacity: 0.4;
+  }
 }
 
 /* Floating particles */
@@ -1315,7 +1623,20 @@
 .category-tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .tile { display: grid; grid-template-rows: auto auto; gap: 8px; background: linear-gradient(180deg, #f7dfc2, #ffe9d3); border-radius: 14px; padding: 10px; color: #4a2d19; text-decoration: none; box-shadow: 0 10px 30px rgba(0,0,0,0.18), inset 0 0 0 2px #e1b77f; transition: transform .2s ease, box-shadow .2s ease; }
 .tile:hover { transform: translateY(-2px); box-shadow: 0 16px 40px rgba(0,0,0,0.22), inset 0 0 0 2px #e1b77f; }
-.tile-media { height: 120px; border-radius: 12px; background-size: cover; background-position: center; }
+.tile-media { 
+  height: 120px; 
+  border-radius: 12px; 
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.tile-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 12px;
+}
 .tile-title { text-align: center; font-weight: 600; }
 .tile-media.nf { background-image: linear-gradient(180deg, #7ecb6b, #4da24c 60%, #2f6d34); }
 .tile-media.veg { background-image: linear-gradient(180deg, #ffd18b, #ff9f6e 55%, #d5513a); }
@@ -1417,13 +1738,241 @@
   filter: blur(25px);
 }
 
-/* Products blur content */
+/* Products blur content - struggling to break free effect */
 .products-blur-content {
   filter: blur(8px) saturate(0.6);
-  opacity: 0.4;
+  opacity: 0.5;
   pointer-events: none;
   user-select: none;
   transition: filter 0.5s ease, opacity 0.5s ease;
+  animation: productsPushAgainstSheet 4s ease-in-out infinite;
+  transform-style: preserve-3d;
+  perspective: 1000px;
+}
+
+/* Keyframes for products pushing against sheet */
+@keyframes productsPushAgainstSheet {
+  0%, 100% {
+    transform: scale(1) translateZ(0);
+    filter: blur(8px) saturate(0.6);
+  }
+  15% {
+    transform: scale(1.02) translateZ(15px);
+    filter: blur(6px) saturate(0.7);
+  }
+  30% {
+    transform: scale(1) translateZ(5px);
+    filter: blur(8px) saturate(0.6);
+  }
+  45% {
+    transform: scale(1.03) translateZ(20px);
+    filter: blur(5px) saturate(0.75);
+  }
+  60% {
+    transform: scale(1.01) translateZ(8px);
+    filter: blur(7px) saturate(0.65);
+  }
+  75% {
+    transform: scale(1.025) translateZ(18px);
+    filter: blur(5.5px) saturate(0.72);
+  }
+  90% {
+    transform: scale(1) translateZ(3px);
+    filter: blur(8px) saturate(0.6);
+  }
+}
+
+/* Push bulges - 3D effect of products pushing against the sheet */
+.products-push-bulge {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 8;
+  background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.1) 40%, transparent 70%);
+  box-shadow: 
+    inset 0 0 30px rgba(255, 255, 255, 0.2),
+    0 0 40px rgba(202, 166, 110, 0.15);
+  backdrop-filter: blur(2px);
+}
+
+.products-push-bulge--1 {
+  width: 120px;
+  height: 100px;
+  top: 55%;
+  left: 12%;
+  animation: bulgePush1 3.5s ease-in-out infinite;
+}
+
+.products-push-bulge--2 {
+  width: 100px;
+  height: 90px;
+  top: 50%;
+  right: 18%;
+  animation: bulgePush2 4s ease-in-out infinite 0.8s;
+}
+
+.products-push-bulge--3 {
+  width: 80px;
+  height: 70px;
+  bottom: 25%;
+  left: 35%;
+  animation: bulgePush3 3.2s ease-in-out infinite 1.5s;
+}
+
+.products-push-bulge--4 {
+  width: 110px;
+  height: 85px;
+  bottom: 30%;
+  right: 30%;
+  animation: bulgePush1 3.8s ease-in-out infinite 2s;
+}
+
+@keyframes bulgePush1 {
+  0%, 100% {
+    transform: scale(0.8) translateZ(0);
+    opacity: 0;
+  }
+  20% {
+    transform: scale(1) translateZ(10px);
+    opacity: 0.6;
+  }
+  40% {
+    transform: scale(1.3) translateZ(25px);
+    opacity: 0.9;
+  }
+  60% {
+    transform: scale(1.2) translateZ(20px);
+    opacity: 0.7;
+  }
+  80% {
+    transform: scale(0.9) translateZ(5px);
+    opacity: 0.3;
+  }
+}
+
+@keyframes bulgePush2 {
+  0%, 100% {
+    transform: scale(0.7) translateZ(0) rotate(0deg);
+    opacity: 0;
+  }
+  15% {
+    transform: scale(0.9) translateZ(8px) rotate(2deg);
+    opacity: 0.5;
+  }
+  35% {
+    transform: scale(1.25) translateZ(22px) rotate(-3deg);
+    opacity: 0.85;
+  }
+  55% {
+    transform: scale(1.35) translateZ(30px) rotate(2deg);
+    opacity: 1;
+  }
+  75% {
+    transform: scale(1.1) translateZ(15px) rotate(-1deg);
+    opacity: 0.6;
+  }
+  90% {
+    transform: scale(0.85) translateZ(3px) rotate(0deg);
+    opacity: 0.2;
+  }
+}
+
+@keyframes bulgePush3 {
+  0%, 100% {
+    transform: scale(0.6) translateZ(0);
+    opacity: 0;
+  }
+  25% {
+    transform: scale(1.1) translateZ(15px);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1.4) translateZ(28px);
+    opacity: 0.95;
+  }
+  75% {
+    transform: scale(1) translateZ(10px);
+    opacity: 0.5;
+  }
+}
+
+/* Stress lines - cracks forming from pressure */
+.products-stress-line {
+  position: absolute;
+  pointer-events: none;
+  z-index: 9;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  height: 2px;
+  transform-origin: center;
+}
+
+.products-stress-line--1 {
+  width: 60px;
+  top: 58%;
+  left: 18%;
+  animation: stressCrack1 3.5s ease-in-out infinite;
+}
+
+.products-stress-line--2 {
+  width: 45px;
+  top: 52%;
+  right: 22%;
+  transform: rotate(-15deg);
+  animation: stressCrack2 4s ease-in-out infinite 0.8s;
+}
+
+.products-stress-line--3 {
+  width: 50px;
+  bottom: 28%;
+  left: 40%;
+  transform: rotate(20deg);
+  animation: stressCrack1 3.2s ease-in-out infinite 1.5s;
+}
+
+@keyframes stressCrack1 {
+  0%, 100% {
+    width: 0;
+    opacity: 0;
+  }
+  30% {
+    width: 40px;
+    opacity: 0.6;
+  }
+  50% {
+    width: 70px;
+    opacity: 0.9;
+  }
+  70% {
+    width: 50px;
+    opacity: 0.5;
+  }
+  90% {
+    width: 20px;
+    opacity: 0.2;
+  }
+}
+
+@keyframes stressCrack2 {
+  0%, 100% {
+    width: 0;
+    opacity: 0;
+    transform: rotate(-15deg) scaleX(1);
+  }
+  25% {
+    width: 35px;
+    opacity: 0.5;
+    transform: rotate(-15deg) scaleX(1.1);
+  }
+  50% {
+    width: 55px;
+    opacity: 0.85;
+    transform: rotate(-12deg) scaleX(1.2);
+  }
+  75% {
+    width: 40px;
+    opacity: 0.4;
+    transform: rotate(-15deg) scaleX(1);
+  }
 }
 
 /* Products floating particles */
@@ -1472,7 +2021,7 @@
 .products-snow--4 { left: 72%; font-size: 16px; animation-duration: 10s; animation-delay: 0.5s; }
 .products-snow--5 { left: 90%; font-size: 18px; animation-duration: 7.5s; animation-delay: 1.5s; }
 
-/* Products overlay */
+/* Products overlay - membrane sheet effect */
 .products-overlay {
   position: absolute;
   inset: 0;
@@ -1483,6 +2032,76 @@
   background: 
     radial-gradient(ellipse 60% 50% at 50% 50%, rgba(202, 166, 110, 0.2) 0%, transparent 60%);
   pointer-events: none;
+  overflow: hidden;
+}
+
+/* Membrane sheet that products push against */
+.products-overlay::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: 
+    radial-gradient(ellipse 25% 30% at 20% 70%, rgba(255, 255, 255, 0.15) 0%, transparent 70%),
+    radial-gradient(ellipse 30% 25% at 75% 30%, rgba(255, 255, 255, 0.12) 0%, transparent 70%),
+    radial-gradient(ellipse 20% 35% at 40% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 70%),
+    radial-gradient(ellipse 28% 22% at 85% 65%, rgba(255, 255, 255, 0.13) 0%, transparent 70%);
+  animation: membraneBulge 4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* Ripple effects from products hitting the sheet */
+.products-overlay::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle 80px at 25% 60%, rgba(202, 166, 110, 0.08) 0%, transparent 100%),
+    radial-gradient(circle 100px at 70% 40%, rgba(202, 166, 110, 0.06) 0%, transparent 100%),
+    radial-gradient(circle 60px at 50% 75%, rgba(202, 166, 110, 0.07) 0%, transparent 100%);
+  animation: sheetRipple 3s ease-in-out infinite 0.5s;
+  pointer-events: none;
+}
+
+@keyframes membraneBulge {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  20% {
+    transform: scale(1.03) translateY(-2px);
+    opacity: 0.8;
+  }
+  40% {
+    transform: scale(1.01);
+    opacity: 0.65;
+  }
+  60% {
+    transform: scale(1.04) translateY(-3px) translateX(2px);
+    opacity: 0.85;
+  }
+  80% {
+    transform: scale(1.02) translateX(-1px);
+    opacity: 0.7;
+  }
+}
+
+@keyframes sheetRipple {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  25% {
+    transform: scale(1.08);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.02);
+    opacity: 0.6;
+  }
+  75% {
+    transform: scale(1.1);
+    opacity: 0.75;
+  }
 }
 
 .products-overlay__content {
@@ -1683,7 +2302,24 @@
 }
 .comm-card.green { background: linear-gradient(180deg, #507056, #2c4b34); }
 .comm-card.maroon { background: linear-gradient(180deg, #6a241f, #5a1d1a); }
-.media-window { background: linear-gradient(180deg, #fffdf2, #f3e9d9); border-radius: 10px; height: 180px; margin: 12px; position: relative; box-shadow: inset 0 0 0 2px rgba(0,0,0,0.35); }
+.media-window { 
+  background: linear-gradient(180deg, #fffdf2, #f3e9d9); 
+  border-radius: 10px; 
+  height: 180px; 
+  margin: 12px; 
+  position: relative; 
+  box-shadow: inset 0 0 0 2px rgba(0,0,0,0.35);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.media-window img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 10px;
+}
 .badge { 
   position: absolute; 
   top: -10px; 

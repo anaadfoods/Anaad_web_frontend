@@ -1,86 +1,89 @@
-<section class="blog-detail-hero">
-  <div class="blog-detail-hero__floating-leaf blog-detail-hero__floating-leaf--1"></div>
-  <div class="blog-detail-hero__floating-leaf blog-detail-hero__floating-leaf--2"></div>
-  <div class="blog-detail-hero__floating-leaf blog-detail-hero__floating-leaf--3"></div>
-  <div class="blog-detail-hero__inner">
-    <p class="blog-detail-hero__eyebrow">By: The ANAAD Team | 4 Min Read</p>
-    <h1 class="blog-detail-hero__title">
-      <span class="blog-detail-hero__title-line">The "Slow Poison" in Your Kitchen:</span>
-      <span class="blog-detail-hero__title-line">5 Daily Habits That Are Silently</span>
-      <span class="blog-detail-hero__title-line">Harming Your Family</span>
-    </h1>
-    <p class="blog-detail-hero__subtitle">
-      You check the expiry date, but do you check the soil it grew in?<br>
-      Here is the checklist no supermarket wants you to see.
-    </p>
-  </div>
-</section>
+<!-- Loading state -->
+@if (loading) {
+  <section class="blog-detail-loading">
+    <div class="loading-spinner"></div>
+    <p>Loading article...</p>
+  </section>
+}
 
-<section class="blog-detail-body">
-  <div class="blog-detail-body__content">
-    <p>
-      We trust our kitchens. It is the one place where we feel we have total control over what enters our bodies.
-      We wash our vegetables. We boil our water. We check the expiry dates religiously.
-    </p>
-    <p>
-      But what if the danger isn't on the food, but in it?
-    </p>
-    <p>
-      Modern agriculture has shifted from "nourishing people" to "increasing shelf life." The result is what experts
-      call Bio-Accumulation—or as we call it, "Slow Poison." It doesn’t make you sick today. It doesn't make you sick
-      tomorrow. But over 5, 10, or 15 years, these micro-doses of chemicals accumulate in your organs, leading to the
-      sudden rise in autoimmune diseases, gut issues, and childhood allergies we see in India today.
-    </p>
-    <p>
-      Are you guilty of these 5 common habits?
-    </p>
+<!-- Error state -->
+@if (error && !loading) {
+  <section class="blog-detail-error">
+    <div class="error-icon">☁️</div>
+    <h2>Cloudy with a chance of errors</h2>
+    <p>We couldn't load this article right now. Please try again in a moment.</p>
+    <button type="button" class="back-button" (click)="goBack()">Back to Blogs</button>
+  </section>
+}
 
-    <h2>Habit #1: Trusting the Shine</h2>
-    <p>
-      We have been trained to believe that "clean" equals "shiny." Go to your local supermarket. Pick up an apple or a
-      bell pepper... (content continues here).
-    </p>
-  </div>
-</section>
+<!-- Not found state -->
+@if (notFound && !loading) {
+  <section class="blog-detail-error blog-detail-error--not-found">
+    <div class="error-icon">🌾</div>
+    <h2>Lost in the Fields</h2>
+    <p>This article doesn't exist or may have been moved. Let's head back.</p>
+    <button type="button" class="back-button" (click)="goBack()">Back to Blogs</button>
+  </section>
+}
 
-<section class="blog-detail-cta">
-  <div class="blog-detail-cta__card blog-detail-cta__card--top">
-    <h2 class="blog-detail-cta__heading">Don’t have time to read the full article?</h2>
-    <button
-      type="button"
-      class="blog-detail-cta__button"
-      [routerLink]="['/evidence']"
-    >
-      Send the PDF to my EMAIL/WHATSAPP
-    </button>
-  </div>
+<!-- Article loaded -->
+@if (!loading && !error && !notFound && article) {
+  <section class="blog-detail-hero">
+    <div class="blog-detail-hero__floating-leaf blog-detail-hero__floating-leaf--1"></div>
+    <div class="blog-detail-hero__floating-leaf blog-detail-hero__floating-leaf--2"></div>
+    <div class="blog-detail-hero__floating-leaf blog-detail-hero__floating-leaf--3"></div>
+    <div class="blog-detail-hero__inner">
+      <p class="blog-detail-hero__eyebrow">By: {{ article.author }} | {{ article.read_time }}</p>
+      <h1 class="blog-detail-hero__title">
+        <span class="blog-detail-hero__title-line">{{ article.title }}</span>
+      </h1>
+      <p class="blog-detail-hero__subtitle">{{ article.subtitle }}</p>
+    </div>
+  </section>
 
-  <div class="blog-detail-cta__stacked">
-    <header class="blog-detail-cta__stacked-header">
-      <h3 class="blog-detail-cta__subheading">SUB-HEADING</h3>
-      <p class="blog-detail-cta__description">Short description<br>2 lines</p>
-    </header>
+  <section class="blog-detail-body">
+    <div class="blog-detail-body__content" [innerHTML]="article.content"></div>
+  </section>
 
-    <div class="blog-detail-cta__card blog-detail-cta__card--stacked">
-      <div class="blog-detail-cta__stacked-main">
-        <div class="blog-detail-cta__image-placeholder"></div>
-        <div class="blog-detail-cta__copy">
-          <p class="blog-detail-cta__copy-text">
-            Experience the vast benefits by<br>
-            becoming the “Founding Member”
-          </p>
+  <section class="blog-detail-cta">
+    <div class="blog-detail-cta__card blog-detail-cta__card--top">
+      <h2 class="blog-detail-cta__heading">Don't have time to read the full article?</h2>
+      <button
+        type="button"
+        class="blog-detail-cta__button"
+        (click)="requestPdf()"
+      >
+        Send the PDF to my EMAIL/WHATSAPP
+      </button>
+    </div>
+
+    <div class="blog-detail-cta__stacked">
+      <header class="blog-detail-cta__stacked-header">
+        <h3 class="blog-detail-cta__subheading">SUB-HEADING</h3>
+        <p class="blog-detail-cta__description">Short description<br>2 lines</p>
+      </header>
+
+      <div class="blog-detail-cta__card blog-detail-cta__card--stacked">
+        <div class="blog-detail-cta__stacked-main">
+          <div class="blog-detail-cta__image-placeholder"></div>
+          <div class="blog-detail-cta__copy">
+            <p class="blog-detail-cta__copy-text">
+              Experience the vast benefits by<br>
+              becoming the "Founding Member"
+            </p>
+          </div>
+        </div>
+
+        <button type="button" class="blog-detail-cta__waitlist-button" [routerLink]="['/join-waitlist']">
+          JOIN THE WAITLIST
+        </button>
+
+        <div class="blog-detail-cta__links">
+          <span class="pdf-link" (click)="requestPdf()">Send the PDF to my EMAIL/WHATSAPP</span>
+          <span class="pdf-link" (click)="requestPdf()">Send the PDF to my EMAIL/WHATSAPP</span>
+          <span class="pdf-link" (click)="requestPdf()">Send the PDF to my EMAIL/WHATSAPP</span>
         </div>
       </div>
-
-      <button type="button" class="blog-detail-cta__waitlist-button">
-        JOIN THE WAITLIST
-      </button>
-
-      <div class="blog-detail-cta__links">
-        <span>Send the PDF to my EMAIL/WHATSAPP</span>
-        <span>Send the PDF to my EMAIL/WHATSAPP</span>
-        <span>Send the PDF to my EMAIL/WHATSAPP</span>
-      </div>
     </div>
-  </div>
-</section>
+  </section>
+}

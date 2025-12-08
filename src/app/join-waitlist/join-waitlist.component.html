@@ -79,12 +79,28 @@
 </section>
 
 <section class="ecosystem-section">
+  <!-- Floating particles -->
+  <div class="ecosystem-particle ecosystem-particle--1"></div>
+  <div class="ecosystem-particle ecosystem-particle--2"></div>
+  <div class="ecosystem-particle ecosystem-particle--3"></div>
+  <div class="ecosystem-particle ecosystem-particle--4"></div>
+  
+  <!-- Sparkles -->
+  <div class="ecosystem-sparkle ecosystem-sparkle--1"></div>
+  <div class="ecosystem-sparkle ecosystem-sparkle--2"></div>
+  <div class="ecosystem-sparkle ecosystem-sparkle--3"></div>
+  <div class="ecosystem-sparkle ecosystem-sparkle--4"></div>
+  <div class="ecosystem-sparkle ecosystem-sparkle--5"></div>
+  
+  <!-- Floating orbs -->
+  <div class="ecosystem-orb ecosystem-orb--1"></div>
+  <div class="ecosystem-orb ecosystem-orb--2"></div>
+  
   <div class="ecosystem-section__inner">
     <div class="ecosystem-section__frame">
-      <!-- Replace the src with your actual image path when available -->
       <img
         class="ecosystem-section__image"
-        src="assets/images/icbn-ecosystem.png"
+        src="assets/images/icbn-diagram.svg"
         alt="ICBN Circular Self-Dependent Ecosystem diagram"
       />
     </div>
@@ -181,7 +197,28 @@
           <textarea class="waitlist-form__textarea" rows="3" placeholder="Message (optional)" formControlName="message"></textarea>
         </div>
 
-        <p class="waitlist-form__note">Pss.. 1240+ Members have already joined.</p>
+        <div class="waitlist-form__social-proof">
+          <span class="social-proof__sparkle social-proof__sparkle--1">✨</span>
+          <span class="social-proof__sparkle social-proof__sparkle--2">✨</span>
+          <span class="social-proof__icon">🎉</span>
+          <p class="social-proof__text">
+            <span class="social-proof__pss">Pss..</span>
+            <span class="member-count" [class.loading]="isCountLoading()">
+              @if (isCountLoading()) {
+                <span class="member-count__loader"></span>
+              } @else {
+                <span class="member-count__number">{{ displayCount() }}+</span>
+              }
+            </span>
+            <span class="social-proof__label">Members have already joined!</span>
+          </p>
+          <div class="social-proof__avatars">
+            <span class="avatar avatar--1"></span>
+            <span class="avatar avatar--2"></span>
+            <span class="avatar avatar--3"></span>
+            <span class="avatar avatar--more">+{{ displayCount() > 100 ? (displayCount() - 3) : '97' }}</span>
+          </div>
+        </div>
 
         <button type="submit" class="waitlist-form__submit" [disabled]="submitting">
           {{ submitting ? 'Joining…' : 'Join Now' }}

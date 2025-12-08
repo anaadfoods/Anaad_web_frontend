@@ -68,6 +68,153 @@
   z-index: -1;
 }
 
+/* Pulsing aura rings - expanding circles */
+.logo .aura-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(90, 122, 90, 0.3);
+  pointer-events: none;
+  z-index: -1;
+}
+
+.logo .aura-ring--1 {
+  width: 60px;
+  height: 60px;
+  animation: auraExpand 3s ease-out infinite;
+}
+
+.logo .aura-ring--2 {
+  width: 60px;
+  height: 60px;
+  animation: auraExpand 3s ease-out infinite 1s;
+}
+
+.logo .aura-ring--3 {
+  width: 60px;
+  height: 60px;
+  animation: auraExpand 3s ease-out infinite 2s;
+}
+
+@keyframes auraExpand {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.6;
+    border-color: rgba(90, 122, 90, 0.5);
+  }
+  50% {
+    opacity: 0.3;
+  }
+  100% {
+    transform: scale(1.8);
+    opacity: 0;
+    border-color: rgba(90, 122, 90, 0);
+  }
+}
+
+/* Energy waves emanating from logo */
+.logo .energy-wave {
+  position: absolute;
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    rgba(90, 122, 90, 0.15) 30deg,
+    transparent 60deg,
+    rgba(202, 166, 110, 0.1) 120deg,
+    transparent 150deg,
+    rgba(90, 122, 90, 0.12) 210deg,
+    transparent 240deg,
+    rgba(202, 166, 110, 0.08) 300deg,
+    transparent 330deg
+  );
+  pointer-events: none;
+  z-index: -1;
+}
+
+.logo .energy-wave--1 {
+  animation: energySpin 8s linear infinite, energyPulse 4s ease-in-out infinite;
+}
+
+.logo .energy-wave--2 {
+  width: 90px;
+  height: 90px;
+  animation: energySpin 12s linear infinite reverse, energyPulse 5s ease-in-out infinite 1s;
+  opacity: 0.6;
+}
+
+@keyframes energySpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes energyPulse {
+  0%, 100% {
+    transform: rotate(0deg) scale(1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: rotate(180deg) scale(1.15);
+    opacity: 0.8;
+  }
+}
+
+/* Star sparkles around logo */
+.logo .star-sparkle {
+  position: absolute;
+  font-size: 10px;
+  color: rgba(202, 166, 110, 0.8);
+  pointer-events: none;
+  text-shadow: 0 0 6px rgba(202, 166, 110, 0.6);
+}
+
+.logo .star-sparkle--1 {
+  top: -8px;
+  right: -5px;
+  animation: starTwinkle 2s ease-in-out infinite, starFloat 4s ease-in-out infinite;
+}
+
+.logo .star-sparkle--2 {
+  bottom: 0;
+  left: -10px;
+  font-size: 8px;
+  animation: starTwinkle 2.5s ease-in-out infinite 0.5s, starFloat 5s ease-in-out infinite 1s;
+}
+
+.logo .star-sparkle--3 {
+  top: 50%;
+  right: -12px;
+  font-size: 7px;
+  animation: starTwinkle 1.8s ease-in-out infinite 1s, starFloat 3.5s ease-in-out infinite 0.5s;
+}
+
+@keyframes starTwinkle {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+@keyframes starFloat {
+  0%, 100% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(2px, -3px);
+  }
+  50% {
+    transform: translate(-1px, -5px);
+  }
+  75% {
+    transform: translate(3px, -2px);
+  }
+}
+
 /* Heartbeat-like glow pulse */
 @keyframes heartbeatGlow {
   0%, 100% {
@@ -174,11 +321,41 @@
   transform: translateZ(10px);
   filter: drop-shadow(0 0 10px rgba(90, 122, 90, 0.6))
           drop-shadow(0 0 25px rgba(90, 122, 90, 0.4))
+          drop-shadow(0 0 40px rgba(202, 166, 110, 0.2))
           drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
   animation: 
     logoAlive 4s ease-in-out infinite,
     logoHeartbeat 2s ease-in-out infinite,
-    logoGlow 3s ease-in-out infinite;
+    logoGlow 3s ease-in-out infinite,
+    logoMagicPulse 6s ease-in-out infinite;
+}
+
+/* Magic color pulse effect */
+@keyframes logoMagicPulse {
+  0%, 100% {
+    filter: drop-shadow(0 0 10px rgba(90, 122, 90, 0.6))
+            drop-shadow(0 0 25px rgba(90, 122, 90, 0.4))
+            drop-shadow(0 0 40px rgba(202, 166, 110, 0.2))
+            drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+  }
+  25% {
+    filter: drop-shadow(0 0 15px rgba(90, 122, 90, 0.8))
+            drop-shadow(0 0 30px rgba(202, 166, 110, 0.5))
+            drop-shadow(0 0 50px rgba(90, 122, 90, 0.3))
+            drop-shadow(0 2px 6px rgba(0, 0, 0, 0.15));
+  }
+  50% {
+    filter: drop-shadow(0 0 20px rgba(202, 166, 110, 0.7))
+            drop-shadow(0 0 40px rgba(90, 122, 90, 0.5))
+            drop-shadow(0 0 60px rgba(202, 166, 110, 0.3))
+            drop-shadow(0 2px 8px rgba(0, 0, 0, 0.2));
+  }
+  75% {
+    filter: drop-shadow(0 0 18px rgba(90, 122, 90, 0.75))
+            drop-shadow(0 0 35px rgba(202, 166, 110, 0.45))
+            drop-shadow(0 0 55px rgba(90, 122, 90, 0.25))
+            drop-shadow(0 2px 6px rgba(0, 0, 0, 0.15));
+  }
 }
 
 /* Complex alive movement - like breathing and swaying */

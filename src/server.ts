@@ -79,6 +79,32 @@ app.post('/api/user-queries/', async (req: Request, res: Response) => {
   }
 });
 
+// Proxy for user query count (member count for waitlist)
+app.get('/api/user-query/count/', async (req: Request, res: Response) => {
+  const upstream = `${process.env['BASE_API_CLIENT']}/api/user-query/count/`;
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 10000);
+  try {
+    const r = await fetch(upstream, { signal: controller.signal });
+    const ct = r.headers.get('content-type') || '';
+    if (!r.ok) {
+      res.status(r.status).json({ error: 'upstream_error', status: r.status, statusText: r.statusText });
+      return;
+    }
+    if (ct.includes('application/json')) {
+      const data = await r.json();
+      res.json(data);
+    } else {
+      const text = await r.text();
+      res.type('text/plain').send(text);
+    }
+  } catch (err) {
+    res.status(502).json({ error: 'proxy_fetch_failed', detail: String(err) });
+  } finally {
+    clearTimeout(timeout);
+  }
+});
+
 // Proxy for product variants
 app.get('/api/products/variants/', async (req: Request, res: Response) => {
   const upstream = `${process.env['BASE_API_CLIENT']}/api/products/variants/`;
@@ -108,6 +134,86 @@ app.get('/api/products/variants/', async (req: Request, res: Response) => {
 // Proxy for research papers (evidence archive)
 app.get('/api/research-papers/', async (req: Request, res: Response) => {
   const upstream = `${process.env['BASE_API_CLIENT']}/api/blog/research-papers/`;
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 10000);
+  try {
+    const r = await fetch(upstream, { signal: controller.signal });
+    const ct = r.headers.get('content-type') || '';
+    if (!r.ok) {
+      res.status(r.status).json({ error: 'upstream_error', status: r.status, statusText: r.statusText });
+      return;
+    }
+    if (ct.includes('application/json')) {
+      const data = await r.json();
+      res.json(data);
+    } else {
+      const text = await r.text();
+      res.type('text/plain').send(text);
+    }
+  } catch (err) {
+    res.status(502).json({ error: 'proxy_fetch_failed', detail: String(err) });
+  } finally {
+    clearTimeout(timeout);
+  }
+});
+
+// Proxy for blog articles (list all - scrollable)
+app.get('/api/blogs/', async (req: Request, res: Response) => {
+  const upstream = `${process.env['BASE_API_CLIENT']}/api/blog/articles`;
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 10000);
+  try {
+    const r = await fetch(upstream, { signal: controller.signal });
+    const ct = r.headers.get('content-type') || '';
+    if (!r.ok) {
+      res.status(r.status).json({ error: 'upstream_error', status: r.status, statusText: r.statusText });
+      return;
+    }
+    if (ct.includes('application/json')) {
+      const data = await r.json();
+      res.json(data);
+    } else {
+      const text = await r.text();
+      res.type('text/plain').send(text);
+    }
+  } catch (err) {
+    res.status(502).json({ error: 'proxy_fetch_failed', detail: String(err) });
+  } finally {
+    clearTimeout(timeout);
+  }
+});
+
+// Proxy for featured blog articles (category=BLOG)
+app.get('/api/blog/articles/', async (req: Request, res: Response) => {
+  const category = req.query['category'] || 'BLOG';
+  const upstream = `${process.env['BASE_API_CLIENT']}/api/blog/articles/?category=${category}`;
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 10000);
+  try {
+    const r = await fetch(upstream, { signal: controller.signal });
+    const ct = r.headers.get('content-type') || '';
+    if (!r.ok) {
+      res.status(r.status).json({ error: 'upstream_error', status: r.status, statusText: r.statusText });
+      return;
+    }
+    if (ct.includes('application/json')) {
+      const data = await r.json();
+      res.json(data);
+    } else {
+      const text = await r.text();
+      res.type('text/plain').send(text);
+    }
+  } catch (err) {
+    res.status(502).json({ error: 'proxy_fetch_failed', detail: String(err) });
+  } finally {
+    clearTimeout(timeout);
+  }
+});
+
+// Proxy for single blog article by ID
+app.get('/api/blogs/:id', async (req: Request, res: Response) => {
+  const articleId = req.params['id'];
+  const upstream = `${process.env['BASE_API_CLIENT']}/api/blog/articles/${articleId}`;
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 10000);
   try {

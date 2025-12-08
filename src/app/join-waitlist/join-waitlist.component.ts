@@ -1,9 +1,16 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import { UserQueriesService, UserQueryPayload } from '../shared/services/user-queries.service';
 import { RegistrationSourceService } from '../shared/services/registration-source.service';
+
+interface MemberCountResponse {
+  success: boolean;
+  count: number;
+  message: string;
+}
 
 @Component({
   selector: 'app-join-waitlist',
@@ -15,8 +22,14 @@ import { RegistrationSourceService } from '../shared/services/registration-sourc
 export class JoinWaitlistComponent implements OnInit {
   private fb = inject(FormBuilder);
   private router = inject(Router);
+  private http = inject(HttpClient);
   private userQueriesService = inject(UserQueriesService);
   private registrationSourceService = inject(RegistrationSourceService);
+
+  // Member count signals
+  memberCount = signal<number>(0);
+  displayCount = signal<number>(0);
+  isCountLoading = signal<boolean>(true);
 
   form = this.fb.group({
     fullName: ['', [Validators.required, Validators.minLength(2)]],
@@ -36,6 +49,45 @@ export class JoinWaitlistComponent implements OnInit {
   ngOnInit(): void {
     // Set source as WAITLIST when user lands on this page
     this.registrationSourceService.setSource('WAITLIST');
+    
+    // Fetch member count from API
+    this.fetchMemberCount();
+  }
+
+  private fetchMemberCount(): void {
+    this.http.get<MemberCountResponse>('/api/user-query/count/').subscribe({
+      next: (response) => {
+        if (response.success && response.count) {
+          this.memberCount.set(response.count);
+          this.animateCount(response.count);
+        }
+        this.isCountLoading.set(false);
+      },
+      error: (err) => {
+        console.error('Failed to fetch member count:', err);
+        this.memberCount.set(1000);
+        this.displayCount.set(1000);
+        this.isCountLoading.set(false);
+      }
+    });
+  }
+
+  private animateCount(target: number): void {
+    const duration = 2000; // 2 seconds
+    const steps = 60;
+    const increment = target / steps;
+    let current = 0;
+    const stepTime = duration / steps;
+
+    const timer = setInterval(() => {
+      current += increment;
+      if (current >= target) {
+        this.displayCount.set(target);
+        clearInterval(timer);
+      } else {
+        this.displayCount.set(Math.floor(current));
+      }
+    }, stepTime);
   }
 
   onSubmit() {

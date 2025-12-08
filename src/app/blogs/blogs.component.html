@@ -1,4 +1,8 @@
 <section class="blogs-hero">
+  <!-- Background image -->
+  <img class="blogs-hero__bg" src="assets/images/blog-hero.svg" alt="" aria-hidden="true" />
+  <div class="blogs-hero__overlay"></div>
+  
   <!-- Floating decorative shapes -->
   <div class="floating-shape floating-shape--1"></div>
   <div class="floating-shape floating-shape--2"></div>
@@ -28,41 +32,62 @@
   <div class="blogs-featured__bg"></div>
 
   <div class="blogs-featured__cards">
-    <div class="card card--large" appRevealOnScroll>
-      <div class="card__glow"></div>
-      <div class="card__shimmer"></div>
-      <div class="card__label">Featured</div>
-      <h2>Reviving ancestral farming practices to restore health and pride in every Indian home.</h2>
-      <p>
-        Cultivating climate-resilient crops that nurture both human health
-        and planetary well-being.
-      </p>
-      <button type="button" class="card__button btn-ripple">Register</button>
-    </div>
-
-    <div class="card-column">
-      <div class="card card--small" appRevealOnScroll>
-        <div class="card__glow"></div>
+    <!-- Loading state -->
+    @if (featuredLoading) {
+      <div class="card card--large">
         <div class="card__shimmer"></div>
-        <h3>The Revolution</h3>
-        <p>
-          Cultivating climate-resilient crops that nurture both human health
-          and planetary well-being.
-        </p>
-        <button type="button" class="card__button btn-ripple">Register</button>
+        <div class="card__label">Loading...</div>
       </div>
+    }
 
-      <div class="card card--small" appRevealOnScroll>
-        <div class="card__glow"></div>
-        <div class="card__shimmer"></div>
-        <h3>The Revolution</h3>
-        <p>
-          Pioneering a profitable, scalable business model that is reshaping
-          the future of food.
-        </p>
-        <button type="button" class="card__button btn-ripple">Register</button>
+    <!-- Error state -->
+    @if (featuredError && !featuredLoading) {
+      <div class="card card--large">
+        <div class="card__label">Error</div>
+        <h2>Failed to load featured articles</h2>
+        <p>Please try again later.</p>
       </div>
-    </div>
+    }
+
+    <!-- Featured articles from API -->
+    @if (!featuredLoading && !featuredError && featuredArticles.length >= 3) {
+      <!-- Large card - Article 1 -->
+      <a [routerLink]="['/blogs', featuredArticles[0].id]" class="card card--large" appRevealOnScroll>
+        <div class="card__orb"></div>
+        <div class="card__label">Featured</div>
+        <h2>{{ featuredArticles[0].title }}</h2>
+        <p>{{ featuredArticles[0].subtitle }}</p>
+        <span class="card__button btn-ripple">Read More</span>
+      </a>
+
+      <div class="card-column">
+        <!-- Small card - Article 2 -->
+        <a [routerLink]="['/blogs', featuredArticles[1].id]" class="card card--small" appRevealOnScroll>
+          <div class="card__orb"></div>
+          <h3>{{ featuredArticles[1].title }}</h3>
+          <p>{{ featuredArticles[1].subtitle }}</p>
+          <span class="card__button btn-ripple">Read More</span>
+        </a>
+
+        <!-- Small card - Article 3 -->
+        <a [routerLink]="['/blogs', featuredArticles[2].id]" class="card card--small" appRevealOnScroll>
+          <div class="card__orb"></div>
+          <h3>{{ featuredArticles[2].title }}</h3>
+          <p>{{ featuredArticles[2].subtitle }}</p>
+          <span class="card__button btn-ripple">Read More</span>
+        </a>
+      </div>
+    }
+
+    <!-- Fallback if less than 3 articles -->
+    @if (!featuredLoading && !featuredError && featuredArticles.length < 3) {
+      <div class="card card--large" appRevealOnScroll>
+        <div class="card__orb"></div>
+        <div class="card__label">Featured</div>
+        <h2>No featured articles available</h2>
+        <p>Please check back later.</p>
+      </div>
+    }
   </div>
 </section>
 
@@ -77,202 +102,55 @@
     <h2 class="section-title" appRevealOnScroll>EXPLORE</h2>
 
     <div class="topic-cards-wrapper">
-      <div class="topic-cards-track">
-        <!-- Card 1 -->
-        <article class="topic-card topic-card--light">
-          <h3>TOPIC<br />HEADING</h3>
-          <p>Ideal for people beginning their switch to clean eating.</p>
-          <button
-            type="button"
-            class="topic-card__button"
-            [routerLink]="['/blogs', 1]"
-          >
-            Read More
-          </button>
-        </article>
+      <!-- Loading state -->
+      @if (loading) {
+        <div class="topic-cards-loading">
+          <div class="loading-spinner"></div>
+          <p>Loading articles...</p>
+        </div>
+      }
 
-        <!-- Card 2 -->
-        <article class="topic-card topic-card--dark">
-          <h3>TOPIC<br />HEADING</h3>
-          <p>Ideal for people beginning their switch to clean eating with cold-pressed flours.</p>
-          <button
-            type="button"
-            class="topic-card__button"
-            [routerLink]="['/blogs', 2]"
-          >
-            Read More
-          </button>
-        </article>
+      <!-- Error state -->
+      @if (error && !loading) {
+        <div class="topic-cards-error">
+          <div class="error-icon">☁️</div>
+          <h3>Cloudy with a chance of errors</h3>
+          <p>We couldn't fetch the articles right now. Give it another shot!</p>
+          <button type="button" class="retry-button" (click)="ngOnInit()">Try Again</button>
+        </div>
+      }
 
-        <!-- Card 3 -->
-        <article class="topic-card topic-card--light">
-          <h3>TOPIC<br />HEADING</h3>
-          <p>Ideal for people beginning their switch to clean eating.</p>
-          <button
-            type="button"
-            class="topic-card__button"
-            [routerLink]="['/blogs', 3]"
-          >
-            Read More
-          </button>
-        </article>
+      <!-- Articles loaded -->
+      @if (!loading && !error && displayArticles.length > 0) {
+        <div class="topic-cards-track">
+          @for (article of displayArticles; track $index; let i = $index) {
+            <article 
+              class="topic-card" 
+              [class.topic-card--light]="!article.cover_image && i % 2 === 0"
+              [class.topic-card--dark]="!article.cover_image && i % 2 !== 0"
+              [class.topic-card--image]="article.cover_image"
+              [style.background-image]="article.cover_image ? 'url(' + article.cover_image + ')' : null"
+            >
+              <h3 [innerHTML]="article.title"></h3>
+              <p>{{ article.subtitle }}</p>
+              <button
+                type="button"
+                class="topic-card__button"
+                [routerLink]="['/blogs', article.id]"
+              >
+                Read More
+              </button>
+            </article>
+          }
+        </div>
+      }
 
-        <!-- Card 4 -->
-        <article class="topic-card topic-card--dark">
-          <h3>TOPIC<br />HEADING</h3>
-          <p>Discover the benefits of traditional grains and millets.</p>
-          <button
-            type="button"
-            class="topic-card__button"
-            [routerLink]="['/blogs', 4]"
-          >
-            Read More
-          </button>
-        </article>
-
-        <!-- Card 5 -->
-        <article class="topic-card topic-card--light">
-          <h3>TOPIC<br />HEADING</h3>
-          <p>Understanding the science behind ICBN farming methods.</p>
-          <button
-            type="button"
-            class="topic-card__button"
-            [routerLink]="['/blogs', 5]"
-          >
-            Read More
-          </button>
-        </article>
-
-        <!-- Card 6 -->
-        <article class="topic-card topic-card--dark">
-          <h3>TOPIC<br />HEADING</h3>
-          <p>How ancestral farming practices restore soil health.</p>
-          <button
-            type="button"
-            class="topic-card__button"
-            [routerLink]="['/blogs', 6]"
-          >
-            Read More
-          </button>
-        </article>
-
-        <!-- Card 7 -->
-        <article class="topic-card topic-card--light">
-          <h3>TOPIC<br />HEADING</h3>
-          <p>The journey from farm to table with organic produce.</p>
-          <button
-            type="button"
-            class="topic-card__button"
-            [routerLink]="['/blogs', 7]"
-          >
-            Read More
-          </button>
-        </article>
-
-        <!-- Card 8 -->
-        <article class="topic-card topic-card--dark">
-          <h3>TOPIC<br />HEADING</h3>
-          <p>Climate-positive agriculture and its global impact.</p>
-          <button
-            type="button"
-            class="topic-card__button"
-            [routerLink]="['/blogs', 8]"
-          >
-            Read More
-          </button>
-        </article>
-
-        <!-- Card 9 -->
-        <article class="topic-card topic-card--light">
-          <h3>TOPIC<br />HEADING</h3>
-          <p>Empowering farmers through sustainable practices.</p>
-          <button
-            type="button"
-            class="topic-card__button"
-            [routerLink]="['/blogs', 9]"
-          >
-            Read More
-          </button>
-        </article>
-
-        <!-- Card 10 -->
-        <article class="topic-card topic-card--dark">
-          <h3>TOPIC<br />HEADING</h3>
-          <p>Nutrition secrets of cold-pressed oils and flours.</p>
-          <button
-            type="button"
-            class="topic-card__button"
-            [routerLink]="['/blogs', 10]"
-          >
-            Read More
-          </button>
-        </article>
-
-        <!-- Card 11 -->
-        <article class="topic-card topic-card--light">
-          <h3>TOPIC<br />HEADING</h3>
-          <p>Building a healthier community one meal at a time.</p>
-          <button
-            type="button"
-            class="topic-card__button"
-            [routerLink]="['/blogs', 11]"
-          >
-            Read More
-          </button>
-        </article>
-
-        <!-- Card 12 -->
-        <article class="topic-card topic-card--dark">
-          <h3>TOPIC<br />HEADING</h3>
-          <p>The role of indigenous cow breeds in natural farming.</p>
-          <button
-            type="button"
-            class="topic-card__button"
-            [routerLink]="['/blogs', 12]"
-          >
-            Read More
-          </button>
-        </article>
-
-        <!-- Card 13 -->
-        <article class="topic-card topic-card--light">
-          <h3>TOPIC<br />HEADING</h3>
-          <p>Reviving forgotten recipes with ancient grains.</p>
-          <button
-            type="button"
-            class="topic-card__button"
-            [routerLink]="['/blogs', 13]"
-          >
-            Read More
-          </button>
-        </article>
-
-        <!-- Card 14 -->
-        <article class="topic-card topic-card--dark">
-          <h3>TOPIC<br />HEADING</h3>
-          <p>How clean eating transforms modern lifestyle diseases.</p>
-          <button
-            type="button"
-            class="topic-card__button"
-            [routerLink]="['/blogs', 14]"
-          >
-            Read More
-          </button>
-        </article>
-
-        <!-- Card 15 -->
-        <article class="topic-card topic-card--light">
-          <h3>TOPIC<br />HEADING</h3>
-          <p>Join the movement towards regenerative agriculture.</p>
-          <button
-            type="button"
-            class="topic-card__button"
-            [routerLink]="['/blogs', 15]"
-          >
-            Read More
-          </button>
-        </article>
-      </div>
+      <!-- No articles -->
+      @if (!loading && !error && displayArticles.length === 0) {
+        <div class="topic-cards-empty">
+          <p>No articles available at the moment.</p>
+        </div>
+      }
     </div>
 
     <div class="evidence" appRevealOnScroll>
@@ -280,7 +158,7 @@
       <p class="evidence__subtitle">
         Browse through a database of 20+<br />Peer-Reviewed Studies
       </p>
-      <button type="button" class="pill-button pulse-btn">Clinical Research Papers</button>
+      <button type="button" class="pill-button pulse-btn" routerLink="/evidence">Clinical Research Papers</button>
     </div>
 
     <div class="research-card" appRevealOnScroll>
@@ -289,7 +167,7 @@
       </div>
       <div class="research-card__content">
         <h3>The Science Behind ICBN:<br />A Database of 20+<br />Peer-Reviewed Studies</h3>
-        <a href="javascript:void(0)" class="research-card__link hover-arrow">Learn More <span class="arrow">→</span></a>
+        <a routerLink="/evidence" class="research-card__link hover-arrow">Learn More <span class="arrow">→</span></a>
       </div>
     </div>
   </div>
