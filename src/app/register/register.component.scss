@@ -105,10 +105,13 @@
 /* Form card */
 .register-form-block { 
   background: #f6efdf; 
-  padding: 28px 0 72px;
+  padding: 28px 0 0;
+  padding-bottom: 72px;
   animation: fadeIn 1.4s ease-out;
   position: relative;
   overflow: hidden;
+  /* Extend the background to fill any gap before footer */
+  margin-bottom: -1px;
 }
 
 .register-form-block::before {

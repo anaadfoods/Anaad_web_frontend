@@ -46,6 +46,13 @@ export class JoinWaitlistComponent implements OnInit {
 
   get f() { return this.form.controls; }
 
+  scrollToForm(): void {
+    const formElement = document.querySelector('.waitlist-form');
+    if (formElement) {
+      formElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }
+
   ngOnInit(): void {
     // Set source as WAITLIST when user lands on this page
     this.registrationSourceService.setSource('WAITLIST');

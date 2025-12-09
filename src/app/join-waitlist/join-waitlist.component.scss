@@ -11,6 +11,17 @@
   from { opacity: 0; transform: translateX(-30px); }
   to   { opacity: 1; transform: translateX(0); }
 }
+@keyframes bounceIn {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.3); }
+  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.05); }
+  70% { transform: translate(-50%, -50%) scale(0.95); }
+  100% { transform: translate(-50%, -50%) scale(1); }
+}
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-10deg); }
+  75% { transform: rotate(10deg); }
+}
 @keyframes gentleFloat {
   0%, 100% { transform: translateY(0); }
   50%      { transform: translateY(-6px); }
@@ -344,6 +355,12 @@
   }
 }
 
+/* ========= Page Wrapper ========= */
+:host {
+  display: block;
+  overflow-x: hidden; /* Prevent horizontal scroll from oversized decorative layers */
+}
+
 /* ========= Hero ========= */
 .waitlist-hero {
   position: relative;
@@ -355,7 +372,7 @@
     radial-gradient(ellipse 70% 50% at 70% 40%, rgba(70, 30, 25, 0.3) 0%, transparent 50%),
     linear-gradient(180deg, #3d1815 0%, #4a1e1a 15%, #551f1a 30%, #5e241e 50%, #6a2b23 70%, #753228 100%);
   color: #f5e6d8;
-  overflow: visible;
+  overflow: hidden;
   z-index: 1;
 }
 
@@ -667,7 +684,11 @@
 
 /* Variant: large empty tan gradient */
 .waitlist-card--tan {
-  background: linear-gradient(135deg, #ddbb7a 0%, #b89260 100%);
+  background: linear-gradient(135deg, rgba(221, 187, 122, 0.15) 0%, rgba(184, 146, 96, 0.15) 100%), url('/assets/images/.waitlist-card--tan.svg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: saturate(1.5);
 }
 
 /* Variant: "The Old Way" */
@@ -684,7 +705,11 @@
 
 /* Variant: large empty olive gradient */
 .waitlist-card--olive {
-  background: linear-gradient(135deg, #a4925c 0%, #7a6a44 100%);
+  background: linear-gradient(135deg, rgba(164, 146, 92, 0.15) 0%, rgba(122, 106, 68, 0.15) 100%), url('/assets/images/.waitlist-card--olive.svg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: saturate(1.5);
   grid-column: span 1;
 }
 
@@ -1324,7 +1349,22 @@
   border-radius: 14px;
   background: linear-gradient(145deg, #fdfdfd 0%, #f3f0e5 55%, #e2dcc9 100%);
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
-  animation: fadeSlideUp 0.5s 0.1s ease-out both, subtleBreathe 6s ease-in-out infinite 1s;
+  animation: fadeSlideUp 0.5s 0.1s ease-out both, heartbeat 3s ease-in-out infinite 1s;
+  position: relative;
+  
+  /* Heartbeat glow effect */
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 14px;
+    box-shadow: 0 0 0 0 rgba(226, 220, 201, 0.7);
+    animation: heartbeatRing 3s ease-in-out infinite 1s;
+    pointer-events: none;
+  }
 }
 
 .waitlist-form-section__headline-block {
@@ -1334,12 +1374,104 @@
   box-shadow: 0 14px 30px rgba(0, 0, 0, 0.22);
   padding: 1.4rem 1.9rem 1.6rem;
   color: #fef6e7;
-  animation: fadeSlideUp 0.5s 0.2s ease-out both;
+  animation: fadeSlideUp 0.5s 0.2s ease-out both, heartbeat 3s ease-in-out infinite 1.3s;
   transition: transform 0.35s ease, box-shadow 0.35s ease;
+  position: relative;
+  overflow: visible;
+  
+  /* Heartbeat glow ring */
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 14px;
+    box-shadow: 0 0 0 0 rgba(179, 123, 62, 0.7);
+    animation: heartbeatRing 3s ease-in-out infinite 1.3s;
+    pointer-events: none;
+    z-index: 0;
+  }
+  
+  /* Shimmer sweep effect */
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -150%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg, 
+      transparent 0%, 
+      rgba(255, 255, 255, 0.08) 45%, 
+      rgba(255, 255, 255, 0.15) 50%, 
+      rgba(255, 255, 255, 0.08) 55%, 
+      transparent 100%
+    );
+    animation: boxShimmer 5s ease-in-out infinite;
+    pointer-events: none;
+    border-radius: 14px;
+    z-index: 0;
+  }
 }
+
+/* Heartbeat animation - mimics real heartbeat rhythm (40% intensity) */
+@keyframes heartbeat {
+  0% {
+    transform: scale(1);
+  }
+  14% {
+    transform: scale(1.012);
+  }
+  28% {
+    transform: scale(1);
+  }
+  42% {
+    transform: scale(1.02);
+  }
+  70% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Heartbeat ring pulse (40% intensity) */
+@keyframes heartbeatRing {
+  0% {
+    box-shadow: 0 0 0 0 rgba(179, 123, 62, 0.2);
+  }
+  14% {
+    box-shadow: 0 0 8px 2px rgba(179, 123, 62, 0.16);
+  }
+  28% {
+    box-shadow: 0 0 0 0 rgba(179, 123, 62, 0.12);
+  }
+  42% {
+    box-shadow: 0 0 12px 3px rgba(179, 123, 62, 0.2);
+  }
+  70%, 100% {
+    box-shadow: 0 0 0 0 rgba(179, 123, 62, 0);
+  }
+}
+
+@keyframes boxShimmer {
+  0% {
+    left: -150%;
+  }
+  50%, 100% {
+    left: 150%;
+  }
+}
+
 .waitlist-form-section__headline-block:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.28);
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.28),
+    0 0 50px rgba(179, 123, 62, 0.4);
 }
 
 .waitlist-form-section__headline {
@@ -1871,5 +2003,339 @@
   .waitlist-form-section__cow-image {
     max-width: 100%;
     opacity: 0.7;
+  }
+}
+
+@media (max-width: 600px) {
+  .waitlist-form-section {
+    min-height: auto; /* Avoid tall empty space on small screens */
+    padding: 3rem 5vw 0;
+  }
+
+  .waitlist-form-section__cow-bg {
+    left: -5%;
+    width: 110%;
+    bottom: -40px;
+  }
+
+  .waitlist-form-section__inner {
+    padding-bottom: 220px; /* Reduce footer gap so cow art doesn't force extra white space */
+  }
+
+  .waitlist-form {
+    margin-top: 3rem;
+    padding: 2rem 1.35rem 1.9rem;
+  }
+
+  .waitlist-form__submit {
+    margin-bottom: 2.2rem;
+  }
+}
+
+/* ========= CTA Wrapper with Hover Tooltip ========= */
+/* CTA Wrapper needs higher z-index */
+.cta-wrapper {
+  position: relative;
+  display: inline-block;
+  z-index: 10;
+}
+
+.waitlist-form-section__cta {
+  position: relative;
+  overflow: visible;
+  z-index: 10;
+}
+
+/* Hover Tooltip (similar to header brewing popup) */
+.cta-tooltip {
+  position: absolute;
+  top: calc(100% + 15px);
+  left: 50%;
+  transform: translateX(-50%) translateY(-10px);
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  color: #fff;
+  padding: 16px 22px;
+  border-radius: 14px;
+  font-size: 0.9rem;
+  white-space: normal;
+  text-align: center;
+  min-width: 240px;
+  max-width: 300px;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  z-index: 9999;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(74, 122, 74, 0.3);
+  border: 1px solid rgba(74, 122, 74, 0.4);
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.waitlist-form-section__cta:hover .cta-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+  pointer-events: auto;
+}
+
+.cta-tooltip__emoji {
+  display: inline-block;
+  font-size: 1.6rem;
+  animation: wiggle 0.8s ease-in-out infinite;
+}
+
+.cta-tooltip__text {
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.cta-tooltip__subtext {
+  color: #ffffff;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  font-weight: 400;
+}
+
+.cta-tooltip__arrow {
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-bottom: 10px solid #1a1a2e;
+}
+
+.cta-tooltip__arrow::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -10px;
+  width: 0;
+  height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-bottom: 10px solid rgba(74, 122, 74, 0.4);
+  z-index: -1;
+}
+
+/* ========= Benefits Section Styles ========= */
+.waitlist-form-section__benefits {
+  margin-top: 1.5rem;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.waitlist-form-section__benefit {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin: 0;
+  padding: 1rem 1.2rem;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(5px);
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  opacity: 0;
+  transform: translateX(-20px);
+  animation: benefitSlideIn 0.6s ease-out forwards, benefitPulseGlow 3s ease-in-out infinite 1s;
+  overflow: hidden;
+  
+  /* Pulse ring effect */
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, transparent 70%);
+    transform: translate(-50%, -50%) scale(0);
+    border-radius: 12px;
+    animation: pulseRing 3s ease-out infinite;
+    pointer-events: none;
+  }
+  
+  /* Shimmer effect */
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    animation: shimmerEffect 4s ease-in-out infinite;
+    pointer-events: none;
+  }
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.18);
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: translateX(8px) scale(1.02);
+    box-shadow: 
+      0 8px 25px rgba(0, 0, 0, 0.2), 
+      0 0 30px rgba(74, 122, 74, 0.3),
+      inset 0 0 20px rgba(255, 255, 255, 0.05);
+  }
+  
+  strong {
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 1.05rem;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+    animation: textPulse 2.5s ease-in-out infinite;
+  }
+  
+  span {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.9);
+    font-style: italic;
+  }
+}
+
+/* Staggered animation delays */
+.benefit--1 { 
+  animation-delay: 0.1s, 1s;
+  &::before { animation-delay: 0s; }
+  &::after { animation-delay: 0s; }
+}
+.benefit--2 { 
+  animation-delay: 0.25s, 1.5s;
+  &::before { animation-delay: 1s; }
+  &::after { animation-delay: 1.3s; }
+}
+.benefit--3 { 
+  animation-delay: 0.4s, 2s;
+  &::before { animation-delay: 2s; }
+  &::after { animation-delay: 2.6s; }
+}
+
+@keyframes benefitSlideIn {
+  0% {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes benefitPulseGlow {
+  0%, 100% {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1), 0 0 0 rgba(74, 122, 74, 0);
+  }
+  50% {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15), 0 0 25px rgba(74, 122, 74, 0.25);
+  }
+}
+
+@keyframes pulseRing {
+  0% {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.5);
+    opacity: 0;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0;
+  }
+}
+
+@keyframes shimmerEffect {
+  0% {
+    left: -100%;
+  }
+  50%, 100% {
+    left: 200%;
+  }
+}
+
+@keyframes textPulse {
+  0%, 100% {
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+  }
+  50% {
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.6), 0 0 30px rgba(255, 255, 255, 0.3);
+  }
+}
+
+/* Benefit icon styles */
+.benefit-icon {
+  font-size: 1.8rem;
+  flex-shrink: 0;
+  animation: iconPulse 2s ease-in-out infinite, iconBounce 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.4));
+  position: relative;
+  z-index: 1;
+}
+
+.benefit--1 .benefit-icon { animation-delay: 0s, 0s; }
+.benefit--2 .benefit-icon { animation-delay: 0.3s, 0.5s; }
+.benefit--3 .benefit-icon { animation-delay: 0.6s, 1s; }
+
+@keyframes iconPulse {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.4));
+  }
+  50% {
+    transform: scale(1.15);
+    filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.8));
+  }
+}
+
+@keyframes iconBounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-5px);
+  }
+  60% {
+    transform: translateY(-3px);
+  }
+}
+
+.benefit-content {
+  flex: 1;
+  position: relative;
+  z-index: 1;
+}
+
+@media (max-width: 600px) {
+  .cta-tooltip {
+    min-width: 200px;
+    max-width: 260px;
+    padding: 14px 18px;
+  }
+  
+  .cta-tooltip__emoji {
+    font-size: 1.4rem;
+  }
+  
+  .cta-tooltip__text {
+    font-size: 0.9rem;
+  }
+  
+  .cta-tooltip__subtext {
+    font-size: 0.8rem;
   }
 }

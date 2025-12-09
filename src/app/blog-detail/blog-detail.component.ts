@@ -21,6 +21,7 @@ export class BlogDetailComponent implements OnInit {
   loading = true;
   error = false;
   notFound = false;
+  isExpanded = false;
 
   ngOnInit(): void {
     const idParam = this.route.snapshot.paramMap.get('id');
@@ -70,5 +71,12 @@ export class BlogDetailComponent implements OnInit {
       this.registrationSourceService.setArticleId(this.article.id);
       this.router.navigate(['/register']);
     }
+  }
+
+  /**
+   * Expand the article content to show the full article
+   */
+  expandArticle(): void {
+    this.isExpanded = true;
   }
 }

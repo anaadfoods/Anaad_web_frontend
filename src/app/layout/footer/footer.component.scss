@@ -2,6 +2,12 @@
    Journey Section - Desert Waves Design
    ======================================== */
 
+/* Footer host element */
+:host {
+  display: block;
+  margin-top: auto;
+}
+
 /* Journey Section */
 .journey-section {
   position: relative;

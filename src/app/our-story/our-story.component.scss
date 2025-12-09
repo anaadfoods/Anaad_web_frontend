@@ -5,7 +5,7 @@
   box-shadow: 0 2px 0 rgba(0,0,0,0.05), 0 8px 32px rgba(0,0,0,0.12);
   position: relative;
   overflow: hidden;
-  animation: heroBreathing 4s ease-in-out infinite;
+  animation: heroBreathing 4s ease-in-out 1 forwards;
 }
 
 .story-hero::before {
@@ -16,9 +16,11 @@
   width: 100%;
   height: 100%;
   background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
-  animation: heroShimmer 6s ease-in-out infinite;
   z-index: 2;
   pointer-events: none;
+  background-size: 200% 100%;
+  opacity: 0.4;
+  animation: heroAmbient 18s linear infinite;
 }
 
 .hero-media {
@@ -52,12 +54,27 @@
   50% { left: 100%; }
 }
 
+@keyframes heroAmbient {
+  0% {
+    background-position: 0% 50%;
+    opacity: 0.35;
+  }
+  50% {
+    background-position: 100% 50%;
+    opacity: 0.55;
+  }
+  100% {
+    background-position: 0% 50%;
+    opacity: 0.35;
+  }
+}
+
 .story-content { 
   background: radial-gradient(1000px 600px at 50% -120px, rgba(0,0,0,0.08), transparent), radial-gradient(1400px 800px at 90% -40px, rgba(173,132,65,0.18), transparent), #faf8f2; 
   padding: 40px 0 120px; 
   position: relative; 
   box-shadow: inset 0 8px 32px rgba(0,0,0,0.06), 0 4px 20px rgba(0,0,0,0.08);
-  animation: sectionGlow 5s ease-in-out infinite;
+  animation: sectionGlow 5s ease-in-out 1 forwards;
 }
 
 .narrow { 
@@ -68,7 +85,7 @@
   box-shadow: 0 12px 40px rgba(0,0,0,0.08), 0 0 0 1px rgba(255,255,255,0.3); 
   backdrop-filter: blur(10px); 
   transition: all 0.4s ease;
-  animation: cardBreathing 4s ease-in-out infinite;
+  animation: cardBreathing 4s ease-in-out 1 forwards;
 }
 
 .narrow:hover { 
@@ -101,7 +118,7 @@
   margin: 0 0 20px; 
   letter-spacing: -0.5px; 
   color: color-mix(in srgb, var(--color-primary) 86%, #000); 
-  animation: fadeInUp 0.8s ease-out, textGlow 3s ease-in-out infinite; 
+  animation: fadeInUp 0.8s ease-out; 
   transition: all 0.4s ease;
 }
 
@@ -117,7 +134,7 @@
   margin: 0 auto 56px; 
   color: var(--color-text); 
   max-width: 760px; 
-  animation: fadeInUp 0.8s ease-out 0.2s both, textShimmer 4s ease-in-out infinite 1s;
+  animation: fadeInUp 0.8s ease-out 0.2s both;
 }
 
 @keyframes textGlow {
@@ -147,7 +164,7 @@
   max-width: 100%; 
   transition: all 0.5s ease; 
   cursor: pointer;
-  animation: frameFloat 4s ease-in-out infinite, framePulse 3s ease-in-out infinite;
+  animation: frameFloat 4s ease-in-out 1 forwards, framePulse 3s ease-in-out 1 forwards;
 }
 
 .slideshow-frame:hover { 
@@ -165,8 +182,9 @@
   background: linear-gradient(45deg, var(--color-primary), var(--color-secondary), var(--color-accent), var(--color-primary));
   border-radius: 16px;
   z-index: -1;
-  opacity: 0;
-  animation: borderGlow 4s ease-in-out infinite;
+  opacity: 0.2;
+  background-size: 250% 120%;
+  animation: gradientSheen 22s linear infinite;
 }
 
 @keyframes frameFloat {
@@ -184,11 +202,34 @@
 }
 
 @keyframes borderGlow {
-  0%, 100% { opacity: 0; }
-  50% { opacity: 0.3; }
+  0% { opacity: 0.15; }
+  50% { opacity: 0.35; }
+  100% { opacity: 0.15; }
+}
+
+@keyframes gradientSheen {
+  0% {
+    background-position: 0% 50%;
+    opacity: 0.15;
+  }
+  50% {
+    background-position: 100% 50%;
+    opacity: 0.35;
+  }
+  100% {
+    background-position: 0% 50%;
+    opacity: 0.15;
+  }
 }
 .slides-placeholder { height: 100%; width: 100%; border-radius: 10px; background: radial-gradient(800px 400px at 20% 0%, color-mix(in srgb, var(--color-primary) 26%, #3f5e46), transparent), radial-gradient(1000px 500px at 100% 100%, color-mix(in srgb, var(--color-secondary) 35%, #ad8441), transparent), #faf8f2; display: flex; align-items: center; justify-content: center; font-weight: 600; color: var(--color-primary); font-size: 18px; letter-spacing: .5px; transition: all 0.3s ease; }
 .slideshow-frame:hover .slides-placeholder { background: radial-gradient(800px 400px at 20% 0%, color-mix(in srgb, var(--color-primary) 32%, #3f5e46), transparent), radial-gradient(1000px 500px at 100% 100%, color-mix(in srgb, var(--color-secondary) 42%, #ad8441), transparent), #ffffff; color: color-mix(in srgb, var(--color-primary) 90%, #000); }
+
+.slideshow-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 10px;
+}
 
 .vision-title { font-family: var(--font-serif); font-size: clamp(26px, 3.6vw, 42px); text-align: center; margin: 0 0 16px; color: color-mix(in srgb, var(--color-primary) 86%, #000); animation: fadeInUp 0.8s ease-out; transition: all 0.3s ease; }
 .vision-title:hover { transform: translateY(-2px); text-shadow: 0 2px 8px rgba(63,94,70,0.15); }
@@ -202,7 +243,7 @@
   background: radial-gradient(1200px 900px at 50% 20%, rgba(0,0,0,0.12), transparent), #e7e0d0; 
   padding: 40px 0 120px; 
   box-shadow: inset 0 6px 24px rgba(0,0,0,0.08), 0 2px 12px rgba(0,0,0,0.06);
-  animation: sectionBreathing 5s ease-in-out infinite;
+  animation: sectionBreathing 5s ease-in-out 1 forwards;
 }
 
 .tiles-grid { 
@@ -221,7 +262,13 @@
   box-shadow: 0 8px 32px rgba(0,0,0,0.06), 0 0 0 1px rgba(255,255,255,0.2); 
   backdrop-filter: blur(8px); 
   transition: all 0.4s ease;
-  animation: tileFloat 6s ease-in-out infinite, tileGlow 4s ease-in-out infinite;
+  opacity: 0;
+  transform: translateY(24px);
+  animation: 
+    tileFloat 6s ease-in-out 1 forwards,
+    tileGlow 4s ease-in-out 1 forwards,
+    tileReveal 0.9s ease-out forwards;
+  animation-delay: 0s, 0s, var(--tile-delay, 0s);
 }
 
 .mission-tile:hover { 
@@ -229,8 +276,7 @@
   transform: translateY(-6px) scale(1.02); 
 }
 
-.mission-tile:nth-child(1) { animation-delay: 0s; }
-.mission-tile:nth-child(2) { animation-delay: 1s; }
+.mission-tile:nth-child(2) { --tile-delay: 0.15s; }
 
 @keyframes sectionBreathing {
   0%, 100% { 
@@ -254,6 +300,17 @@
     box-shadow: 0 12px 40px rgba(0,0,0,0.09), 0 0 0 1px rgba(255,255,255,0.3); 
   }
 }
+
+@keyframes tileReveal {
+  from {
+    opacity: 0;
+    transform: translateY(32px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 .mission-tile.reverse { grid-template-columns: 1fr 1fr; }
 .mission-tile.reverse { direction: rtl; }
 .mission-tile.reverse > * { direction: ltr; }
@@ -271,7 +328,7 @@
   box-shadow: 0 26px 60px rgba(0,0,0,0.25), 0 0 0 0 rgba(63,94,70,0.2); 
   transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94); 
   cursor: pointer;
-  animation: frameBreathe 4s ease-in-out infinite;
+  animation: frameBreathe 4s ease-in-out 1 forwards;
 }
 
 .frame:hover { 
@@ -288,8 +345,8 @@
   bottom: -3px;
   border-radius: 19px;
   background: linear-gradient(45deg, transparent, rgba(255,255,255,0.2), transparent);
-  animation: frameShine 3s ease-in-out infinite;
-  opacity: 0;
+  opacity: 0.25;
+  animation: frameGlow 16s ease-in-out infinite;
 }
 
 .frame:hover::before {
@@ -308,6 +365,18 @@
 @keyframes frameShine {
   0%, 100% { transform: translateX(-100%); opacity: 0; }
   50% { transform: translateX(100%); opacity: 1; }
+}
+
+@keyframes frameGlow {
+  0% {
+    opacity: 0.15;
+  }
+  40% {
+    opacity: 0.4;
+  }
+  100% {
+    opacity: 0.15;
+  }
 }
 .frame .inner { 
   width: 100%; 
@@ -345,23 +414,23 @@
   display: inline-flex; 
   align-items: center; 
   gap: 4px; 
-  animation: badgePulse 2.5s ease-in-out infinite, badgeGlow 4s ease-in-out infinite;
+  animation: badgePulse 2.5s ease-in-out 1 forwards, badgeGlow 4s ease-in-out 1 forwards;
 }
 
 .variant-green .badge { 
   background: linear-gradient(145deg, #6b1e1e, #2f4634); 
-  animation: redBadgePulse 2.5s ease-in-out infinite, badgeGlow 4s ease-in-out infinite; 
+  animation: redBadgePulse 2.5s ease-in-out 1 forwards, badgeGlow 4s ease-in-out 1 forwards; 
 }
 
 .variant-maroon .badge { 
   background: linear-gradient(145deg, #2f4634, #6b1e1e); 
-  animation: badgePulse 2.5s ease-in-out infinite, badgeGlow 4s ease-in-out infinite;
+  animation: badgePulse 2.5s ease-in-out 1 forwards, badgeGlow 4s ease-in-out 1 forwards;
 }
 
 .badge .leaf { 
   font-size: 14px; 
   display: inline-block; 
-  animation: leafFloat 3s ease-in-out infinite, leafShimmer 4s ease-in-out infinite; 
+  animation: leafFloat 3s ease-in-out 1 forwards, leafShimmer 4s ease-in-out 1 forwards; 
   transition: transform 0.3s ease; 
 }
 
@@ -386,23 +455,23 @@
 
 @keyframes badgePulse { 
   0%, 100% { 
-    transform: scale(1); 
     box-shadow: 0 6px 14px rgba(0,0,0,0.35), inset 0 0 0 2px rgba(255,255,255,0.15), 0 0 0 0 rgba(47,70,52,0.3); 
+    filter: brightness(1);
   } 
   50% { 
-    transform: scale(1.03); 
     box-shadow: 0 8px 18px rgba(0,0,0,0.4), inset 0 0 0 2px rgba(255,255,255,0.2), 0 0 8px rgba(47,70,52,0.15); 
+    filter: brightness(1.08);
   } 
 }
 
 @keyframes redBadgePulse { 
   0%, 100% { 
-    transform: scale(1); 
     box-shadow: 0 6px 14px rgba(0,0,0,0.35), inset 0 0 0 2px rgba(255,255,255,0.15), 0 0 0 0 rgba(107,30,30,0.3); 
+    filter: brightness(1);
   } 
   50% { 
-    transform: scale(1.03); 
     box-shadow: 0 8px 18px rgba(0,0,0,0.4), inset 0 0 0 2px rgba(255,255,255,0.2), 0 0 8px rgba(107,30,30,0.15); 
+    filter: brightness(1.08);
   } 
 }
 
@@ -437,7 +506,7 @@
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
   position: relative; 
   overflow: hidden;
-  animation: buttonPulse 3s ease-in-out infinite;
+  animation: buttonPulse 3s ease-in-out 1 forwards;
 }
 
 .tile-btn::before { 
@@ -479,7 +548,7 @@
   background: #faf8f2; 
   padding: 40px 0 140px; 
   box-shadow: inset 0 6px 24px rgba(0,0,0,0.08);
-  animation: opportunityGlow 6s ease-in-out infinite;
+  animation: opportunityGlow 6s ease-in-out 1 forwards;
 }
 
 .opp-head-pill { 
@@ -494,7 +563,7 @@
   width: fit-content; 
   font-family: var(--font-sans); 
   box-shadow: 0 18px 40px rgba(0,0,0,0.18); 
-  animation: pillPulse 2s ease-in-out infinite, pillGlow 4s ease-in-out infinite; 
+  animation: pillPulse 2s ease-in-out 1 forwards, pillGlow 4s ease-in-out 1 forwards; 
   transition: all 0.4s ease;
   position: relative;
   overflow: hidden;
@@ -508,7 +577,7 @@
   width: 100%;
   height: 100%;
   background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-  animation: pillShimmer 5s ease-in-out infinite;
+  animation: pillShimmer 5s ease-in-out 1 forwards;
 }
 
 .opp-head-pill:hover { 
@@ -540,14 +609,24 @@
   50% { left: 100%; }
 }
 
-@keyframes pillPulse { 0%, 100% { transform: scale(1); box-shadow: 0 18px 40px rgba(0,0,0,0.18), 0 0 0 0 rgba(63,94,70,0.3); } 50% { transform: scale(1.02); box-shadow: 0 22px 50px rgba(0,0,0,0.22), 0 0 20px rgba(63,94,70,0.15); } }
+@keyframes pillPulse {
+  0%, 100% {
+    box-shadow: 0 18px 40px rgba(0,0,0,0.18), 0 0 0 0 rgba(63,94,70,0.3);
+    filter: brightness(1);
+  }
+  50% {
+    box-shadow: 0 22px 50px rgba(0,0,0,0.22), 0 0 20px rgba(63,94,70,0.15);
+    filter: brightness(1.05);
+  }
+}
 
 .opp-grid { display: grid; grid-template-columns: minmax(300px, 520px) minmax(320px, 520px); align-items: center; justify-content: center; gap: 80px; background: rgba(255,255,255,0.5); border-radius: 24px; padding: 60px 40px; box-shadow: 0 12px 40px rgba(0,0,0,0.08), 0 0 0 1px rgba(255,255,255,0.3); backdrop-filter: blur(10px); transition: all 0.3s ease; }
 .opp-grid:hover { box-shadow: 0 20px 60px rgba(0,0,0,0.12), 0 0 0 1px rgba(255,255,255,0.4); transform: translateY(-3px); }
 
 .opp-frame { position: relative; border-radius: 18px; padding: 10px; background: linear-gradient(180deg, #3f5e46 0%, #ad8441 100%); box-shadow: 0 22px 60px rgba(0,0,0,0.25), 0 0 0 0 rgba(63,94,70,0.3); transition: all 0.4s ease; cursor: pointer; }
 .opp-frame:hover { transform: translateY(-10px) scale(1.03); box-shadow: 0 35px 80px rgba(0,0,0,0.35), 0 0 50px rgba(63,94,70,0.4); }
-.opp-inner { height: clamp(260px, 38vw, 340px); border-radius: 12px; background: radial-gradient(600px 420px at 50% 0%, #fefcf6, #f4efe5); box-shadow: inset 0 0 0 1px rgba(0,0,0,0.25); transition: all 0.3s ease; }
+.opp-inner { height: clamp(260px, 38vw, 340px); border-radius: 12px; background: radial-gradient(600px 420px at 50% 0%, #fefcf6, #f4efe5); box-shadow: inset 0 0 0 1px rgba(0,0,0,0.25); transition: all 0.3s ease; overflow: hidden; }
+.opp-inner img { width: 100%; height: 100%; object-fit: cover; border-radius: 12px; }
 .opp-frame:hover .opp-inner { background: radial-gradient(600px 420px at 50% 0%, #ffffff, #faf6ef); box-shadow: inset 0 0 0 1px rgba(0,0,0,0.15), inset 0 0 30px rgba(255,255,255,0.9); }
 
 .opp-copy { text-align: center; }
@@ -600,4 +679,18 @@
 @media (max-width: 1100px) { .opp-grid { grid-template-columns: 1fr; gap: 60px; padding: 40px 20px; } .opp-copy { text-align: center; } .opp-frame { margin: 0 auto; } }
 @media (max-width: 640px) { .opp-head-pill { padding: 30px 60px; } .opp-title { font-size: clamp(34px, 8vw, 48px); } .opp-inner { height: 240px; } }
 @media (max-width: 980px) { .cta-columns { grid-template-columns: 1fr; } .copyright { text-align: center; } }
-@media (prefers-reduced-motion: reduce) { .links li { animation: none; opacity: 1; transform: none; } .badge { animation: none; transform: none; } .badge .leaf { animation: none; transform: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .links li,
+  .badge,
+  .badge .leaf,
+  .story-hero::before,
+  .slideshow-frame::before,
+  .frame::before,
+  .mission-tile {
+    animation: none !important;
+  }
+  .mission-tile {
+    opacity: 1;
+    transform: none;
+  }
+}

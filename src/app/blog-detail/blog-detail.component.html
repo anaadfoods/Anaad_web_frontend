@@ -42,7 +42,17 @@
   </section>
 
   <section class="blog-detail-body">
-    <div class="blog-detail-body__content" [innerHTML]="article.content"></div>
+    <div class="blog-detail-body__content" 
+         [class.blog-detail-body__content--collapsed]="!isExpanded"
+         [innerHTML]="article.content"></div>
+    
+    @if (!isExpanded) {
+      <div class="blog-detail-body__read-more-wrapper">
+        <button type="button" class="blog-detail-body__read-more-btn" (click)="expandArticle()">
+          Read More
+        </button>
+      </div>
+    }
   </section>
 
   <section class="blog-detail-cta">
@@ -59,8 +69,8 @@
 
     <div class="blog-detail-cta__stacked">
       <header class="blog-detail-cta__stacked-header">
-        <h3 class="blog-detail-cta__subheading">SUB-HEADING</h3>
-        <p class="blog-detail-cta__description">Short description<br>2 lines</p>
+        <h3 class="blog-detail-cta__subheading">Become the Cultivators of a Toxin-Free Tomorrow</h3>
+        <p class="blog-detail-cta__description">Nature does not mass produce. Our Toxin-Free ICBN harvest is finite by design. Secure your position as The Cultivator to guarantee priority access before the public launch.</p>
       </header>
 
       <div class="blog-detail-cta__card blog-detail-cta__card--stacked">
@@ -69,7 +79,7 @@
           <div class="blog-detail-cta__copy">
             <p class="blog-detail-cta__copy-text">
               Experience the vast benefits by<br>
-              becoming the "Founding Member"
+              becoming the "The CULTIVATOR"
             </p>
           </div>
         </div>
@@ -79,9 +89,9 @@
         </button>
 
         <div class="blog-detail-cta__links">
-          <span class="pdf-link" (click)="requestPdf()">Send the PDF to my EMAIL/WHATSAPP</span>
-          <span class="pdf-link" (click)="requestPdf()">Send the PDF to my EMAIL/WHATSAPP</span>
-          <span class="pdf-link" (click)="requestPdf()">Send the PDF to my EMAIL/WHATSAPP</span>
+          <span class="pdf-link"><strong>1. Complimentary Tasting Kit:</strong><br>(Receive a curated complementary sample pack of upcoming products, with your first subscription order.)</span>
+          <span class="pdf-link"><strong>2. Priority Stock Reservation:</strong><br>(Get upcoming launch alerts before anyone, ensuring you secure your staples before stock runs out.)</span>
+          <span class="pdf-link"><strong>3. Early Application Access:</strong><br>(Gain exclusive access to download the ANAAD App before the official release.)</span>
         </div>
       </div>
     </div>

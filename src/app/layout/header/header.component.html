@@ -5,44 +5,40 @@
        routerLink="/" 
        (click)="close()"
        [class.is-hovering]="isHovering()"
-       [class]="seasonClass()"
        [style.--tilt-x]="tiltX() + 'deg'"
        [style.--tilt-y]="tiltY() + 'deg'"
        [style.--glare-x]="glareX() + '%'"
        [style.--glare-y]="glareY() + '%'">
-      <span class="glow-ring"></span>
-      <span class="orbit-sparkle"></span>
-      <!-- Pulsing aura rings -->
-      <span class="aura-ring aura-ring--1"></span>
-      <span class="aura-ring aura-ring--2"></span>
-      <span class="aura-ring aura-ring--3"></span>
-      <!-- Energy waves -->
-      <span class="energy-wave energy-wave--1"></span>
-      <span class="energy-wave energy-wave--2"></span>
-      <!-- Regular particles -->
-      <span class="particle particle-1"></span>
-      <span class="particle particle-2"></span>
-      <span class="particle particle-3"></span>
-      <span class="particle particle-4"></span>
-      <!-- Star sparkles -->
-      <span class="star-sparkle star-sparkle--1">✦</span>
-      <span class="star-sparkle star-sparkle--2">✧</span>
-      <span class="star-sparkle star-sparkle--3">✦</span>
-      <!-- Seasonal particles -->
-      <span class="seasonal-particle sp-1"></span>
-      <span class="seasonal-particle sp-2"></span>
-      <span class="seasonal-particle sp-3"></span>
-      <span class="seasonal-particle sp-4"></span>
-      <span class="seasonal-particle sp-5"></span>
-      <span class="seasonal-particle sp-6"></span>
+      <!-- Orbiting golden dot -->
+      <span class="orbit-dot"></span>
+      <!-- Sparkle stars -->
+      <span class="logo-star star-1">✨</span>
+      <span class="logo-star star-2">⭐</span>
+      <span class="logo-star star-3">✨</span>
+      <!-- Light glare -->
       <span class="logo-glare"></span>
       <img class="logo-icon" src="/assets/images/logo.svg" alt="Anaad Foods Logo">
     </a>
     <nav class="nav" id="primary-nav" [class.open]="isOpen()">
       <a class="pill-link" routerLink="/our-story" (click)="close()">Our Story</a>
-      <a class="pill-link" routerLink="/about" (click)="close()">About US</a>
       <a class="pill-link" routerLink="/offerings" (click)="close()">Offerings</a>
-  <a class="pill-link strong" href="#main" (click)="close()">Get Our APP</a>
+      <a class="pill-link blogs-link" routerLink="/blogs" (click)="close()">Blogs</a>
+      <span class="pill-link strong coming-soon">
+        <span class="brewing-icon">📱</span>
+        <span class="brewing-text">App Brewing Soon!</span>
+        <span class="steam steam-1"></span>
+        <span class="steam steam-2"></span>
+        <span class="steam steam-3"></span>
+        <span class="sparkle sparkle-1">✨</span>
+        <span class="sparkle sparkle-2">⭐</span>
+        <span class="tooltip-popup">
+          <span class="tooltip-emoji">🚀</span>
+          <span class="tooltip-text">Shhh... Something delicious is cooking!</span>
+          <span class="tooltip-subtext">In the meantime, register for early access!</span>
+          <a class="tooltip-btn" routerLink="/join-waitlist">✨ Click Here</a>
+          <span class="tooltip-arrow"></span>
+        </span>
+      </span>
     </nav>
     <button class="menu" type="button" aria-label="Menu" [attr.aria-expanded]="isOpen()" aria-controls="primary-nav" (click)="toggle()">
       <span></span><span></span><span></span>

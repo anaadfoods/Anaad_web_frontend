@@ -37,14 +37,13 @@
   </div>
 
   <p class="waitlist-hero__tagline">
-    ANAAD Foods is not just about what you eat.<br />
-    It's about a world we build, together!
+    You have refused the toxic status quo. By joining this list, you are securing<br />
+    your place in a food system built on Biological Truths, not industrial shortcuts.
   </p>
 
   <h1 class="waitlist-hero__title">
-    Growing Health,<br />
-    Cultivating Tomorrow.<br />
-    Next Line.
+    Your Return<br />
+    To Purity
   </h1>
 
   <button type="button" class="waitlist-hero__featured">FEATURED</button>
@@ -59,8 +58,9 @@
     <article class="waitlist-card waitlist-card--old">
       <h2 class="waitlist-card__title">The Old Way</h2>
       <p class="waitlist-card__desc">
-        6-Month Old Flour, Bleached Oils,<br />
-        Urea Treated Rice, Unknown Farmer
+        Preservative Laden Flour, Bleached Oils,<br />
+        Excessively Polished Chemically Grown<br />
+        Rice, Unknown Farmer
       </p>
     </article>
 
@@ -68,8 +68,9 @@
     <article class="waitlist-card waitlist-card--anaad">
       <h2 class="waitlist-card__title">The ANAAD Way</h2>
       <p class="waitlist-card__desc">
-        Milled only after you order.<br />
-        Grown by us. Packed by us. For you.
+        Fresh Stone-Milled Heirloom Flour,<br />
+        Kolhu Oils, Unpolished Toxin-Free ICBN<br />
+        Rice, Your Dedicated Traceable Grower
       </p>
     </article>
 
@@ -139,19 +140,48 @@
     <div class="waitlist-form-section__cow-shadow"></div>
   </div>
   
+  <!-- Funny popup overlay -->
   <div class="waitlist-form-section__inner">
     <header class="waitlist-form-section__header">
       <div class="waitlist-form-section__badge"></div>
       <div class="waitlist-form-section__headline-block">
         <p class="waitlist-form-section__headline">
           Experience the vast benefits by<br />
-          becoming the "Founding Member"
+          becoming the "The CULTIVATOR"
         </p>
-        <button type="button" class="waitlist-form-section__cta">JOIN THE WAITLIST</button>
-        <div class="waitlist-form-section__links">
-          <span>Send the PDF to my EMAIL/WHATSAPP</span>
-          <span>Send the PDF to my EMAIL/WHATSAPP</span>
-          <span>Send the PDF to my EMAIL/WHATSAPP</span>
+        <div class="cta-wrapper">
+          <button type="button" class="waitlist-form-section__cta" (click)="scrollToForm()">
+            JOIN THE WAITLIST
+            <span class="cta-tooltip">
+              <span class="cta-tooltip__emoji">👇</span>
+              <span class="cta-tooltip__text">Oops! Almost there!</span>
+              <span class="cta-tooltip__subtext">Just scroll down a tiny bit and fill the form. Hurry hurry! 🚀</span>
+              <span class="cta-tooltip__arrow"></span>
+            </span>
+          </button>
+        </div>
+        <div class="waitlist-form-section__benefits">
+          <p class="waitlist-form-section__benefit benefit--1">
+            <span class="benefit-icon">🎁</span>
+            <span class="benefit-content">
+              <strong>1. Complimentary Tasting Kit:</strong><br />
+              <span>(Receive a curated complementary sample pack of upcoming products, with your first subscription order.)</span>
+            </span>
+          </p>
+          <p class="waitlist-form-section__benefit benefit--2">
+            <span class="benefit-icon">📦</span>
+            <span class="benefit-content">
+              <strong>2. Priority Stock Reservation:</strong><br />
+              <span>(Get upcoming launch alerts before anyone, ensuring you secure your staples before stock runs out.)</span>
+            </span>
+          </p>
+          <p class="waitlist-form-section__benefit benefit--3">
+            <span class="benefit-icon">📱</span>
+            <span class="benefit-content">
+              <strong>3. Early Application Access:</strong><br />
+              <span>(Gain exclusive access to download the ANAAD App before the official release.)</span>
+            </span>
+          </p>
         </div>
       </div>
     </header>
