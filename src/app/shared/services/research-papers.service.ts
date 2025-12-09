@@ -15,7 +15,7 @@ export interface ResearchPaper {
 @Injectable({ providedIn: 'root' })
 export class ResearchPapersService {
   private http = inject(HttpClient);
-  private endpoint = '/api/research-papers/';
+  private endpoint = '/api/blog/research-papers/';
 
   getPapers(): Observable<ResearchPaper[]> {
     return this.http.get<ResearchPaper[]>(this.endpoint);

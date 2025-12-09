@@ -50,8 +50,8 @@
     }
 
     <!-- Featured articles from API -->
-    @if (!featuredLoading && !featuredError && featuredArticles.length >= 3) {
-      <!-- Large card - Article 1 -->
+    @if (!featuredLoading && !featuredError && featuredArticles.length > 0) {
+      <!-- Large card - First Article -->
       <a [routerLink]="['/blogs', featuredArticles[0].id]" class="card card--large" appRevealOnScroll>
         <div class="card__orb"></div>
         <div class="card__label">Featured</div>
@@ -60,27 +60,23 @@
         <span class="card__button btn-ripple">Read More</span>
       </a>
 
-      <div class="card-column">
-        <!-- Small card - Article 2 -->
-        <a [routerLink]="['/blogs', featuredArticles[1].id]" class="card card--small" appRevealOnScroll>
-          <div class="card__orb"></div>
-          <h3>{{ featuredArticles[1].title }}</h3>
-          <p>{{ featuredArticles[1].subtitle }}</p>
-          <span class="card__button btn-ripple">Read More</span>
-        </a>
-
-        <!-- Small card - Article 3 -->
-        <a [routerLink]="['/blogs', featuredArticles[2].id]" class="card card--small" appRevealOnScroll>
-          <div class="card__orb"></div>
-          <h3>{{ featuredArticles[2].title }}</h3>
-          <p>{{ featuredArticles[2].subtitle }}</p>
-          <span class="card__button btn-ripple">Read More</span>
-        </a>
-      </div>
+      <!-- Small cards for remaining featured articles -->
+      @if (featuredArticles.length > 1) {
+        <div class="card-column">
+          @for (article of featuredArticles.slice(1); track article.id) {
+            <a [routerLink]="['/blogs', article.id]" class="card card--small" appRevealOnScroll>
+              <div class="card__orb"></div>
+              <h3>{{ article.title }}</h3>
+              <p>{{ article.subtitle }}</p>
+              <span class="card__button btn-ripple">Read More</span>
+            </a>
+          }
+        </div>
+      }
     }
 
-    <!-- Fallback if less than 3 articles -->
-    @if (!featuredLoading && !featuredError && featuredArticles.length < 3) {
+    <!-- Fallback if no featured articles -->
+    @if (!featuredLoading && !featuredError && featuredArticles.length === 0) {
       <div class="card card--large" appRevealOnScroll>
         <div class="card__orb"></div>
         <div class="card__label">Featured</div>

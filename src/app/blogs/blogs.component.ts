@@ -43,13 +43,10 @@ export class BlogsComponent implements OnInit, OnDestroy {
       }
     });
 
-    // Fetch featured articles (top 3 by ID: 1, 2, 3)
+    // Fetch featured articles (any category=FEATURED articles)
     this.blogsService.getFeaturedArticles().subscribe({
       next: (data) => {
-        // Filter for articles with IDs 1, 2, 3 and sort by ID
-        this.featuredArticles = data
-          .filter(a => [1, 2, 3].includes(a.id))
-          .sort((a, b) => a.id - b.id);
+        this.featuredArticles = data;
         this.featuredLoading = false;
       },
       error: (err) => {

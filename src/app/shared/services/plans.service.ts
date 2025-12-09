@@ -31,7 +31,7 @@ export interface PlanCard {
 @Injectable({ providedIn: 'root' })
 export class PlansService {
   private http = inject(HttpClient);
-  private endpoint = '/api/subscriptions/plans';
+  private endpoint = '/api/subscriptions/plans/';
 
   getPlans(): Observable<PlanCard[]> {
     return this.http.get<ApiPlan[] | { value: ApiPlan[] }>(this.endpoint).pipe(

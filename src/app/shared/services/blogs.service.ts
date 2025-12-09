@@ -19,18 +19,18 @@ export interface Article {
 @Injectable({ providedIn: 'root' })
 export class BlogsService {
   private http = inject(HttpClient);
-  private endpoint = '/api/blogs/';
-  private featuredEndpoint = '/api/blog/articles/?category=BLOG';
+  private blogEndpoint = '/api/blog/articles/?category=BLOG';
+  private featuredEndpoint = '/api/blog/articles/?category=FEATURED';
 
   /**
-   * Fetch all blog articles
+   * Fetch all blog articles (category=BLOG)
    */
   getArticles(): Observable<Article[]> {
-    return this.http.get<Article[]>(this.endpoint);
+    return this.http.get<Article[]>(this.blogEndpoint);
   }
 
   /**
-   * Fetch featured blog articles (category=BLOG)
+   * Fetch featured blog articles (category=FEATURED)
    */
   getFeaturedArticles(): Observable<Article[]> {
     return this.http.get<Article[]>(this.featuredEndpoint);
@@ -40,6 +40,6 @@ export class BlogsService {
    * Fetch a single blog article by ID
    */
   getArticleById(id: number): Observable<Article> {
-    return this.http.get<Article>(`${this.endpoint}${id}`);
+    return this.http.get<Article>(`/api/blog/articles/${id}/`);
   }
 }
