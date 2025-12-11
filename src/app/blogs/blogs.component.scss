@@ -17,12 +17,12 @@
   &__overlay {
     position: absolute;
     inset: 0;
-    background: radial-gradient(circle at top left, rgba(242, 225, 198, 0.4) 0, rgba(59, 19, 11, 0.5) 55%, rgba(27, 7, 4, 0.6) 100%);
+    background: transparent;
     z-index: 1;
   }
 
   &__content {
-    max-width: 40rem;
+    max-width: 56rem;
     position: relative;
     z-index: 3;
   }
@@ -30,9 +30,12 @@
   .eyebrow {
     font-size: 0.95rem;
     letter-spacing: 0.06em;
-    text-transform: uppercase;
+    text-transform: none;
     margin-bottom: 1.75rem;
     opacity: 0.9;
+    text-align: left;
+    max-width: 100%;
+    line-height: 1.6;
   }
 
   // Animated text effect

@@ -2,9 +2,13 @@
 .wrap { display: grid; grid-template-columns: 1.1fr 1fr; gap: 32px; align-items: center; }
 .copy h1 { font-size: clamp(32px, 5vw, 56px); line-height: 1.05; margin: 0 0 12px; letter-spacing: -0.5px; }
 .copy p { color: var(--color-text-muted); font-size: 18px; }
+<<<<<<< Updated upstream
 .cta { margin-top: 20px; display: flex; gap: 12px; }
 /* Ensure buttons inside .cta don't shrink and size to their content */
 .cta .btn { flex: 0 0 auto; }
+=======
+.cta { margin-top: 20px; display: flex; gap: 12px; padding-bottom: 8px; overflow: visible; }
+>>>>>>> Stashed changes
 
 .visual { position: relative; height: 360px; perspective: 800px; }
 .card { position: absolute; inset: 0; border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); background: var(--color-surface); }
@@ -269,7 +273,7 @@
 .hero-picture-container {
   position: absolute;
   inset: 0;
-  bottom: 80px; /* Leave more space for waves - brings image up */
+  bottom: 0; /* Allow image to extend to the bottom */
   display: flex;
   align-items: stretch;
   justify-content: center;
@@ -282,6 +286,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center bottom; /* Align image to bottom to show complete picture */
   pointer-events: auto;
 }
 
@@ -304,9 +309,10 @@
 .cream-text-section {
   position: relative;
   background: #faf8f2;
-  padding: 4rem 2rem 3.5rem;
+  padding: 4rem 2rem 4rem;
   text-align: center;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: visible;
 }
 
 .cream-text-section .center {
@@ -592,9 +598,13 @@
   justify-content: center;
   background: #3f5e46;
   color: #fff;
+<<<<<<< Updated upstream
   /* responsive horizontal padding so button width adapts to text */
   padding-inline: clamp(20px, 6vw, 48px);
   padding-block: 12px;
+=======
+  padding: 18px 52px;
+>>>>>>> Stashed changes
   font-size: 16px;
   font-weight: 600;
   letter-spacing: 0.03em;
@@ -606,9 +616,13 @@
   animation: fadeSlideUp 0.8s 1.2s ease-out both;
   white-space: nowrap;
   position: relative;
+<<<<<<< Updated upstream
   overflow: hidden;
   /* ensure the button sizes to its content and doesn't shrink inside flex parent */
   min-width: fit-content;
+=======
+  overflow: visible;
+>>>>>>> Stashed changes
 }
 
 /* Button shimmer effect */
@@ -621,6 +635,8 @@
   height: 100%;
   background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
   animation: buttonShimmer 3s ease-in-out infinite 2s;
+  border-radius: inherit;
+  clip-path: inset(0 round 35px);
 }
 
 @keyframes buttonShimmer {
@@ -759,7 +775,7 @@
   bottom: -40px; /* push waves down so hero image isn't obscured */
   left: 0;
   width: 100%;
-  height: 200px;
+  height: 120px;
   pointer-events: none;
   z-index: 2;
 }
@@ -847,7 +863,7 @@
     min-height: 48vh;
   }
   .hero-waves {
-    height: 150px;
+    height: 100px;
   }
 }
 
@@ -856,7 +872,7 @@
     padding: 3rem 5vw 8rem;
   }
   .hero-waves {
-    height: 120px;
+    height: 80px;
   }
 }
 
@@ -908,9 +924,11 @@
   color: var(--color-text);
   font-size: clamp(16px, 2.2vw, 20px);
 }
-.pill {
-  border-radius: 12px; /* Changed from 999px to a soft rectangle */
-  padding-inline: 22px;
+.center .pill {
+  border-radius: 35px;
+  padding-inline: 28px;
+  min-width: fit-content;
+  overflow: visible;
 }
 
 /* Trio cards */
@@ -1800,7 +1818,7 @@
   box-shadow: 0 20px 60px rgba(0,0,0,0.12); 
   color: #fff; 
   position: relative;
-  overflow: hidden;
+  overflow: visible;
 }
 
 /* Subtle shimmer overlay for categories card */
@@ -1815,8 +1833,8 @@
 }
 
 .panel-content { background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(0,0,0,0.08)); border-radius: 18px; padding: 20px; }
-.panel-content h2 { font-family: var(--font-serif); font-size: clamp(28px, 4.2vw, 44px); line-height: 1.1; margin: 0 0 6px; }
-.panel-content .eyebrow { margin: 0 0 12px; color: color-mix(in srgb, #ffffff 85%, black); font-size: 14px; }
+.panel-content h2 { font-family: var(--font-serif); font-size: clamp(28px, 4.2vw, 44px); line-height: 1.1; margin: 0 0 6px; color: #fff; }
+.panel-content .eyebrow { margin: 0 0 12px; color: #ffffff; font-size: 14px; font-weight: 500; }
 .category-tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 
 /* Category tile keyframes */
@@ -1936,7 +1954,7 @@
 
 .tile-media.nf { background-image: linear-gradient(180deg, #7ecb6b, #4da24c 60%, #2f6d34); }
 .tile-media.veg { background-image: linear-gradient(180deg, #ffd18b, #ff9f6e 55%, #d5513a); }
-.offerings-cta { padding: 22px 0 6px; }
+.offerings-cta { padding: 22px 0 16px; overflow: visible; }
 .offerings-cta .headline { font-family: var(--font-serif); font-size: clamp(28px, 4vw, 40px); color: color-mix(in srgb, var(--color-primary) 75%, #000); margin: 18px 0 8px; }
 .offerings-cta p { max-width: 720px; margin: 0 auto 12px; color: var(--color-text); }
 .offerings-cta .cta { justify-content: center; }
@@ -1952,6 +1970,9 @@
   white-space: nowrap;
   border: none;
   box-shadow: 0 4px 12px rgba(63, 94, 70, 0.3); /* Green shadow for depth */
+  padding: 16px 40px;
+  overflow: visible;
+  border-radius: 35px;
 }
 
 .offerings-cta .btn-primary:hover {
@@ -2707,8 +2728,8 @@
 .tag { margin: 2px 0 8px; font-weight: 600; }
 .comm-body p { color: color-mix(in srgb, #ffffff 90%, #000); margin: 0 auto 16px; max-width: 460px; }
 .pill {
-  width: 140px;
-  height: 36px;
+  width: 160px;
+  height: 40px;
   border-radius: 999px;
   margin: 0 auto;
   background: linear-gradient(180deg, #caa66e, #b07c3c);
@@ -2716,18 +2737,22 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
   color: #fff;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
   text-shadow: 0 1px 2px rgba(0,0,0,0.3);
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
+<<<<<<< Updated upstream
   overflow: hidden;
   width: auto;
   white-space: nowrap;
+=======
+  overflow: visible;
+>>>>>>> Stashed changes
 }
 
 .pill::before {

@@ -1347,11 +1347,23 @@
 
 .waitlist-form-section__badge {
   width: 190px;
+  min-height: 200px;
   border-radius: 14px;
   background: linear-gradient(145deg, #fdfdfd 0%, #f3f0e5 55%, #e2dcc9 100%);
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
   animation: fadeSlideUp 0.5s 0.1s ease-out both, heartbeat 3s ease-in-out infinite 1s;
   position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 14px;
+  }
   
   /* Heartbeat glow effect */
   &::after {

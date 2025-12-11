@@ -983,21 +983,16 @@
   box-shadow: 0 0 25px rgba(199, 153, 33, 0.6), inset 0 0 0 1px rgba(255,255,255,0.3) !important;
 }
 
-.coming-soon:hover .tooltip-popup {
-  opacity: 1;
-  visibility: visible;
-  transform: translateX(-50%) translateY(0);
-}
-
 /* Tooltip Popup */
 .tooltip-popup {
   position: absolute;
-  top: calc(100% + 15px);
+  top: calc(100% + 8px);
   left: 50%;
   transform: translateX(-50%) translateY(-10px);
   background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
   color: #fff;
   padding: 14px 20px;
+  padding-top: 22px; /* Extra padding at top for hover bridge */
   border-radius: 12px;
   font-size: 0.85rem;
   white-space: normal;
@@ -1006,7 +1001,7 @@
   max-width: 280px;
   opacity: 0;
   visibility: hidden;
-  transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  transition: all 0.3s ease;
   z-index: 100;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3), 0 0 20px rgba(199, 153, 33, 0.2);
   border: 1px solid rgba(199, 153, 33, 0.3);
@@ -1017,7 +1012,23 @@
   gap: 8px;
 }
 
-.coming-soon:hover .tooltip-popup {
+/* Invisible bridge to maintain hover when moving to popup */
+.tooltip-popup::before {
+  content: '';
+  position: absolute;
+  top: -15px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  height: 20px;
+  background: transparent;
+}
+
+.coming-soon:hover .tooltip-popup,
+.tooltip-popup:hover {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
   pointer-events: auto;
 }
 
