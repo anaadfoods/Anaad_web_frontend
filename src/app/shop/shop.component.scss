@@ -166,6 +166,7 @@
 	padding: 56px 0;
 	animation: featuredBreathing 6s ease-in-out infinite;
 	position: relative;
+	overflow: hidden;
 }
 
 .featured::before {
@@ -437,7 +438,10 @@
 	0% { top: -10%; opacity: 0; transform: translateX(0) rotate(0deg); }
 	10% { opacity: 0.85; }
 	90% { opacity: 0.85; }
-	100% { top: 100%; opacity: 0; transform: translateX(30px) rotate(360deg); }
+	100% {
+        transform: translateY(120%) translateX(30px) rotate(360deg);
+        opacity: 0;
+    }
 }
 
 /* Shop overlay */

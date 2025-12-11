@@ -3,6 +3,8 @@
 .copy h1 { font-size: clamp(32px, 5vw, 56px); line-height: 1.05; margin: 0 0 12px; letter-spacing: -0.5px; }
 .copy p { color: var(--color-text-muted); font-size: 18px; }
 .cta { margin-top: 20px; display: flex; gap: 12px; }
+/* Ensure buttons inside .cta don't shrink and size to their content */
+.cta .btn { flex: 0 0 auto; }
 
 .visual { position: relative; height: 360px; perspective: 800px; }
 .card { position: absolute; inset: 0; border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); background: var(--color-surface); }
@@ -119,6 +121,30 @@
   animation: gradientPulse 8s ease-in-out infinite;
   pointer-events: none;
 }
+
+/* Performance hints: prefer GPU compositing for animated decorative layers
+   and slightly slow down animations to reduce CPU churn. */
+.hero-band,
+.hero-gradient-overlay,
+.hero-orb,
+.hero-particle,
+.hero-sparkle,
+.hero-rays,
+.hero-wave-svg {
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+/* Slightly lengthen animation durations to lower frame churn */
+.hero-gradient-overlay { animation-duration: 12s !important; }
+.hero-orb { animation-duration: 10s, 9s !important; }
+.hero-particle { animation-duration: 12s !important; }
+.hero-sparkle { animation-duration: 6s !important; }
+.hero-rays { animation-duration: 12s !important; }
+.hero-band .wave-layer--back { animation-duration: 10s !important; }
+.hero-band .wave-layer--mid { animation-duration: 9s !important; }
+.hero-band .wave-layer--front { animation-duration: 8s !important; }
 
 @keyframes gradientPulse {
   0%, 100% { opacity: 0.6; transform: scale(1); }
@@ -566,7 +592,9 @@
   justify-content: center;
   background: #3f5e46;
   color: #fff;
-  padding: 18px 48px;
+  /* responsive horizontal padding so button width adapts to text */
+  padding-inline: clamp(20px, 6vw, 48px);
+  padding-block: 12px;
   font-size: 16px;
   font-weight: 600;
   letter-spacing: 0.03em;
@@ -579,6 +607,8 @@
   white-space: nowrap;
   position: relative;
   overflow: hidden;
+  /* ensure the button sizes to its content and doesn't shrink inside flex parent */
+  min-width: fit-content;
 }
 
 /* Button shimmer effect */
@@ -614,7 +644,7 @@
   }
   
   .btn-green {
-    padding: 16px 40px;
+    padding-inline: 28px;
     font-size: 15px;
   }
   
@@ -726,7 +756,7 @@
 /* Wavy desert dunes bottom edge */
 .hero-waves {
   position: absolute;
-  bottom: 0;
+  bottom: -40px; /* push waves down so hero image isn't obscured */
   left: 0;
   width: 100%;
   height: 200px;
@@ -885,7 +915,7 @@
 
 /* Trio cards */
 .trio { background: linear-gradient(180deg, rgba(0,0,0,0.08), transparent), linear-gradient(0deg, rgba(0,0,0,0.08), transparent); padding: 24px 0; }
-.trio-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+.trio-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;  }
 
 /* Pulse animation keyframes */
 @keyframes panelPulse {
@@ -921,6 +951,8 @@
 }
 
 .panel { 
+  display: flex;
+  flex-direction: column;
   border-radius: 14px; 
   padding: 16px; 
   box-shadow: 0 16px 50px rgba(0,0,0,0.12); 
@@ -1017,7 +1049,7 @@
   align-items: center;
   gap: 8px;
   padding: 10px 18px;
-  margin-top: 8px;
+  margin-top: auto; /* push CTA to bottom of panel */
   border-radius: 25px;
   background: linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.05));
   backdrop-filter: blur(4px);
@@ -2694,6 +2726,8 @@
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
+  width: auto;
+  white-space: nowrap;
 }
 
 .pill::before {
