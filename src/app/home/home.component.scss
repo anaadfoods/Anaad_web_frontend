@@ -2,13 +2,7 @@
 .wrap { display: grid; grid-template-columns: 1.1fr 1fr; gap: 32px; align-items: center; }
 .copy h1 { font-size: clamp(32px, 5vw, 56px); line-height: 1.05; margin: 0 0 12px; letter-spacing: -0.5px; }
 .copy p { color: var(--color-text-muted); font-size: 18px; }
-<<<<<<< Updated upstream
-.cta { margin-top: 20px; display: flex; gap: 12px; }
-/* Ensure buttons inside .cta don't shrink and size to their content */
-.cta .btn { flex: 0 0 auto; }
-=======
 .cta { margin-top: 20px; display: flex; gap: 12px; padding-bottom: 8px; overflow: visible; }
->>>>>>> Stashed changes
 
 .visual { position: relative; height: 360px; perspective: 800px; }
 .card { position: absolute; inset: 0; border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); background: var(--color-surface); }
@@ -272,21 +266,28 @@
 /* Picture container for hero image */
 .hero-picture-container {
   position: absolute;
-  inset: 0;
-  bottom: 0; /* Allow image to extend to the bottom */
-  display: flex;
-  align-items: stretch;
-  justify-content: center;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
   pointer-events: none;
   z-index: 0; /* Behind the effects */
   padding: 0;
+  margin: 0;
+  overflow: hidden;
 }
 
 .hero-picture {
   width: 100%;
   height: 100%;
+  min-width: 100%;
+  min-height: 100%;
+  display: block;
   object-fit: cover;
-  object-position: center bottom; /* Align image to bottom to show complete picture */
+  object-position: center center;
   pointer-events: auto;
 }
 
@@ -598,13 +599,7 @@
   justify-content: center;
   background: #3f5e46;
   color: #fff;
-<<<<<<< Updated upstream
-  /* responsive horizontal padding so button width adapts to text */
-  padding-inline: clamp(20px, 6vw, 48px);
-  padding-block: 12px;
-=======
   padding: 18px 52px;
->>>>>>> Stashed changes
   font-size: 16px;
   font-weight: 600;
   letter-spacing: 0.03em;
@@ -616,13 +611,7 @@
   animation: fadeSlideUp 0.8s 1.2s ease-out both;
   white-space: nowrap;
   position: relative;
-<<<<<<< Updated upstream
   overflow: hidden;
-  /* ensure the button sizes to its content and doesn't shrink inside flex parent */
-  min-width: fit-content;
-=======
-  overflow: visible;
->>>>>>> Stashed changes
 }
 
 /* Button shimmer effect */
@@ -2746,13 +2735,7 @@
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
-<<<<<<< Updated upstream
   overflow: hidden;
-  width: auto;
-  white-space: nowrap;
-=======
-  overflow: visible;
->>>>>>> Stashed changes
 }
 
 .pill::before {
