@@ -282,7 +282,7 @@
   position: relative; 
   z-index: 3; 
   color: #fff; 
-  padding: 28px; 
+  // padding: 2px; 
   display: grid; 
   align-content: end; 
   height: 100%;
@@ -290,7 +290,7 @@
 }
 
 .card:hover .content {
-  transform: translateY(-4px);
+  transform: translateY(0px);
 }
 
 .card h2 { 
