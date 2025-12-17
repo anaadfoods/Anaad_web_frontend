@@ -1,5 +1,7 @@
 /* Global styles */
 @use './styles/theme' as *;
+@use './styles/animations' as *;
+@use './styles/utilities' as *;
 
 *, *::before, *::after { box-sizing: border-box; }
 html { 
@@ -52,41 +54,21 @@ body {
   padding: 0 16px;
 }
 
-/* Base button styles */
+/* Base button styles - use utilities instead */
 .btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 10px 18px;
-  border-radius: var(--radius-md);
-  text-decoration: none;
-  font-weight: 600;
-  border: 0;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-  transition: transform .2s ease, box-shadow .2s ease;
-}
-
-.btn:hover {
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-md);
+  @extend .btn-base;
 }
 
 .btn-primary {
-  background: var(--color-primary);
-  color: #fff; /* White text for primary buttons */
+  @extend .btn-primary;
 }
 
 .btn-secondary {
-  background: var(--color-secondary);
-  color: #fff; /* White text for secondary buttons */
+  @extend .btn-secondary;
 }
 
 .btn-surface {
-  background: var(--color-surface);
-  color: var(--color-text); /* Use default text color for surface buttons */
-  box-shadow: var(--shadow-sm);
+  @extend .btn-surface;
 }
+
 

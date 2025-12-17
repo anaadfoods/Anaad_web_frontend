@@ -131,20 +131,28 @@
 /* Enhanced two-cards section with animations */
 .two-cards { 
   background: var(--color-bg); 
-  padding: 32px 0 8px; 
+  padding: 48px 0 32px; 
 }
 
 .cards { 
   display: grid; 
   grid-template-columns: 1fr; 
-  gap: 24px; 
+  gap: 20px; 
+  padding: 0 16px;
 }
 
-@media (min-width: 900px) { 
+@media (min-width: 768px) { 
   .cards { 
     grid-template-columns: 1fr 1fr; 
-    gap: 28px; 
+    gap: 24px; 
+    padding: 0;
   } 
+}
+
+@media (min-width: 1200px) {
+  .cards {
+    gap: 28px;
+  }
 }
 
 /* Card animations */
@@ -167,21 +175,33 @@
 
 .card {
   position: relative;
-  border-radius: 28px;
+  border-radius: 20px;
   overflow: hidden;
   box-shadow: 
     0 20px 50px rgba(0,0,0,0.15),
     0 8px 25px rgba(0,0,0,0.1),
     0 4px 12px rgba(0,0,0,0.08),
     inset 0 1px 0 rgba(255,255,255,0.1);
-  min-height: 540px;
+  min-height: 360px;
   background: #ccc;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
   animation: cardBreathingShadow 4s ease-in-out infinite;
-  /* Force visibility */
   opacity: 1 !important;
   display: block;
+}
+
+@media (min-width: 768px) {
+  .card {
+    min-height: 480px;
+    border-radius: 28px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .card {
+    min-height: 540px;
+  }
 }
 
 .card:hover {
@@ -289,9 +309,15 @@
 
 /* Enhanced benefits section with animations */
 .benefits { 
-  padding: 24px 0 80px; 
+  padding: 32px 16px 64px; 
   background: radial-gradient(120% 100% at 50% 0%, rgba(0,0,0,0.02) 0%, transparent 50%);
   position: relative;
+}
+
+@media (min-width: 768px) {
+  .benefits {
+    padding: 24px 0 80px;
+  }
 }
 
 /* Animated border for benefits section */
@@ -341,14 +367,22 @@
 .grid { 
   display: grid; 
   grid-template-columns: 1fr; 
-  gap: 24px; 
+  gap: 20px; 
+  padding: 0 16px;
 }
 
-@media (min-width: 800px) { 
+@media (min-width: 640px) { 
   .grid { 
     grid-template-columns: 1fr 1fr; 
-    gap: 28px 56px; 
+    gap: 24px 32px; 
+    padding: 0;
   } 
+}
+
+@media (min-width: 1024px) {
+  .grid {
+    gap: 28px 56px;
+  }
 }
 
 /* Benefit item animations */
@@ -361,6 +395,10 @@
 .delay-100 { animation-delay: 0.1s; }
 .delay-200 { animation-delay: 0.2s; }
 .delay-300 { animation-delay: 0.3s; }
+/* Add the missing delay classes */
+.delay-600 { animation-delay: 0.6s; }
+.delay-800 { animation-delay: 0.8s; }
+.delay-900 { animation-delay: 0.9s; }
 
 @keyframes benefitSlideIn {
   to {
@@ -371,12 +409,20 @@
 
 .benefit { 
   display: grid; 
-  grid-template-columns: 64px auto; 
+  grid-template-columns: 56px auto; 
   align-items: start; 
-  gap: 16px;
+  gap: 12px;
   transition: all 0.3s ease;
-  padding: 16px;
+  padding: 12px;
   border-radius: 16px;
+}
+
+@media (min-width: 768px) {
+  .benefit {
+    grid-template-columns: 64px auto;
+    gap: 16px;
+    padding: 16px;
+  }
 }
 
 .benefit:hover {
@@ -387,8 +433,8 @@
 
 /* Enhanced icon animations */
 .icon { 
-  width: 64px; height: 64px; 
-  border-radius: 12px; 
+  width: 56px; height: 56px; 
+  border-radius: 10px; 
   background: color-mix(in srgb, var(--color-warning) 85%, white);
   box-shadow: var(--shadow-sm);
   display: grid; place-items: center;
@@ -397,6 +443,15 @@
   position: relative;
   overflow: hidden;
   animation: iconBreathingShadow 5s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+@media (min-width: 768px) {
+  .icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 12px;
+  }
 }
 
 .icon::before {
@@ -525,10 +580,16 @@
 /* Enhanced Contract Farming section */
 .contract {
   position: relative;
-  padding: 32px 0 96px;
+  padding: 24px 16px 64px;
   background: radial-gradient(120% 90% at 50% -10%, rgba(0,0,0,0.28) 0%, rgba(0,0,0,0.14) 24%, transparent 55%),
               radial-gradient(120% 80% at 50% 110%, rgba(0,0,0,0.22) 0%, rgba(0,0,0,0.12) 20%, transparent 50%),
               var(--color-bg);
+}
+
+@media (min-width: 768px) {
+  .contract {
+    padding: 32px 0 96px;
+  }
 }
 
 .animate-section-delayed {
@@ -538,16 +599,33 @@
 
 /* Enhanced frame with floating animation */
 .contract .frame {
-  margin: 0 auto 28px;
-  width: min(920px, 100% - 32px);
-  aspect-ratio: 16 / 10;
-  border-radius: 18px;
+  margin: 0 auto 24px;
+  width: min(920px, 100% - 24px);
+  aspect-ratio: 16 / 12;
+  border-radius: 12px;
   background: linear-gradient(180deg, color-mix(in srgb, var(--color-primary) 30%, white) 0%, color-mix(in srgb, var(--color-warning) 30%, white) 100%);
-  padding: 8px;
+  padding: 4px;
   box-shadow: 0 16px 50px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.4);
   transition: all 0.3s ease;
   position: relative;
   animation: frameBreathingShadow 6s ease-in-out infinite;
+  overflow: hidden;
+}
+
+@media (min-width: 768px) {
+  .contract .frame {
+    aspect-ratio: 16 / 10;
+    border-radius: 16px;
+    padding: 5px;
+    margin-bottom: 28px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .contract .frame {
+    border-radius: 18px;
+    padding: 6px;
+  }
 }
 
 /* Animated border for frame */
@@ -613,16 +691,43 @@
 }
 
 .contract .frame-inner {
-  border-radius: 14px;
+  border-radius: 10px;
   height: 100%;
   background: #f8f3e8;
-  box-shadow: inset 0 6px 14px rgba(0,0,0,0.12);
   transition: all 0.3s ease;
+  overflow: hidden;
 }
 
-.contract .frame:hover .frame-inner {
-  background: #faf5f0;
-  box-shadow: inset 0 8px 18px rgba(0,0,0,0.15);
+@media (min-width: 768px) {
+  .contract .frame-inner {
+    border-radius: 12px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .contract .frame-inner {
+    border-radius: 14px;
+  }
+}
+
+.contract .frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+  display: block;
+}
+
+@media (min-width: 768px) {
+  .contract .frame img {
+    border-radius: 10px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .contract .frame img {
+    border-radius: 12px;
+  }
 }
 
 .contract h2 {
@@ -630,15 +735,30 @@
   font-family: var(--font-sans);
   font-weight: 700;
   letter-spacing: 0.2px;
-  font-size: clamp(24px, 3.2vw, 32px);
-  margin: 0 0 12px;
+  font-size: clamp(22px, 4vw, 32px);
+  margin: 0 0 10px;
+}
+
+@media (min-width: 768px) {
+  .contract h2 {
+    margin-bottom: 12px;
+  }
 }
 
 .contract .intro {
   color: var(--color-text-muted);
   max-width: 850px;
-  line-height: 1.8;
-  margin: 0 0 18px;
+  line-height: 1.7;
+  margin: 0 0 16px;
+  font-size: 15px;
+}
+
+@media (min-width: 768px) {
+  .contract .intro {
+    font-size: 16px;
+    margin-bottom: 18px;
+    line-height: 1.8;
+  }
 }
 
 .contract .eyebrow {
@@ -651,19 +771,36 @@
 .ticks { 
   list-style: none; 
   padding: 0; 
-  margin: 0 0 24px; 
+  margin: 0 0 20px; 
   display: grid; 
-  gap: 12px; 
+  gap: 10px; 
+}
+
+@media (min-width: 768px) {
+  .ticks {
+    margin-bottom: 24px;
+    gap: 12px;
+  }
 }
 
 .ticks li { 
   display: grid; 
-  grid-template-columns: 26px auto; 
+  grid-template-columns: 22px auto; 
   align-items: start; 
-  gap: 12px;
+  gap: 10px;
   transition: all 0.3s ease;
-  padding: 8px;
+  padding: 6px;
   border-radius: 8px;
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  .ticks li {
+    grid-template-columns: 26px auto;
+    gap: 12px;
+    padding: 8px;
+    font-size: 15px;
+  }
 }
 
 .ticks li:hover {
@@ -696,22 +833,30 @@
 
 .ticks p { 
   margin: 4px 0 0; 
-  color: var(--color-text-muted); 
-}
+color: color-mix(in srgb, var(--color-text-muted) 100%, black 20%);}
 
 /* Enhanced flow with step animations */
 .flow { 
   display: grid; 
   grid-template-columns: 1fr; 
-  gap: 20px; 
+  gap: 16px; 
   align-items: center; 
   justify-items: center; 
   margin: 28px 0 24px; 
+  padding: 0 16px;
 }
 
-@media (min-width: 900px) { 
+@media (min-width: 768px) {
+  .flow {
+    gap: 20px;
+    padding: 0;
+  }
+}
+
+@media (min-width: 1024px) { 
   .flow { 
     grid-template-columns: auto 40px auto 40px auto 40px auto; 
+    gap: 20px;
   } 
 }
 
@@ -731,6 +876,13 @@
 .step { 
   text-align: center;
   transition: all 0.3s ease;
+  width: 100%;
+}
+
+@media (min-width: 1024px) {
+  .step {
+    width: auto;
+  }
 }
 
 .step:hover {
@@ -738,7 +890,7 @@
 }
 
 .circle { 
-  width: 64px; height: 64px; 
+  width: 56px; height: 56px; 
   border-radius: 999px; 
   background: #fff; 
   color: var(--color-warning); 
@@ -748,6 +900,14 @@
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
+  margin: 0 auto;
+}
+
+@media (min-width: 1024px) {
+  .circle {
+    width: 64px;
+    height: 64px;
+  }
 }
 
 .circle::before {
@@ -772,8 +932,15 @@
 }
 
 .circle svg { 
-  width: 30px; height: 30px;
+  width: 26px; height: 26px;
   transition: all 0.3s ease;
+}
+
+@media (min-width: 1024px) {
+  .circle svg {
+    width: 30px;
+    height: 30px;
+  }
 }
 
 .step:hover .circle svg {
@@ -783,8 +950,21 @@
 .label { 
   margin-top: 8px; 
   color: var(--color-text-muted); 
-  font-size: 14px;
+  font-size: 12px;
   transition: all 0.3s ease;
+  line-height: 1.4;
+}
+
+@media (min-width: 768px) {
+  .label {
+    font-size: 13px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .label {
+    font-size: 14px;
+  }
 }
 
 .step:hover .label {
@@ -801,7 +981,7 @@
   overflow: hidden;
 }
 
-@media (min-width: 900px) { 
+@media (min-width: 1024px) { 
   .arrow { 
     display: block; 
     width: 40px; 
@@ -858,6 +1038,20 @@
 .inquiry { margin-top: 24px; display: flex; justify-content: center; align-items: center; }
 .inquiry a { min-width: 280px; padding: 18px 40px; font-size: 15px; font-weight: 800; letter-spacing: 0.8px; text-transform: uppercase; }
 .copyright { text-align: right; color: #fff; opacity: 0.9; margin-top: 28px; }
+
+@media (max-width: 768px) {
+  .hero {
+    padding: 60px 16px 32px;
+  }
+  
+  .meta h3 {
+    font-size: 18px;
+  }
+  
+  .contract .eyebrow {
+    font-size: 18px;
+  }
+}
 
 @media (max-width: 980px) { 
   .cta-columns { grid-template-columns: 1fr; } 

@@ -1,0 +1,125 @@
+// ============================================
+// Responsive Breakpoint Utilities
+// Mobile-first responsive design helpers
+// ============================================
+
+// ---------------------
+// Breakpoint Variables
+// ---------------------
+$breakpoint-mobile: 768px;
+$breakpoint-tablet: 1024px;
+$breakpoint-desktop: 1280px;
+
+// ---------------------
+// Media Query Mixins
+// ---------------------
+
+// Mobile only (< 768px)
+@mixin mobile {
+    @media (max-width: #{$breakpoint-mobile - 1px}) {
+        @content;
+    }
+}
+
+// Tablet and up (>= 768px)
+@mixin tablet-up {
+    @media (min-width: #{$breakpoint-mobile}) {
+        @content;
+    }
+}
+
+// Desktop and up (>= 1024px)
+@mixin desktop-up {
+    @media (min-width: #{$breakpoint-tablet}) {
+        @content;
+    }
+}
+
+// Large desktop (>= 1280px)
+@mixin large-desktop {
+    @media (min-width: #{$breakpoint-desktop}) {
+        @content;
+    }
+}
+
+// Tablet only (768px - 1023px)
+@mixin tablet-only {
+    @media (min-width: #{$breakpoint-mobile}) and (max-width: #{$breakpoint-tablet - 1px}) {
+        @content;
+    }
+}
+
+// ---------------------
+// Reduced Motion
+// ---------------------
+@mixin reduced-motion {
+    @media (prefers-reduced-motion: reduce) {
+        @content;
+    }
+}
+
+// ---------------------
+// Utility: Hide on Mobile
+// ---------------------
+@mixin hide-on-mobile {
+    @include mobile {
+        display: none !important;
+    }
+}
+
+// ---------------------
+// Utility: Show on Mobile Only
+// ---------------------
+@mixin show-on-mobile-only {
+    display: none !important;
+
+    @include mobile {
+        display: block !important;
+    }
+}
+
+// ---------------------
+// Utility: Mobile Stack
+// Converts grid/flex to single column on mobile
+// ---------------------
+@mixin mobile-stack {
+    @include mobile {
+        display: flex;
+        flex-direction: column;
+    }
+}
+
+// ---------------------
+// Utility: Responsive Font Size
+// ---------------------
+@mixin responsive-font($min-size, $max-size, $min-vw: 375px, $max-vw: 1200px) {
+    font-size: clamp(#{$min-size}, calc(#{$min-size} + (#{$max-size} - #{$min-size}) * ((100vw - #{$min-vw}) / (#{$max-vw} - #{$min-vw}))), #{$max-size});
+}
+
+// ---------------------
+// Utility: Touch Target
+// Ensures minimum 44px touch target for mobile
+// ---------------------
+@mixin touch-target($min-size: 44px) {
+    min-width: $min-size;
+    min-height: $min-size;
+}
+
+// ---------------------
+// Utility: Mobile Padding
+// ---------------------
+@mixin mobile-padding {
+    @include mobile {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+}
+
+// ---------------------
+// Utility: Mobile Reduced Spacing
+// ---------------------
+@mixin mobile-reduced-gap {
+    @include mobile {
+        gap: 1rem;
+    }
+}

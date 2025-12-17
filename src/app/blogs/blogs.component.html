@@ -1,21 +1,15 @@
 <section class="blogs-hero">
-  <!-- Background image -->
   <img class="blogs-hero__bg" src="assets/images/blog-hero.svg" alt="" aria-hidden="true" />
   <div class="blogs-hero__overlay"></div>
   
-  <!-- Floating decorative shapes -->
   <div class="floating-shape floating-shape--1"></div>
   <div class="floating-shape floating-shape--2"></div>
   <div class="floating-shape floating-shape--3"></div>
+  
   <div class="particle-field">
-    <span class="particle"></span>
-    <span class="particle"></span>
-    <span class="particle"></span>
-    <span class="particle"></span>
-    <span class="particle"></span>
-    <span class="particle"></span>
-    <span class="particle"></span>
-    <span class="particle"></span>
+    @for (i of [1,2,3,4,5,6,7,8]; track i) {
+      <span class="particle"></span>
+    }
   </div>
 
   <div class="blogs-hero__content" appRevealOnScroll>
@@ -32,15 +26,12 @@
   <div class="blogs-featured__bg"></div>
 
   <div class="blogs-featured__cards">
-    <!-- Loading state -->
     @if (featuredLoading) {
       <div class="card card--large">
-        <div class="card__shimmer"></div>
         <div class="card__label">Loading...</div>
       </div>
     }
 
-    <!-- Error state -->
     @if (featuredError && !featuredLoading) {
       <div class="card card--large">
         <div class="card__label">Error</div>
@@ -49,18 +40,14 @@
       </div>
     }
 
-    <!-- Featured articles from API -->
     @if (!featuredLoading && !featuredError && featuredArticles.length > 0) {
-      <!-- Large card - First Article -->
       <a [routerLink]="['/blogs', featuredArticles[0].id]" class="card card--large" appRevealOnScroll>
-        <div class="card__orb"></div>
         <div class="card__label">Featured</div>
         <h2>{{ featuredArticles[0].title }}</h2>
         <p>{{ featuredArticles[0].subtitle }}</p>
         <span class="card__button btn-ripple">Read More</span>
       </a>
 
-      <!-- Small cards for remaining featured articles -->
       @if (featuredArticles.length > 1) {
         <div class="card-column">
           @for (article of featuredArticles.slice(1); track article.id) {
@@ -75,7 +62,6 @@
       }
     }
 
-    <!-- Fallback if no featured articles -->
     @if (!featuredLoading && !featuredError && featuredArticles.length === 0) {
       <div class="card card--large" appRevealOnScroll>
         <div class="card__orb"></div>
@@ -89,8 +75,6 @@
 
 <section class="blogs-explore">
   <div class="pattern-bg"></div>
-  
-  <!-- Animated background orbs -->
   <div class="orb orb--1"></div>
   <div class="orb orb--2"></div>
 
@@ -98,7 +82,6 @@
     <h2 class="section-title" appRevealOnScroll>EXPLORE</h2>
 
     <div class="topic-cards-wrapper">
-      <!-- Loading state -->
       @if (loading) {
         <div class="topic-cards-loading">
           <div class="loading-spinner"></div>
@@ -106,7 +89,6 @@
         </div>
       }
 
-      <!-- Error state -->
       @if (error && !loading) {
         <div class="topic-cards-error">
           <div class="error-icon">☁️</div>
@@ -116,7 +98,6 @@
         </div>
       }
 
-      <!-- Articles loaded -->
       @if (!loading && !error && displayArticles.length > 0) {
         <div class="topic-cards-track">
           @for (article of displayArticles; track $index; let i = $index) {
@@ -125,23 +106,15 @@
               [class.topic-card--light]="!article.cover_image && i % 2 === 0"
               [class.topic-card--dark]="!article.cover_image && i % 2 !== 0"
               [class.topic-card--image]="article.cover_image"
-              [style.background-image]="article.cover_image ? 'url(' + article.cover_image + ')' : null"
-            >
+              [style.background-image]="article.cover_image ? 'url(' + article.cover_image + ')' : null">
               <h3 [innerHTML]="article.title"></h3>
               <p>{{ article.subtitle }}</p>
-              <button
-                type="button"
-                class="topic-card__button"
-                [routerLink]="['/blogs', article.id]"
-              >
-                Read More
-              </button>
+              <button type="button" class="topic-card__button" [routerLink]="['/blogs', article.id]">Read More</button>
             </article>
           }
         </div>
       }
 
-      <!-- No articles -->
       @if (!loading && !error && displayArticles.length === 0) {
         <div class="topic-cards-empty">
           <p>No articles available at the moment.</p>
@@ -151,9 +124,7 @@
 
     <div class="evidence" appRevealOnScroll>
       <h2 class="section-title glitch-text">THE EVIDENCE ARCHIVE</h2>
-      <p class="evidence__subtitle">
-        Browse through a database of 20+<br />Peer-Reviewed Studies
-      </p>
+      <p class="evidence__subtitle">Browse through a database of 20+<br />Peer-Reviewed Studies</p>
       <button type="button" class="pill-button pulse-btn" routerLink="/evidence">Clinical Research Papers</button>
     </div>
 
