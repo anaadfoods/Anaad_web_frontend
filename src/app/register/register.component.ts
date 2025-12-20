@@ -59,7 +59,7 @@ export class RegisterComponent implements OnInit {
       message: this.form.value.message || '',
       requirement_type: this.form.value.requirementType || '',
       business_or_family_name: this.form.value.familyName || '',
-      is_from_rfp: false,
+      is_from_rfp: this.registrationSourceService.getIsRfp(),
       redirection_from: this.registrationSourceService.getSource(),
       ...(articleId && { article_id: articleId })
     };

@@ -3,13 +3,14 @@ import { isPlatformBrowser } from '@angular/common';
 
 export type RedirectionSource = 'WAITLIST' | 'PDF_REQUEST' | 'RFP' | 'USER_QUERY';
 
-const STORAGE_KEY = 'registration_source';
-const ARTICLE_ID_KEY = 'registration_article_id';
+const STORAGE_KEY = 'redirection_from';
+const ARTICLE_ID_KEY = 'article_id';
+const IS_RFP_KEY = 'is_from_rfp';
 
 @Injectable({ providedIn: 'root' })
 export class RegistrationSourceService {
   private platformId = inject(PLATFORM_ID);
-  
+
   private get isBrowser(): boolean {
     return isPlatformBrowser(this.platformId);
   }
@@ -33,6 +34,29 @@ export class RegistrationSourceService {
     }
     const source = sessionStorage.getItem(STORAGE_KEY) as RedirectionSource;
     return source || 'USER_QUERY';
+  }
+
+  /**
+   * Set the is_rfp flag
+   * Case 2: true when user comes from contract farming page (RFP)
+   * Case 3: false when user comes from footer inquiry
+   */
+  setIsRfp(isRfp: boolean): void {
+    if (this.isBrowser) {
+      sessionStorage.setItem(IS_RFP_KEY, isRfp.toString());
+    }
+  }
+
+  /**
+   * Get the is_rfp flag
+   * Defaults to false if not set
+   */
+  getIsRfp(): boolean {
+    if (!this.isBrowser) {
+      return false;
+    }
+    const isRfp = sessionStorage.getItem(IS_RFP_KEY);
+    return isRfp === 'true';
   }
 
   /**
@@ -71,6 +95,7 @@ export class RegistrationSourceService {
     if (this.isBrowser) {
       sessionStorage.removeItem(STORAGE_KEY);
       sessionStorage.removeItem(ARTICLE_ID_KEY);
+      sessionStorage.removeItem(IS_RFP_KEY);
     }
   }
 }

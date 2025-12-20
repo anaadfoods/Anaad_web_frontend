@@ -54,9 +54,13 @@ export class JoinWaitlistComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Set source as WAITLIST when user lands on this page
-    this.registrationSourceService.setSource('WAITLIST');
-    
+    // Only set source as WAITLIST if user came directly to this page
+    // (i.e., no source already set from PDF_REQUEST, RFP, etc.)
+    const currentSource = this.registrationSourceService.getSource();
+    if (currentSource === 'USER_QUERY') {
+      this.registrationSourceService.setSource('WAITLIST');
+    }
+
     // Fetch member count from API
     this.fetchMemberCount();
   }
@@ -101,10 +105,10 @@ export class JoinWaitlistComponent implements OnInit {
     console.log('Form submit triggered');
     this.submitted = true;
     this.errorMessage = '';
-    
+
     console.log('Form valid:', this.form.valid);
     console.log('Form values:', this.form.value);
-    
+
     if (this.form.invalid) {
       console.log('Form is invalid, errors:', this.form.errors);
       return;
@@ -113,7 +117,7 @@ export class JoinWaitlistComponent implements OnInit {
     this.submitting = true;
 
     const articleId = this.registrationSourceService.getArticleId();
-    
+
     const payload: UserQueryPayload = {
       name: this.form.value.fullName || '',
       phone_number: this.form.value.phoneNumber || '',
@@ -121,7 +125,7 @@ export class JoinWaitlistComponent implements OnInit {
       message: this.form.value.message || '',
       requirement_type: this.form.value.requirementType || '',
       business_or_family_name: this.form.value.familyName || '',
-      is_from_rfp: false,
+      is_from_rfp: this.registrationSourceService.getIsRfp(),
       redirection_from: this.registrationSourceService.getSource(),
       ...(articleId && { article_id: articleId })
     };

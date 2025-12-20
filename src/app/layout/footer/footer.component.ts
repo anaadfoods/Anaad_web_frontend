@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
+import { RegistrationSourceService } from '../../shared/services/registration-source.service';
 
 @Component({
   selector: 'app-footer',
@@ -10,11 +11,18 @@ import { Router, RouterLink } from '@angular/router';
 })
 export class FooterComponent {
   year = new Date().getFullYear();
-  constructor(private router: Router) {}
 
-  goToRegister(event?: Event) {
-    // Ensure navigation even if directive isn't bound for some reason
+  private router = inject(Router);
+  private registrationSourceService = inject(RegistrationSourceService);
+
+  /**
+   * Case 3: Navigate to registration form from footer inquiry
+   * Sets redirection_from = 'USER_QUERY' and is_rfp = false
+   */
+  goToRegister(event?: Event): void {
     if (event) event.preventDefault();
-    this.router.navigateByUrl('/register');
+    this.registrationSourceService.setSource('USER_QUERY');
+    this.registrationSourceService.setIsRfp(false);
+    this.router.navigate(['/register']);
   }
 }
