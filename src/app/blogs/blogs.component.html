@@ -1,19 +1,20 @@
 <section class="blogs-hero">
   <img class="blogs-hero__bg" src="assets/images/blog-hero.svg" alt="" aria-hidden="true" />
   <div class="blogs-hero__overlay"></div>
-  
+
   <div class="floating-shape floating-shape--1"></div>
   <div class="floating-shape floating-shape--2"></div>
   <div class="floating-shape floating-shape--3"></div>
-  
+
   <div class="particle-field">
     @for (i of [1,2,3,4,5,6,7,8]; track i) {
-      <span class="particle"></span>
+    <span class="particle"></span>
     }
   </div>
 
   <div class="blogs-hero__content" appRevealOnScroll>
-    <p class="eyebrow animate-text">In an era of artificial substitutes, the truth is your strongest defense.<br>Explore the science for the convincing proofs behind the ICBN Method.</p>
+    <p class="eyebrow animate-text">In an era of artificial substitutes, the truth is your strongest defense.<br>Explore
+      the science for the convincing proofs behind the ICBN Method.</p>
     <h1 class="animate-title">
       <span class="word">SOIL,</span><br>
       <span class="word">SOUL,</span><br>
@@ -27,48 +28,51 @@
 
   <div class="blogs-featured__cards">
     @if (featuredLoading) {
-      <div class="card card--large">
-        <div class="card__label">Loading...</div>
-      </div>
+    <div class="card card--large">
+      <div class="card__label">Loading...</div>
+    </div>
     }
 
     @if (featuredError && !featuredLoading) {
-      <div class="card card--large">
-        <div class="card__label">Error</div>
-        <h2>Failed to load featured articles</h2>
-        <p>Please try again later.</p>
-      </div>
+    <div class="card card--large">
+      <div class="card__label">Error</div>
+      <h2>Failed to load featured articles</h2>
+      <p>Please try again later.</p>
+    </div>
     }
 
     @if (!featuredLoading && !featuredError && featuredArticles.length > 0) {
-      <a [routerLink]="['/blogs', featuredArticles[0].id]" class="card card--large" appRevealOnScroll>
-        <div class="card__label">Featured</div>
-        <h2>{{ featuredArticles[0].title }}</h2>
-        <p>{{ featuredArticles[0].subtitle }}</p>
+    <a [routerLink]="['/blogs', featuredArticles[0].id]" class="card card--large" appRevealOnScroll>
+      <div class="card__label">Featured</div>
+      <div class="card__special">
+      <h1>{{ featuredArticles[0].title }}</h1>
+      <p>{{ featuredArticles[0].subtitle }}</p>
+      <span class="card__button btn-ripple">Read More</span>
+            </div>
+
+    </a>
+
+    @if (featuredArticles.length > 1) {
+    <div class="card-column">
+      @for (article of featuredArticles.slice(1); track article.id) {
+      <a [routerLink]="['/blogs', article.id]" class="card card--small" appRevealOnScroll>
+        <div class="card__orb"></div>
+        <h3>{{ article.title }}</h3>
+        <p>{{ article.subtitle }}</p>
         <span class="card__button btn-ripple">Read More</span>
       </a>
-
-      @if (featuredArticles.length > 1) {
-        <div class="card-column">
-          @for (article of featuredArticles.slice(1); track article.id) {
-            <a [routerLink]="['/blogs', article.id]" class="card card--small" appRevealOnScroll>
-              <div class="card__orb"></div>
-              <h3>{{ article.title }}</h3>
-              <p>{{ article.subtitle }}</p>
-              <span class="card__button btn-ripple">Read More</span>
-            </a>
-          }
-        </div>
       }
+    </div>
+    }
     }
 
     @if (!featuredLoading && !featuredError && featuredArticles.length === 0) {
-      <div class="card card--large" appRevealOnScroll>
-        <div class="card__orb"></div>
-        <div class="card__label">Featured</div>
-        <h2>No featured articles available</h2>
-        <p>Please check back later.</p>
-      </div>
+    <div class="card card--large" appRevealOnScroll>
+      <div class="card__orb"></div>
+      <div class="card__label">Featured</div>
+      <h2>No featured articles available</h2>
+      <p>Please check back later.</p>
+    </div>
     }
   </div>
 </section>
@@ -83,42 +87,39 @@
 
     <div class="topic-cards-wrapper">
       @if (loading) {
-        <div class="topic-cards-loading">
-          <div class="loading-spinner"></div>
-          <p>Loading articles...</p>
-        </div>
+      <div class="topic-cards-loading">
+        <div class="loading-spinner"></div>
+        <p>Loading articles...</p>
+      </div>
       }
 
       @if (error && !loading) {
-        <div class="topic-cards-error">
-          <div class="error-icon">☁️</div>
-          <h3>Cloudy with a chance of errors</h3>
-          <p>We couldn't fetch the articles right now. Give it another shot!</p>
-          <button type="button" class="retry-button" (click)="ngOnInit()">Try Again</button>
-        </div>
+      <div class="topic-cards-error">
+        <div class="error-icon">☁️</div>
+        <h3>Cloudy with a chance of errors</h3>
+        <p>We couldn't fetch the articles right now. Give it another shot!</p>
+        <button type="button" class="retry-button" (click)="ngOnInit()">Try Again</button>
+      </div>
       }
 
       @if (!loading && !error && displayArticles.length > 0) {
-        <div class="topic-cards-track">
-          @for (article of displayArticles; track $index; let i = $index) {
-            <article 
-              class="topic-card" 
-              [class.topic-card--light]="!article.cover_image && i % 2 === 0"
-              [class.topic-card--dark]="!article.cover_image && i % 2 !== 0"
-              [class.topic-card--image]="article.cover_image"
-              [style.background-image]="article.cover_image ? 'url(' + article.cover_image + ')' : null">
-              <h3 [innerHTML]="article.title"></h3>
-              <p>{{ article.subtitle }}</p>
-              <button type="button" class="topic-card__button" [routerLink]="['/blogs', article.id]">Read More</button>
-            </article>
-          }
-        </div>
+      <div class="topic-cards-track">
+        @for (article of displayArticles; track $index; let i = $index) {
+        <article class="topic-card" [class.topic-card--light]="!article.cover_image && i % 2 === 0"
+          [class.topic-card--dark]="!article.cover_image && i % 2 !== 0" [class.topic-card--image]="article.cover_image"
+          [style.background-image]="article.cover_image ? 'url(' + article.cover_image + ')' : null">
+          <h3 [innerHTML]="article.title"></h3>
+          <p>{{ article.subtitle }}</p>
+          <button type="button" class="topic-card__button" [routerLink]="['/blogs', article.id]">Read More</button>
+        </article>
+        }
+      </div>
       }
 
       @if (!loading && !error && displayArticles.length === 0) {
-        <div class="topic-cards-empty">
-          <p>No articles available at the moment.</p>
-        </div>
+      <div class="topic-cards-empty">
+        <p>No articles available at the moment.</p>
+      </div>
       }
     </div>
 

@@ -274,6 +274,8 @@
     max-width: 50rem;
     position: relative;
     z-index: 1;
+    margin: 0 auto;
+    text-align: center;
   }
 
   // Floating leaf shapes
@@ -311,10 +313,11 @@
 
   &__title {
     font-family: 'Playfair Display', 'Times New Roman', serif;
-    font-size: clamp(2.2rem, 3.2vw, 2.8rem);
+    font-size: clamp(2.5rem, 4vw, 3.5rem);
     line-height: 1.2;
     margin-bottom: 1.5rem;
     animation: softGlow 4s ease-in-out infinite;
+    text-align: center;
   }
 
   &__title-line {
@@ -336,17 +339,19 @@
   }
 
   &__subtitle {
-    font-size: 1rem;
+    font-size: 1.15rem;
     line-height: 1.6;
     animation: fadeSlideUp 0.8s ease-out 0.7s forwards;
     opacity: 0;
+    text-align: center;
   }
 
   &__eyebrow {
     margin-top: 2rem;
-    font-size: 0.9rem;
+    font-size: 1rem;
     opacity: 0;
     animation: fadeSlideUp 0.8s ease-out 0.4s forwards;
+    text-align: center;
   }
 }
 
@@ -371,10 +376,11 @@
   &__content {
     max-width: 48rem;
     margin: 0 auto;
-    font-size: 1rem;
-    line-height: 1.7;
+    font-size: 1.1rem;
+    line-height: 1.8;
     color: #3a2315;
     transition: max-height 0.5s ease-out;
+    text-align: center;
 
     // Collapsed state - approximately 10 lines of content
     &--collapsed {
@@ -458,9 +464,10 @@
 
   h2 {
     font-family: 'Playfair Display', 'Times New Roman', serif;
-    font-size: 1.4rem;
+    font-size: 1.6rem;
     margin: 2.5rem 0 1rem;
     position: relative;
+    text-align: center;
 
     // Subtle underline effect
     &::after {
@@ -498,11 +505,15 @@
     max-width: 48rem;
     margin: 0 auto;
     border-radius: 1.6rem;
-    padding: 2.6rem 2.8rem 2.4rem;
+    padding: 3rem 2.8rem 3rem;
     background: linear-gradient(135deg, #8b2c1f 0%, #6e1d15 40%, #3b130b 82%, #a87534 100%);
     box-shadow: 0 22px 45px rgba(0, 0, 0, 0.35);
     color: #fdf4e5;
     transition: transform 0.4s ease, box-shadow 0.4s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 
     &:hover {
       transform: translateY(-4px);
@@ -517,20 +528,22 @@
 
   &__heading {
     font-family: 'Playfair Display', 'Times New Roman', serif;
-    font-size: 1.4rem;
-    margin: 0 0 1.8rem;
+    font-size: 1.7rem;
+    margin: 0 0 2rem;
     animation: subtlePulse 3s ease-in-out infinite;
+    text-align: center;
   }
 
   &__button {
     display: inline-block;
-    margin-top: 0;
-    padding: 0.9rem 2.8rem;
+    margin-top: 1rem;
+    padding: 1rem 3rem;
     border-radius: 999px;
     border: 2px solid rgba(255, 255, 255, 0.6);
     background: #23452a;
     color: #fdf7ec;
-    font-size: 0.9rem;
+    font-size: 1rem;
+    font-weight: 600;
     letter-spacing: 0.06em;
     text-transform: uppercase;
     cursor: pointer;
