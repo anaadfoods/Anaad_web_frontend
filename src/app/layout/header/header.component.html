@@ -1,14 +1,8 @@
 <header class="site-header">
   <div class="container bar">
-    <a class="logo" 
-       #logoContainer
-       routerLink="/" 
-       (click)="close()"
-       [class.is-hovering]="isHovering()"
-       [style.--tilt-x]="tiltX() + 'deg'"
-       [style.--tilt-y]="tiltY() + 'deg'"
-       [style.--glare-x]="glareX() + '%'"
-       [style.--glare-y]="glareY() + '%'">
+    <a class="logo" #logoContainer routerLink="/" (click)="close()" [class.is-hovering]="isHovering()"
+      [style.--tilt-x]="tiltX() + 'deg'" [style.--tilt-y]="tiltY() + 'deg'" [style.--glare-x]="glareX() + '%'"
+      [style.--glare-y]="glareY() + '%'">
       <!-- Orbiting golden dot -->
       <span class="orbit-dot"></span>
       <!-- Sparkle stars -->
@@ -35,12 +29,13 @@
           <span class="tooltip-emoji">🚀</span>
           <span class="tooltip-text">Shhh... Something delicious is cooking!</span>
           <span class="tooltip-subtext">In the meantime, register for early access!</span>
-          <a class="tooltip-btn" routerLink="/join-waitlist">✨ Click Here</a>
+          <a class="tooltip-btn" routerLink="/join-waitlist" (click)="close()">✨ Click Here</a>
           <span class="tooltip-arrow"></span>
         </span>
       </span>
     </nav>
-    <button class="menu" type="button" aria-label="Menu" [attr.aria-expanded]="isOpen()" aria-controls="primary-nav" (click)="toggle()">
+    <button class="menu" type="button" aria-label="Menu" [attr.aria-expanded]="isOpen()" aria-controls="primary-nav"
+      (click)="toggle()">
       <span></span><span></span><span></span>
     </button>
   </div>

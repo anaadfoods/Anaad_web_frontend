@@ -267,9 +267,10 @@
 }
 
 /* Floating base animation */
-.btn-register.floating {
+/* Floating base animation removed */
+/* .btn-register.floating {
   animation: gentleFloat 3s ease-in-out infinite;
-}
+} */
 
 @keyframes gentleFloat {
 
@@ -431,9 +432,10 @@
 }
 
 /* Bounce entrance on scroll */
-.btn-register.bounce-in {
+/* Bounce entrance on scroll removed */
+/* .btn-register.bounce-in {
   animation: bounceIn 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
-}
+} */
 
 @keyframes bounceIn {
   0% {

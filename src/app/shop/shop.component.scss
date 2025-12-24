@@ -33,7 +33,7 @@
 
 .center {
 	text-align: center;
-	animation: gentleFloat 3.5s ease-in-out infinite;
+	/* animation: gentleFloat 3.5s ease-in-out infinite; */
 }
 
 .title {
@@ -128,7 +128,7 @@
 	padding: 8px;
 	background: linear-gradient(180deg, #caa66e 0%, #f3e4c9 50%, #caa66e 100%);
 	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
-	animation: frameFloat 4s ease-in-out infinite, framePulse 3s ease-in-out infinite;
+	animation: framePulse 3s ease-in-out infinite;
 	transition: all 0.5s ease;
 	position: relative;
 	overflow: hidden;
@@ -275,7 +275,7 @@
 	box-shadow: 0 18px 26px rgba(0, 0, 0, 0.25);
 	max-width: 980px;
 	margin: 0 auto;
-	animation: panelFloat 5s ease-in-out infinite, panelGlow 4s ease-in-out infinite;
+	animation: panelGlow 4s ease-in-out infinite;
 	transition: all 0.4s ease;
 	position: relative;
 	overflow: hidden;
@@ -565,7 +565,7 @@
 	height: 10px;
 	top: 15%;
 	left: 10%;
-	animation: shopParticleDrift 9s ease-in-out infinite;
+	/* animation: shopParticleDrift 9s ease-in-out infinite; */
 }
 
 .shop-particle--2 {
@@ -573,7 +573,7 @@
 	height: 7px;
 	top: 30%;
 	right: 15%;
-	animation: shopParticleDrift2 11s ease-in-out infinite 1s;
+	/* animation: shopParticleDrift2 11s ease-in-out infinite 1s; */
 }
 
 .shop-particle--3 {
@@ -581,7 +581,7 @@
 	height: 12px;
 	bottom: 25%;
 	left: 20%;
-	animation: shopParticleDrift 10s ease-in-out infinite 2s;
+	/* animation: shopParticleDrift 10s ease-in-out infinite 2s; */
 }
 
 .shop-particle--4 {
@@ -589,7 +589,7 @@
 	height: 8px;
 	bottom: 20%;
 	right: 25%;
-	animation: shopParticleDrift2 8s ease-in-out infinite 0.5s;
+	/* animation: shopParticleDrift2 8s ease-in-out infinite 0.5s; */
 }
 
 @keyframes shopParticleDrift {
@@ -786,7 +786,7 @@
 
 .shop-overlay__content {
 	text-align: center;
-	animation: overlayFloat 4s ease-in-out infinite;
+	/* animation: overlayFloat 4s ease-in-out infinite; */
 }
 
 @keyframes overlayFloat {
@@ -862,7 +862,7 @@
 	transform: translateX(-50%);
 	width: 70px;
 	height: 56px;
-	animation: hatBounce 2s ease-in-out infinite;
+	/* Bouncing animation removed */
 	z-index: 2;
 }
 

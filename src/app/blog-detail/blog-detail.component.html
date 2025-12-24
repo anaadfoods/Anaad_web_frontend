@@ -1,4 +1,3 @@
-<!-- Loading state -->
 @if (loading) {
   <section class="blog-detail-loading">
     <div class="loading-spinner"></div>
@@ -6,7 +5,6 @@
   </section>
 }
 
-<!-- Error state -->
 @if (error && !loading) {
   <section class="blog-detail-error">
     <div class="error-icon">☁️</div>
@@ -16,7 +14,6 @@
   </section>
 }
 
-<!-- Not found state -->
 @if (notFound && !loading) {
   <section class="blog-detail-error blog-detail-error--not-found">
     <div class="error-icon">🌾</div>
@@ -26,13 +23,11 @@
   </section>
 }
 
-<!-- Article loaded -->
 @if (!loading && !error && !notFound && article) {
-  <section class="blog-detail-hero" 
-[ngStyle]="{
-    'background-color': '#3f5e46',
-    'background-image': article.cover_image ? 'url(' + article.cover_image + ')' : 'none'
-  }"  >
+  <section class="blog-detail-hero"
+           [ngStyle]="{
+             'background-image': article.cover_image ? 'url(' + article.cover_image + ')' : 'none'
+           }">
     <div class="blog-detail-hero__floating-leaf blog-detail-hero__floating-leaf--1"></div>
     <div class="blog-detail-hero__floating-leaf blog-detail-hero__floating-leaf--2"></div>
     <div class="blog-detail-hero__floating-leaf blog-detail-hero__floating-leaf--3"></div>
@@ -46,7 +41,7 @@
   </section>
 
   <section class="blog-detail-body">
-    <div class="blog-detail-body__content" 
+    <div class="blog-detail-body__content"
          [class.blog-detail-body__content--collapsed]="!isExpanded"
          [innerHTML]="article.content"></div>
     
@@ -62,11 +57,7 @@
   <section class="blog-detail-cta">
     <div class="blog-detail-cta__card blog-detail-cta__card--top">
       <h2 class="blog-detail-cta__heading">Don't have time to read the full article?</h2>
-      <button
-        type="button"
-        class="blog-detail-cta__button"
-        (click)="requestPdf()"
-      >
+      <button type="button" class="blog-detail-cta__button" (click)="requestPdf()">
         Send the PDF to my EMAIL/WHATSAPP
       </button>
     </div>
@@ -76,54 +67,50 @@
         <h3 class="blog-detail-cta__subheading">Become the Cultivators of a Toxin-Free Tomorrow</h3>
         <p class="blog-detail-cta__description">Nature does not mass produce. Our Toxin-Free ICBN harvest is finite by design. Secure your position as The Cultivator to guarantee priority access before the public launch.</p>
       </header>
-<br/>
-    <header class="waitlist-form-section__header">
-      <div class="waitlist-form-section__badge">
-        <img src="assets/images/waitlist.svg" alt="The Cultivator" />
-      </div>
-      <div class="waitlist-form-section__headline-block">
-        <p class="waitlist-form-section__headline">
-          Experience the vast benefits by
-          becoming the <br/> "The CULTIVATOR OF TOXIN-FREE TOMORROW"
-        </p>
-        <div class="cta-wrapper">
-          <button type="button" class="waitlist-form-section__cta" routerLink="/join-waitlist">
-            JOIN THE WAITLIST
-            <!-- <span class="cta-tooltip">
-              <span class="cta-tooltip__emoji">👇</span>
-              <span class="cta-tooltip__text">Oops! Almost there!</span>
-              <span class="cta-tooltip__subtext">Just scroll down a tiny bit and fill the form. Hurry hurry! 🚀</span>
-              <span class="cta-tooltip__arrow"></span>
-            </span> -->
-          </button>
+      <br/>
+      
+      <header class="waitlist-form-section__header">
+        <div class="waitlist-form-section__badge">
+          <img src="assets/images/waitlist.svg" alt="The Cultivator" />
         </div>
-        <div class="waitlist-form-section__benefits">
-          <p class="waitlist-form-section__benefit benefit--1">
-            <span class="benefit-icon">🎁</span>
-            <span class="benefit-content">
-              <strong>1. Complimentary Tasting Kit:</strong><br />
-              <span>(Receive a curated complementary sample pack of upcoming products, with your first subscription order.)</span>
-            </span>
+        
+        <div class="waitlist-form-section__headline-block">
+          <p class="waitlist-form-section__headline">
+            Experience the vast benefits by
+            becoming the <br/> "The CULTIVATOR OF TOXIN-FREE TOMORROW"
           </p>
-          <p class="waitlist-form-section__benefit benefit--2">
-            <span class="benefit-icon">📦</span>
-            <span class="benefit-content">
-              <strong>2. Priority Stock Reservation:</strong><br />
-              <span>(Get upcoming launch alerts before anyone, ensuring you secure your staples before stock runs out.)</span>
-            </span>
-          </p>
-          <p class="waitlist-form-section__benefit benefit--3">
-            <span class="benefit-icon">📱</span>
-            <span class="benefit-content">
-              <strong>3. Early Application Access:</strong><br />
-              <span>(Gain exclusive access to download the ANAAD App before the official release.)</span>
-            </span>
-          </p>
-        </div>
-      </div>
-    </header>
+          
+          <div class="cta-wrapper">
+            <button type="button" class="waitlist-form-section__cta" routerLink="/join-waitlist">
+              JOIN THE WAITLIST
+              </button>
+          </div>
 
-       
-    </div>
+          <div class="waitlist-form-section__benefits">
+            <p class="waitlist-form-section__benefit benefit--1">
+              <span class="benefit-icon">🎁</span>
+              <span class="benefit-content">
+                <strong>1. Complimentary Tasting Kit:</strong><br />
+                <span>(Receive a curated complementary sample pack of upcoming products, with your first subscription order.)</span>
+              </span>
+            </p>
+            <p class="waitlist-form-section__benefit benefit--2">
+              <span class="benefit-icon">📦</span>
+              <span class="benefit-content">
+                <strong>2. Priority Stock Reservation:</strong><br />
+                <span>(Get upcoming launch alerts before anyone, ensuring you secure your staples before stock runs out.)</span>
+              </span>
+            </p>
+            <p class="waitlist-form-section__benefit benefit--3">
+              <span class="benefit-icon">📱</span>
+              <span class="benefit-content">
+                <strong>3. Early Application Access:</strong><br />
+                <span>(Gain exclusive access to download the ANAAD App before the official release.)</span>
+              </span>
+            </p>
+          </div>
+        </div>
+      </header>
+      </div>
   </section>
 }

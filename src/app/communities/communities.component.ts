@@ -15,7 +15,7 @@ import { ParallaxOnScrollDirective } from '../shared/parallax-on-scroll.directiv
 export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewInit {
   private scrollListener!: () => void;
 
-  constructor(private elementRef: ElementRef) {}
+  constructor(private elementRef: ElementRef) { }
 
   ngOnInit() {
     this.setupScrollEffects();
@@ -45,21 +45,21 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private checkButtonVisibility() {
     const buttons = this.elementRef.nativeElement.querySelectorAll('.btn-register');
-    
+
     buttons.forEach((button: HTMLElement, index: number) => {
       const rect = button.getBoundingClientRect();
       const isVisible = rect.top < window.innerHeight * 0.8 && rect.bottom > 0;
-      
+
       if (isVisible && !button.classList.contains('scroll-revealed')) {
         // Stagger the animation based on button index
         setTimeout(() => {
-          button.classList.add('scroll-revealed', 'bounce-in', 'shimmer');
-          
-          // Add floating animation after bounce completes
+          button.classList.add('scroll-revealed', 'shimmer');
+
+          // Add floating animation
           setTimeout(() => {
             button.classList.add('floating');
           }, 1000);
-          
+
           // Add scale animation for variety
           if (index % 2 === 0) {
             setTimeout(() => {
@@ -74,18 +74,18 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewInit {
   private updateButtonEffects() {
     const buttons = this.elementRef.nativeElement.querySelectorAll('.btn-register');
     const scrollY = window.scrollY;
-    
+
     buttons.forEach((button: HTMLElement) => {
       const rect = button.getBoundingClientRect();
       const centerY = rect.top + rect.height / 2;
       const viewportCenter = window.innerHeight / 2;
       const distance = Math.abs(centerY - viewportCenter);
-      
+
       // Dynamic effects based on scroll position
       if (distance < 200) {
         const intensity = 1 - (distance / 200);
         button.style.setProperty('--glow-intensity', intensity.toString());
-        
+
         // Add magnetic field effect
         if (intensity > 0.7) {
           button.classList.add('magnetic-active');
@@ -98,7 +98,7 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private throttle(func: Function, limit: number) {
     let inThrottle: boolean;
-    return function(this: any) {
+    return function (this: any) {
       const args = arguments;
       const context = this;
       if (!inThrottle) {
@@ -113,7 +113,7 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewInit {
   onButtonHover(event: Event) {
     const button = event.target as HTMLElement;
     button.classList.add('hover-active');
-    
+
     // Create temporary glow particles
     this.createGlowParticles(button);
   }
@@ -125,18 +125,18 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewInit {
 
   onButtonClick(event: Event) {
     const button = event.target as HTMLElement;
-    
+
     // Add click ripple effect
     button.classList.add('clicked');
     setTimeout(() => button.classList.remove('clicked'), 600);
-    
+
     // Add success feedback
     this.showClickFeedback(button);
   }
 
   private createGlowParticles(button: HTMLElement) {
     const rect = button.getBoundingClientRect();
-    
+
     for (let i = 0; i < 3; i++) {
       setTimeout(() => {
         const particle = document.createElement('div');
@@ -153,9 +153,9 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewInit {
           top: ${rect.top + Math.random() * rect.height}px;
           animation: floatAway 2s ease-out forwards;
         `;
-        
+
         document.body.appendChild(particle);
-        
+
         setTimeout(() => {
           if (particle.parentNode) {
             particle.parentNode.removeChild(particle);
@@ -178,10 +178,10 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewInit {
       pointer-events: none;
       z-index: 10;
     `;
-    
+
     button.style.position = 'relative';
     button.appendChild(feedback);
-    
+
     setTimeout(() => {
       if (feedback.parentNode) {
         feedback.parentNode.removeChild(feedback);

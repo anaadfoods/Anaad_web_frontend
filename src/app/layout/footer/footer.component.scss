@@ -36,7 +36,7 @@
   height: 4px;
   background: radial-gradient(circle, rgba(202, 166, 110, 0.6) 0%, transparent 70%);
   border-radius: 50%;
-  animation: floatParticle 8s ease-in-out infinite;
+  /* animation: floatParticle 8s ease-in-out infinite; */
 }
 
 .particle:nth-child(1) {
@@ -157,7 +157,7 @@
       transparent 360deg);
   pointer-events: none;
   z-index: 1;
-  animation: rotateRays 60s linear infinite;
+  /* animation: rotateRays 60s linear infinite; */
   opacity: 0.8;
 }
 
@@ -194,22 +194,22 @@
 .wave-back {
   fill: #b8a67d;
   opacity: 0.7;
-  animation: waveFloat 6s ease-in-out infinite;
+  /* animation: waveFloat 6s ease-in-out infinite; */
   transform-origin: center bottom;
 }
 
 .wave-mid {
   fill: #8b7355;
   opacity: 0.85;
-  animation: waveFloat 5s ease-in-out infinite;
-  animation-delay: -1s;
+  /* animation: waveFloat 5s ease-in-out infinite; */
+  /* animation-delay: -1s; */
   transform-origin: center bottom;
 }
 
 .wave-front {
   fill: #3d3424;
-  animation: waveFloat 4s ease-in-out infinite;
-  animation-delay: -2s;
+  /* animation: waveFloat 4s ease-in-out infinite; */
+  /* animation-delay: -2s; */
   transform-origin: center bottom;
 }
 
@@ -246,7 +246,8 @@
   color: #4a5d4a;
   margin: 0 0 16px;
   letter-spacing: 0.02em;
-  animation: fadeInUp 1s ease-out;
+  animation: none;
+  /* Removed fadeInUp */
   text-shadow: 0 2px 20px rgba(74, 93, 74, 0.1);
 }
 
@@ -261,7 +262,7 @@
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  animation: fadeInUp 1s ease-out, shimmerText 4s ease-in-out infinite;
+  /* animation: fadeInUp 1s ease-out, shimmerText 4s ease-in-out infinite; */
 }
 
 @keyframes fadeInUp {
@@ -295,13 +296,14 @@
   margin: 0 0 32px;
   font-weight: 400;
   letter-spacing: 0.01em;
-  animation: fadeInUp 1s ease-out 0.2s backwards;
+  /* animation: fadeInUp 1s ease-out 0.2s backwards; */
 }
 
 .cta-head p.animate-subtitle {
-  opacity: 0;
+  opacity: 1;
+  /* Reset opacity */
   color: #3a4d3a;
-  animation: fadeInUp 1s ease-out 0.3s forwards, gentlePulse 4s ease-in-out 1.3s infinite;
+  /* animation: fadeInUp 1s ease-out 0.3s forwards, gentlePulse 4s ease-in-out 1.3s infinite; */
 }
 
 @keyframes gentlePulse {
@@ -320,7 +322,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  animation: fadeInUp 1s ease-out 0.5s backwards;
+  /* animation: fadeInUp 1s ease-out 0.5s backwards; */
 }
 
 /* Enhanced Button */
@@ -358,7 +360,7 @@
       transparent,
       rgba(255, 255, 255, 0.4),
       transparent);
-  animation: buttonShimmer 3s ease-in-out infinite;
+  /* animation: buttonShimmer 3s ease-in-out infinite; */
   z-index: 1;
 }
 
@@ -476,9 +478,11 @@
 }
 
 .links li {
-  opacity: 0;
-  transform: translateX(-20px);
-  animation: slideInStagger 0.6s ease forwards;
+  opacity: 1;
+  /* Reset opacity */
+  transform: none;
+  /* Reset transform */
+  /* animation: slideInStagger 0.6s ease forwards; */
 }
 
 .links li:nth-child(1) {
@@ -631,7 +635,7 @@
   text-decoration: none;
   transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
   will-change: transform, box-shadow;
-  animation: socialPulse 3.6s ease-in-out infinite;
+  /* animation: socialPulse 3.6s ease-in-out infinite; */
 }
 
 .social:hover {

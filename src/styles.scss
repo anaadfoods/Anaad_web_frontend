@@ -3,12 +3,18 @@
 @use './styles/animations' as *;
 @use './styles/utilities' as *;
 
-*, *::before, *::after { box-sizing: border-box; }
-html { 
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
   height: 100%;
 }
-body { 
-  margin: 0; 
+
+body {
+  margin: 0;
   font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
   min-height: 100%;
 }
@@ -18,11 +24,23 @@ app-root {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  /* Fallback */
+  min-height: 100dvh;
 }
 
-img { max-width: 100%; display: block; }
-a { color: inherit; text-decoration: none; }
-button { font: inherit; }
+img {
+  max-width: 100%;
+  display: block;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+}
 
 .reveal {
   opacity: 0;
@@ -70,5 +88,3 @@ body {
 .btn-surface {
   @extend .btn-surface;
 }
-
-

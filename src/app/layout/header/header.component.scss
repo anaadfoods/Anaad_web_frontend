@@ -84,7 +84,7 @@
   background: radial-gradient(circle, #ffd700 0%, #ffb300 50%, transparent 100%);
   border-radius: 50%;
   box-shadow: 0 0 8px rgba(255, 215, 0, 0.8), 0 0 15px rgba(255, 193, 7, 0.4);
-  animation: orbitGolden 5s linear infinite;
+  /* animation: orbitGolden 5s linear infinite; */
   pointer-events: none;
 }
 
@@ -109,21 +109,21 @@
 .logo .star-1 {
   top: -5px;
   right: -3px;
-  animation: starPop 2.5s ease-in-out infinite;
+  /* animation: starPop 2.5s ease-in-out infinite; */
 }
 
 .logo .star-2 {
   bottom: 5px;
   left: -8px;
   font-size: 8px;
-  animation: starPop 2.5s ease-in-out infinite 0.8s;
+  /* animation: starPop 2.5s ease-in-out infinite 0.8s; */
 }
 
 .logo .star-3 {
   top: 50%;
   right: -10px;
   font-size: 9px;
-  animation: starPop 2.5s ease-in-out infinite 1.6s;
+  /* animation: starPop 2.5s ease-in-out infinite 1.6s; */
 }
 
 @keyframes starPop {
@@ -550,7 +550,7 @@
   transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   transform: translateZ(10px);
   filter: saturate(1.4) contrast(1.05);
-  animation: logoAlive 4s ease-in-out infinite;
+  /* animation: logoAlive 4s ease-in-out infinite; */
 }
 
 /* Magic color pulse effect - DISABLED */
