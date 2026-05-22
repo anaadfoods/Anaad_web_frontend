@@ -11,7 +11,7 @@
 /* Journey Section */
 .journey-section {
   position: relative;
-  background: linear-gradient(180deg, #e8dcc4 0%, #d4c4a8 50%, #c9b896 100%);
+  background: linear-gradient(180deg, #f0e6d4 0%, #e5d9c5 50%, #ddd1b8 100%);
   padding-top: 60px;
   padding-bottom: 0;
   overflow: hidden;
@@ -192,15 +192,15 @@
 }
 
 .wave-back {
-  fill: #b8a67d;
-  opacity: 0.7;
+  fill: #c8b88d;
+  opacity: 0.5;
   /* animation: waveFloat 6s ease-in-out infinite; */
   transform-origin: center bottom;
 }
 
 .wave-mid {
-  fill: #8b7355;
-  opacity: 0.85;
+  fill: #a08565;
+  opacity: 0.65;
   /* animation: waveFloat 5s ease-in-out infinite; */
   /* animation-delay: -1s; */
   transform-origin: center bottom;
@@ -292,9 +292,9 @@
 /* Animated Subtitle */
 .cta-head p {
   font-size: clamp(15px, 2vw, 18px);
-  color: #5a6b5a;
+  color: #3d4a3d;
   margin: 0 0 32px;
-  font-weight: 400;
+  font-weight: 500;
   letter-spacing: 0.01em;
   /* animation: fadeInUp 1s ease-out 0.2s backwards; */
 }
@@ -302,7 +302,7 @@
 .cta-head p.animate-subtitle {
   opacity: 1;
   /* Reset opacity */
-  color: #3a4d3a;
+  color: #2a3d2a;
   /* animation: fadeInUp 1s ease-out 0.3s forwards, gentlePulse 4s ease-in-out 1.3s infinite; */
 }
 
@@ -395,7 +395,7 @@
 .footer-main {
   background: #3d3424;
   color: #fff;
-  padding: 50px 0 30px;
+  padding: 60px 0 30px;
 }
 
 .footer-container {
@@ -407,7 +407,7 @@
 .footer-columns {
   display: grid;
   grid-template-columns: 1.15fr 0.85fr 1fr;
-  gap: clamp(30px, 5vw, 70px);
+  gap: clamp(40px, 6vw, 80px);
   align-items: start;
 }
 
@@ -435,11 +435,13 @@
   line-height: 1.7;
   font-size: 14px;
   max-width: 380px;
-  margin: 0;
+  margin: 0 0 8px 0;
 }
 
 .inquiry-wrap {
-  margin-top: 32px;
+  margin-top: 28px;
+  display: flex;
+  align-items: center;
 }
 
 .btn-inquiry {
@@ -457,6 +459,7 @@
   letter-spacing: 1px;
   text-transform: uppercase;
   transition: all 0.3s ease;
+  white-space: nowrap;
 }
 
 .btn-inquiry:hover {
@@ -551,7 +554,9 @@
 .social-icons-row {
   display: flex;
   align-items: center;
-  gap: 12px;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 140px;
   margin-top: 8px;
 }
 
@@ -754,7 +759,7 @@
 
   .footer-columns {
     grid-template-columns: 1fr;
-    row-gap: 40px;
+    row-gap: 45px;
   }
 
   .footer-columns .contact {
@@ -802,7 +807,7 @@
     padding: 14px 30px;
     font-size: 12px;
     width: 100%;
-    max-width: 320px;
+    max-width: 100%;
   }
 
   .footer-main {

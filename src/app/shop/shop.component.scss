@@ -855,22 +855,26 @@
 	}
 }
 
-.shop-santa-hat {
+/* Summer branch for shop */
+.summer-branch {
 	position: absolute;
-	top: -30px;
+	top: -35px;
 	left: 50%;
-	transform: translateX(-50%);
+	transform: translateX(-50%) rotate(-5deg);
 	width: 70px;
 	height: 56px;
-	/* Bouncing animation removed */
 	z-index: 2;
+	animation: branchSway 3s ease-in-out infinite;
+	transform-origin: bottom center;
 }
 
-.shop-santa-hat svg {
+.summer-branch svg {
 	width: 100%;
 	height: 100%;
-	filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+	filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
 }
+
+
 
 @keyframes hatBounce {
 
@@ -1339,10 +1343,10 @@
 		height: 60px;
 	}
 
-	.shop-santa-hat {
+	.summer-branch {
 		width: 45px;
 		height: 36px;
-		top: -20px;
+		top: -25px;
 	}
 
 	.shop-clock {

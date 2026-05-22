@@ -1,6 +1,6 @@
-import { Component, OnInit, OnDestroy, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, ElementRef, AfterViewInit, PLATFORM_ID, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RevealOnScrollDirective } from '../shared/reveal-on-scroll.directive';
 import { TiltOnHoverDirective } from '../shared/tilt-on-hover.directive';
 import { ParallaxOnScrollDirective } from '../shared/parallax-on-scroll.directive';
@@ -14,22 +14,27 @@ import { ParallaxOnScrollDirective } from '../shared/parallax-on-scroll.directiv
 })
 export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewInit {
   private scrollListener!: () => void;
+  private platformId = inject(PLATFORM_ID);
 
   constructor(private elementRef: ElementRef) { }
 
   ngOnInit() {
-    this.setupScrollEffects();
+    if (isPlatformBrowser(this.platformId)) {
+      this.setupScrollEffects();
+    }
   }
 
   ngAfterViewInit() {
-    // Initial check for buttons in view
-    setTimeout(() => {
-      this.checkButtonVisibility();
-    }, 500);
+    if (isPlatformBrowser(this.platformId)) {
+      // Initial check for buttons in view
+      setTimeout(() => {
+        this.checkButtonVisibility();
+      }, 500);
+    }
   }
 
   ngOnDestroy() {
-    if (this.scrollListener) {
+    if (isPlatformBrowser(this.platformId) && this.scrollListener) {
       window.removeEventListener('scroll', this.scrollListener);
     }
   }
@@ -111,6 +116,7 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewInit {
 
   // Button interaction methods
   onButtonHover(event: Event) {
+    if (!isPlatformBrowser(this.platformId)) return;
     const button = event.target as HTMLElement;
     button.classList.add('hover-active');
 
@@ -124,6 +130,7 @@ export class CommunitiesComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   onButtonClick(event: Event) {
+    if (!isPlatformBrowser(this.platformId)) return;
     const button = event.target as HTMLElement;
 
     // Add click ripple effect

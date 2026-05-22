@@ -250,6 +250,11 @@
   75% { transform: translateX(-40%) rotate(16deg) translateY(-2px); }
 }
 
+@keyframes branchSway {
+  0%, 100% { transform: translateX(-40%) rotate(-10deg); }
+  50% { transform: translateX(-40%) rotate(-5deg) translateY(-2px); }
+}
+
 @keyframes shimmer {
   0% { background-position: -200% center; }
   100% { background-position: 200% center; }

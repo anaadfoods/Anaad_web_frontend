@@ -2200,23 +2200,23 @@
   }
 }
 
-/* Santa hat on clock */
-.santa-hat {
+/* Summer branch on clock */
+.summer-branch {
   position: absolute;
-  top: -50px;
+  top: -45px;
   left: 50%;
-  transform: translateX(-40%) rotate(18deg);
+  transform: translateX(-40%) rotate(-10deg);
   width: 70px;
   height: 56px;
   z-index: 10;
-  /* Bouncing animation removed */
   transform-origin: bottom center;
+  animation: branchSway 3s ease-in-out infinite;
 }
 
-.santa-hat svg {
+.summer-branch svg {
   width: 100%;
   height: 100%;
-  filter: drop-shadow(2px 4px 6px rgba(0, 0, 0, 0.35));
+  filter: drop-shadow(2px 4px 6px rgba(0, 0, 0, 0.2));
 }
 
 @keyframes hatBounce {
@@ -2239,123 +2239,7 @@
   }
 }
 
-/* Falling snowflakes */
-.snowflake {
-  position: absolute;
-  color: #fff;
-  font-size: 16px;
-  opacity: 0.8;
-  text-shadow: 0 0 5px rgba(255, 255, 255, 0.8), 0 0 10px rgba(200, 220, 255, 0.5);
-  animation: snowfall linear infinite;
-  z-index: 5;
-  pointer-events: none;
-}
 
-.snowflake--1 {
-  left: 10%;
-  font-size: 18px;
-  animation-duration: 8s;
-  animation-delay: 0s;
-}
-
-.snowflake--2 {
-  left: 20%;
-  font-size: 12px;
-  animation-duration: 10s;
-  animation-delay: 1s;
-}
-
-.snowflake--3 {
-  left: 35%;
-  font-size: 20px;
-  animation-duration: 7s;
-  animation-delay: 2s;
-}
-
-.snowflake--4 {
-  left: 50%;
-  font-size: 14px;
-  animation-duration: 9s;
-  animation-delay: 0.5s;
-}
-
-.snowflake--5 {
-  left: 65%;
-  font-size: 16px;
-  animation-duration: 11s;
-  animation-delay: 3s;
-}
-
-.snowflake--6 {
-  left: 75%;
-  font-size: 22px;
-  animation-duration: 8s;
-  animation-delay: 1.5s;
-}
-
-.snowflake--7 {
-  left: 85%;
-  font-size: 13px;
-  animation-duration: 10s;
-  animation-delay: 2.5s;
-}
-
-.snowflake--8 {
-  left: 92%;
-  font-size: 17px;
-  animation-duration: 9s;
-  animation-delay: 0.8s;
-}
-
-@keyframes snowfall {
-  0% {
-    top: -5%;
-    opacity: 0;
-    transform: translateX(0) rotate(0deg);
-  }
-
-  10% {
-    opacity: 0.9;
-  }
-
-  90% {
-    opacity: 0.7;
-  }
-
-  100% {
-    top: 100%;
-    opacity: 0;
-    transform: translateX(30px) rotate(360deg);
-  }
-}
-
-/* Holly decorations on badge */
-.badge-holly {
-  display: inline-block;
-  font-size: 0.7em;
-  animation: hollySwing 2s ease-in-out infinite;
-}
-
-.badge-holly--left {
-  margin-right: 10px;
-}
-
-.badge-holly--right {
-  margin-left: 10px;
-  animation-delay: 0.5s;
-}
-
-@keyframes hollySwing {
-
-  0%,
-  100% {
-    transform: rotate(-5deg) scale(1);
-  }
-
-  50% {
-    transform: rotate(5deg) scale(1.1);
-  }
-}
 
 /* Floating leaves around the clock */
 .plans-overlay__leaf {
@@ -3506,23 +3390,23 @@
   animation: ringRotate 12s linear infinite reverse;
 }
 
-/* Santa hat for products */
-.products-santa-hat {
+/* Summer branch for products */
+.products-summer-branch {
   position: absolute;
-  top: -30px;
+  top: -25px;
   left: 50%;
-  transform: translateX(-40%) rotate(18deg);
+  transform: translateX(-40%) rotate(-10deg);
   width: 60px;
   height: 48px;
   z-index: 10;
-  animation: hatBounce 2.5s ease-in-out infinite;
+  animation: branchSway 3s ease-in-out infinite;
   transform-origin: bottom center;
 }
 
-.products-santa-hat svg {
+.products-summer-branch svg {
   width: 100%;
   height: 100%;
-  filter: drop-shadow(2px 4px 6px rgba(0, 0, 0, 0.35));
+  filter: drop-shadow(2px 4px 6px rgba(0, 0, 0, 0.2));
 }
 
 .products-overlay__badge {

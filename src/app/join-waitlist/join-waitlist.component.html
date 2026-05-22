@@ -1,259 +1,184 @@
 <section class="waitlist-hero">
-  <!-- Floating background shapes -->
   <div class="waitlist-hero__shape waitlist-hero__shape--1"></div>
-  <div class="waitlist-hero__shape waitlist-hero__shape--2"></div>
-  <div class="waitlist-hero__shape waitlist-hero__shape--3"></div>
-
-  <!-- Additional floating particles -->
-  <div class="waitlist-hero__particle waitlist-hero__particle--1"></div>
-  <div class="waitlist-hero__particle waitlist-hero__particle--2"></div>
-  <div class="waitlist-hero__particle waitlist-hero__particle--3"></div>
-  <div class="waitlist-hero__particle waitlist-hero__particle--4"></div>
-  <div class="waitlist-hero__particle waitlist-hero__particle--5"></div>
-  <div class="waitlist-hero__particle waitlist-hero__particle--6"></div>
-  <div class="waitlist-hero__particle waitlist-hero__particle--7"></div>
-  <div class="waitlist-hero__particle waitlist-hero__particle--8"></div>
-
-  <!-- Sparkle effects -->
-  <div class="waitlist-hero__sparkle waitlist-hero__sparkle--1"></div>
-  <div class="waitlist-hero__sparkle waitlist-hero__sparkle--2"></div>
-  <div class="waitlist-hero__sparkle waitlist-hero__sparkle--3"></div>
-  <div class="waitlist-hero__sparkle waitlist-hero__sparkle--4"></div>
-  <div class="waitlist-hero__sparkle waitlist-hero__sparkle--5"></div>
-
-  <!-- Light ray effect -->
   <div class="waitlist-hero__rays"></div>
 
-  <!-- Wavy desert dunes divider -->
-  <div class="waitlist-hero__waves">
-    <svg class="waitlist-hero__wave-svg" viewBox="0 0 1440 200" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-      <!-- Back wave - darker brown -->
-      <path class="wave-layer wave-layer--back" d="M0,80 C180,40 360,100 540,70 C720,40 900,90 1080,60 C1260,30 1380,80 1440,60 L1440,200 L0,200 Z"/>
-      <!-- Middle wave - medium brown -->
-      <path class="wave-layer wave-layer--mid" d="M0,100 C200,70 400,130 600,100 C800,70 1000,120 1200,90 C1350,65 1400,100 1440,90 L1440,200 L0,200 Z"/>
-      <!-- Front wave - cream/beige (matches next section) -->
-      <path class="wave-layer wave-layer--front" d="M0,130 C150,100 350,160 550,130 C750,100 950,150 1150,120 C1300,100 1380,140 1440,130 L1440,200 L0,200 Z"/>
-    </svg>
-  </div>
-<br/>
-  <p class="waitlist-hero__tagline">
-    You have refused the toxic status quo. By joining this list, you are securing<br />
-    your place in a food system built on Biological Truths, not industrial shortcuts.
-  </p>
+  <div class="waitlist-hero__content">
+    <p class="waitlist-hero__tagline">
+      You have refused the toxic status quo. By joining this list, you are securing<br />
+      your place in a food system built on Biological Truths, not industrial shortcuts.
+    </p>
 
-  <h1 class="waitlist-hero__title">
-    Your Return <br/>
-    To Purity
-  </h1>
+    <h1 class="waitlist-hero__title">
+      Your Return <br />
+      To Purity
+    </h1>
+  </div>
 </section>
 
-<section class="waitlist-cards">
-  <div class="waitlist-cards__grid">
-    <!-- Card 1: large olive/tan gradient (top-left) -->
-    <article class="waitlist-card waitlist-card--large waitlist-card--tan"></article>
+<section class="split-content-wrapper">
+  <div class="container-split">
 
-    <!-- Card 2: "The Old Way" (top-right) -->
-    <article class="waitlist-card waitlist-card--old">
-      <h2 class="waitlist-card__title">The Old Way</h2>
-      <p class="waitlist-card__desc">
-        Preservative Laden Flour, Bleached Oils,
-        Excessively <br/>Polished Chemically Grown
-        Rice, Unknown Farmer
-      </p>
-    </article>
+    <div class="left-column">
+      <div class="waitlist-form-card" id="waitlist-form">
+        <h2 class="waitlist-form__title">Join The Waitlist</h2>
 
-    <!-- Card 3: "The ANAAD Way" (bottom-left) -->
-    <article class="waitlist-card waitlist-card--anaad">
-      <h2 class="waitlist-card__title">The ANAAD Way</h2>
-      <p class="waitlist-card__desc">
-        Fresh Stone-Milled Heirloom Flour,
-        Kolhu Oils, Unpolished <br /> Toxin-Free ICBN
-        Rice, Your Dedicated Traceable Grower
-      </p>
-    </article>
+        <div class="waitlist-form__error-banner" *ngIf="errorMessage">{{ errorMessage }}</div>
 
-    <!-- Card 4: olive gradient (bottom-right) -->
-    <article class="waitlist-card waitlist-card--large waitlist-card--olive"></article>
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate class="form-stack">
+
+          <div class="form-group">
+            <input type="text" class="form-input" placeholder="Full name*" formControlName="fullName" />
+            <div class="form-err" *ngIf="submitted && f.fullName.errors">Please enter your full name.</div>
+          </div>
+
+          <div class="form-group">
+            <input type="tel" class="form-input" placeholder="Phone Number*" formControlName="phoneNumber"
+              maxlength="10" />
+            <div class="form-err" *ngIf="submitted && f.phoneNumber.errors">Invalid phone number.</div>
+          </div>
+
+          <div class="form-group">
+            <input type="email" class="form-input" placeholder="Email*" formControlName="email" />
+            <div class="form-err" *ngIf="submitted && f.email.errors">Invalid email.</div>
+          </div>
+
+          <div class="form-group select-wrapper">
+            <select class="form-input form-select" formControlName="requirementType">
+              <option value="" disabled selected>Requirement Type*</option>
+              <option value="Individual">Individual</option>
+              <option value="Family">Family</option>
+              <option value="Business">Business</option>
+            </select>
+            <div class="form-err" *ngIf="submitted && f.requirementType.errors">Required.</div>
+          </div>
+
+          <div class="form-group">
+            <input type="text" class="form-input" placeholder="Business/ Family Name*" formControlName="familyName" />
+            <div class="form-err" *ngIf="submitted && f.familyName.errors">Required.</div>
+          </div>
+
+          <div class="form-group">
+            <textarea class="form-input form-textarea" rows="3" placeholder="Message (optional)"
+              formControlName="message"></textarea>
+          </div>
+
+          <div class="social-proof-section">
+            <span class="social-decor social-decor--star-left">✨</span>
+            <span class="social-decor social-decor--bell">🔔</span>
+            <span class="social-decor social-decor--star-right">✨</span>
+
+            <p class="social-text">
+              Pss..<strong class="member-badge">{{ displayCount() }}+</strong> Members have already joined!
+            </p>
+
+            <div class="avatars">
+              <span class="avatar avatar--1"></span>
+              <span class="avatar avatar--2"></span>
+              <span class="avatar avatar--3"></span>
+              <span class="avatar avatar--4"></span>
+              <span class="avatar-count">+{{ displayCount()-4 }}</span>
+            </div>
+          </div>
+
+          <button type="submit" class="submit-btn" [disabled]="submitting">
+            {{ submitting ? 'Joining…' : 'Join Now' }}
+          </button>
+        </form>
+      </div>
+    </div>
+    <div class="right-column">
+      <header class="waitlist-form-section__header">
+        <div class="waitlist-form-section__badge">
+          <img src="assets/images/waitlist.webp" alt="The Cultivator" />
+        </div>
+
+        <div class="waitlist-form-section__headline-block">
+          <p class="waitlist-form-section__headline">
+            <!-- <span class="headline-upper">Unlock the BENEFITS</span> -->
+            <span class="headline-lower">Benefits of JOINING THE WAITLIST
+
+            </span>
+          </p>
+
+          <!-- <button type="button" class="scroll-to-form-btn" (click)="scrollToForm()">
+            JOIN THE WAITLIST
+          </button> -->
+
+          <div class="waitlist-form-section__benefits">
+            <p class="waitlist-form-section__benefit benefit--1">
+              <span class="benefit-icon">📦</span>
+              <span class="benefit-content">
+                <strong>1.Free Tasting Kit:</strong><br />
+                <span>Receive a curated complementary sample pack of upcoming products with your first subscription
+                  order.</span>
+              </span>
+            </p>
+            <p class="waitlist-form-section__benefit benefit--2">
+              <span class="benefit-icon">🎁</span>
+              <span class="benefit-content">
+                <strong>2. Early Application Access:</strong><br />
+                <span>Gain exclusive access to download the ANAAD App before its official release.</span>
+              </span>
+            </p>
+
+            <p class="waitlist-form-section__benefit benefit--3">
+              <span class="benefit-icon">📱</span>
+              <span class="benefit-content">
+                <strong>3. Priority Inventory Access:</strong><br />
+                <span>Get priority stock reservation of our upcoming ICBN products before the rest.</span>
+              </span>
+            </p>
+            <br />
+            <p class="waitlist-form-section__headline">
+
+              <span class="headline-lower">Become the CULTIVATOR OF A TOXIN-FREE TOMORROW
+
+
+              </span>
+            </p>
+          </div>
+        </div>
+      </header>
+    </div>
+
   </div>
 </section>
 
 <section class="ecosystem-section">
-  <!-- Floating particles -->
-  <div class="ecosystem-particle ecosystem-particle--1"></div>
-  <div class="ecosystem-particle ecosystem-particle--2"></div>
-  <div class="ecosystem-particle ecosystem-particle--3"></div>
-  <div class="ecosystem-particle ecosystem-particle--4"></div>
-  
-  <!-- Sparkles -->
-  <div class="ecosystem-sparkle ecosystem-sparkle--1"></div>
-  <div class="ecosystem-sparkle ecosystem-sparkle--2"></div>
-  <div class="ecosystem-sparkle ecosystem-sparkle--3"></div>
-  <div class="ecosystem-sparkle ecosystem-sparkle--4"></div>
-  <div class="ecosystem-sparkle ecosystem-sparkle--5"></div>
-  
-  <!-- Floating orbs -->
-  <div class="ecosystem-orb ecosystem-orb--1"></div>
-  <div class="ecosystem-orb ecosystem-orb--2"></div>
-  
   <div class="ecosystem-section__inner">
+    <!-- <h3 class="section-title text-center">ICBN Circular Self-Dependent Ecosystem</h3> -->
     <div class="ecosystem-section__frame">
-      <img
-        class="ecosystem-section__image"
-        src="assets/images/icbn-diagram.svg"
-        alt="ICBN Circular Self-Dependent Ecosystem diagram"
-      />
+      <img class="ecosystem-section__image" src="assets/images/icbn-diagram.webp"
+        alt="ICBN Circular Self-Dependent Ecosystem diagram" />
     </div>
   </div>
 </section>
 
-<section class="waitlist-form-section">
-  <!-- Floating dust particles -->
-  <div class="waitlist-form-section__dust waitlist-form-section__dust--1"></div>
-  <div class="waitlist-form-section__dust waitlist-form-section__dust--2"></div>
-  <div class="waitlist-form-section__dust waitlist-form-section__dust--3"></div>
-  <div class="waitlist-form-section__dust waitlist-form-section__dust--4"></div>
-  <div class="waitlist-form-section__dust waitlist-form-section__dust--5"></div>
-  <div class="waitlist-form-section__dust waitlist-form-section__dust--6"></div>
-  <div class="waitlist-form-section__dust waitlist-form-section__dust--7"></div>
-  <div class="waitlist-form-section__dust waitlist-form-section__dust--8"></div>
-  
-  <!-- Floating pollen particles -->
-  <div class="waitlist-form-section__pollen waitlist-form-section__pollen--1"></div>
-  <div class="waitlist-form-section__pollen waitlist-form-section__pollen--2"></div>
-  <div class="waitlist-form-section__pollen waitlist-form-section__pollen--3"></div>
-  <div class="waitlist-form-section__pollen waitlist-form-section__pollen--4"></div>
-  <div class="waitlist-form-section__pollen waitlist-form-section__pollen--5"></div>
-  <div class="waitlist-form-section__pollen waitlist-form-section__pollen--6"></div>
-  <div class="waitlist-form-section__pollen waitlist-form-section__pollen--7"></div>
-  <div class="waitlist-form-section__pollen waitlist-form-section__pollen--8"></div>
-  
-  <!-- Cow background image - starts from bottom, goes behind form -->
-  <div class="waitlist-form-section__cow-bg">
-    <img
-      class="waitlist-form-section__cow-image"
-      src="assets/images/waitlist-cow-hero.svg"
-      alt=""
-    />
-    <!-- Animated cow shadow -->
-    <div class="waitlist-form-section__cow-shadow"></div>
-  </div>
-  
-  <!-- Funny popup overlay -->
-  <div class="waitlist-form-section__inner">
-    <header class="waitlist-form-section__header">
-      <div class="waitlist-form-section__badge">
-        <img src="assets/images/waitlist.svg" alt="The Cultivator" />
+<section class="comparison-section">
+  <div class="comparison-container">
+    <div class="comparison-grid">
+      <div class="info-card card-brown-gradient">
+        <img src="assets/images/waitlist-card--tan.webp" class="card-image" alt="" srcset="">
       </div>
-      <div class="waitlist-form-section__headline-block">
-        <p class="waitlist-form-section__headline">
-          Experience the vast benefits by
-          becoming the <br/> "The CULTIVATOR OF TOXIN-FREE TOMORROW"
+      <div class="info-card card-gray">
+        <h4>The Old Way</h4>
+        <p>Preservative-Laden Flour, Bleached Oils, Excessively Polished Chemically Grown Rice, Unknown Farmer</p>
+      </div>
+
+      <div class="info-card card-green">
+        <h4>The ANAAD Way</h4>
+        <p>Fresh Stone-Milled Heirloom Flour, Kohlu Oils, Unpolished Toxin-Free ICBN Rice, Your Dedicated Traceable
+          Grower
         </p>
-        <div class="cta-wrapper">
-          <button type="button" class="waitlist-form-section__cta" (click)="scrollToForm()">
-            JOIN THE WAITLIST
-            <span class="cta-tooltip">
-              <span class="cta-tooltip__emoji">👇</span>
-              <span class="cta-tooltip__text">Oops! Almost there!</span>
-              <span class="cta-tooltip__subtext">Just scroll down a tiny bit and fill the form. Hurry hurry! 🚀</span>
-              <span class="cta-tooltip__arrow"></span>
-            </span>
-          </button>
-        </div>
-        <div class="waitlist-form-section__benefits">
-          <p class="waitlist-form-section__benefit benefit--1">
-            <span class="benefit-icon">🎁</span>
-            <span class="benefit-content">
-              <strong>1. Complimentary Tasting Kit:</strong><br />
-              <span>(Receive a curated complementary sample pack of upcoming products, with your first subscription order.)</span>
-            </span>
-          </p>
-          <p class="waitlist-form-section__benefit benefit--2">
-            <span class="benefit-icon">📦</span>
-            <span class="benefit-content">
-              <strong>2. Priority Stock Reservation:</strong><br />
-              <span>(Get upcoming launch alerts before anyone, ensuring you secure your staples before stock runs out.)</span>
-            </span>
-          </p>
-          <p class="waitlist-form-section__benefit benefit--3">
-            <span class="benefit-icon">📱</span>
-            <span class="benefit-content">
-              <strong>3. Early Application Access:</strong><br />
-              <span>(Gain exclusive access to download the ANAAD App before the official release.)</span>
-            </span>
-          </p>
-        </div>
       </div>
-    </header>
+      <div class="info-card card-brown-gradient">
+        <img src="assets/images/waitlist-card--olive.webp" class="card-image" alt="" srcset="">
 
-    <div class="waitlist-form">
-      <h2 class="waitlist-form__title">Join The Waitlist</h2>
-
-      <div class="waitlist-form__error-banner" *ngIf="errorMessage">{{ errorMessage }}</div>
-
-      <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
-        <div class="waitlist-form__field-wrapper">
-          <input type="text" class="waitlist-form__input" placeholder="Full name*" formControlName="fullName" />
-          <div class="waitlist-form__err" *ngIf="submitted && f.fullName.errors">Please enter your full name.</div>
-        </div>
-
-        <div class="waitlist-form__field-wrapper">
-          <input type="tel" class="waitlist-form__input" placeholder="Phone Number*" formControlName="phoneNumber" maxlength="10" />
-          <div class="waitlist-form__err" *ngIf="submitted && f.phoneNumber.errors">Please enter a valid 10-digit phone number.</div>
-        </div>
-
-        <div class="waitlist-form__field-wrapper">
-          <input type="email" class="waitlist-form__input" placeholder="Email*" formControlName="email" />
-          <div class="waitlist-form__err" *ngIf="submitted && f.email.errors">Please enter a valid email.</div>
-        </div>
-
-        <div class="waitlist-form__field-wrapper waitlist-form__field--select">
-          <select class="waitlist-form__select" formControlName="requirementType">
-            <option value="" disabled selected>Requirement Type*</option>
-            <option value="Individual">Individual</option>
-            <option value="Family">Family</option>
-            <option value="Business">Business</option>
-          </select>
-          <span class="waitlist-form__chevron">⌵</span>
-          <div class="waitlist-form__err" *ngIf="submitted && f.requirementType.errors">Please choose a requirement type.</div>
-        </div>
-
-        <div class="waitlist-form__field-wrapper">
-          <input type="text" class="waitlist-form__input" placeholder="Business/ Family Name*" formControlName="familyName" />
-          <div class="waitlist-form__err" *ngIf="submitted && f.familyName.errors">Please enter a name.</div>
-        </div>
-
-        <div class="waitlist-form__field-wrapper">
-          <textarea class="waitlist-form__textarea" rows="3" placeholder="Message (optional)" formControlName="message"></textarea>
-        </div>
-
-        <div class="waitlist-form__social-proof">
-          <span class="social-proof__sparkle social-proof__sparkle--1">✨</span>
-          <span class="social-proof__sparkle social-proof__sparkle--2">✨</span>
-          <span class="social-proof__icon">🎉</span>
-          <p class="social-proof__text">
-            <span class="social-proof__pss">Pss..</span>
-            <span class="member-count" [class.loading]="isCountLoading()">
-              @if (isCountLoading()) {
-                <span class="member-count__loader"></span>
-              } @else {
-                <span class="member-count__number">{{ displayCount() }}+</span>
-              }
-            </span>
-            <span class="social-proof__label">Members have already joined!</span>
-          </p>
-          <div class="social-proof__avatars">
-            <span class="avatar avatar--1"></span>
-            <span class="avatar avatar--2"></span>
-            <span class="avatar avatar--3"></span>
-            <span class="avatar avatar--more">+{{ displayCount() > 100 ? (displayCount() - 3) : '97' }}</span>
-          </div>
-        </div>
-
-        <button type="submit" class="waitlist-form__submit" [disabled]="submitting">
-          {{ submitting ? 'Joining…' : 'Join Now' }}
-        </button>
-      </form>
+      </div>
     </div>
+  </div>
+
+  <div class="comparison-bg-image">
+    <img src="assets/images/cow-image.jpeg" alt="Field Background" />
   </div>
 </section>

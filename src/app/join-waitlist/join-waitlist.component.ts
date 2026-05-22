@@ -47,9 +47,9 @@ export class JoinWaitlistComponent implements OnInit {
   get f() { return this.form.controls; }
 
   scrollToForm(): void {
-    const formElement = document.querySelector('.waitlist-form');
+    const formElement = document.getElementById('waitlist-form');
     if (formElement) {
-      formElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      formElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   }
 

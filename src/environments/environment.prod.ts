@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiBaseUrl: 'https://bac.anaadfoods.com'
+  apiBaseUrl: 'https://bck.anaadfoods.com'
 };

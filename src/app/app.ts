@@ -10,5 +10,5 @@ import { FooterComponent } from './layout/footer/footer.component';
   styleUrl: './app.scss'
 })
 export class App {
-  protected readonly title = signal('Annad-Foods');
+  protected readonly title = signal('Anaad-Foods');
 }

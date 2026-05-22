@@ -39,12 +39,8 @@ export class HeaderComponent implements AfterViewInit, OnDestroy {
   }
 
   private detectSeason(): Season {
-    const month = new Date().getMonth(); // 0-11
-    // Northern hemisphere seasons
-    if (month >= 2 && month <= 4) return 'spring';      // Mar-May
-    if (month >= 5 && month <= 7) return 'summer';      // Jun-Aug
-    if (month >= 8 && month <= 10) return 'autumn';     // Sep-Nov
-    return 'winter';                                     // Dec-Feb
+    // Overridden to 'summer' by user request
+    return 'summer';
   }
 
   ngAfterViewInit() {
