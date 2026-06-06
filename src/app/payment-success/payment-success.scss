@@ -1,0 +1,407 @@
+// payment-success.scss
+
+:host {
+  display: block;
+  min-height: 100vh;
+  background-color: var(--bg-parchment, #f5f0e8);
+  font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: var(--charcoal, #1a1a1a);
+}
+
+.payment-canvas {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 2rem 1rem;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+// Backdrop glow orb
+.glow-orb {
+  position: absolute;
+  top: -10%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(201, 148, 58, 0.1) 0%, rgba(245, 240, 232, 0) 70%);
+  z-index: 1;
+  pointer-events: none;
+}
+
+// Modal Card container
+.success-card-modal {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 440px;
+  background-color: var(--pure-white, #ffffff);
+  border-radius: 20px;
+  box-shadow: 0 12px 36px rgba(44, 74, 30, 0.08), 0 4px 12px rgba(26, 26, 26, 0.03);
+  border: 1px solid rgba(201, 148, 58, 0.15);
+  padding: 2.5rem 2rem;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.status-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+// Loading Ring CSS
+.loading-ring-container {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  margin-bottom: 1.5rem;
+}
+
+.loading-ring-outer {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border: 4px solid rgba(44, 74, 30, 0.1);
+  border-top-color: var(--green-deep, #2c4a1e);
+  border-radius: 50%;
+  animation: spin 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+}
+
+.loading-ring-inner {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 64px;
+  height: 64px;
+  border: 3px solid transparent;
+  border-bottom-color: var(--harvest-amber, #c9943a);
+  border-radius: 50%;
+  animation: spin-reverse 1.8s linear infinite;
+}
+
+.loading-lock-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 24px;
+}
+
+// Badge Indicators
+.badge-container {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  margin-bottom: 1.8rem;
+  
+  &.success {
+    background-color: rgba(58, 107, 36, 0.1);
+    color: var(--success-green, #3a6b24);
+    box-shadow: 0 8px 24px rgba(58, 107, 36, 0.15);
+  }
+
+  &.warning {
+    background-color: rgba(184, 67, 58, 0.1);
+    color: var(--soft-red, #b8433a);
+    box-shadow: 0 8px 24px rgba(184, 67, 58, 0.15);
+  }
+}
+
+.badge-ripple {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 2px solid var(--success-green, #3a6b24);
+  animation: ripple 2s cubic-bezier(0.1, 0.8, 0.3, 1) infinite;
+  opacity: 0;
+}
+
+.badge-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  
+  svg {
+    width: 42px;
+    height: 42px;
+  }
+}
+
+// Typography headings
+.status-heading {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+  line-height: 1.25;
+
+  &.verifying {
+    color: var(--green-deep, #2c4a1e);
+  }
+
+  &.success {
+    color: var(--green-deep, #2c4a1e);
+  }
+
+  &.warning {
+    color: var(--soft-red, #b8433a);
+  }
+}
+
+.status-desc {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--charcoal-mute, rgba(26, 26, 26, 0.6));
+  margin: 0 0 2rem 0;
+  max-width: 320px;
+
+  &.success-accent {
+    color: var(--harvest-amber, #c9943a);
+    font-weight: 500;
+    margin-bottom: 1.8rem;
+  }
+  
+  &.text-danger {
+    color: var(--soft-red, #b8433a);
+  }
+}
+
+// Receipt Cards
+.receipt-card {
+  width: 100%;
+  background-color: var(--soft-cream, #faf7f2);
+  border: 1px solid rgba(44, 74, 30, 0.08);
+  border-radius: 14px;
+  padding: 1.2rem;
+  margin-bottom: 2rem;
+  box-sizing: border-box;
+  text-align: left;
+  
+  &.warning-theme {
+    background-color: #fffbfa;
+    border-color: rgba(184, 67, 58, 0.1);
+  }
+}
+
+.receipt-row {
+  display: flex;
+  align-items: center;
+  padding: 0.2rem 0;
+}
+
+.receipt-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background-color: rgba(44, 74, 30, 0.06);
+  color: var(--green-deep, #2c4a1e);
+  border-radius: 8px;
+  margin-right: 1rem;
+  flex-shrink: 0;
+
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  &.amount {
+    background-color: rgba(201, 148, 58, 0.1);
+    color: var(--harvest-amber, #c9943a);
+    font-weight: 700;
+    font-size: 1.1rem;
+  }
+}
+
+.receipt-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.receipt-label {
+  font-size: 0.78rem;
+  color: rgba(26, 26, 26, 0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 2px;
+}
+
+.receipt-value {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--charcoal, #1a1a1a);
+
+  &.monospace {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.9rem;
+    letter-spacing: -0.2px;
+  }
+
+  &.amount-text {
+    font-size: 1.25rem;
+    color: var(--harvest-amber, #c9943a);
+  }
+}
+
+.receipt-divider {
+  height: 1px;
+  background-color: rgba(44, 74, 30, 0.06);
+  margin: 0.9rem 0;
+}
+
+.info-alert {
+  width: 100%;
+  background-color: rgba(201, 148, 58, 0.06);
+  border-left: 3px solid var(--harvest-amber, #c9943a);
+  border-radius: 0 8px 8px 0;
+  padding: 0.8rem 1rem;
+  margin-bottom: 2rem;
+  box-sizing: border-box;
+  text-align: left;
+
+  p {
+    margin: 0;
+    font-size: 0.85rem;
+    line-height: 1.45;
+    color: rgba(26, 26, 26, 0.8);
+  }
+}
+
+// Redirect small countdown timer
+.redirect-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.spinner-small {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(44, 74, 30, 0.1);
+  border-top-color: var(--green-deep, #2c4a1e);
+  border-radius: 50%;
+  margin-right: 8px;
+  animation: spin 0.8s linear infinite;
+  display: inline-block;
+}
+
+.redirect-text {
+  font-size: 0.85rem;
+  color: rgba(26, 26, 26, 0.45);
+}
+
+// Action Buttons
+.btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding: 0.9rem 1.5rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  box-sizing: border-box;
+  outline: none;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(26, 26, 26, 0.08);
+  }
+
+  &:active {
+    transform: translateY(1px);
+  }
+}
+
+.btn-success {
+  background-color: var(--green-deep, #2c4a1e);
+  color: var(--bg-parchment, #f5f0e8);
+  
+  &:hover {
+    background-color: #203516;
+  }
+}
+
+.btn-warning {
+  background-color: var(--harvest-amber, #c9943a);
+  color: #ffffff;
+
+  &:hover {
+    background-color: #b1812e;
+  }
+}
+
+// Keyframes Animations
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes spin-reverse {
+  0% { transform: rotate(360deg); }
+  100% { transform: rotate(0deg); }
+}
+
+@keyframes ripple {
+  0% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(1.3);
+    opacity: 0;
+  }
+}
+
+.animate-pulse {
+  animation: pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Responsive media queries
+@media (max-width: 480px) {
+  .success-card-modal {
+    padding: 2rem 1.2rem;
+    box-shadow: none;
+    border: none;
+    background-color: transparent;
+  }
+
+  .glow-orb {
+    width: 300px;
+    height: 300px;
+  }
+}

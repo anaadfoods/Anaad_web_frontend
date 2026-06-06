@@ -6,6 +6,7 @@ import { provideClientHydration, withEventReplay } from '@angular/platform-brows
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { apiBaseInterceptor } from './shared/services/api-base.interceptor';
+import { authInterceptor } from './core/interceptors/auth.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -19,7 +20,7 @@ export const appConfig: ApplicationConfig = {
     provideAnimations(),
     provideHttpClient(
       withFetch(),
-      withInterceptors([apiBaseInterceptor])
+      withInterceptors([apiBaseInterceptor, authInterceptor])
     )
   ]
 };

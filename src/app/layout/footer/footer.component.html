@@ -1,126 +1,43 @@
-<!-- Your Journey Awaits section -->
-<section class="journey-section" aria-labelledby="journey-title">
-  <!-- Floating particles overlay -->
-  <!-- Floating particles overlay removed -->
-  <!-- <div class="particles-overlay"></div> -->
-
-  <!-- Desert wave background -->
-  <div class="desert-waves">
-    <svg class="wave-svg" viewBox="0 0 1440 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-      <!-- Back wave - lighter -->
-      <path class="wave-back"
-        d="M0,120 C180,80 360,160 540,140 C720,120 900,60 1080,100 C1260,140 1380,100 1440,120 L1440,400 L0,400 Z" />
-      <!-- Middle wave -->
-      <path class="wave-mid"
-        d="M0,180 C200,140 400,220 600,180 C800,140 1000,200 1200,160 C1350,130 1400,170 1440,180 L1440,400 L0,400 Z" />
-      <!-- Front wave - darker -->
-      <path class="wave-front"
-        d="M0,240 C150,200 350,280 550,240 C750,200 950,260 1150,230 C1300,210 1380,250 1440,240 L1440,400 L0,400 Z" />
-    </svg>
-  </div>
-
-  <!-- Subtle light rays -->
-  <!-- <div class="light-rays"></div> -->
-
-  <div class="journey-content">
-    <div class="cta-head">
-      <h2 id="journey-title">The Revolution Starts on Your Plate.</h2>
-      <p>You have two choices: consume the toxicity or join the resistance.</p>
-      <div class="cta-button-wrap">
-        <a class="btn-download" routerLink="/join-waitlist">
-          <span class="btn-text">Get Early Access</span>
-          <!-- <span class="btn-shimmer"></span> -->
-        </a>
+<footer class="site-footer">
+  <div class="footer-top">
+    <div class="footer-brand">
+      <span class="footer-logo">ANAAD</span>
+      <p class="footer-tagline">We grow one thing well. Grain that remembers what it is.</p>
+    </div>
+    <div class="footer-col">
+      <span class="footer-col-title">Shop</span>
+      <div class="footer-col-links">
+        <a routerLink="/products">Whole Grains</a>
+        <a routerLink="/products">Stone-ground Flours</a>
+        <a routerLink="/products">Millets</a>
+        <a routerLink="/commitment">Subscriptions</a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <span class="footer-col-title">Learn</span>
+      <div class="footer-col-links">
+        <a routerLink="/our-soil">Our Soil</a>
+        <a routerLink="/registry">The Registry</a>
+        <a routerLink="/our-soil">About the Farm</a>
+        <a routerLink="/our-soil">ICBN Farming</a>
+        <a routerLink="/ledger">Batch Ledger</a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <span class="footer-col-title">Account & Legal</span>
+      <div class="footer-col-links">
+        <a routerLink="/profile">My Orders</a>
+        <a routerLink="/profile">Subscription</a>
+        <a routerLink="/register">Sign Up</a>
+        <a routerLink="/commitment">FAQs</a>
+        <a routerLink="/privacy-policy">Privacy Policy</a>
+        <a routerLink="/terms">Terms of Sale</a>
       </div>
     </div>
   </div>
-</section>
-
-<!-- Footer section -->
-<footer class="footer-main">
-  <div class="footer-container">
-    <div class="footer-columns">
-      <div class="col about">
-        <h3>About ANAAD</h3>
-        <p>Anaad champions climate-positive farming through the Indian Cow Based Natural (ICBN) method, rejuvenating
-          soil health, restoring nutrition naturally, and empowering farmers to combat climate change while nourishing
-          people and mitigating modern lifestyle diseases.</p>
-        <div class="inquiry-wrap">
-          <a class="btn-inquiry" routerLink="/register" (click)="goToRegister($event)">SUBMIT YOUR INQUIRY HERE</a>
-        </div>
-      </div>
-
-      <nav class="col links" aria-label="Quick Links">
-        <h3>Quick Links</h3>
-        <ul>
-          <li><a routerLink="/">Home</a></li>
-          <li><a routerLink="/shop">ICBN Staples</a></li>
-          <li><a routerLink="/offerings">RFP</a></li>
-          <li><a routerLink="/blogs">Blogs</a></li>
-          <li><a routerLink="/offerings">Contract Farming</a></li>
-          <li><a routerLink="/terms-conditions">Terms & Conditions</a></li>
-          <li><a routerLink="/privacy-policy">Privacy Policy</a></li>
-          <li class="social-icons-row">
-            <a routerLink="/communities" class="circular-icon"><img src="assets/images/5.svg" alt=""></a>
-            <a routerLink="/communities" class="circular-icon"><img src="assets/images/6.svg" alt=""></a>
-          </li>
-        </ul>
-      </nav>
-
-      <div class="col contact">
-        <h3>Contact Us</h3>
-        <p class="contact-item">+91 9996166186</p>
-        <p class="contact-item">connect&#64;anaadfoods.com</p>
-        <p class="contact-item">complaints&#64;anaadfoods.com</p>
-        <p class="contact-item address">Khasra/MU No. 16/2/2, 18/1, 23, 24, 17/2, 25/1, Hadbast-96, Near Sandal Kalan Railway Station Gannaur, Bhuri, Gohana, Sonipat, Haryana, 131101</p>
-        <h3 class="follow">Follow Our Journey</h3>
-        <div class="social-links" role="list">
-          <!-- YouTube -->
-          <a class="social youtube" role="listitem" href="https://youtube.com/@anaadfoods" target="_blank"
-            rel="noopener noreferrer" aria-label="YouTube">
-            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-              <rect x="2" y="6" width="20" height="12" rx="3" ry="3" fill="currentColor" opacity="0.25"></rect>
-              <path d="M10 9l6 3-6 3V9z" fill="currentColor"></path>
-            </svg>
-          </a>
-          <!-- Facebook -->
-          <a class="social facebook" role="listitem" href="https://www.facebook.com/anaadfoods1" target="_blank"
-            rel="noopener noreferrer" aria-label="Facebook">
-            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-              <path d="M14 9h2.5V6H14c-2.2 0-4 1.8-4 4v2H8v3h2v7h3v-7h2.1l.4-3H13v-1c0-.6.4-1 1-1z" fill="currentColor">
-              </path>
-            </svg>
-          </a>
-          <!-- Instagram -->
-          <a class="social instagram" role="listitem" href="https://www.instagram.com/anaadfoods" target="_blank"
-            rel="noopener noreferrer" aria-label="Instagram">
-            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-              <rect x="3" y="3" width="18" height="18" rx="5" ry="5" fill="currentColor" opacity="0.25"></rect>
-              <circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"></circle>
-              <circle cx="17" cy="7" r="1.2" fill="currentColor"></circle>
-            </svg>
-          </a>
-          <!-- LinkedIn -->
-          <a class="social linkedin" role="listitem" href="https://www.linkedin.com/company/anaad-anhad-naad-foods/"
-            target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
-            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-              <path
-                d="M6.94 7.5a1.94 1.94 0 11-3.88 0 1.94 1.94 0 013.88 0zM3.5 9.5h3v11h-3v-11zM10 9.5h2.9v1.6h.04c.4-.8 1.5-1.6 3.06-1.6 3.27 0 3.87 2.1 3.87 4.8V20.5h-3v-4.8c0-1.14-.02-2.6-1.58-2.6-1.58 0-1.82 1.23-1.82 2.5v4.9h-3v-11z"
-                fill="currentColor"></path>
-            </svg>
-          </a>
-          <!-- X / Twitter -->
-          <a class="social x" role="listitem" href="https://x.com/AnaadFoods" target="_blank" rel="noopener noreferrer"
-            aria-label="X (formerly Twitter)">
-            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-              <path d="M17.5 3h-2.3L12.4 7.2 9.2 3H6.7l4.6 6-5.1 6.8H8l3.1-4.1 3.3 4.1h2.5l-4.8-6.1L17.5 3z"
-                fill="currentColor"></path>
-            </svg>
-          </a>
-        </div>
-      </div>
-    </div>
-
-    <div class="copyright">© 2025. All rights reserved.</div>
+  <div class="footer-bottom">
+    <span class="footer-copy">&copy; {{ currentYear }} Anhad Naad Foods Pvt. Ltd. All rights reserved.</span>
+    <span class="footer-cert">SGS India &nbsp;·&nbsp; FSSAI Lic. No. 10821017000186 &nbsp;·&nbsp; ICBN Verified
+      &nbsp;·&nbsp; Est. 2019</span>
   </div>
 </footer>

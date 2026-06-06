@@ -1,108 +1,125 @@
-import { Component, signal, ElementRef, ViewChild, AfterViewInit, OnDestroy, PLATFORM_ID, Inject, computed } from '@angular/core';
-import { RouterLink } from '@angular/router';
-import { isPlatformBrowser } from '@angular/common';
-
-type Season = 'spring' | 'summer' | 'autumn' | 'winter';
+import { Component, signal, inject, OnInit, OnDestroy } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterLink, RouterLinkActive, Router } from '@angular/router';
+import { AuthState } from '../../core/state/auth.state';
+import { CartState } from '../../core/state/cart.state';
+import { AuthService } from '../../core/services/auth.service';
+import { NotificationService } from '../../core/services/notification.service';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [RouterLink],
+  imports: [CommonModule, RouterLink, RouterLinkActive],
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss']
 })
-export class HeaderComponent implements AfterViewInit, OnDestroy {
-  isOpen = signal(false);
-  
-  // 3D Tilt effect
-  tiltX = signal(0);
-  tiltY = signal(0);
-  glareX = signal(50);
-  glareY = signal(50);
-  isHovering = signal(false);
-  
-  // Seasonal theme
-  currentSeason = signal<Season>(this.detectSeason());
-  
-  // Computed seasonal class
-  seasonClass = computed(() => `season-${this.currentSeason()}`);
-  
-  @ViewChild('logoContainer') logoContainer!: ElementRef<HTMLElement>;
-  
-  private isBrowser: boolean;
-  private boundMouseMove: ((e: MouseEvent) => void) | null = null;
-  private boundMouseLeave: (() => void) | null = null;
-  private boundMouseEnter: (() => void) | null = null;
+export class HeaderComponent implements OnInit, OnDestroy {
+  bannerMessages = [
+    'Current batch: AN-SON-0526 · Zero residue · SGS Certified',
+    'Pre-harvest allocation · Lock your supply · Share the farm risk',
+    'Milled this week · Dispatched in 72 hours · Pan-India delivery'
+  ];
+  currentBannerIndex = signal(0);
+  private bannerIntervalId: any;
 
-  constructor(@Inject(PLATFORM_ID) platformId: Object) {
-    this.isBrowser = isPlatformBrowser(platformId);
-  }
-
-  private detectSeason(): Season {
-    // Overridden to 'summer' by user request
-    return 'summer';
-  }
-
-  ngAfterViewInit() {
-    if (this.isBrowser && this.logoContainer) {
-      this.boundMouseMove = this.onMouseMove.bind(this);
-      this.boundMouseLeave = this.onMouseLeave.bind(this);
-      this.boundMouseEnter = this.onMouseEnter.bind(this);
-      
-      this.logoContainer.nativeElement.addEventListener('mousemove', this.boundMouseMove);
-      this.logoContainer.nativeElement.addEventListener('mouseleave', this.boundMouseLeave);
-      this.logoContainer.nativeElement.addEventListener('mouseenter', this.boundMouseEnter);
+  ngOnInit() {
+    if (typeof window !== 'undefined') {
+      this.bannerIntervalId = setInterval(() => {
+        this.currentBannerIndex.update(idx => (idx + 1) % this.bannerMessages.length);
+      }, 4000);
     }
   }
 
   ngOnDestroy() {
-    if (this.isBrowser && this.logoContainer) {
-      if (this.boundMouseMove) {
-        this.logoContainer.nativeElement.removeEventListener('mousemove', this.boundMouseMove);
-      }
-      if (this.boundMouseLeave) {
-        this.logoContainer.nativeElement.removeEventListener('mouseleave', this.boundMouseLeave);
-      }
-      if (this.boundMouseEnter) {
-        this.logoContainer.nativeElement.removeEventListener('mouseenter', this.boundMouseEnter);
-      }
+    if (this.bannerIntervalId) {
+      clearInterval(this.bannerIntervalId);
     }
   }
 
-  private onMouseMove(e: MouseEvent) {
-    const el = this.logoContainer.nativeElement;
-    const rect = el.getBoundingClientRect();
-    
-    // Calculate position relative to element center (-1 to 1)
-    const x = (e.clientX - rect.left) / rect.width;
-    const y = (e.clientY - rect.top) / rect.height;
-    
-    const centerX = x - 0.5;
-    const centerY = y - 0.5;
-    
-    // Tilt amount (degrees) - inverted for natural feel
-    const maxTilt = 25;
-    this.tiltX.set(-centerY * maxTilt);
-    this.tiltY.set(centerX * maxTilt);
-    
-    // Glare position (percentage)
-    this.glareX.set(x * 100);
-    this.glareY.set(y * 100);
+  currentBannerMessage() {
+    return this.bannerMessages[this.currentBannerIndex()];
+  }
+  readonly authState = inject(AuthState);
+  readonly cartState = inject(CartState);
+  readonly notificationSvc = inject(NotificationService);
+  private readonly authSvc = inject(AuthService);
+  private readonly router = inject(Router);
+
+  isOpen = signal(false);
+  isNotificationsOpen = signal(false);
+
+  toggle() { 
+    this.isOpen.update(v => !v); 
+    if (this.isOpen()) {
+      this.closeNotifications();
+    }
+  }
+  
+  close() { 
+    this.isOpen.set(false); 
   }
 
-  private onMouseEnter() {
-    this.isHovering.set(true);
+  toggleNotifications() {
+    this.isNotificationsOpen.update(v => !v);
+    if (this.isNotificationsOpen()) {
+      this.close(); // Close mobile menu if open
+      this.notificationSvc.sync().subscribe();
+    }
   }
 
-  private onMouseLeave() {
-    this.isHovering.set(false);
-    // Smoothly reset tilt
-    this.tiltX.set(0);
-    this.tiltY.set(0);
-    this.glareX.set(50);
-    this.glareY.set(50);
+  closeNotifications() {
+    this.isNotificationsOpen.set(false);
   }
 
-  toggle() { this.isOpen.update(v => !v); }
-  close() { this.isOpen.set(false); }
+  logout() {
+    this.close();
+    this.closeNotifications();
+    this.authSvc.logout();
+  }
+
+  markAllAsRead() {
+    this.notificationSvc.markAllAsRead().subscribe();
+  }
+
+  handleNotificationClick(item: any) {
+    if (!item.is_read) {
+      this.notificationSvc.markAsRead([item.id]).subscribe();
+    }
+
+    try {
+      const metadata = typeof item.metadata === 'string' ? JSON.parse(item.metadata) : item.metadata;
+      const type = metadata?.type || item.metadata?.type;
+      const objectId = metadata?.id || item.metadata?.id || metadata?.order_id || item.metadata?.order_id || metadata?.subscription_id || item.metadata?.subscription_id;
+
+      if (objectId) {
+        if (type === 'subscription' || item.title.toLowerCase().includes('subscription')) {
+          this.router.navigate(['/subscriptions', objectId]);
+        } else {
+          this.router.navigate(['/orders', objectId]);
+        }
+      }
+    } catch (e) {
+      console.warn('Failed to parse notification metadata', e);
+    }
+    
+    this.closeNotifications();
+    this.close();
+  }
+
+  dismissNotification(id: number, event: MouseEvent) {
+    event.stopPropagation();
+    this.notificationSvc.dismiss([id]).subscribe();
+  }
+
+  formatDate(dateStr: string): string {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return dateStr;
+    return date.toLocaleDateString('en-IN', {
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
 }

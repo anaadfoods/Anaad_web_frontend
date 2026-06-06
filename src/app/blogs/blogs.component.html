@@ -1,143 +1,190 @@
-<section class="blogs-hero">
-  <img class="blogs-hero__bg" src="assets/images/blog-hero.svg" alt="" aria-hidden="true" />
-  <div class="blogs-hero__overlay"></div>
-
-  <div class="floating-shape floating-shape--1"></div>
-  <div class="floating-shape floating-shape--2"></div>
-  <div class="floating-shape floating-shape--3"></div>
-
-  <div class="particle-field">
-    @for (i of [1,2,3,4,5,6,7,8]; track i) {
-    <span class="particle"></span>
-    }
+<div class="blogs-page-wrap">
+  <!-- HERO -->
+  <div class="blog-hero">
+    <span class="blog-hero-tag">The ANAAD Field Notes</span>
+    <h1>Soil, Soul,<br />&amp; <em>Sovereignty.</em></h1>
+    <p class="blog-hero-sub">In an era of artificial substitutes, the truth is your strongest defense. These are our dispatches from the ground.</p>
   </div>
 
-  <div class="blogs-hero__content" appRevealOnScroll>
-    <p class="eyebrow animate-text">In an era of artificial substitutes, the truth is your strongest defense.<br>Explore
-      the science for the convincing proofs behind the ICBN Method.</p>
-    <h1 class="animate-title">
-      <span class="word">SOIL,</span><br>
-      <span class="word">SOUL,</span><br>
-      <span class="word ">&</span> <span class="word">SOVEREIGNTY!</span>
-    </h1>
-  </div>
-</section>
+  <!-- FEATURED POST -->
+  <div class="featured-section">
+    <span class="featured-label">Featured</span>
+    
+    <ng-container *ngIf="featuredLoading">
+      <div class="featured-card" style="border: none;">
+        <app-skeleton-loader width="100%" height="440px" borderRadius="0"></app-skeleton-loader>
+        <div class="featured-body">
+          <app-skeleton-loader width="80px" height="12px" borderRadius="2px"></app-skeleton-loader>
+          <app-skeleton-loader width="80%" height="34px" borderRadius="4px"></app-skeleton-loader>
+          <app-skeleton-loader width="100%" height="14px" borderRadius="2px"></app-skeleton-loader>
+          <app-skeleton-loader width="90%" height="14px" borderRadius="2px"></app-skeleton-loader>
+          <app-skeleton-loader width="120px" height="40px" borderRadius="4px" style="margin-top: 8px;"></app-skeleton-loader>
+        </div>
+      </div>
+    </ng-container>
 
-<section class="blogs-featured">
-  <div class="blogs-featured__bg"></div>
-
-  <div class="blogs-featured__cards">
-    @if (featuredLoading) {
-    <div class="card card--large">
-      <div class="card__label">Loading...</div>
-    </div>
-    }
-
-    @if (featuredError && !featuredLoading) {
-    <div class="card card--large">
-      <div class="card__label">Error</div>
-      <h2>Failed to load featured articles</h2>
-      <p>Please try again later.</p>
-    </div>
-    }
-
-    @if (!featuredLoading && !featuredError && featuredArticles.length > 0) {
-    <a [routerLink]="['/blogs', featuredArticles[0].id]" class="card card--large" appRevealOnScroll>
-      <div class="card__label">Featured</div>
-      <div class="card__special">
-      <h1>{{ featuredArticles[0].title }}</h1>
-      <p>{{ featuredArticles[0].subtitle }}</p>
-      <span class="card__button btn-ripple">Read More</span>
-            </div>
-
-    </a>
-
-    @if (featuredArticles.length > 1) {
-    <div class="card-column">
-      @for (article of featuredArticles.slice(1); track article.id) {
-      <a [routerLink]="['/blogs', article.id]" class="card card--small" appRevealOnScroll>
-        <div class="card__orb"></div>
-        <h3>{{ article.title }}</h3>
-        <p>{{ article.subtitle }}</p>
-        <span class="card__button btn-ripple">Read More</span>
+    <ng-container *ngIf="!featuredLoading && featuredArticles.length > 0">
+      <a [routerLink]="['/blog-post', featuredArticles[0].id]" class="featured-card">
+        <img class="featured-img" [src]="featuredArticles[0].cover_image || 'https://images.unsplash.com/photo-1511688878353-3a2f5be94cd7?auto=format&fit=crop&w=900&q=80'" alt="Featured Image" />
+        <div class="featured-body">
+          <span class="featured-category">{{ featuredArticles[0].category || 'Featured' }}</span>
+          <h2 class="featured-title">{{ featuredArticles[0].title }}</h2>
+          <p class="featured-excerpt">{{ featuredArticles[0].subtitle }}</p>
+          <div class="featured-meta">
+            <span class="meta-author">ANAAD Editorial</span>
+            <div class="meta-sep"></div>
+            <span class="feat-date">{{ featuredArticles[0].created_at | date:'dd MMM yyyy' }}</span>
+            <div class="meta-sep"></div>
+            <span class="meta-read">8 min read</span>
+          </div>
+          <span class="btn-read">Read Article &#8594;</span>
+        </div>
       </a>
-      }
-    </div>
-    }
-    }
+    </ng-container>
 
-    @if (!featuredLoading && !featuredError && featuredArticles.length === 0) {
-    <div class="card card--large" appRevealOnScroll>
-      <div class="card__orb"></div>
-      <div class="card__label">Featured</div>
-      <h2>No featured articles available</h2>
-      <p>Please check back later.</p>
-    </div>
-    }
+    <!-- Static fallback if API fails or no featured articles -->
+    <ng-container *ngIf="(!featuredLoading && featuredArticles.length === 0) || featuredError">
+      <a routerLink="/blog-post/static" class="featured-card">
+        <img class="featured-img" src="https://images.unsplash.com/photo-1511688878353-3a2f5be94cd7?auto=format&fit=crop&w=900&q=80" alt="Slow Poison in Your Kitchen" />
+        <div class="featured-body">
+          <span class="featured-category">Food Safety</span>
+          <h2 class="featured-title">The 'Slow Poison' in Your Kitchen: 5 Daily Habits That Are Silently Harming Your Family</h2>
+          <p class="featured-excerpt">Before you check the calories — do you check the soil it grew in? The food on your table may look healthy. But the question no one is asking is where it came from and what it carried with it.</p>
+          <div class="featured-meta">
+            <span class="meta-author">ANAAD Editorial</span>
+            <div class="meta-sep"></div>
+            <span class="meta-date">12 May 2025</span>
+            <div class="meta-sep"></div>
+            <span class="meta-read">8 min read</span>
+          </div>
+          <span class="btn-read">Read Article &#8594;</span>
+        </div>
+      </a>
+    </ng-container>
   </div>
-</section>
 
-<section class="blogs-explore">
-  <div class="pattern-bg"></div>
-  <div class="orb orb--1"></div>
-  <div class="orb orb--2"></div>
+  <!-- FILTER BAR -->
+  <div class="filter-bar">
+    <span class="filter-tab" *ngFor="let cat of categories" [class.active]="activeCategory === cat" (click)="setCategory(cat)">
+      {{ cat }}
+    </span>
+  </div>
 
-  <div class="blogs-explore__inner">
-    <h2 class="section-title" appRevealOnScroll>EXPLORE</h2>
-
-    <div class="topic-cards-wrapper">
-      @if (loading) {
-      <div class="topic-cards-loading">
-        <div class="loading-spinner"></div>
-        <p>Loading articles...</p>
+  <!-- BLOG GRID -->
+  <div class="blog-grid-section">
+    <ng-container *ngIf="loading">
+      <div class="blog-grid">
+        <div class="blog-card" *ngFor="let i of [1, 2, 3]">
+          <app-skeleton-loader width="100%" height="240px" borderRadius="0"></app-skeleton-loader>
+          <div class="blog-card-body">
+            <app-skeleton-loader width="60px" height="10px" borderRadius="2px"></app-skeleton-loader>
+            <app-skeleton-loader width="90%" height="20px" borderRadius="4px"></app-skeleton-loader>
+            <app-skeleton-loader width="100%" height="13px" borderRadius="2px"></app-skeleton-loader>
+            <app-skeleton-loader width="80%" height="13px" borderRadius="2px"></app-skeleton-loader>
+          </div>
+        </div>
       </div>
-      }
+    </ng-container>
 
-      @if (error && !loading) {
-      <div class="topic-cards-error">
-        <div class="error-icon">☁️</div>
-        <h3>Cloudy with a chance of errors</h3>
-        <p>We couldn't fetch the articles right now. Give it another shot!</p>
-        <button type="button" class="retry-button" (click)="ngOnInit()">Try Again</button>
-      </div>
-      }
-
-      @if (!loading && !error && displayArticles.length > 0) {
-      <div class="topic-cards-track">
-        @for (article of displayArticles; track $index; let i = $index) {
-        <article class="topic-card" [class.topic-card--light]="!article.cover_image && i % 2 === 0"
-          [class.topic-card--dark]="!article.cover_image && i % 2 !== 0" [class.topic-card--image]="article.cover_image"
-          [style.background-image]="article.cover_image ? 'url(' + article.cover_image + ')' : null">
-          <h3 [innerHTML]="article.title"></h3>
-          <p>{{ article.subtitle }}</p>
-          <button type="button" class="topic-card__button" [routerLink]="['/blogs', article.id]">Read More</button>
-        </article>
-        }
-      </div>
-      }
-
-      @if (!loading && !error && displayArticles.length === 0) {
-      <div class="topic-cards-empty">
-        <p>No articles available at the moment.</p>
-      </div>
-      }
+    <div class="blog-grid" *ngIf="!loading && filteredArticles.length > 0">
+      <a [routerLink]="['/blog-post', article.id]" class="blog-card" *ngFor="let article of filteredArticles">
+        <div class="blog-card-img"><img [src]="article.cover_image || 'https://images.unsplash.com/photo-1586348943529-beaae6c28db9?auto=format&fit=crop&w=600&q=80'" alt="Blog Image" /></div>
+        <div class="blog-card-body">
+          <span class="blog-card-category">{{ article.category || 'Article' }}</span>
+          <span class="blog-card-title">{{ article.title }}</span>
+          <p class="blog-card-excerpt">{{ article.subtitle }}</p>
+          <div class="blog-card-meta">
+            <span class="blog-card-date">{{ article.created_at | date:'dd MMM yyyy' }}</span>
+            <div class="meta-sep"></div>
+            <span class="blog-card-read">5 min</span>
+            <span class="blog-card-arrow">&#8594;</span>
+          </div>
+        </div>
+      </a>
     </div>
 
-    <div class="evidence" appRevealOnScroll>
-      <h2 class="section-title glitch-text">THE EVIDENCE ARCHIVE</h2>
-      <p class="evidence__subtitle">Browse through a database of 20+<br />Peer-Reviewed Studies</p>
-      <button type="button" class="pill-button pulse-btn" routerLink="/evidence">Clinical Research Papers</button>
-    </div>
-
-    <div class="research-card" appRevealOnScroll>
-      <div class="research-card__image-placeholder">
-        <img src="assets/images/evidence-archive.svg" alt="Evidence Archive" />
-        <div class="research-card__shine"></div>
-      </div>
-      <div class="research-card__content">
-        <h3>The Science Behind ICBN:<br />A Database of 20+<br />Peer-Reviewed Studies</h3>
-        <a routerLink="/evidence" class="research-card__link hover-arrow">Learn More <span class="arrow">→</span></a>
-      </div>
+    <!-- Static fallback if API fails -->
+    <div class="blog-grid" *ngIf="(!loading && filteredArticles.length === 0) || error">
+      <!-- Card 1 -->
+      <a routerLink="/blog-post/static" class="blog-card">
+        <div class="blog-card-img"><img src="https://images.unsplash.com/photo-1586348943529-beaae6c28db9?auto=format&fit=crop&w=600&q=80" alt="" /></div>
+        <div class="blog-card-body">
+          <span class="blog-card-category">Culture</span>
+          <span class="blog-card-title">The Resignation Letter We Never Wrote</span>
+          <p class="blog-card-excerpt">What happens when the people who feed a nation decide they can no longer afford to?</p>
+          <div class="blog-card-meta">
+            <span class="blog-card-date">28 Apr 2025</span>
+            <div class="meta-sep"></div>
+            <span class="blog-card-read">6 min</span>
+            <span class="blog-card-arrow">&#8594;</span>
+          </div>
+        </div>
+      </a>
+      <!-- Card 2 -->
+      <a routerLink="/blog-post/static" class="blog-card">
+        <div class="blog-card-img"><img src="https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=600&q=80" alt="" /></div>
+        <div class="blog-card-body">
+          <span class="blog-card-category">Economy</span>
+          <span class="blog-card-title">The Independence We Forgot to Fight For</span>
+          <p class="blog-card-excerpt">1947 gave us political freedom. Who is fighting for food sovereignty?</p>
+          <div class="blog-card-meta">
+            <span class="blog-card-date">15 Apr 2025</span>
+            <div class="meta-sep"></div>
+            <span class="blog-card-read">7 min</span>
+            <span class="blog-card-arrow">&#8594;</span>
+          </div>
+        </div>
+      </a>
+      <!-- Card 3 -->
+      <a routerLink="/blog-post/static" class="blog-card">
+        <div class="blog-card-img"><img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=80" alt="" /></div>
+        <div class="blog-card-body">
+          <span class="blog-card-category">Food Safety</span>
+          <span class="blog-card-title">The Lethal Lunchbox: Is Your "Love" Actually Harm?</span>
+          <p class="blog-card-excerpt">Every parent packs a lunchbox with love. But are the ingredients inside safe?</p>
+          <div class="blog-card-meta">
+            <span class="blog-card-date">02 Apr 2025</span>
+            <div class="meta-sep"></div>
+            <span class="blog-card-read">9 min</span>
+            <span class="blog-card-arrow">&#8594;</span>
+          </div>
+        </div>
+      </a>
     </div>
   </div>
-</section>
+
+  <!-- EVIDENCE ARCHIVE BAND -->
+  <div class="evidence-band">
+    <div class="evidence-left">
+      <span class="evidence-tag">Clinical Research Papers</span>
+      <h2>The Science<br />Behind <em>ICBN.</em></h2>
+      <p class="evidence-body">We didn't invent these standards. Nature did. Science confirmed it. Browse our database of 20+ peer-reviewed studies on soil health, heirloom nutrition, and the dangers of synthetic agriculture.</p>
+      <div class="evidence-tags">
+        <span class="evidence-tag-pill">Peer Reviewed</span>
+        <span class="evidence-tag-pill">Soil Science</span>
+        <span class="evidence-tag-pill">Toxicology</span>
+        <span class="evidence-tag-pill">Nutrition</span>
+      </div>
+    </div>
+    <div class="evidence-right">
+      <div class="evidence-stat">
+        <span class="evidence-stat-val">20+</span>
+        <span class="evidence-stat-label">Peer-reviewed studies</span>
+      </div>
+      <a routerLink="/evidence" class="btn-evidence">Browse the Archive &#8594;</a>
+    </div>
+  </div>
+
+  <!-- NEWSLETTER -->
+  <div class="newsletter-band">
+    <div class="newsletter-left">
+      <span class="newsletter-tag">Field Notes</span>
+      <h2>Stay close to the land.</h2>
+      <p>Get our dispatches — harvest updates, new research, and honest food stories — delivered to your inbox. No noise. Just signal.</p>
+    </div>
+    <div class="newsletter-form">
+      <input class="newsletter-input" type="email" placeholder="your@email.com" />
+      <button class="newsletter-btn">Subscribe</button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,183 @@
+<div class="product-page-wrap">
+  <!-- SKELETON LOADER -->
+  <div *ngIf="loading()" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0; min-height: 80vh;">
+    <div style="padding: 40px 40px 40px 64px;">
+      <app-skeleton-loader height="100%" width="100%" borderRadius="0"></app-skeleton-loader>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 24px; padding: 40px 64px 40px 48px;">
+      <app-skeleton-loader height="16px" width="30%"></app-skeleton-loader>
+      <app-skeleton-loader height="48px" width="80%"></app-skeleton-loader>
+      <app-skeleton-loader height="32px" width="40%"></app-skeleton-loader>
+      <div style="margin-top: 24px;">
+        <app-skeleton-loader height="16px" width="100%" style="margin-bottom: 8px;"></app-skeleton-loader>
+        <app-skeleton-loader height="16px" width="100%" style="margin-bottom: 8px;"></app-skeleton-loader>
+        <app-skeleton-loader height="16px" width="90%"></app-skeleton-loader>
+      </div>
+      <div style="margin-top: 32px;">
+        <app-skeleton-loader height="56px" width="100%" borderRadius="0"></app-skeleton-loader>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="!loading() && variant()">
+    <!-- BREADCRUMB -->
+    <div class="breadcrumb">
+      <a routerLink="/products">Heirloom Pantry</a>
+      <span class="breadcrumb-sep">&#8594;</span>
+      <span class="breadcrumb-current">{{ variant()?.product_name }}</span>
+    </div>
+
+    <!-- PRODUCT HERO -->
+    <div class="product-hero">
+      
+      <!-- GALLERY -->
+      <div class="gallery-col">
+        <div class="gallery-main">
+          <img 
+            [src]="variant()?.images?.[0]?.image || ''" appSafeImage
+            [alt]="variant()?.product_name" 
+          />
+          <span class="gallery-main-badge" *ngIf="variant()?.sku">Batch #{{ variant()?.sku }}</span>
+        </div>
+        <div class="gallery-thumbs" *ngIf="variant()?.images && variant()?.images!.length > 1">
+          <div class="gallery-thumb" *ngFor="let img of variant()?.images; let i = index" [class.active]="i === 0">
+            <img [src]="img.image" appSafeImage alt="" />
+          </div>
+        </div>
+      </div>
+
+      <!-- INFO -->
+      <div class="info-col">
+        <span class="info-tag">{{ variant()?.category?.name || 'Stone-ground wheat flour' }}</span>
+        <h1>{{ variant()?.product_name }}</h1>
+        <p class="info-subtitle">{{ variant()?.product_description | truncate: 100 }}</p>
+
+        <div class="rating-row">
+          <span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
+          <span class="rating-count">5.0 &nbsp;(0 reviews)</span>
+          <div class="rating-divider" *ngIf="variant()?.sku"></div>
+          <a routerLink="/registry" class="batch-link" *ngIf="variant()?.sku">View Batch #{{ variant()?.sku }} &#8594;</a>
+        </div>
+
+        <div class="price-block">
+          <span class="price-main">{{ variant()?.price | currencyInr }}</span>
+          <span class="price-per">per {{ variant()?.weight }}{{ variant()?.unit }} &nbsp;&middot;&nbsp; incl. taxes</span>
+          <span class="price-savings" *ngIf="variant()?.compare_at_price && savingsPercentage > 0">
+            &#10003; Save {{ savingsPercentage }}% on MRP
+          </span>
+        </div>
+
+        <!-- Purchase Type Options from Angular -->
+        <div class="selector-block" *ngIf="hasStock() && eligiblePlanIds().length > 0">
+          <span class="selector-label">Purchase Type</span>
+          <div class="size-options">
+            <button class="size-btn" [class.active]="purchaseType() === 'single'" (click)="purchaseType.set('single')">One-time</button>
+            <button class="size-btn" [class.active]="purchaseType() === 'subscription'" (click)="purchaseType.set('subscription')">Subscribe & Save</button>
+          </div>
+        </div>
+
+        <div class="subscription-plans-list" *ngIf="purchaseType() === 'subscription' && eligiblePlanIds().length > 0" style="margin-bottom: 24px; border: 1px solid rgba(26,26,26,0.18); padding: 12px; display: flex; flex-direction: column; gap: 8px;">
+          <div class="plan-card" 
+               *ngFor="let plan of subscriptionPlans()" 
+               [class.selected]="selectedPlanId() === plan.id"
+               [class.disabled]="!eligiblePlanIds().includes(plan.id)"
+               [style.opacity]="!eligiblePlanIds().includes(plan.id) ? '0.4' : '1'"
+               [style.cursor]="!eligiblePlanIds().includes(plan.id) ? 'not-allowed' : 'pointer'"
+               (click)="eligiblePlanIds().includes(plan.id) && selectedPlanId.set(plan.id)"
+               style="display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid rgba(26,26,26,0.08);">
+            <div>
+              <div style="font-family: var(--font-sans); font-size: 13px; font-weight: 500;">{{ plan.name }} <span *ngIf="plan.discount_percentage" style="color: #3A7A2E; font-size: 11px;">(Save {{ plan.discount_percentage }}%)</span></div>
+              <div style="font-size: 11px; color: rgba(26,26,26,0.5);">{{ plan.tagline }}</div>
+            </div>
+            <div style="font-family: var(--font-serif); font-size: 16px; font-weight: 600;">{{ getPlanPrice(plan) | currencyInr }}</div>
+          </div>
+        </div>
+
+        <div class="add-row" *ngIf="hasStock()">
+          <app-qty-selector 
+            *ngIf="cartQuantity === 0"
+            [value]="quantity()" 
+            [max]="variant()!.stock || 99"
+            (valueChange)="onQuantityChange($event)"
+            class="qty-selector-custom"
+            style="border: 1px solid rgba(26,26,26,0.18);">
+          </app-qty-selector>
+          
+          <button 
+            *ngIf="cartQuantity === 0"
+            class="btn-add-cart" 
+            (click)="addToCart()"
+            [disabled]="addingToCart()">
+            {{ addingToCart() ? 'Adding...' : 'Add to Cart &#8594;' }}
+          </button>
+
+          <app-qty-selector 
+            *ngIf="cartQuantity > 0"
+            [value]="cartQuantity" 
+            [max]="variant()!.stock || 99"
+            (valueChange)="updateCartQuantity($event)"
+            class="qty-selector-custom"
+            style="border: 1px solid rgba(26,26,26,0.18);">
+          </app-qty-selector>
+
+          <button
+            *ngIf="cartQuantity > 0"
+            type="button"
+            class="btn-add-cart"
+            style="background-color: var(--amber-harvest); color: var(--charcoal);"
+            (click)="buyNow()"
+            [disabled]="addingToCart()">
+            Buy Now
+          </button>
+
+          <button class="btn-wishlist" [class.active]="isFavorite()" (click)="toggleFavorite()" [disabled]="togglingFavorite()">{{ isFavorite() ? '♥' : '♡' }}</button>
+        </div>
+
+        <div *ngIf="!hasStock()" style="color: red; font-family: var(--font-sans); padding: 12px 0;">
+          Currently Out of Stock
+        </div>
+
+        <div class="subscribe-nudge" *ngIf="purchaseType() === 'single' && eligiblePlanIds().length > 0">
+          <span class="nudge-icon">&#9851;</span>
+          <p class="nudge-text">Get this every harvest, automatically. <strong>Subscribers save extra</strong> and get first-harvest priority.</p>
+          <a routerLink="/commitment" class="nudge-link">Learn More &#8594;</a>
+        </div>
+
+        <div class="trust-pills">
+          <div class="trust-pill"><div class="trust-pill-dot"></div><span class="trust-pill-label">SGS Lab Certified</span></div>
+          <div class="trust-pill"><div class="trust-pill-dot"></div><span class="trust-pill-label">ICBN Farmed</span></div>
+          <div class="trust-pill"><div class="trust-pill-dot"></div><span class="trust-pill-label">Nitrogen-flushed Pack</span></div>
+          <div class="trust-pill"><div class="trust-pill-dot"></div><span class="trust-pill-label">Zero Pesticides</span></div>
+          <div class="trust-pill"><div class="trust-pill-dot"></div><span class="trust-pill-label">Free Shipping</span></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Below the fold contents exactly as extracted (Story, Nutrition, Trace, etc.) -->
+    <div class="section-divider"></div>
+
+    <div class="story-section">
+      <div class="story-img-col">
+        <img src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=900&q=80" alt="Wheat fields, Rajasthan" />
+      </div>
+      <div class="story-text-col">
+        <span class="story-tag">The grain's journey</span>
+        <h2>Grown by <em>memory,</em><br />milled by hand.</h2>
+        <p class="story-body">{{ variant()?.product_description }}</p>
+        <div class="story-detail-list">
+          <div class="story-detail"><div class="story-detail-dot"></div><span class="story-detail-text">Sown in November in desi cow-prepared soil — no NPK, no urea</span></div>
+          <div class="story-detail"><div class="story-detail-dot"></div><span class="story-detail-text">Hand-harvested at full maturity using a scythe, not a combine</span></div>
+          <div class="story-detail"><div class="story-detail-dot"></div><span class="story-detail-text">Cold stone-ground at 18–22°C to preserve bran oils and germ</span></div>
+          <div class="story-detail"><div class="story-detail-dot"></div><span class="story-detail-text">Packed within 48 hours of milling in nitrogen-flushed pouches</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="empty-state" *ngIf="!loading() && !variant()">
+    <h2>Product not found</h2>
+    <p>We couldn't find the heirloom staple you were looking for.</p>
+    <a routerLink="/products" class="btn-back">Return to Pantry</a>
+  </div>
+</div>

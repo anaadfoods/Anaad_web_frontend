@@ -2,11 +2,12 @@ import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ResearchPapersService, ResearchPaper } from '../shared/services/research-papers.service';
+import { SkeletonLoaderComponent } from '../shared/components/skeleton-loader/skeleton-loader.component';
 
 @Component({
   selector: 'app-evidence-archive',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, SkeletonLoaderComponent],
   templateUrl: './evidence-archive.component.html',
   styleUrls: ['./evidence-archive.component.scss']
 })

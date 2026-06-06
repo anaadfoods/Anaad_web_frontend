@@ -26,6 +26,11 @@ export interface PlanCard {
   allowsInstallments: string;
   allowanceLabel: string;
   savingsLabel: string;
+  isFeatured?: boolean;
+  badge?: string;
+  subtitle?: string;
+  perks?: string[];
+  price?: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -63,6 +68,12 @@ export class PlansService {
       id: String(p.id),
       title: fix(p.name),
       description: fix(pickDesc(p.description, p.tagline)),
+      subtitle: fix(p.tagline) || 'Essential Staples',
+      perks: [
+        'Pure Sona Moti & Kathiya Wheat',
+        p.allows_installments ? `Pay in installments every ${p.installment_frequency_months} month(s)` : 'Full Payment Upfront',
+        `${Math.round(p.total_discount_percentage)}% Total Discount`
+      ],
       durationLabel,
       allowsInstallments,
       allowanceLabel,

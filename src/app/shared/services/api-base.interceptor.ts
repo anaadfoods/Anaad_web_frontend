@@ -5,7 +5,7 @@ export const apiBaseInterceptor: HttpInterceptorFn = (req, next) => {
   // Always prepend base URL to relative API URLs
   if (req.url.startsWith('/api/')) {
     const fullUrl = `${environment.apiBaseUrl}${req.url}`;
-    req = req.clone({ url: fullUrl });
+    req = req.clone({ url: fullUrl, withCredentials: true });
   }
   
   return next(req);

@@ -1,0 +1,237 @@
+<div class="checkout-page-wrap">
+
+  <!-- CHECKOUT GRID -->
+  <div class="checkout-grid">
+
+    <!-- FORM COLUMN -->
+    <div class="form-col">
+
+      <div class="checkout-header">
+        <div class="checkout-breadcrumb">
+          <a routerLink="/cart" class="crumb">Cart</a>
+          <span class="crumb-sep">&#8594;</span>
+          <span class="crumb active">Checkout</span>
+          <span class="crumb-sep">&#8594;</span>
+          <span class="crumb">Confirmation</span>
+        </div>
+      </div>
+
+      <div class="form-error" *ngIf="submitError">{{ submitError }}</div>
+
+      <form [formGroup]="checkoutForm" (ngSubmit)="placeOrder()" novalidate>
+
+        <!-- CONTACT -->
+        <div class="form-block">
+          <div class="form-block-header">
+            <span class="form-block-number">Step 01</span>
+            <h2 class="form-block-title">Contact Information</h2>
+          </div>
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field-label">First Name *</label>
+              <input class="field-input" [class.field-error]="f.firstName.invalid && f.firstName.touched" type="text"
+                formControlName="firstName" placeholder="Arjun" />
+              <span class="field-hint error" *ngIf="f.firstName.touched && f.firstName.invalid">Required.</span>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Last Name *</label>
+              <input class="field-input" [class.field-error]="f.lastName.invalid && f.lastName.touched" type="text"
+                formControlName="lastName" placeholder="Sharma" />
+              <span class="field-hint error" *ngIf="f.lastName.touched && f.lastName.invalid">Required.</span>
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field-label">Email Address *</label>
+              <input class="field-input" [class.field-error]="f.email.invalid && f.email.touched" type="email"
+                formControlName="email" placeholder="arjun@example.com" />
+              <span class="field-hint error" *ngIf="f.email.touched && f.email.invalid">Valid email required.</span>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Phone Number *</label>
+              <input class="field-input" [class.field-error]="f.phone.invalid && f.phone.touched" type="tel"
+                formControlName="phone" placeholder="+91 98765 43210" />
+              <span class="field-hint error" *ngIf="f.phone.touched && f.phone.invalid">Valid phone required.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- SHIPPING -->
+        <div class="form-block">
+          <div class="form-block-header">
+            <span class="form-block-number">Step 02</span>
+            <h2 class="form-block-title">Shipping Address</h2>
+          </div>
+          <div class="field-row full">
+            <div class="field-group">
+              <label class="field-label">Street Address / Flat, Building *</label>
+              <input class="field-input" [class.field-error]="f.address.invalid && f.address.touched" type="text"
+                formControlName="address" placeholder="42, Green Meadows Society, MG Road" />
+              <span class="field-hint error" *ngIf="f.address.touched && f.address.invalid">Address required.</span>
+            </div>
+          </div>
+          <div class="field-row full">
+            <div class="field-group">
+              <label class="field-label">Landmark (Optional)</label>
+              <input class="field-input" type="text" formControlName="landmark" placeholder="Near HDFC Bank" />
+            </div>
+          </div>
+          <div class="field-row thirds">
+            <div class="field-group">
+              <label class="field-label">City *</label>
+              <input class="field-input" [class.field-error]="f.city.invalid && f.city.touched" type="text"
+                formControlName="city" placeholder="New Delhi" />
+              <span class="field-hint error" *ngIf="f.city.touched && f.city.invalid">Required.</span>
+            </div>
+            <div class="field-group">
+              <label class="field-label">State *</label>
+              <select class="field-select" [class.field-error]="f.state.invalid && f.state.touched"
+                formControlName="state">
+                <option value="">Select state</option>
+                @for (s of states(); track s.id) {
+                <option [value]="s.name">{{ s.name }}</option>
+                }
+                <!-- Fallback static options -->
+                <option value="Delhi">Delhi</option>
+                <option value="Haryana">Haryana</option>
+                <option value="Maharashtra">Maharashtra</option>
+                <option value="Karnataka">Karnataka</option>
+                <option value="Tamil Nadu">Tamil Nadu</option>
+                <option value="Uttar Pradesh">Uttar Pradesh</option>
+                <option value="Gujarat">Gujarat</option>
+                <option value="Rajasthan">Rajasthan</option>
+                <option value="West Bengal">West Bengal</option>
+                <option value="Punjab">Punjab</option>
+              </select>
+              <span class="field-hint error" *ngIf="f.state.touched && f.state.invalid">Required.</span>
+            </div>
+            <div class="field-group">
+              <label class="field-label">PIN Code *</label>
+              <input class="field-input" [class.field-error]="f.pin.invalid && f.pin.touched" type="text"
+                formControlName="pin" placeholder="110001" maxlength="6" />
+              <span class="field-hint error" *ngIf="f.pin.touched && f.pin.invalid">6-digit PIN required.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- PAYMENT -->
+        <div class="form-block">
+          <div class="form-block-header">
+            <span class="form-block-number">Step 03</span>
+            <h2 class="form-block-title">Payment Method</h2>
+          </div>
+          <div class="radio-cards">
+            <!-- COD restriction: Allow COD for both subscription and orders. Comment out old conditional block -->
+            <!-- <label class="radio-card" [class.selected]="f.paymentMethod.value === 'cod'" *ngIf="!directPlanId">
+              <input type="radio" formControlName="paymentMethod" value="cod" class="hidden-radio" />
+              <div class="radio-dot-outer">
+                <div class="radio-dot-inner"></div>
+              </div>
+              <div class="radio-card-info">
+                <span class="radio-card-name">Cash on Delivery (COD)</span>
+                <span class="radio-card-desc">Pay when your order arrives at your doorstep</span>
+              </div>
+              <span class="radio-card-badge">Cash</span>
+            </label> -->
+            
+            <!-- COD restriction: Enforce COD-only selection always -->
+            <label class="radio-card" [class.selected]="f.paymentMethod.value === 'cod'">
+              <input type="radio" formControlName="paymentMethod" value="cod" class="hidden-radio" />
+              <div class="radio-dot-outer">
+                <div class="radio-dot-inner"></div>
+              </div>
+              <div class="radio-card-info">
+                <span class="radio-card-name">Cash on Delivery (COD)</span>
+                <span class="radio-card-desc">Pay when your order arrives at your doorstep</span>
+              </div>
+              <span class="radio-card-badge">Cash</span>
+            </label>
+
+            <!-- COD restriction: Disallow Online Payment option. Comment out the block. -->
+            <!-- <label class="radio-card" [class.selected]="f.paymentMethod.value === 'UPI'">
+              <input type="radio" formControlName="paymentMethod" value="UPI" class="hidden-radio" />
+              <div class="radio-dot-outer">
+                <div class="radio-dot-inner"></div>
+              </div>
+              <div class="radio-card-info">
+                <span class="radio-card-name">Online Payment</span>
+                <span class="radio-card-desc">UPI, Net Banking, Cards via Juspay — secure encrypted gateway</span>
+              </div>
+              <div class="card-icons">
+                <span class="card-icon">UPI</span>
+                <span class="card-icon">CARDS</span>
+                <span class="card-icon">NETBNK</span>
+              </div>
+            </label> -->
+          </div>
+        </div>
+
+        <!-- NOTES -->
+        <div class="form-block">
+          <div class="field-group">
+            <label class="field-label">Order Notes (Optional)</label>
+            <textarea class="field-input" formControlName="notes" placeholder="Leave at gate, ring bell, etc."
+              rows="3"></textarea>
+          </div>
+        </div>
+
+      </form>
+    </div>
+
+    <!-- SUMMARY COLUMN -->
+    <div class="summary-col">
+      <span class="summary-title">Order Summary</span>
+
+      <div class="order-items">
+        @for (item of checkoutItems(); track item.product_variant) {
+        <div class="order-item">
+          <img class="order-item-img" [src]="item.image || ''" appSafeImage [alt]="item.product_name" />
+          <div class="order-item-info">
+            <span class="order-item-name">{{ item.product_name }}</span>
+            <span class="order-item-meta">{{ item.weight }}{{ item.unit }} × {{ item.quantity }}</span>
+          </div>
+          <span class="order-item-price">{{ item.total_price | currencyInr }}</span>
+        </div>
+        }
+      </div>
+
+      <div class="summary-lines">
+        <div class="summary-row">
+          <span class="summary-label">Subtotal</span>
+          <span class="summary-value">{{ getTotalPrice() | currencyInr }}</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">Delivery</span>
+          <span class="summary-value" [class.free]="getDeliveryCharge() === 0">
+            {{ getDeliveryCharge() === 0 ? 'Free' : (getDeliveryCharge() | currencyInr) }}
+          </span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">GST (5%)</span>
+          <span class="summary-value">{{ getGST() | currencyInr }}</span>
+        </div>
+        <div class="summary-divider"></div>
+        <div class="summary-total-row">
+          <span class="summary-total-label">Total</span>
+          <span class="summary-total-value">{{ getGrandTotal() | currencyInr }}</span>
+        </div>
+        <span class="summary-gst">Inclusive of all taxes</span>
+      </div>
+
+      <button type="button" class="btn-place-order" (click)="placeOrder()"
+        [disabled]="isSubmitting || checkoutItems().length === 0">
+        {{ isSubmitting ? 'PLACING ORDER...' : 'PLACE ORDER' }}
+      </button>
+
+      <div class="secure-note">
+        <span>&#128274;</span>
+        <span>Secure 256-bit Encrypted Checkout</span>
+      </div>
+
+      <div class="edit-cart">
+        <span>Need to change something?</span>
+        <a routerLink="/cart">Edit Cart</a>
+      </div>
+    </div>
+  </div>
+</div>

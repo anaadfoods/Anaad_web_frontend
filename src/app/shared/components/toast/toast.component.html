@@ -1,0 +1,14 @@
+<div class="toast-container">
+  <div 
+    class="toast-message" 
+    *ngFor="let toast of toastService.messages()" 
+    [ngClass]="toast.type">
+    <div class="toast-content">
+      <span class="icon" *ngIf="toast.type === 'success'">&#10003;</span>
+      <span class="icon" *ngIf="toast.type === 'error'">&#33;</span>
+      <span class="icon" *ngIf="toast.type === 'info'">&#10548;</span>
+      <span class="text">{{ toast.message }}</span>
+    </div>
+    <button class="toast-close" (click)="remove(toast.id)">&times;</button>
+  </div>
+</div>

@@ -2,7 +2,6 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { BlogsService, Article } from '../shared/services/blogs.service';
-import { RegistrationSourceService } from '../shared/services/registration-source.service';
 
 @Component({
   selector: 'app-blog-detail',
@@ -15,17 +14,21 @@ export class BlogDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private blogsService = inject(BlogsService);
-  private registrationSourceService = inject(RegistrationSourceService);
 
   article: Article | null = null;
   loading = true;
   error = false;
   notFound = false;
-  isExpanded = false;
+  isStatic = false;
+
+  relatedArticles: Article[] = [];
 
   ngOnInit(): void {
     const idParam = this.route.snapshot.paramMap.get('id');
-    if (idParam) {
+    if (idParam === 'static') {
+      this.isStatic = true;
+      this.loading = false;
+    } else if (idParam) {
       const articleId = parseInt(idParam, 10);
       if (!isNaN(articleId)) {
         this.fetchArticle(articleId);
@@ -37,6 +40,10 @@ export class BlogDetailComponent implements OnInit {
       this.notFound = true;
       this.loading = false;
     }
+
+    this.blogsService.getArticles().subscribe(data => {
+      this.relatedArticles = data.slice(0, 3);
+    });
   }
 
   private fetchArticle(id: number): void {
@@ -59,24 +66,5 @@ export class BlogDetailComponent implements OnInit {
 
   goBack(): void {
     this.router.navigate(['/blogs']);
-  }
-
-  /**
-   * Navigate to registration form with PDF_REQUEST source and article ID
-   * Backend will send PDF via email/WhatsApp after form submission
-   */
-  requestPdf(): void {
-    if (this.article) {
-      this.registrationSourceService.setSource('PDF_REQUEST');
-      this.registrationSourceService.setArticleId(this.article.id);
-      this.router.navigate(['/register']);
-    }
-  }
-
-  /**
-   * Expand the article content to show the full article
-   */
-  expandArticle(): void {
-    this.isExpanded = true;
   }
 }

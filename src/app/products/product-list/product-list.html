@@ -1,0 +1,142 @@
+<div class="shop-page-wrap">
+  <!-- SHOP HERO -->
+  <div class="shop-hero">
+    <div class="shop-hero-text">
+      <div class="section-label">Heirloom Pantry</div>
+      <h1>What grain was,<br>before we <em>broke it.</em></h1>
+      <p>Cold stone-milled within 14 days of harvest. Dispatched within 72 hours of milling. No warehouse. No middlemen. No compromises.</p>
+    </div>
+    <div class="shop-hero-promises">
+      <div class="shop-promise-row"><div class="promise-text">✓ Cold stone-milled on our own farm unit</div></div>
+      <div class="shop-promise-row"><div class="promise-text">✓ Zero residue — verified by SGS India every batch</div></div>
+      <div class="shop-promise-row"><div class="promise-text">✓ Nitrogen-flushed packaging, 9-month shelf stability</div></div>
+      <div class="shop-promise-row"><div class="promise-text">✓ Batch ID on every bag — traceable to the field</div></div>
+      <div class="shop-promise-row"><div class="promise-text">✓ Pan-India dispatch within 72 hours of milling</div></div>
+    </div>
+  </div>
+
+  <!-- SEARCH BAR -->
+  <div class="search-bar-wrap">
+    <div class="search-input-wrap">
+      <span class="search-icon">&#128269;</span>
+      <input
+        type="text"
+        class="search-input"
+        placeholder="Search products..."
+        [value]="searchQuery()"
+        (input)="onSearch($any($event.target).value)"
+      />
+      <button type="button" class="search-clear" *ngIf="searchQuery()" (click)="clearSearch()">&#215;</button>
+    </div>
+  </div>
+
+  <!-- FILTER BAR -->
+  <div class="filter-bar" *ngIf="categories().length > 0">
+    <div class="filter-tab"
+         [class.active]="activeCategoryId() === 'all'"
+         (click)="filterByCategory('all')">
+      All <span class="filter-count">{{ getCategoryCount('all') }}</span>
+    </div>
+    @for (cat of categories(); track cat.id) {
+    <div class="filter-tab"
+         [class.active]="activeCategoryId() === cat.id.toString()"
+         (click)="filterByCategory(cat.id.toString())">
+      {{ cat.name }} <span class="filter-count">{{ getCategoryCount(cat.id) }}</span>
+    </div>
+    }
+  </div>
+
+  <!-- GRID AREA -->
+  <section class="shop-grid">
+    <div class="grid-label">
+      Showing {{ filteredProducts().length }} product{{ filteredProducts().length !== 1 ? 's' : '' }}
+      <span *ngIf="searchQuery()"> for "{{ searchQuery() }}"</span>
+    </div>
+
+    <div class="product-grid" *ngIf="loading()">
+      @for (i of [1,2,3,4,5,6]; track i) {
+      <div style="display: flex; flex-direction: column; gap: 12px;">
+        <app-skeleton-loader height="320px" width="100%" borderRadius="0"></app-skeleton-loader>
+        <app-skeleton-loader height="16px" width="40%" borderRadius="2px"></app-skeleton-loader>
+        <app-skeleton-loader height="24px" width="80%" borderRadius="2px"></app-skeleton-loader>
+        <app-skeleton-loader height="48px" width="100%" borderRadius="4px"></app-skeleton-loader>
+      </div>
+      }
+    </div>
+
+    <div class="product-grid" *ngIf="!loading()">
+      @for (variant of filteredProducts(); track variant.id) {
+      <app-product-card
+        [variant]="variant"
+        (addToCart)="onAddToCart($event)">
+      </app-product-card>
+      }
+
+      <div class="empty-state" *ngIf="filteredProducts().length === 0">
+        <p *ngIf="searchQuery()">No products found for "{{ searchQuery() }}". <button type="button" (click)="clearSearch()">Clear search</button></p>
+        <p *ngIf="!searchQuery()">No products found in this category.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROCESS -->
+  <section class="process">
+    <div class="process-image">
+      <img src="https://images.unsplash.com/photo-1530062845289-9109b2c9c868?auto=format&fit=crop&w=900&q=80" alt="Cold stone milling process" />
+    </div>
+    <div class="process-content">
+      <div class="section-label">Processing Method</div>
+      <div class="divider-rule"></div>
+      <h2>What happens between harvest and your kitchen.</h2>
+      <div class="process-steps">
+        <div class="process-step">
+          <div class="process-step-num">01</div>
+          <div class="process-step-body">
+            <h4>Harvest at Optimum Moisture</h4>
+            <p>Grain is cut at 12–14% moisture content to prevent post-harvest degradation. Threshed within 24 hours to preserve enzymatic activity in the germ.</p>
+          </div>
+        </div>
+        <div class="process-step">
+          <div class="process-step-num">02</div>
+          <div class="process-step-body">
+            <h4>Natural Sun Drying</h4>
+            <p>Grain is dried on raised bamboo platforms for 3–5 days. No mechanical dryers — no heat exposure before milling that would pre-oxidise grain oils and denature enzymes.</p>
+          </div>
+        </div>
+        <div class="process-step">
+          <div class="process-step-num">03</div>
+          <div class="process-step-body">
+            <h4>Cold Stone Milling</h4>
+            <p>Our on-farm granite stone mill operates below 40°C throughout the milling process. Modern roller mills run at temperatures that destroy wheat germ oil, B vitamins, and heat-sensitive micronutrients. We do not use them.</p>
+          </div>
+        </div>
+        <div class="process-step">
+          <div class="process-step-num">04</div>
+          <div class="process-step-body">
+            <h4>Nitrogen Flush Packaging</h4>
+            <p>Flour is immediately packed into food-grade kraft bags with a nitrogen flush, displacing oxygen before sealing. This prevents oxidation and rancidity — giving our flour a stable 9-month shelf life without any preservatives.</p>
+          </div>
+        </div>
+        <div class="process-step">
+          <div class="process-step-num">05</div>
+          <div class="process-step-body">
+            <h4>72-Hour Dispatch</h4>
+            <p>Every bag is dispatched within 72 hours of milling. We do not stock finished flour. We do not mill in advance. What you receive is genuinely fresh.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SUBSCRIBE NUDGE -->
+  <div class="subscribe-nudge">
+    <div class="nudge-text">
+      <h3>Buy less, more often. Or subscribe and stop thinking about it.</h3>
+      <p>A Commitment subscription guarantees your allocation before each harvest, locks your price for the full season, and ships automatically every month. For households that take nutrition seriously, it is simply the better way to source.</p>
+    </div>
+    <div class="nudge-action">
+      <a routerLink="/commitment" class="btn-primary-light">View Commitment Tiers &rarr;</a>
+      <div class="nudge-note">Starting from ₹680/month &nbsp;·&nbsp; Cancel anytime &nbsp;·&nbsp; First batch within 30 days</div>
+    </div>
+  </div>
+</div>

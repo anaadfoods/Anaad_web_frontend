@@ -1,0 +1,330 @@
+// ============================================
+// PaymentFailure Styles
+// Anaad Foods brand palette: warm parchment,
+// deep green, gold accent, burgundy error
+// ============================================
+
+:host {
+  display: block;
+  min-height: 100vh;
+  background-color: var(--color-bg, #faf8f2);
+  font-family: 'Outfit', 'Inter', -apple-system, sans-serif;
+}
+
+.failure-canvas {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 2rem 1rem;
+  overflow: hidden;
+}
+
+.ambient-ring {
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(107, 30, 30, 0.06) 0%,
+    transparent 70%
+  );
+  pointer-events: none;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+// ── Card ──────────────────────────────────
+
+.failure-card {
+  position: relative;
+  width: 100%;
+  max-width: 460px;
+  background: var(--color-surface, #ffffff);
+  border-radius: 20px;
+  padding: 2.5rem 2rem;
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.06),
+    0 16px 48px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(26, 26, 26, 0.07);
+  text-align: center;
+  z-index: 1;
+
+  &.animate-in {
+    animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// ── Merchant Banner ───────────────────────
+
+.merchant-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  padding: 0.5rem 1rem;
+  background: rgba(63, 94, 70, 0.06);
+  border-radius: 50px;
+  border: 1px solid rgba(63, 94, 70, 0.15);
+
+  .lock-icon {
+    width: 14px;
+    height: 14px;
+    stroke: var(--color-primary, #3f5e46);
+    flex-shrink: 0;
+  }
+
+  .merchant-name {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-primary, #3f5e46);
+    letter-spacing: 0.02em;
+  }
+
+  .secure-badge {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: var(--color-primary, #3f5e46);
+    background: rgba(63, 94, 70, 0.1);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+}
+
+// ── Status Badge ──────────────────────────
+
+.status-badge-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem;
+  width: 72px;
+  height: 72px;
+
+  .badge-ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: rgba(107, 30, 30, 0.08);
+    animation: pulseRing 2s ease-in-out infinite;
+  }
+
+  .badge-core {
+    position: relative;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: rgba(107, 30, 30, 0.1);
+    border: 2px solid rgba(107, 30, 30, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    svg {
+      width: 24px;
+      height: 24px;
+      stroke: var(--color-accent, #6b1e1e);
+    }
+  }
+}
+
+@keyframes pulseRing {
+  0%, 100% { transform: scale(1); opacity: 0.6; }
+  50%       { transform: scale(1.1); opacity: 0.3; }
+}
+
+// ── Typography ────────────────────────────
+
+.failure-heading {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--color-text, #1f1b16);
+  margin: 0 0 0.75rem;
+  letter-spacing: -0.01em;
+}
+
+.failure-subtext {
+  font-size: 0.9rem;
+  color: var(--color-text-muted, #6f665c);
+  line-height: 1.6;
+  margin: 0 0 1.5rem;
+}
+
+// ── Order Ref Card ────────────────────────
+
+.order-ref-card {
+  background: rgba(250, 248, 242, 0.8);
+  border: 1px solid rgba(26, 26, 26, 0.08);
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 1.25rem;
+  text-align: left;
+
+  .ref-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+
+    svg {
+      width: 20px;
+      height: 20px;
+      stroke: var(--color-text-muted, #6f665c);
+      flex-shrink: 0;
+    }
+  }
+
+  .ref-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  .ref-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--color-text-muted, #6f665c);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .ref-value {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-text, #1f1b16);
+    font-family: 'Courier New', monospace;
+  }
+}
+
+// ── Info Note ─────────────────────────────
+
+.info-note {
+  display: flex;
+  gap: 0.625rem;
+  padding: 0.875rem 1rem;
+  background: rgba(173, 132, 65, 0.07);
+  border: 1px solid rgba(173, 132, 65, 0.2);
+  border-radius: 10px;
+  margin-bottom: 1.75rem;
+  text-align: left;
+
+  svg {
+    width: 16px;
+    height: 16px;
+    stroke: var(--color-secondary, #ad8441);
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  p {
+    font-size: 0.8rem;
+    color: var(--color-text-muted, #6f665c);
+    line-height: 1.5;
+    margin: 0;
+  }
+}
+
+// ── Actions ───────────────────────────────
+
+.action-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.btn-primary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.875rem 1.5rem;
+  background: var(--color-primary, #3f5e46);
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.15s ease;
+  letter-spacing: 0.01em;
+
+  svg {
+    width: 16px;
+    height: 16px;
+    stroke: currentColor;
+  }
+
+  &:hover {
+    background: var(--color-primary-600, #2f4634);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.btn-secondary {
+  width: 100%;
+  padding: 0.75rem 1.5rem;
+  background: transparent;
+  color: var(--color-primary, #3f5e46);
+  font-size: 0.875rem;
+  font-weight: 600;
+  border: 1.5px solid var(--color-primary, #3f5e46);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+
+  &:hover {
+    background: rgba(63, 94, 70, 0.05);
+  }
+}
+
+.btn-ghost {
+  width: 100%;
+  padding: 0.625rem;
+  background: transparent;
+  color: var(--color-text-muted, #6f665c);
+  font-size: 0.825rem;
+  font-weight: 500;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: var(--color-text, #1f1b16);
+  }
+}
+
+// ── Responsive ────────────────────────────
+
+@media (max-width: 480px) {
+  .failure-card {
+    padding: 2rem 1.25rem;
+    border-radius: 16px;
+  }
+
+  .failure-heading {
+    font-size: 1.2rem;
+  }
+}

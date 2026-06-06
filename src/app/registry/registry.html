@@ -1,0 +1,108 @@
+<div class="registry-page-wrap">
+
+  <div class="page-hero-dark">
+    <div class="section-label">Open Access &nbsp;&middot;&nbsp; No Login Required &nbsp;&middot;&nbsp; Updated Per Harvest Cycle</div>
+    <h1>The complete record of everything<br>we <em>grow and test.</em></h1>
+    <p>47 batches. 12,400+ data points. Zero selective disclosure. This is not a highlights page — it is an unedited public archive.</p>
+    <div class="hero-dark-meta">
+      <div class="hero-meta-item">
+        <div class="hero-meta-label">Batches Published</div>
+        <div class="hero-meta-value">47</div>
+      </div>
+      <div class="hero-meta-item">
+        <div class="hero-meta-label">Data Points Verified</div>
+        <div class="hero-meta-value">12,400+</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUBSCRIPTION PLANS SECTION -->
+  <section class="plans-section">
+    <div class="plans-header">
+      <span class="section-label">ANAAD · COMMITMENT</span>
+      <h2>Lock in freshness.<br><em>Season after season.</em></h2>
+      <p>A Commitment subscription is not a delivery service. It is a direct financial relationship between your household and our acreage. Choose your tier below.</p>
+    </div>
+
+    <div class="plans-loading" *ngIf="loading()">Loading subscription plans...</div>
+    <div class="plans-error" *ngIf="error()">{{ error() }}</div>
+
+    <div class="plans-grid" *ngIf="!loading() && plans().length > 0">
+      @for (plan of plans(); track plan.id) {
+        <div [ngClass]="['plan-card', 'duration-' + plan.duration_months]" [class.featured]="plan.duration_months === 6">
+          <div class="plan-header">
+            <span class="plan-duration-badge">{{ getDurationLabel(plan.duration_months) }}</span>
+            <span class="plan-featured-badge" *ngIf="plan.duration_months === 6">Most Chosen</span>
+            <span class="plan-discount-badge" *ngIf="getDiscountLabel(plan)">{{ getDiscountLabel(plan) }}</span>
+          </div>
+          <h3 class="plan-name">{{ getPlanCustomName(plan.duration_months) }}</h3>
+          <p class="plan-tagline">{{ getPlanCustomHeadline(plan.duration_months) }}</p>
+          <p class="plan-desc">{{ getPlanCustomSub(plan.duration_months) }}</p>
+          <div class="plan-features">
+            <div class="plan-feature" *ngIf="plan.allows_installments">
+              <span>&#10003;</span> Installment option available
+            </div>
+            <div class="plan-feature">
+              <span>&#10003;</span> Free cold-chain delivery
+            </div>
+            <div class="plan-feature">
+              <span>&#10003;</span> Pause or cancel anytime
+            </div>
+          </div>
+          <a routerLink="/login" [queryParams]="{returnUrl: '/registry'}" class="plan-cta" *ngIf="!authState.isAuthenticated()">
+            Subscribe Now
+          </a>
+          <a routerLink="/products" class="plan-cta" *ngIf="authState.isAuthenticated()">
+            Choose Products
+          </a>
+        </div>
+      }
+    </div>
+
+    <div class="no-plans" *ngIf="!loading() && plans().length === 0 && !error()">
+      <p>No subscription plans are currently available. Check back soon.</p>
+    </div>
+  </section>
+
+  <!-- BATCH LEDGER -->
+  <section class="ledger">
+    <div class="ledger-header" style="flex-direction: column; align-items: flex-start; gap: 16px;">
+      <div class="ledger-header-left">
+        <h2>The Batch <em>Ledger</em></h2>
+        <p style="font-family: var(--font-sans); font-size: 14px; color: var(--text-faded, rgba(26,26,26,0.6)); line-height: 1.6; max-width: 800px; margin-top: 8px;">
+          Every harvest from our Sonipat farm is submitted to SGS India Pvt. Ltd. for independent residue analysis before a single gram is milled or dispatched. The results below are published in full — not curated, not filtered. If a batch ever fails, it will appear here too.
+        </p>
+      </div>
+      <div class="ledger-filter">
+        <button class="filter-chip" [class.active]="filter === 'All'" (click)="setFilter('All')">All Batches</button>
+        <button class="filter-chip" [class.active]="filter === 'Wheat'" (click)="setFilter('Wheat')">Wheat</button>
+        <button class="filter-chip" [class.active]="filter === 'Rice'" (click)="setFilter('Rice')">Rice</button>
+        <button class="filter-chip" [class.active]="filter === 'Pulses'" (click)="setFilter('Pulses')">Pulses</button>
+        <button class="filter-chip" [class.active]="filter === 'Millets'" (click)="setFilter('Millets')">Millets</button>
+      </div>
+    </div>
+
+    <div class="batch-table">
+      <div class="batch-table-head">
+        <span>Batch ID</span>
+        <span>Harvest Date</span>
+        <span>Crop Variety</span>
+        <span>Pesticide Result</span>
+        <span>Independent Certifier</span>
+        <span>Full Report</span>
+      </div>
+
+      @for (b of filteredBatches(); track b.id) {
+      <div class="batch-row">
+        <span class="batch-id">{{ b.id }}</span>
+        <span class="batch-date">{{ b.date }}</span>
+        <span class="batch-variety">{{ b.variety }}</span>
+        <span class="batch-result" [class.pass]="b.pass">{{ b.result }}</span>
+        <span class="batch-certifier">SGS India Pvt. Ltd.</span>
+        <span class="batch-link"><a href="mailto:farm@anaadfoods.com?subject=Request for Lab Report - Batch {{ b.id }}" class="report-email-link">Request via email</a></span>
+      </div>
+      }
+    </div>
+  </section>
+
+</div>

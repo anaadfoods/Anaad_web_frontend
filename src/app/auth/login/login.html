@@ -1,0 +1,81 @@
+<div class="page-wrap">
+
+  <!-- LEFT DECORATIVE PANEL -->
+  <div class="left-panel">
+    <div class="left-overlay"></div>
+    <div class="left-content">
+      <span class="left-tagline">Welcome Back</span>
+      <h2 class="left-headline">Return to<br /><em>the source</em><br />of nourishment.</h2>
+      <p class="left-body">Access your pantry, manage subscriptions, and view open lab ledgers for your recent deliveries.</p>
+      <div class="left-badges">
+        <div class="left-badge-row">
+          <span class="badge-check">&#10003;</span>
+          <span class="badge-label">Every batch lab-certified by SGS India</span>
+        </div>
+        <div class="left-badge-row">
+          <span class="badge-check">&#10003;</span>
+          <span class="badge-label">ICBN farming — zero synthetic inputs</span>
+        </div>
+        <div class="left-badge-row">
+          <span class="badge-check">&#10003;</span>
+          <span class="badge-label">Nitrogen-flushed for peak freshness</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT FORM PANEL -->
+  <div class="right-panel">
+    <div class="form-header">
+      <span class="form-header-tag">Existing Member</span>
+      <h1>Sign In</h1>
+      <p>Enter your details to access your account.</p>
+    </div>
+
+    <div class="form-success" *ngIf="successMessage">{{ successMessage }}</div>
+    <div class="form-error" *ngIf="error">{{ error }}</div>
+
+    <form class="signup-form" [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate>
+      <div class="field-group">
+        <label class="field-label" for="email">Email Address</label>
+        <input
+          type="email"
+          id="email"
+          class="field-input"
+          [class.field-error]="emailCtrl.invalid && emailCtrl.touched"
+          formControlName="email"
+          placeholder="hello@example.com"
+          autocomplete="email" />
+        <span class="field-hint error" *ngIf="emailCtrl.touched && emailCtrl.hasError('required')">Email is required.</span>
+        <span class="field-hint error" *ngIf="emailCtrl.touched && emailCtrl.hasError('email')">Please enter a valid email address.</span>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label" for="password">Password</label>
+        <div class="password-wrap">
+          <input
+            [type]="showPassword ? 'text' : 'password'"
+            id="password"
+            class="field-input"
+            [class.field-error]="passwordCtrl.invalid && passwordCtrl.touched"
+            formControlName="password"
+            placeholder="Enter your password"
+            autocomplete="current-password" />
+          <button type="button" class="toggle-pw" (click)="togglePassword()">
+            {{ showPassword ? 'Hide' : 'Show' }}
+          </button>
+        </div>
+        <span class="field-hint error" *ngIf="passwordCtrl.touched && passwordCtrl.hasError('required')">Password is required.</span>
+      </div>
+
+      <button type="submit" class="btn-create" [disabled]="loading">
+        {{ loading ? 'SIGNING IN...' : 'SIGN IN' }}
+      </button>
+
+      <div class="signin-row">
+        <span>Don't have an account?</span>
+        <a routerLink="/register" class="signin-link">Create Account</a>
+      </div>
+    </form>
+  </div>
+</div>

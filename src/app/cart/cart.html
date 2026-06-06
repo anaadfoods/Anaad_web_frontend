@@ -1,0 +1,148 @@
+<div class="cart-page-wrap">
+
+  <div class="page-header">
+    <span class="page-header-meta">Review &amp; Confirm</span>
+    <h1>Your Cart</h1>
+    <p class="page-header-sub">{{ cartState.itemCount() }} item{{ cartState.itemCount() !== 1 ? 's' : '' }} — free cold-chain shipping above ₹1,200</p>
+  </div>
+
+  <!-- AUTH NOTICE -->
+  <div class="auth-notice" *ngIf="!authState.isAuthenticated()">
+    <span>&#128274;</span>
+    <span>Please <a routerLink="/login" [queryParams]="{returnUrl: '/cart'}">sign in</a> to sync your cart and proceed to checkout.</span>
+  </div>
+
+  <div class="cart-layout" *ngIf="cartState.itemCount() > 0">
+
+    <!-- ITEMS COLUMN -->
+    <div class="cart-items-col">
+      <div class="cart-col-label">
+        <span></span>
+        <span>Product</span>
+        <span>Quantity</span>
+        <span>Price</span>
+        <span></span>
+      </div>
+
+      @for (item of cartState.items(); track item.product_variant) {
+      <div class="cart-item">
+        <img class="cart-item-img"
+             [src]="item.image || ''" appSafeImage
+             [alt]="item.product_name" />
+
+        <div class="cart-item-info">
+          <span class="cart-item-tag">Heirloom Staple</span>
+          <span class="cart-item-name">{{ item.product_name }}</span>
+          <span class="cart-item-variant" *ngIf="item.weight">{{ item.weight }}{{ item.unit }}</span>
+        </div>
+
+        <div class="qty-selector-wrap">
+          <app-qty-selector
+            [value]="item.quantity"
+            [min]="1"
+            [max]="20"
+            (valueChange)="updateQuantity(item.product_variant, $event)">
+          </app-qty-selector>
+        </div>
+
+        <span class="cart-item-price">{{ item.total_price | currencyInr }}</span>
+
+        <button type="button" class="cart-remove" (click)="removeItem(item.product_variant)" title="Remove item">&#215;</button>
+      </div>
+      }
+
+      <!-- Cart Footer -->
+      <div class="cart-footer">
+        <a routerLink="/products" class="btn-continue">
+          <span>&#8592;</span> Continue Shopping
+        </a>
+        <button type="button" class="btn-clear" (click)="clearCart()" [disabled]="clearingCart">
+          {{ clearingCart ? 'Clearing...' : 'Clear Cart' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- ORDER SUMMARY -->
+    <div class="order-summary-col">
+      <span class="summary-title">Order Summary</span>
+
+      <!-- DELIVERY ESTIMATOR -->
+      <div class="promo-wrap delivery-estimator">
+        <label class="promo-label">Check Delivery</label>
+        <div class="promo-input-row">
+          <input class="promo-input" type="text" [(ngModel)]="pincode" placeholder="Enter Pincode" maxlength="6" [disabled]="calculatingDelivery">
+          <button class="promo-apply" type="button" (click)="calculateDelivery()" [disabled]="calculatingDelivery || pincode.length !== 6">
+            {{ calculatingDelivery ? '...' : 'Check' }}
+          </button>
+        </div>
+        <span class="delivery-error" *ngIf="deliveryError">{{ deliveryError }}</span>
+        <div class="delivery-details" *ngIf="expectedDeliveryDate">
+          <span class="delivery-success">Estimated delivery by: <strong>{{ expectedDeliveryDate | date:'mediumDate' }}</strong></span>
+          <div class="delivery-charges" *ngIf="deliveryChargesObj">
+            <span class="charge-item" *ngIf="deliveryChargesObj.prepaid !== undefined">
+              Prepaid: <strong>{{ deliveryChargesObj.prepaid | currencyInr }}</strong>
+            </span>
+            <span class="charge-item" *ngIf="deliveryChargesObj.cod !== undefined">
+              COD: <strong>{{ deliveryChargesObj.cod | currencyInr }}</strong>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="summary-lines">
+        <div class="summary-row">
+          <span class="summary-label">Subtotal ({{ cartState.itemCount() }} item{{ cartState.itemCount() !== 1 ? 's' : '' }})</span>
+          <span class="summary-value">{{ cartState.totalPrice() | currencyInr }}</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">Cold-chain Shipping</span>
+          <span class="summary-value" [class.free]="getDeliveryCharge() === 0">
+            {{ getDeliveryCharge() === 0 ? 'Free' : (getDeliveryCharge() | currencyInr) }}
+          </span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">GST (5% Estimated)</span>
+          <span class="summary-value">{{ getGST() | currencyInr }}</span>
+        </div>
+        <div class="summary-divider"></div>
+        <div class="summary-total-row">
+          <span class="summary-total-label">Total</span>
+          <span class="summary-total-value">{{ getGrandTotal() | currencyInr }}</span>
+        </div>
+        <span class="summary-gst">Inclusive of all taxes</span>
+      </div>
+
+      <a routerLink="/checkout" class="btn-checkout" [class.disabled]="!authState.isAuthenticated()">
+        {{ authState.isAuthenticated() ? 'Proceed to Checkout' : 'Sign In to Checkout' }}
+      </a>
+
+      <div class="secure-note">
+        <span class="secure-icon">&#128274;</span>
+        <span>Secure 256-bit Encrypted Checkout</span>
+      </div>
+
+      <div class="trust-badges">
+        <div class="trust-badge-row">
+          <div class="badge-dot"></div>
+          <span class="badge-text">100% Traceable to the Farm</span>
+        </div>
+        <div class="trust-badge-row">
+          <div class="badge-dot"></div>
+          <span class="badge-text">SGS Lab Verified Zero-Residue</span>
+        </div>
+        <div class="trust-badge-row">
+          <div class="badge-dot"></div>
+          <span class="badge-text">Free returns within 48 hours</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EMPTY STATE -->
+  <div class="cart-empty" *ngIf="cartState.itemCount() === 0">
+    <div class="cart-empty-icon">&#9750;</div>
+    <h3>Your cart is empty</h3>
+    <p>Your pantry awaits the season's finest harvest. Explore our current heirloom offerings.</p>
+    <a routerLink="/products" class="btn-shop-now">Return to Pantry</a>
+  </div>
+</div>

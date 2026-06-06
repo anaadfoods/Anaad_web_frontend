@@ -1,0 +1,181 @@
+<div class="subscription-detail-page-wrap">
+  <!-- Payment Verification Overlay -->
+  <div class="payment-verification-overlay" *ngIf="isVerifyingPayment()">
+    <div class="verification-spinner-card">
+      <div class="loading-spinner-spinner"></div>
+      <h3>{{ verificationMessage() }}</h3>
+      <p>Confirming transaction details with the bank. Please do not close or refresh this page.</p>
+    </div>
+  </div>
+
+  <div class="loading-state" *ngIf="loading()">
+    <div class="loading-spinner"></div>
+    <span>Loading subscription details...</span>
+  </div>
+
+  <div class="error-state" *ngIf="error() && !loading()">
+    <span class="error-icon">⚠</span>
+    <span>{{ error() }}</span>
+    <a routerLink="/profile" class="btn-link">Back to Profile</a>
+  </div>
+
+  <ng-container *ngIf="subscriptionData() && !loading()">
+    <!-- SUB HERO -->
+    <div class="sub-hero">
+      <div class="sub-hero-top">
+        <div class="sub-hero-left">
+          <a routerLink="/profile" class="back-link">&#8592; Back to My Account</a>
+          <span class="sub-tag">Community Barn Agreement &mdash; {{ getPlanName() }}</span>
+          <h1>{{ getPlanName() }}</h1>
+          <p class="sub-hero-desc">Annual commitment to the land. First-harvest priority, full household grain supply, and a direct line to your farming family.</p>
+        </div>
+        <div class="sub-hero-right">
+          <span class="sub-status-badge" [style.color]="getStatusColor(subscriptionData()?.status || '')" style="border-color: currentColor;">
+            {{ subscriptionData()?.status }}
+          </span>
+          <span class="sub-price-cadence">renews {{ formatDate(subscriptionData()?.end_date) }}</span>
+        </div>
+      </div>
+      <div class="sub-stats-strip">
+        <div class="sub-stat">
+          <span class="sub-stat-val">{{ formatDate(subscriptionData()?.start_date) }}</span>
+          <span class="sub-stat-label">Member Since</span>
+        </div>
+        <div class="sub-stat">
+          <span class="sub-stat-val">{{ subscriptionData()?.items?.length }}</span>
+          <span class="sub-stat-label">Items</span>
+        </div>
+        <div class="sub-stat">
+          <span class="sub-stat-val">{{ getSubscriptionDuration() }}</span>
+          <span class="sub-stat-label">Duration</span>
+        </div>
+        <div class="sub-stat" *ngIf="subscriptionData()?.pause_start_date">
+          <span class="sub-stat-val">Paused</span>
+          <span class="sub-stat-label">Until {{ formatDate(subscriptionData()?.pause_end_date) }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- MANAGE BAR -->
+    <div class="manage-bar">
+      <span class="manage-action" *ngIf="canResume()" (click)="resumeSubscription()">Resume Subscription</span>
+      <span class="manage-action" *ngIf="canPause()" (click)="showPauseForm.set(!showPauseForm())">Pause Subscription</span>
+      <span class="manage-action danger" *ngIf="canPayInstallment()" (click)="payNextInstallment()" style="font-weight: 600;">Pay Now</span>
+      <span class="manage-action danger" *ngIf="canCancel()" (click)="cancelSubscription()">Cancel</span>
+    </div>
+
+    <div class="sub-body">
+      <div class="sub-left">
+        
+        <!-- PAUSE FORM -->
+        <div class="pause-form" *ngIf="showPauseForm()" style="margin-bottom: 40px; padding: 24px; border: 1px solid var(--amber-harvest);">
+          <h3 style="margin-top:0; font-family:var(--font-serif); color:var(--charcoal);">Pause Subscription</h3>
+          <div style="display:flex; gap:16px; align-items:flex-end;">
+            <div class="form-group" style="flex:1;">
+              <label style="display:block; font-size:12px; margin-bottom:4px; font-family:var(--font-sans);">Pause From</label>
+              <input type="date" [(ngModel)]="pauseStartDate" style="width:100%; padding:8px; border:1px solid rgba(26,26,26,0.2);" />
+            </div>
+            <div class="form-group" style="flex:1;">
+              <label style="display:block; font-size:12px; margin-bottom:4px; font-family:var(--font-sans);">Pause Until</label>
+              <input type="date" [(ngModel)]="pauseEndDate" style="width:100%; padding:8px; border:1px solid rgba(26,26,26,0.2);" />
+            </div>
+            <button class="btn-customise" [disabled]="pauseLoading()" (click)="pauseSubscription()">
+              {{ pauseLoading() ? 'Pausing...' : 'Confirm Pause' }}
+            </button>
+          </div>
+        </div>
+
+        <!-- ITEMS -->
+        <div>
+          <span class="section-tag">Items</span>
+          <h2 class="section-title">Subscription Contents</h2>
+          <div class="next-box-card">
+            <div class="next-box-header">
+              <div style="display:flex; flex-direction:column; gap:4px;">
+                <span class="next-box-date-label">Next Delivery</span>
+                <span class="next-box-date">{{ formatDate(subscriptionData()?.next_delivery_date) }}</span>
+              </div>
+            </div>
+            <div class="next-box-items">
+              @for (item of subscriptionData()?.items; track item.id) {
+              <div class="box-item-row">
+                <img class="box-item-img" src="https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=112&q=80" alt="Product" />
+                <div class="box-item-info">
+                  <span class="box-item-name">{{ getOrderItemName(item) }}</span>
+                </div>
+                <span class="box-item-qty">{{ item.quantity }} qty</span>
+              </div>
+              }
+              <div *ngIf="!subscriptionData()?.items || subscriptionData()?.items?.length === 0" style="padding: 24px; font-family:var(--font-sans); font-size:14px; color:rgba(26,26,26,0.6);">
+                No items in this subscription
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- INVOICES -->
+        <div style="margin-top: 56px;">
+          <span class="section-tag">History</span>
+          <h2 class="section-title">Invoices</h2>
+          <div class="dispatch-table" *ngIf="invoices().length > 0; else noSubscriptionInvoices">
+            <div class="dispatch-head" style="grid-template-columns: 1fr 100px;">
+              <span>Invoice</span>
+              <span>Action</span>
+            </div>
+            @for (invoice of invoices(); track invoice.id) {
+            <div class="dispatch-row" style="grid-template-columns: 1fr 100px;">
+              <span class="dispatch-contents">{{ invoice.display_name }}</span>
+              <button class="btn-skip-box" (click)="downloadInvoice(invoice.s3_url)" style="background:transparent; border:none; color:var(--green-deep); text-align:left;">Download</button>
+            </div>
+            }
+          </div>
+          <ng-template #noSubscriptionInvoices>
+            <div class="empty-state mini" style="padding: 24px; text-align: center; border: 1px dashed rgba(26,26,26,0.15); border-radius: 8px;">
+              <p style="margin: 0; color: rgba(26,26,26,0.6); font-family: var(--font-sans); font-size: 14px;">No invoices generated yet for this subscription.</p>
+            </div>
+          </ng-template>
+        </div>
+
+      </div>
+
+      <!-- RIGHT -->
+      <div class="sub-right">
+        <span class="sidebar-title">Delivery Info</span>
+        <div class="detail-rows">
+          <div class="detail-row">
+            <span class="detail-label">Recipient</span>
+            <span class="detail-value">{{ subscriptionData()?.recipient_name }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Address</span>
+            <span class="detail-value">
+              {{ subscriptionData()?.delivery_address }}<br/>
+              {{ subscriptionData()?.delivery_city }}, {{ subscriptionData()?.delivery_state }} - {{ subscriptionData()?.delivery_pincode }}
+            </span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Phone</span>
+            <span class="detail-value">{{ subscriptionData()?.delivery_phone }}</span>
+          </div>
+        </div>
+        <div class="sidebar-divider"></div>
+
+        <span class="sidebar-title" style="margin-top:16px;">Payment Info</span>
+        <div class="detail-rows">
+          <div class="detail-row">
+            <span class="detail-label">Method</span>
+            <span class="detail-value">{{ subscriptionData()?.payment_type }}</span>
+          </div>
+          <div class="detail-row" *ngIf="paymentStatus()">
+            <span class="detail-label">Status</span>
+            <span class="detail-value" [style.color]="paymentStatus()?.payment_status === 'PAID' ? 'var(--green-deep)' : 'inherit'">{{ paymentStatus()?.payment_status }}</span>
+          </div>
+          <div class="detail-row" *ngIf="paymentStatus()">
+            <span class="detail-label">Amount</span>
+            <span class="detail-value">{{ paymentStatus()?.amount | currencyInr }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</div>

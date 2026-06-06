@@ -1,27 +1,211 @@
-<section class="contact container">
-  <h2>Contact Us</h2>
-  <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
-    <label>
-      Name
-      <input type="text" formControlName="name" placeholder="Your name" />
-      @if (f.name.touched && f.name.invalid) {
-        <small class="err">Name is required (min 2 chars)</small>
-      }
-    </label>
-    <label>
-      Email
-      <input type="email" formControlName="email" placeholder="you@example.com" />
-      @if (f.email.touched && f.email.invalid) {
-        <small class="err">Valid email required</small>
-      }
-    </label>
-    <label>
-      Message
-      <textarea rows="5" formControlName="message" placeholder="How can we help?"></textarea>
-      @if (f.message.touched && f.message.invalid) {
-        <small class="err">Message is required (min 10 chars)</small>
-      }
-    </label>
-    <button class="btn btn-primary" type="submit">Send</button>
-  </form>
-</section>
+<div class="contact-page-wrap">
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-inner">
+      <span class="hero-eyebrow">Reach Out</span>
+      <h1>We're Listening</h1>
+      <p class="hero-sub">Whether you have a question about our grains, a concern about your order, or simply want to talk soil — our team responds to every message personally.</p>
+    </div>
+  </section>
+
+  <!-- PAGE BODY -->
+  <div class="page-body">
+
+    <!-- FORM -->
+    <div class="form-section">
+      <div>
+        <p class="section-title">Send Us a Message</p>
+        <p class="section-lead" style="margin-top:10px;">Fill out the form below and a member of our team will get back to you within 24–48 hours on weekdays.</p>
+      </div>
+
+      <div class="form-error" *ngIf="errorMessage()">{{ errorMessage() }}</div>
+      <div class="form-success" *ngIf="successMessage()">{{ successMessage() }}</div>
+
+      <form class="contact-form" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+        <div class="form-row">
+          <div class="field-group">
+            <label>First Name</label>
+            <input type="text" formControlName="firstName" placeholder="Arjun" [class.error]="f.firstName.invalid && f.firstName.touched">
+          </div>
+          <div class="field-group">
+            <label>Last Name</label>
+            <input type="text" formControlName="lastName" placeholder="Sharma" [class.error]="f.lastName.invalid && f.lastName.touched">
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label>Email Address</label>
+          <input type="email" formControlName="email" placeholder="arjun@example.com" [class.error]="f.email.invalid && f.email.touched">
+        </div>
+
+        <div class="field-group">
+          <label>Phone Number (10 digits)</label>
+          <div class="phone-input-wrap" style="display:flex; align-items:center;">
+            <span style="padding: 12px 14px; background: #f7f9f7; border: 1px solid var(--border-color); border-right: none; border-radius: 6px 0 0 6px; color: #555;">+91</span>
+            <input type="tel" formControlName="phone" placeholder="9876543210" style="border-radius: 0 6px 6px 0;" [class.error]="f.phone.invalid && f.phone.touched">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="field-group">
+            <label>Requirement Type</label>
+            <select formControlName="requirementType" [class.error]="f.requirementType.invalid && f.requirementType.touched">
+              <option value="INDIVIDUAL">Individual</option>
+              <option value="FAMILY">Family</option>
+              <option value="B2B">B2B / Wholesale</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label>Business or Family Name</label>
+            <input type="text" formControlName="businessOrFamilyName" placeholder="e.g. Sharma Family or Anaad Café">
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label>Topic / Category</label>
+          <select formControlName="topic" [class.error]="f.topic.invalid && f.topic.touched">
+            <option disabled>Select a topic...</option>
+            <option>Order Inquiry</option>
+            <option>Product Information</option>
+            <option>Subscription Management</option>
+            <option>Complaint / Issue</option>
+            <option>Remote Farming Program (RFP)</option>
+            <option>Wholesale / Bulk Orders</option>
+            <option>Media / Press</option>
+            <option>Farmer Partnership</option>
+            <option>General Feedback</option>
+          </select>
+        </div>
+
+        <div class="field-group">
+          <label>Your Message</label>
+          <textarea formControlName="message" placeholder="Tell us what's on your mind. Include your order number if it's related to a purchase..." [class.error]="f.message.invalid && f.message.touched"></textarea>
+        </div>
+
+        <div class="field-group">
+          <label>Order Number (if applicable)</label>
+          <input type="text" formControlName="orderNumber" placeholder="ANF-2025-XXXXX">
+        </div>
+
+        <div class="field-group checkbox-group" style="flex-direction:row; gap:10px; align-items:center;">
+          <input type="checkbox" id="rfpCheck" formControlName="isFromRfp" style="width:auto; margin:0;">
+          <label for="rfpCheck" style="margin:0; font-weight:normal; cursor:pointer;">This is related to the Remote Farming Program (RFP)</label>
+        </div>
+
+        <button type="submit" class="submit-btn" [disabled]="isSubmitting()">
+          {{ isSubmitting() ? 'SENDING...' : 'Send Message &#8594;' }}
+        </button>
+        <p class="privacy-note">By submitting, you agree to our <a routerLink="/privacy-policy">Privacy Policy</a>. We will never share your information with third parties.</p>
+      </form>
+    </div>
+
+    <!-- INFO SIDE -->
+    <div class="info-side">
+
+      <div class="response-strip">
+        <span class="response-icon">&#9200;</span>
+        <p class="response-text"><strong>Typical response time: 24–48 hours</strong> on weekdays. Urgent complaints are addressed within 4 hours during business hours (9 AM – 6 PM IST).</p>
+      </div>
+
+      <div class="info-card">
+        <p class="info-card-title">Get in Touch Directly</p>
+
+        <div class="info-item">
+          <div class="info-icon">&#128222;</div>
+          <div class="info-text">
+            <span class="info-label">Phone</span>
+            <span class="info-value"><a href="tel:+919996166186">+91 9996 166 186</a></span>
+          </div>
+        </div>
+
+        <div class="info-item">
+          <div class="info-icon">&#9993;</div>
+          <div class="info-text">
+            <span class="info-label">General Enquiries</span>
+            <span class="info-value"><a href="mailto:connect@anaadfoods.com">connect@anaadfoods.com</a></span>
+          </div>
+        </div>
+
+        <div class="info-item">
+          <div class="info-icon">&#128712;</div>
+          <div class="info-text">
+            <span class="info-label">Complaints &amp; Escalations</span>
+            <span class="info-value"><a href="mailto:complaints@anaadfoods.com">complaints@anaadfoods.com</a></span>
+          </div>
+        </div>
+
+        <div class="info-item">
+          <div class="info-icon">&#128337;</div>
+          <div class="info-text">
+            <span class="info-label">Business Hours</span>
+            <span class="info-value">Monday – Saturday, 9:00 AM – 6:00 PM IST</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="address-card">
+        <span class="address-tag">Our Farm Office</span>
+        <p class="address-card-title">Find Us on the Ground</p>
+        <p class="address-line">
+          ANAAD Foods Pvt. Ltd.<br>
+          Village Farmstead, ICBN Agriculture Zone<br>
+          Sonipat, Haryana – 131101<br>
+          India
+        </p>
+      </div>
+
+      <div class="info-card">
+        <p class="info-card-title">Useful Links</p>
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <a routerLink="/registry" style="font-size:14px; color:var(--deep-green); text-decoration:none; padding:10px 14px; background:var(--light-green); border-radius:6px; font-weight:500;">&#128196; Batch Traceability Registry</a>
+          <a routerLink="/profile" style="font-size:14px; color:var(--deep-green); text-decoration:none; padding:10px 14px; background:var(--light-green); border-radius:6px; font-weight:500;">&#128100; Manage My Account</a>
+          <a routerLink="/profile" [queryParams]="{tab: 'subscriptions'}" style="font-size:14px; color:var(--deep-green); text-decoration:none; padding:10px 14px; background:var(--light-green); border-radius:6px; font-weight:500;">&#128210; My Subscription Details</a>
+          <a routerLink="/rfp" style="font-size:14px; color:var(--deep-green); text-decoration:none; padding:10px 14px; background:var(--light-green); border-radius:6px; font-weight:500;">&#127807; Remote Farming Program</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MISSION BAND -->
+  <div class="mission-band">
+    <div class="mission-inner">
+      <p class="mission-quote">"Every message we receive is a reminder that real food starts with real relationships — between farmers, families, and the soil that feeds them."</p>
+      <p class="mission-attr">— ANAAD Foods Team, Sonipat</p>
+    </div>
+  </div>
+
+  <!-- FAQ -->
+  <section class="faq-section" style="padding-top:72px;">
+    <div class="faq-header">
+      <h2>Frequently Asked Questions</h2>
+      <p>Quick answers to the questions we hear most often.</p>
+    </div>
+    <div class="faq-grid">
+      <div class="faq-item">
+        <p class="faq-q">How do I track my order?</p>
+        <p class="faq-a">Log in to your account and visit the Orders section. Each order has a live tracking timeline from farm dispatch to your doorstep. You'll also receive SMS and email updates at every stage.</p>
+      </div>
+      <div class="faq-item">
+        <p class="faq-q">Can I pause or cancel my subscription?</p>
+        <p class="faq-a">Yes — you can pause, skip a dispatch, or cancel your CBA subscription at any time from the Subscription Details page in your account. No lock-in, no penalty.</p>
+      </div>
+      <div class="faq-item">
+        <p class="faq-q">What is ICBN farming and how is it certified?</p>
+        <p class="faq-a">ICBN stands for Indian Cow Based Natural farming — a regenerative method using local cow breeds' dung and urine. Our produce is SGS India certified for residue-free status after a 90-day monitoring period.</p>
+      </div>
+      <div class="faq-item">
+        <p class="faq-q">Do you accept bulk or institutional orders?</p>
+        <p class="faq-a">Yes, we work with restaurants, health clinics, and corporate wellness programmes. Email us at connect@anaadfoods.com with your requirements and we'll share our wholesale pricing sheet.</p>
+      </div>
+      <div class="faq-item">
+        <p class="faq-q">What is your return / refund policy?</p>
+        <p class="faq-a">If you receive a damaged or incorrect product, raise a complaint within 48 hours of delivery with a photo. We replace or refund within 5 business days — no questions asked.</p>
+      </div>
+      <div class="faq-item">
+        <p class="faq-q">How do I join the Remote Farming Program?</p>
+        <p class="faq-a">Visit the RFP page and choose your tier — either the Family Mini Farm or Contract Farming with ANAAD. Submit an inquiry form and our team will contact you with next steps within 72 hours.</p>
+      </div>
+    </div>
+  </section>
+</div>
