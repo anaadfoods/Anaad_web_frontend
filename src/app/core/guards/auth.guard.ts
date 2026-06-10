@@ -28,6 +28,7 @@ export const guestGuard: CanActivateFn = (route, state) => {
 
   if (!authState.isAuthenticated()) return true;
 
-  router.navigate(['/profile']);
+  const returnUrl = route.queryParams['returnUrl'] || '/profile';
+  router.navigateByUrl(returnUrl);
   return false;
 };

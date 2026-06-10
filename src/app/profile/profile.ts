@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../core/services/auth.service';
@@ -21,6 +21,7 @@ import { PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-profile',
   standalone: true,
   imports: [CommonModule, CurrencyInrPipe, ReactiveFormsModule, RouterLink],
@@ -60,6 +61,13 @@ export class Profile implements OnInit {
   deactivateError = signal<string>('');
   editAddressMode = signal<boolean>(false);
   isSidebarOpen = signal<boolean>(false);
+  activeSubTab = signal<string>('ACTIVE');
+  filteredSubscriptions = computed(() => {
+    const all = this.subscriptionsData();
+    const tab = this.activeSubTab();
+    if (tab === 'ALL') return all;
+    return all.filter(s => s.status === tab);
+  });
 
   profileForm = this.fb.group({
     username: ['', Validators.required],
@@ -168,13 +176,18 @@ export class Profile implements OnInit {
     this.actionMessage.set('');
     this.error.set('');
     const raw = this.profileForm.getRawValue();
+    const current = this.profileData() || {} as UserProfile;
     const payload: ProfileUpdateRequest = {
-      username: raw.username ?? '',
-      email: raw.email ?? '',
-      first_name: raw.first_name ?? '',
-      last_name: raw.last_name ?? '',
-      phone_number: raw.phone_number ?? '',
-      gender: (raw.gender ?? '') as ProfileUpdateRequest['gender'],
+      username: raw.username ?? current.username ?? '',
+      email: raw.email ?? current.email ?? '',
+      first_name: raw.first_name ?? current.first_name ?? '',
+      last_name: raw.last_name ?? current.last_name ?? '',
+      phone_number: raw.phone_number ?? current.phone_number ?? '',
+      gender: (raw.gender ?? current.gender ?? '') as ProfileUpdateRequest['gender'],
+      address: current.address ?? '',
+      city: current.city ?? '',
+      state: current.state ?? '',
+      pincode: current.pincode ?? '',
     };
 
     this.profileSvc.updateProfile(payload).pipe(
@@ -198,11 +211,18 @@ export class Profile implements OnInit {
     this.actionMessage.set('');
     this.error.set('');
     const raw = this.addressForm.getRawValue();
+    const current = this.profileData() || {} as UserProfile;
     const payload: ProfileUpdateRequest = {
-      address: raw.address ?? '',
-      city: raw.city ?? '',
-      state: raw.state ?? '',
-      pincode: raw.pincode ?? '',
+      username: current.username ?? '',
+      email: current.email ?? '',
+      first_name: current.first_name ?? '',
+      last_name: current.last_name ?? '',
+      phone_number: current.phone_number ?? '',
+      gender: current.gender as ProfileUpdateRequest['gender'],
+      address: raw.address ?? current.address ?? '',
+      city: raw.city ?? current.city ?? '',
+      state: raw.state ?? current.state ?? '',
+      pincode: raw.pincode ?? current.pincode ?? '',
     };
 
     this.profileSvc.updateProfile(payload).pipe(

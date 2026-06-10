@@ -1,22 +1,29 @@
-import { Component, OnInit, PLATFORM_ID, inject, signal } from '@angular/core';
+import { take } from 'rxjs';
+import { LogService } from '../core/services/log.service';
+import { Component, OnInit, PLATFORM_ID, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { isPlatformBrowser, CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { Title, Meta } from '@angular/platform-browser';
 import { RevealOnScrollDirective } from '../shared/reveal-on-scroll.directive';
-import { PlansService, PlanCard } from '../shared/services/plans.service';
-import { ProductsService, ProductCard } from '../shared/services/products.service';
+import { PlansService, PlanCard } from '../core/services/plans.service';
+import { ProductsService, ProductCard } from '../core/services/products-public.service';
 import { AuthState } from '../core/state/auth.state';
 import { SubscriptionService } from '../core/services/subscription.service';
 import { Subscription } from '../core/models/subscription.model';
+import { ProductService } from '../core/services/product.service';
+import { ProductVariant } from '../core/models/product.model';
+import { CurrencyInrPipe } from '../shared/pipes/currency-inr.pipe';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-home',
   standalone: true,
-  imports: [RouterLink, RevealOnScrollDirective, CommonModule],
+  imports: [RouterLink, RevealOnScrollDirective, CommonModule, CurrencyInrPipe],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss']
 })
 export class HomeComponent implements OnInit {
+  private readonly logSvc = inject(LogService);
   private plansSvc = inject(PlansService);
   private productsSvc = inject(ProductsService);
   private router = inject(Router);
@@ -25,16 +32,22 @@ export class HomeComponent implements OnInit {
   private subscriptionSvc = inject(SubscriptionService);
   private titleSvc = inject(Title);
   private metaSvc = inject(Meta);
+  private productService = inject(ProductService);
   
   activeSubscriptions = signal<Subscription[]>([]);
   
-  subscriptionPlans: PlanCard[] = [];
-  loadingPlans = true;
-  plansError = '';
+  subscriptionPlans = signal<PlanCard[]>([]);
+  loadingPlans = signal<boolean>(true);
+  plansError = signal<string>('');
   
-  products: ProductCard[] = [];
-  loadingProducts = true;
-  productsError = '';
+  products = signal<ProductCard[]>([]);
+  loadingProducts = signal<boolean>(true);
+  productsError = signal<string>('');
+
+  tierProducts = signal<Record<string, any[]>>({});
+  tierSelectedVariant = signal<Record<string, number | null>>({});
+  tierPricingData = signal<Record<string, { price: number, discount: number }>>({});
+  allVariants = signal<ProductVariant[]>([]);
 
   getProductSubcopy(name: string): string {
     if (!name) return 'Heirloom Staple';
@@ -56,7 +69,7 @@ export class HomeComponent implements OnInit {
     if (isPlatformBrowser(this.platformId)) {
       
       if (this.authState.isAuthenticated()) {
-        this.subscriptionSvc.getSubscriptions().subscribe({
+        this.subscriptionSvc.getSubscriptions().pipe(take(1)).subscribe({
           next: subs => {
             const active = subs.filter(s => s.status !== 'CANCELLED' && s.status !== 'EXPIRED');
             this.activeSubscriptions.set(active);
@@ -65,42 +78,142 @@ export class HomeComponent implements OnInit {
       }
 
       // Load subscription plans
-      this.plansSvc.getPlans().subscribe({
+      // Load all product variants
+      this.productService.getVariants().pipe(take(1)).subscribe({
+        next: (variants) => {
+          this.allVariants.set(variants);
+        }
+      });
+
+      // Load subscription plans
+      this.plansSvc.getPlans().pipe(take(1)).subscribe({
         next: plans => {
-          this.subscriptionPlans = plans;
-          console.log('[Plans] Loaded', plans?.length ?? 0, 'items');
-          this.loadingPlans = false;
+          this.subscriptionPlans.set(plans);
+          this.logSvc.debug('[Plans] Loaded', plans?.length ?? 0, 'items');
+          this.loadingPlans.set(false);
+
+          // Eagerly load products for each plan
+          const productMap: Record<string, any[]> = {};
+          const selectedMap: Record<string, number | null> = {};
+          
+          plans.forEach(plan => {
+            productMap[plan.id] = [];
+            selectedMap[plan.id] = null;
+            
+            this.subscriptionSvc.getPlanProducts(Number(plan.id)).subscribe({
+              next: (res) => {
+                const variants = res?.variants ?? [];
+                const current = { ...this.tierProducts() };
+                current[plan.id] = variants;
+                this.tierProducts.set(current);
+
+                // Automatically select first product if variants available
+                if (variants.length > 0) {
+                  const currentSelected = { ...this.tierSelectedVariant() };
+                  currentSelected[plan.id] = variants[0].variant_id;
+                  this.tierSelectedVariant.set(currentSelected);
+                  this.fetchTierPrice(plan.id, variants[0].variant_id);
+                }
+              },
+              error: () => {}
+            });
+          });
+          
+          this.tierProducts.set(productMap);
+          this.tierSelectedVariant.set(selectedMap);
         },
         error: err => {
-          this.plansError = 'Unable to load plans. Please try again later.';
-          this.loadingPlans = false;
-          console.error('Plans load failed', err);
+          this.plansError.set('Unable to load plans. Please try again later.');
+          this.loadingPlans.set(false);
+          this.logSvc.error('Plans load failed', err);
         }
       });
 
       // Load featured products
-      this.productsSvc.getFirstFourProducts().subscribe({
+      this.productsSvc.getFirstFourProducts().pipe(take(1)).subscribe({
         next: products => {
-          this.products = products;
-          console.log('[Products] Loaded', products?.length ?? 0, 'items');
-          this.loadingProducts = false;
+          this.products.set(products);
+          this.logSvc.debug('[Products] Loaded', products?.length ?? 0, 'items');
+          this.loadingProducts.set(false);
         },
         error: err => {
-          this.productsError = 'Unable to load products. Please try again later.';
-          this.loadingProducts = false;
-          console.error('Products load failed', err);
+          this.productsError.set('Unable to load products. Please try again later.');
+          this.loadingProducts.set(false);
+          this.logSvc.error('Products load failed', err);
         }
       });
     } else {
       // Avoid SSR network calls to external API; show loading until hydration, then client fetch will fill in
-      this.loadingPlans = true;
-      this.loadingProducts = true;
+      this.loadingPlans.set(true);
+      this.loadingProducts.set(true);
     }
   }
 
-  onPlanSelected(plan: PlanCard) {
-    // Navigate to register with selected plan id as a query param
-    this.router.navigate(['/register'], { queryParams: { planId: plan.id } }).catch(() => {});
+  onTierProductSelect(planId: string, event: any) {
+    const val = event.target.value;
+    const current = { ...this.tierSelectedVariant() };
+    current[planId] = val ? Number(val) : null;
+    this.tierSelectedVariant.set(current);
+    if (val) this.fetchTierPrice(planId, Number(val));
+  }
+
+  fetchTierPrice(planId: string, variantId: number) {
+    this.subscriptionSvc.getPlanPricesByVariant(variantId).subscribe({
+      next: (prices) => {
+        const planPriceObj = prices.find(p => p.plan_id.toString() === planId);
+        if (planPriceObj) {
+          const current = { ...this.tierPricingData() };
+          current[planId] = { price: planPriceObj.discounted_price, discount: planPriceObj.discount_percentage };
+          this.tierPricingData.set(current);
+        }
+      }
+    });
+  }
+
+  goToProduct(planId: string) {
+    const variantId = this.tierSelectedVariant()[planId];
+    if (!variantId) return;
+
+    this.router.navigate([`/products/${variantId}`], {
+      queryParams: {
+        subscribe: 'true',
+        plan_id: Number(planId)
+      }
+    });
+  }
+
+  getDiscountedMonthlyPrice(planId: string): number {
+    const data = this.tierPricingData()[planId];
+    if (data) return data.price;
+
+    const plan = this.subscriptionPlans().find(p => p.id === planId);
+    const variantId = this.tierSelectedVariant()[planId];
+    if (!plan || !variantId) return 0;
+    
+    const variant = this.allVariants().find(v => v.id === variantId);
+    if (!variant) return 0;
+    
+    const basePrice = parseFloat(variant.price) || 0;
+    const discount = plan.totalDiscountPercentage || 0;
+    return Math.round(basePrice * (1 - discount / 100));
+  }
+
+  getOriginalPrice(planId: string): number {
+    const variantId = this.tierSelectedVariant()[planId];
+    if (!variantId) return 0;
+    
+    const variant = this.allVariants().find(v => v.id === variantId);
+    if (!variant) return 0;
+    
+    return parseFloat(variant.price) || 0;
+  }
+
+  getSavingsPercentage(planId: string): number {
+    const data = this.tierPricingData()[planId];
+    if (data) return Math.round(data.discount);
+
+    const plan = this.subscriptionPlans().find(p => p.id === planId);
+    return plan ? Math.round(plan.totalDiscountPercentage ?? 0) : 0;
   }
 
   formatBg(url: string): string {

@@ -1,3 +1,4 @@
+import { LogService } from '../core/services/log.service';
 // ============================================
 // PaymentFailure Component
 //
@@ -14,11 +15,12 @@
 //   3. Offers retry → /checkout or browse → /products
 // ============================================
 
-import { Component, OnInit, inject, PLATFORM_ID } from '@angular/core';
+import { Component, OnInit, inject, PLATFORM_ID, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-payment-failure',
   standalone: true,
   imports: [CommonModule, RouterLink],
@@ -26,6 +28,7 @@ import { Router, ActivatedRoute, RouterLink } from '@angular/router';
   styleUrl: './payment-failure.scss',
 })
 export class PaymentFailure implements OnInit {
+  private readonly logSvc = inject(LogService);
   private readonly router     = inject(Router);
   private readonly route      = inject(ActivatedRoute);
   private readonly platformId = inject(PLATFORM_ID);
@@ -54,7 +57,7 @@ export class PaymentFailure implements OnInit {
       this.isSubscription = storedType === 'subscription';
       this.orderNumber    = storedNumber || '';
 
-      console.log('[PaymentFailure] Context resolved:', {
+      this.logSvc.debug('[PaymentFailure] Context resolved:', {
         orderId: this.orderId,
         isSubscription: this.isSubscription,
         orderNumber: this.orderNumber,

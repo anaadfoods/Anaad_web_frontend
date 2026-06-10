@@ -99,7 +99,7 @@
           <span class="sr-value">{{ getSubtotal() | currencyInr }}</span>
         </div>
         <div class="sr-row">
-          <span class="sr-label">Shipping</span>
+          <span class="sr-label">COD Charges</span>
           <span class="sr-value" [class.green]="getDeliveryCharge() === 0">
             <ng-container *ngIf="getDeliveryCharge() === 0">&#10003; Free</ng-container>
             <ng-container *ngIf="getDeliveryCharge() > 0">{{ getDeliveryCharge() | currencyInr }}</ng-container>

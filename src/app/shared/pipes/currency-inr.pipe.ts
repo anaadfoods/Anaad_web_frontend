@@ -23,16 +23,19 @@ export class CurrencyInrPipe implements PipeTransform {
     const num = typeof value === 'string' ? parseFloat(value) : value;
     if (isNaN(num)) return '₹0';
 
+    const absoluteNum = Math.abs(num);
+    const sign = num < 0 ? '-' : '';
+
     if (showDecimals) {
-      return `₹${num.toLocaleString('en-IN', {
+      return `${sign}₹${absoluteNum.toLocaleString('en-IN', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
       })}`;
     }
 
     // No decimals if whole number, else 2 decimals
-    const isWhole = num % 1 === 0;
-    return `₹${num.toLocaleString('en-IN', {
+    const isWhole = absoluteNum % 1 === 0;
+    return `${sign}₹${absoluteNum.toLocaleString('en-IN', {
       minimumFractionDigits: isWhole ? 0 : 2,
       maximumFractionDigits: 2,
     })}`;

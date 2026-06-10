@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ProductService } from '../../core/services/product.service';
@@ -19,6 +19,7 @@ import { TruncatePipe } from '../../shared/pipes/truncate.pipe';
 import { forkJoin, catchError, of } from 'rxjs';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-product-detail',
   standalone: true,
   imports: [CommonModule, RouterLink, CurrencyInrPipe, SafeImageDirective, QtySelectorComponent, SkeletonLoaderComponent, TruncatePipe],
@@ -47,6 +48,7 @@ export class ProductDetail implements OnInit {
   selectedImageIndex = signal<number>(0);
 
   subscriptionPlans = signal<SubscriptionPlan[]>([]);
+  planPrices = signal<{plan_id: number, plan_name: string, discounted_price: number, discount_percentage: number}[]>([]);
   eligiblePlanIds = signal<number[]>([]);
   purchaseType = signal<'single' | 'subscription'>('single');
   selectedPlanId = signal<number | null>(null);
@@ -61,7 +63,11 @@ export class ProductDetail implements OnInit {
       next: (plans) => {
         const activePlans = plans.filter(p => p.is_active);
         this.subscriptionPlans.set(activePlans);
-        // We will fetch eligible plans after the variant loads
+        
+        const currentVariant = this.variant();
+        if (currentVariant) {
+          this.checkPlanEligibility(currentVariant.id);
+        }
       },
       error: () => console.error('Failed to load subscription plans')
     });
@@ -84,30 +90,34 @@ export class ProductDetail implements OnInit {
   }
 
   checkPlanEligibility(variantId: number) {
-    const activePlans = this.subscriptionPlans();
-    if (activePlans.length === 0) return;
+    this.subscriptionSvc.getPlanPricesByVariant(variantId).subscribe({
+      next: (prices) => {
+        this.planPrices.set(prices);
+        const eligibleIds = prices.map(p => p.plan_id);
+        this.eligiblePlanIds.set(eligibleIds);
 
-    const requests = activePlans.map(plan => 
-      this.subscriptionSvc.getPlanProducts(plan.id).pipe(catchError(() => of(null)))
-    );
+        if (eligibleIds.length > 0) {
+          const isSubscribeAction = this.route.snapshot.queryParamMap.get('subscribe') === 'true';
+          const queryPlanId = this.route.snapshot.queryParamMap.get('plan_id');
+          const parsedPlanId = queryPlanId ? Number(queryPlanId) : null;
 
-    forkJoin(requests).subscribe(responses => {
-      const eligibleIds: number[] = [];
-      responses.forEach((res, index) => {
-        if (res && res.variants.some((v: any) => v.variant_id === variantId)) {
-          eligibleIds.push(activePlans[index].id);
-        }
-      });
-      this.eligiblePlanIds.set(eligibleIds);
-      if (eligibleIds.length > 0) {
-        const isSubscribeAction = this.route.snapshot.queryParamMap.get('subscribe') === 'true';
-        if (isSubscribeAction) {
-          this.purchaseType.set('subscription');
-          this.selectedPlanId.set(eligibleIds[eligibleIds.length - 1]);
+          if (parsedPlanId && eligibleIds.includes(parsedPlanId)) {
+            this.purchaseType.set('subscription');
+            this.selectedPlanId.set(parsedPlanId);
+          } else if (isSubscribeAction) {
+            this.purchaseType.set('subscription');
+            this.selectedPlanId.set(eligibleIds[eligibleIds.length - 1]);
+          } else {
+            this.selectedPlanId.set(eligibleIds[0]);
+          }
         } else {
-          this.selectedPlanId.set(eligibleIds[0]);
+          this.selectedPlanId.set(null);
+          this.purchaseType.set('single');
         }
-      } else {
+      },
+      error: () => {
+        this.planPrices.set([]);
+        this.eligiblePlanIds.set([]);
         this.selectedPlanId.set(null);
         this.purchaseType.set('single');
       }
@@ -182,7 +192,10 @@ export class ProductDetail implements OnInit {
     const v = this.variant();
     if (!v || !this.hasStock()) return;
     if (!this.authState.isAuthenticated()) {
-      this.router.navigate(['/login'], { queryParams: { returnUrl: `/products/${v.id}` } });
+      const returnUrl = this.purchaseType() === 'subscription' && this.selectedPlanId()
+        ? `/products/${v.id}?subscribe=true&plan_id=${this.selectedPlanId()}`
+        : `/products/${v.id}`;
+      this.router.navigate(['/login'], { queryParams: { returnUrl } });
       return;
     }
 
@@ -200,12 +213,16 @@ export class ProductDetail implements OnInit {
   }
 
   get discountedSubscriptionPrice(): number {
-    const v = this.variant();
     const planId = this.selectedPlanId();
-    if (!v || !planId) return 0;
+    if (!planId) return 0;
     
+    const planPriceObj = this.planPrices().find(p => p.plan_id === planId);
+    if (planPriceObj) return planPriceObj.discounted_price;
+    
+    // Fallback if not found in API response
+    const v = this.variant();
     const plan = this.subscriptionPlans().find(p => p.id === planId);
-    const basePrice = parseFloat(v.price) || 0;
+    const basePrice = v ? (parseFloat(v.price) || 0) : 0;
     
     if (plan && plan.discount_percentage) {
       const discount = parseFloat(plan.discount_percentage);
@@ -215,9 +232,12 @@ export class ProductDetail implements OnInit {
   }
 
   getPlanPrice(plan: SubscriptionPlan): number {
+    const planPriceObj = this.planPrices().find(p => p.plan_id === plan.id);
+    if (planPriceObj) return planPriceObj.discounted_price;
+
+    // Fallback if not found in API response
     const v = this.variant();
-    if (!v) return 0;
-    const basePrice = parseFloat(v.price) || 0;
+    const basePrice = v ? (parseFloat(v.price) || 0) : 0;
     const discount = parseFloat(plan.discount_percentage) || 0;
     return basePrice - (basePrice * (discount / 100));
   }
@@ -240,7 +260,10 @@ export class ProductDetail implements OnInit {
     const v = this.variant();
     if (!v) return;
     if (!this.authState.isAuthenticated()) {
-      this.router.navigate(['/login'], { queryParams: { returnUrl: `/products/${v.id}` } });
+      const returnUrl = this.purchaseType() === 'subscription' && this.selectedPlanId()
+        ? `/products/${v.id}?subscribe=true&plan_id=${this.selectedPlanId()}`
+        : `/products/${v.id}`;
+      this.router.navigate(['/login'], { queryParams: { returnUrl } });
       return;
     }
     this.togglingFavorite.set(true);

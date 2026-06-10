@@ -1,10 +1,11 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { LogService } from '../core/services/log.service';
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { UserQueriesService, UserQueryPayload } from '../shared/services/user-queries.service';
-import { RegistrationSourceService } from '../shared/services/registration-source.service';
+import { UserQueriesService, UserQueryPayload } from '../core/services/user-queries.service';
+import { RegistrationSourceService } from '../core/services/registration-source.service';
 
 interface MemberCountResponse {
   success: boolean;
@@ -13,6 +14,7 @@ interface MemberCountResponse {
 }
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-join-waitlist',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
@@ -20,6 +22,8 @@ interface MemberCountResponse {
   styleUrls: ['./join-waitlist.component.scss']
 })
 export class JoinWaitlistComponent implements OnInit {
+  private readonly logSvc = inject(LogService);
+  private readonly platformId = inject(PLATFORM_ID);
   private fb = inject(FormBuilder);
   private router = inject(Router);
   private http = inject(HttpClient);
@@ -66,6 +70,10 @@ export class JoinWaitlistComponent implements OnInit {
   }
 
   private fetchMemberCount(): void {
+    if (!isPlatformBrowser(this.platformId)) {
+      this.isCountLoading.set(false);
+      return;
+    }
     this.http.get<MemberCountResponse>('/api/user-query/count/').subscribe({
       next: (response) => {
         if (response.success && response.count) {
@@ -75,7 +83,7 @@ export class JoinWaitlistComponent implements OnInit {
         this.isCountLoading.set(false);
       },
       error: (err) => {
-        console.error('Failed to fetch member count:', err);
+        this.logSvc.error('Failed to fetch member count:', err);
         this.memberCount.set(1000);
         this.displayCount.set(1000);
         this.isCountLoading.set(false);
@@ -102,15 +110,15 @@ export class JoinWaitlistComponent implements OnInit {
   }
 
   onSubmit() {
-    console.log('Form submit triggered');
+    this.logSvc.debug('Form submit triggered');
     this.submitted = true;
     this.errorMessage = '';
 
-    console.log('Form valid:', this.form.valid);
-    console.log('Form values:', this.form.value);
+    this.logSvc.debug('Form valid:', this.form.valid);
+    this.logSvc.debug('Form values:', this.form.value);
 
     if (this.form.invalid) {
-      console.log('Form is invalid, errors:', this.form.errors);
+      this.logSvc.debug('Form is invalid, errors:', this.form.errors);
       return;
     }
 
@@ -130,11 +138,11 @@ export class JoinWaitlistComponent implements OnInit {
       ...(articleId && { article_id: articleId })
     };
 
-    console.log('Submitting payload:', payload);
+    this.logSvc.debug('Submitting payload:', payload);
 
     this.userQueriesService.submitQuery(payload).subscribe({
       next: (response) => {
-        console.log('Success response:', response);
+        this.logSvc.debug('Success response:', response);
         this.submitting = false;
         this.form.reset();
         this.submitted = false;
@@ -143,10 +151,10 @@ export class JoinWaitlistComponent implements OnInit {
         this.router.navigateByUrl('/thank-you');
       },
       error: (err) => {
-        console.error('Full error object:', err);
+        this.logSvc.error('Full error object:', err);
         this.submitting = false;
         this.errorMessage = err?.error?.message || 'Something went wrong. Please try again.';
-        console.error('Waitlist registration error:', err);
+        this.logSvc.error('Waitlist registration error:', err);
       }
     });
   }

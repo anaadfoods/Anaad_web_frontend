@@ -16,7 +16,9 @@
         </div>
       </div>
 
-      <div class="form-error" *ngIf="submitError">{{ submitError }}</div>
+      @if (submitError()) {
+        <div class="form-error">{{ submitError() }}</div>
+      }
 
       <form [formGroup]="checkoutForm" (ngSubmit)="placeOrder()" novalidate>
 
@@ -88,7 +90,7 @@
               <select class="field-select" [class.field-error]="f.state.invalid && f.state.touched"
                 formControlName="state">
                 <option value="">Select state</option>
-                @for (s of states(); track s.id) {
+                @for (s of states(); track s.name || $index) {
                 <option [value]="s.name">{{ s.name }}</option>
                 }
                 <!-- Fallback static options -->
@@ -121,20 +123,7 @@
             <h2 class="form-block-title">Payment Method</h2>
           </div>
           <div class="radio-cards">
-            <!-- COD restriction: Allow COD for both subscription and orders. Comment out old conditional block -->
-            <!-- <label class="radio-card" [class.selected]="f.paymentMethod.value === 'cod'" *ngIf="!directPlanId">
-              <input type="radio" formControlName="paymentMethod" value="cod" class="hidden-radio" />
-              <div class="radio-dot-outer">
-                <div class="radio-dot-inner"></div>
-              </div>
-              <div class="radio-card-info">
-                <span class="radio-card-name">Cash on Delivery (COD)</span>
-                <span class="radio-card-desc">Pay when your order arrives at your doorstep</span>
-              </div>
-              <span class="radio-card-badge">Cash</span>
-            </label> -->
-            
-            <!-- COD restriction: Enforce COD-only selection always -->
+            <!-- COD ONLY Selection -->
             <label class="radio-card" [class.selected]="f.paymentMethod.value === 'cod'">
               <input type="radio" formControlName="paymentMethod" value="cod" class="hidden-radio" />
               <div class="radio-dot-outer">
@@ -146,23 +135,6 @@
               </div>
               <span class="radio-card-badge">Cash</span>
             </label>
-
-            <!-- COD restriction: Disallow Online Payment option. Comment out the block. -->
-            <!-- <label class="radio-card" [class.selected]="f.paymentMethod.value === 'UPI'">
-              <input type="radio" formControlName="paymentMethod" value="UPI" class="hidden-radio" />
-              <div class="radio-dot-outer">
-                <div class="radio-dot-inner"></div>
-              </div>
-              <div class="radio-card-info">
-                <span class="radio-card-name">Online Payment</span>
-                <span class="radio-card-desc">UPI, Net Banking, Cards via Juspay — secure encrypted gateway</span>
-              </div>
-              <div class="card-icons">
-                <span class="card-icon">UPI</span>
-                <span class="card-icon">CARDS</span>
-                <span class="card-icon">NETBNK</span>
-              </div>
-            </label> -->
           </div>
         </div>
 
@@ -183,7 +155,7 @@
       <span class="summary-title">Order Summary</span>
 
       <div class="order-items">
-        @for (item of checkoutItems(); track item.product_variant) {
+        @for (item of checkoutItems(); track item.product_variant || $index) {
         <div class="order-item">
           <img class="order-item-img" [src]="item.image || ''" appSafeImage [alt]="item.product_name" />
           <div class="order-item-info">
@@ -196,31 +168,60 @@
       </div>
 
       <div class="summary-lines">
-        <div class="summary-row">
-          <span class="summary-label">Subtotal</span>
-          <span class="summary-value">{{ getTotalPrice() | currencyInr }}</span>
-        </div>
-        <div class="summary-row">
-          <span class="summary-label">Delivery</span>
-          <span class="summary-value" [class.free]="getDeliveryCharge() === 0">
-            {{ getDeliveryCharge() === 0 ? 'Free' : (getDeliveryCharge() | currencyInr) }}
-          </span>
-        </div>
-        <div class="summary-row">
-          <span class="summary-label">GST (5%)</span>
-          <span class="summary-value">{{ getGST() | currencyInr }}</span>
-        </div>
-        <div class="summary-divider"></div>
-        <div class="summary-total-row">
-          <span class="summary-total-label">Total</span>
-          <span class="summary-total-value">{{ getGrandTotal() | currencyInr }}</span>
-        </div>
+        @if (isSubscription()) {
+          <div class="summary-row">
+            <span class="summary-label">Monthly Item Cost (Discounted)</span>
+            <span class="summary-value">{{ discountedPricePerMonth() | currencyInr }}/mo</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-label">Monthly Delivery Charges</span>
+            <span class="summary-value" [class.free]="deliveryChargePerMonth() === 0">
+              {{ deliveryChargePerMonth() === 0 ? 'Free' : (deliveryChargePerMonth() | currencyInr) }}/mo
+            </span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-label">Subscription Duration</span>
+            <span class="summary-value">{{ planDurationMonths() }} Month{{ planDurationMonths() > 1 ? 's' : '' }}</span>
+          </div>
+          <div class="summary-divider"></div>
+          <div class="summary-row">
+            <span class="summary-label">Total Item Cost</span>
+            <span class="summary-value">{{ totalItemCost() | currencyInr }}</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-label">Total Delivery Cost</span>
+            <span class="summary-value" [class.free]="totalDeliveryCost() === 0">
+              {{ totalDeliveryCost() === 0 ? 'Free' : (totalDeliveryCost() | currencyInr) }}
+            </span>
+          </div>
+          <div class="summary-divider"></div>
+          <div class="summary-total-row">
+            <span class="summary-total-label">Total Amount</span>
+            <span class="summary-total-value">{{ getGrandTotal() | currencyInr }}</span>
+          </div>
+        } @else {
+          <div class="summary-row">
+            <span class="summary-label">Subtotal</span>
+            <span class="summary-value">{{ getTotalPrice() | currencyInr }}</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-label">COD Charges</span>
+            <span class="summary-value" [class.free]="getDeliveryCharge() === 0">
+              {{ getDeliveryCharge() === 0 ? 'Free' : (getDeliveryCharge() | currencyInr) }}
+            </span>
+          </div>
+          <div class="summary-divider"></div>
+          <div class="summary-total-row">
+            <span class="summary-total-label">Total</span>
+            <span class="summary-total-value">{{ getGrandTotal() | currencyInr }}</span>
+          </div>
+        }
         <span class="summary-gst">Inclusive of all taxes</span>
       </div>
 
       <button type="button" class="btn-place-order" (click)="placeOrder()"
-        [disabled]="isSubmitting || checkoutItems().length === 0">
-        {{ isSubmitting ? 'PLACING ORDER...' : 'PLACE ORDER' }}
+        [disabled]="isSubmitting() || checkoutItems().length === 0">
+        {{ isSubmitting() ? 'PLACING ORDER...' : 'PLACE ORDER' }}
       </button>
 
       <div class="secure-note">
@@ -234,4 +235,52 @@
       </div>
     </div>
   </div>
+
+  <!-- ADDRESS MODAL -->
+  <div class="address-modal-overlay" *ngIf="showAddressModal()">
+    <div class="address-modal">
+      <div class="address-modal-header">
+        <h3>Shipping Details Required</h3>
+        <p>Please provide your shipping address and pincode to continue with your subscription and calculate delivery charges.</p>
+      </div>
+      <form [formGroup]="addressModalForm" (ngSubmit)="saveAddressModal()" class="address-modal-form">
+        <div class="field-group">
+          <label class="field-label">Street Address</label>
+          <input class="field-input" [class.field-error]="addressModalForm.get('address')?.invalid && addressModalForm.get('address')?.touched" type="text" formControlName="address" placeholder="123 Main Street" />
+          <span class="field-hint error" *ngIf="addressModalForm.get('address')?.touched && addressModalForm.get('address')?.invalid">
+            Please enter a valid street address (min 5 chars).
+          </span>
+        </div>
+        <div class="field-row" style="margin-top: 16px;">
+          <div class="field-group">
+            <label class="field-label">City</label>
+            <input class="field-input" [class.field-error]="addressModalForm.get('city')?.invalid && addressModalForm.get('city')?.touched" type="text" formControlName="city" placeholder="City" />
+            <span class="field-hint error" *ngIf="addressModalForm.get('city')?.touched && addressModalForm.get('city')?.invalid">City is required.</span>
+          </div>
+          <div class="field-group">
+            <label class="field-label">State</label>
+            <select class="field-select" [class.field-error]="addressModalForm.get('state')?.invalid && addressModalForm.get('state')?.touched" formControlName="state">
+              <option value="">Select state</option>
+              @for (s of states(); track s.name || $index) {
+                <option [value]="s.name">{{ s.name }}</option>
+              }
+            </select>
+            <span class="field-hint error" *ngIf="addressModalForm.get('state')?.touched && addressModalForm.get('state')?.invalid">State is required.</span>
+          </div>
+        </div>
+        <div class="field-group" style="margin-top: 16px;">
+          <label class="field-label">PIN Code</label>
+          <input class="field-input" [class.field-error]="addressModalForm.get('pin')?.invalid && addressModalForm.get('pin')?.touched" type="text" formControlName="pin" placeholder="110001" maxlength="6" />
+          <span class="field-hint error" *ngIf="addressModalForm.get('pin')?.touched && addressModalForm.get('pin')?.invalid">Valid 6-digit PIN is required.</span>
+        </div>
+        
+        <div class="address-modal-actions">
+          <button type="submit" class="btn-customise" [disabled]="savingAddressModal()" style="width: 100%; padding: 14px; background: var(--green-deep); color: white; border: none; font-weight: 600; font-family: var(--font-sans); cursor: pointer; border-radius: 4px; margin-top: 24px;">
+            {{ savingAddressModal() ? 'Saving...' : 'Save & Continue' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
 </div>

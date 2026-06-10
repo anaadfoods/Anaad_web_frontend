@@ -60,10 +60,13 @@
         </div>
 
         <div class="price-block">
-          <span class="price-main">{{ variant()?.price | currencyInr }}</span>
+          <span class="price-main">{{ (purchaseType() === 'subscription' && selectedPlanId() ? discountedSubscriptionPrice : variant()?.price) | currencyInr }}</span>
           <span class="price-per">per {{ variant()?.weight }}{{ variant()?.unit }} &nbsp;&middot;&nbsp; incl. taxes</span>
-          <span class="price-savings" *ngIf="variant()?.compare_at_price && savingsPercentage > 0">
+          <span class="price-savings" *ngIf="purchaseType() === 'single' && variant()?.compare_at_price && savingsPercentage > 0">
             &#10003; Save {{ savingsPercentage }}% on MRP
+          </span>
+          <span class="price-savings" *ngIf="purchaseType() === 'subscription' && selectedPlanId()">
+            &#10003; Subscription Discount Applied
           </span>
         </div>
 
@@ -76,59 +79,80 @@
           </div>
         </div>
 
-        <div class="subscription-plans-list" *ngIf="purchaseType() === 'subscription' && eligiblePlanIds().length > 0" style="margin-bottom: 24px; border: 1px solid rgba(26,26,26,0.18); padding: 12px; display: flex; flex-direction: column; gap: 8px;">
+        <div class="subscription-plans-list" *ngIf="purchaseType() === 'subscription' && eligiblePlanIds().length > 0">
           <div class="plan-card" 
                *ngFor="let plan of subscriptionPlans()" 
                [class.selected]="selectedPlanId() === plan.id"
                [class.disabled]="!eligiblePlanIds().includes(plan.id)"
-               [style.opacity]="!eligiblePlanIds().includes(plan.id) ? '0.4' : '1'"
-               [style.cursor]="!eligiblePlanIds().includes(plan.id) ? 'not-allowed' : 'pointer'"
-               (click)="eligiblePlanIds().includes(plan.id) && selectedPlanId.set(plan.id)"
-               style="display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid rgba(26,26,26,0.08);">
-            <div>
-              <div style="font-family: var(--font-sans); font-size: 13px; font-weight: 500;">{{ plan.name }} <span *ngIf="plan.discount_percentage" style="color: #3A7A2E; font-size: 11px;">(Save {{ plan.discount_percentage }}%)</span></div>
-              <div style="font-size: 11px; color: rgba(26,26,26,0.5);">{{ plan.tagline }}</div>
+               (click)="eligiblePlanIds().includes(plan.id) && selectedPlanId.set(plan.id)">
+            <div class="plan-info">
+              <div class="plan-name">
+                {{ plan.name }} 
+                <span class="plan-discount" *ngIf="plan.discount_percentage">Save {{ plan.discount_percentage }}%</span>
+              </div>
+              <div class="plan-tagline">{{ plan.tagline }}</div>
             </div>
-            <div style="font-family: var(--font-serif); font-size: 16px; font-weight: 600;">{{ getPlanPrice(plan) | currencyInr }}</div>
+            <div class="plan-price">{{ getPlanPrice(plan) | currencyInr }}</div>
           </div>
         </div>
 
         <div class="add-row" *ngIf="hasStock()">
-          <app-qty-selector 
-            *ngIf="cartQuantity === 0"
-            [value]="quantity()" 
-            [max]="variant()!.stock || 99"
-            (valueChange)="onQuantityChange($event)"
-            class="qty-selector-custom"
-            style="border: 1px solid rgba(26,26,26,0.18);">
-          </app-qty-selector>
-          
-          <button 
-            *ngIf="cartQuantity === 0"
-            class="btn-add-cart" 
-            (click)="addToCart()"
-            [disabled]="addingToCart()">
-            {{ addingToCart() ? 'Adding...' : 'Add to Cart &#8594;' }}
-          </button>
+          <!-- One-time purchase controls (when not already added to cart) -->
+          <ng-container *ngIf="purchaseType() === 'single' && cartQuantity === 0">
+            <app-qty-selector 
+              [value]="quantity()" 
+              [max]="variant()!.stock || 99"
+              (valueChange)="onQuantityChange($event)"
+              class="qty-selector-custom"
+              style="border: 1px solid rgba(26,26,26,0.18);">
+            </app-qty-selector>
+            
+            <button 
+              class="btn-add-cart" 
+              (click)="addToCart()"
+              [disabled]="addingToCart()">
+              {{ addingToCart() ? 'Adding...' : 'Add to Cart &#8594;' }}
+            </button>
+          </ng-container>
 
-          <app-qty-selector 
-            *ngIf="cartQuantity > 0"
-            [value]="cartQuantity" 
-            [max]="variant()!.stock || 99"
-            (valueChange)="updateCartQuantity($event)"
-            class="qty-selector-custom"
-            style="border: 1px solid rgba(26,26,26,0.18);">
-          </app-qty-selector>
+          <!-- One-time purchase controls (when already added to cart) -->
+          <ng-container *ngIf="purchaseType() === 'single' && cartQuantity > 0">
+            <app-qty-selector 
+              [value]="cartQuantity" 
+              [max]="variant()!.stock || 99"
+              (valueChange)="updateCartQuantity($event)"
+              class="qty-selector-custom"
+              style="border: 1px solid rgba(26,26,26,0.18);">
+            </app-qty-selector>
 
-          <button
-            *ngIf="cartQuantity > 0"
-            type="button"
-            class="btn-add-cart"
-            style="background-color: var(--amber-harvest); color: var(--charcoal);"
-            (click)="buyNow()"
-            [disabled]="addingToCart()">
-            Buy Now
-          </button>
+            <button
+              type="button"
+              class="btn-add-cart"
+              style="background-color: var(--amber-harvest); color: var(--charcoal);"
+              (click)="buyNow()"
+              [disabled]="addingToCart()">
+              Buy Now
+            </button>
+          </ng-container>
+
+          <!-- Subscription purchase controls (always buy directly via checkout) -->
+          <ng-container *ngIf="purchaseType() === 'subscription'">
+            <app-qty-selector 
+              [value]="quantity()" 
+              [max]="variant()!.stock || 99"
+              (valueChange)="onQuantityChange($event)"
+              class="qty-selector-custom"
+              style="border: 1px solid rgba(26,26,26,0.18);">
+            </app-qty-selector>
+
+            <button
+              type="button"
+              class="btn-add-cart"
+              style="background-color: var(--green-deep); color: var(--bg-parchment);"
+              (click)="buyNow()">
+              Subscribe Now &#8594;
+            </button>
+          </ng-container>
 
           <button class="btn-wishlist" [class.active]="isFavorite()" (click)="toggleFavorite()" [disabled]="togglingFavorite()">{{ isFavorite() ? '♥' : '♡' }}</button>
         </div>
@@ -159,7 +183,7 @@
 
     <div class="story-section">
       <div class="story-img-col">
-        <img src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=900&q=80" alt="Wheat fields, Rajasthan" />
+        <img src="assets/images-new/9.png" alt="Wheat fields, Rajasthan" />
       </div>
       <div class="story-text-col">
         <span class="story-tag">The grain's journey</span>

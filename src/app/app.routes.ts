@@ -1,20 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard, guestGuard } from './core/guards/auth.guard';
+import { cartNotEmptyGuard } from './core/guards/cart-not-empty.guard';
 import { HomeComponent } from './home/home.component';
-import { BlogsComponent } from './blogs/blogs.component';
-import { BlogDetailComponent } from './blog-detail/blog-detail.component';
-import { EvidenceArchiveComponent } from './evidence-archive/evidence-archive.component';
-import { JoinWaitlistComponent } from './join-waitlist/join-waitlist.component';
-import { TermsConditionsComponent } from './terms-conditions/terms-conditions.component';
-import { PrivacyPolicyComponent } from './privacy-policy/privacy-policy.component';
-import { DeleteAccountComponent } from './delete-account/delete-account.component';
-import { ThankYouComponent } from './thank-you/thank-you.component';
-import { PaymentSuccess } from './payment-success/payment-success';
-import { PaymentFailure } from './payment-failure/payment-failure';
-import { CommunitiesComponent } from './communities/communities.component';
-import { OurStoryComponent } from './our-story/our-story.component';
-import { OfferingsComponent } from './offerings/offerings.component';
-import { ContactComponent } from './contact/contact.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent, title: 'Home • Anaad Foods' },
@@ -34,7 +21,7 @@ export const routes: Routes = [
 
   // Cart & Checkout
   { path: 'cart', loadComponent: () => import('./cart/cart').then(m => m.Cart), title: 'Cart • Anaad Foods' },
-  { path: 'checkout', loadComponent: () => import('./checkout/checkout').then(m => m.Checkout), canActivate: [authGuard], title: 'Checkout • Anaad Foods' },
+  { path: 'checkout', loadComponent: () => import('./checkout/checkout').then(m => m.Checkout), canActivate: [authGuard, cartNotEmptyGuard], title: 'Checkout • Anaad Foods' },
 
   // Account (protected)
   { path: 'profile', loadComponent: () => import('./profile/profile').then(m => m.Profile), canActivate: [authGuard], title: 'My Account • Anaad Foods' },
@@ -45,16 +32,16 @@ export const routes: Routes = [
   { path: 'our-soil', loadComponent: () => import('./soil/soil').then(m => m.Soil), title: 'Our Soil • Anaad Foods' },
   { path: 'registry', loadComponent: () => import('./registry/registry').then(m => m.Registry), title: 'The Registry • Anaad Foods' },
   { path: 'commitment', loadComponent: () => import('./commitment/commitment').then(m => m.Commitment), title: 'The Commitment • Anaad Foods' },
-  { path: 'ledger', component: EvidenceArchiveComponent, title: 'Open Lab Ledger • Anaad Foods' },
+  { path: 'ledger', loadComponent: () => import('./evidence-archive/evidence-archive.component').then(m => m.EvidenceArchiveComponent), title: 'Open Lab Ledger • Anaad Foods' },
 
   // Thank You (COD order confirmation)
-  { path: 'thank-you', component: ThankYouComponent, title: 'Order Confirmed • Anaad Foods' },
+  { path: 'thank-you', loadComponent: () => import('./thank-you/thank-you.component').then(m => m.ThankYouComponent), title: 'Order Confirmed • Anaad Foods' },
 
   // Payment Gateway Return Handlers
   // Juspay redirects to /api/payments/success → Django → Angular /payment-success
-  { path: 'payment-success', component: PaymentSuccess, title: 'Processing Payment • Anaad Foods' },
+  { path: 'payment-success', loadComponent: () => import('./payment-success/payment-success').then(m => m.PaymentSuccess), title: 'Processing Payment • Anaad Foods' },
   // Juspay failure/cancellation redirect
-  { path: 'payment-failure', component: PaymentFailure, title: 'Payment Cancelled • Anaad Foods' },
+  { path: 'payment-failure', loadComponent: () => import('./payment-failure/payment-failure').then(m => m.PaymentFailure), title: 'Payment Cancelled • Anaad Foods' },
   // Legacy aliases matching Flutter's intercepted URL patterns
   { path: 'api/payments/success', redirectTo: 'payment-success', pathMatch: 'full' },
   { path: 'api/payment/success', redirectTo: 'payment-success', pathMatch: 'full' },
@@ -63,23 +50,24 @@ export const routes: Routes = [
 
   // Redirects
   { path: 'shop', redirectTo: 'products', pathMatch: 'full' },
-  { path: 'offerings', component: OfferingsComponent, title: 'Offerings • Anaad Foods' },
-  { path: 'our-story', component: OurStoryComponent, title: 'Our Story • Anaad Foods' },
+  { path: 'offerings', loadComponent: () => import('./offerings/offerings.component').then(m => m.OfferingsComponent), title: 'Offerings • Anaad Foods' },
+  { path: 'our-story', loadComponent: () => import('./our-story/our-story.component').then(m => m.OurStoryComponent), title: 'Our Story • Anaad Foods' },
   { path: 'about', redirectTo: 'our-soil', pathMatch: 'full' },
-  { path: 'contact', component: ContactComponent, title: 'Contact • Anaad Foods' },
-  { path: 'blogs', component: BlogsComponent, title: 'Journal • Anaad Foods' },
-  { path: 'blogs/:id', component: BlogDetailComponent, title: 'Journal • Anaad Foods' },
+  { path: 'contact', loadComponent: () => import('./contact/contact.component').then(m => m.ContactComponent), title: 'Contact • Anaad Foods' },
+  { path: 'help', loadComponent: () => import('./help/help.component').then(m => m.HelpComponent), title: 'Help & Support • Anaad Foods' },
+  { path: 'blogs', loadComponent: () => import('./blogs/blogs.component').then(m => m.BlogsComponent), title: 'Journal • Anaad Foods' },
+  { path: 'blogs/:id', loadComponent: () => import('./blog-detail/blog-detail.component').then(m => m.BlogDetailComponent), title: 'Journal • Anaad Foods' },
   { path: 'evidence', redirectTo: 'ledger', pathMatch: 'full' },
-  { path: 'join-waitlist', component: JoinWaitlistComponent, title: 'Join Waitlist • Anaad Foods' },
-  { path: 'communities', component: CommunitiesComponent, title: 'Communities • Anaad Foods' },
+  { path: 'join-waitlist', loadComponent: () => import('./join-waitlist/join-waitlist.component').then(m => m.JoinWaitlistComponent), title: 'Join Waitlist • Anaad Foods' },
+  { path: 'communities', loadComponent: () => import('./communities/communities.component').then(m => m.CommunitiesComponent), title: 'Communities • Anaad Foods' },
 
   // Legal
-  { path: 'terms-conditions', component: TermsConditionsComponent, title: 'Terms & Conditions • Anaad Foods' },
+  { path: 'terms-conditions', loadComponent: () => import('./terms-conditions/terms-conditions.component').then(m => m.TermsConditionsComponent), title: 'Terms & Conditions • Anaad Foods' },
   { path: 'terms', redirectTo: 'terms-conditions', pathMatch: 'full' },
-  { path: 'privacy-policy', component: PrivacyPolicyComponent, title: 'Privacy Policy • Anaad Foods' },
-  { path: 'refund-policy', component: TermsConditionsComponent, title: 'Refund Policy • Anaad Foods' },
-  { path: 'shipping-policy', component: TermsConditionsComponent, title: 'Shipping Policy • Anaad Foods' },
-  { path: 'delete-account', component: DeleteAccountComponent, title: 'Delete Account • Anaad Foods' },
+  { path: 'privacy-policy', loadComponent: () => import('./privacy-policy/privacy-policy.component').then(m => m.PrivacyPolicyComponent), title: 'Privacy Policy • Anaad Foods' },
+  { path: 'refund-policy', loadComponent: () => import('./terms-conditions/terms-conditions.component').then(m => m.TermsConditionsComponent), title: 'Refund Policy • Anaad Foods' },
+  { path: 'shipping-policy', loadComponent: () => import('./terms-conditions/terms-conditions.component').then(m => m.TermsConditionsComponent), title: 'Shipping Policy • Anaad Foods' },
+  { path: 'delete-account', loadComponent: () => import('./delete-account/delete-account.component').then(m => m.DeleteAccountComponent), title: 'Delete Account • Anaad Foods' },
 
   { path: '**', loadComponent: () => import('./error-page/error-page').then(m => m.ErrorPageComponent), title: '404 Page Not Found • Anaad Foods' },
 ];

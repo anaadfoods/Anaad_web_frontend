@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, PLATFORM_ID, signal } from '@angular/core';
+import { Component, OnInit, inject, PLATFORM_ID, signal, ChangeDetectionStrategy } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { HeaderComponent } from './layout/header/header.component';
@@ -10,6 +10,7 @@ import { FavoritesService } from './core/services/favorites.service';
 import { CartState } from './core/state/cart.state';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-root',
   imports: [RouterOutlet, HeaderComponent, FooterComponent, ToastComponent],
   templateUrl: './app.html',

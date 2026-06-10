@@ -21,7 +21,15 @@ export interface SubscriptionPlan {
 export interface SubscriptionItem {
   id: number;
   product_variant: number | { id: number; product_name: string };
+  product_name?: string;
+  product_category?: string;
+  product_var_image?: string;
   quantity: number;
+  price?: string;
+  discounted_price?: string;
+  unit_weight?: string;
+  weight_unit?: string;
+  total_weight?: string;
 }
 
 export interface Subscription {
@@ -41,10 +49,24 @@ export interface Subscription {
   payment_status?: string;
   start_date?: string;
   end_date?: string;
+  subtotal?: string;
+  delivery_charges?: string;
+  total?: string;
+  amount_paid?: string;
+  remaining_amount?: string;
   next_delivery_date?: string;
+  last_payment_date?: string | null;
+  next_payment_date?: string;
+  total_deliveries?: number;
+  completed_deliveries?: number;
+  remaining_pause_days?: number;
+  remaining_pause_times?: number;
   pause_start_date?: string | null;
   pause_end_date?: string | null;
   items?: SubscriptionItem[];
+  total_delivery_charges?: number;
+  installment_info?: any;
+  can_pay_next_installment?: boolean;
   created_at?: string;
   updated_at?: string;
 }

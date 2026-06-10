@@ -1,8 +1,9 @@
-import { Component, Input, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 
 export interface CarouselImage { src: string; alt: string; }
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-image-carousel',
   standalone: true,
   templateUrl: './image-carousel.component.html',

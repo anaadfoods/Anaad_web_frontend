@@ -35,6 +35,11 @@ export class SubscriptionService {
     return this.http.get<PlanProductsResponse>(`${API.SUBSCRIPTIONS.PLAN_PRODUCTS}${planId}/products`);
   }
 
+  getPlanPricesByVariant(variantId: number): Observable<{plan_id: number, plan_name: string, discounted_price: number, discount_percentage: number}[]> {
+    const params = new HttpParams().set('variant_id', variantId.toString());
+    return this.http.get<any[]>(API.SUBSCRIPTIONS.PLAN_SEARCH, { params });
+  }
+
   // ── Subscriptions CRUD ────────────────────
 
   getSubscriptions(): Observable<Subscription[]> {

@@ -25,7 +25,7 @@
 
     <ng-container *ngIf="!featuredLoading && featuredArticles.length > 0">
       <a [routerLink]="['/blog-post', featuredArticles[0].id]" class="featured-card">
-        <img class="featured-img" [src]="featuredArticles[0].cover_image || 'https://images.unsplash.com/photo-1511688878353-3a2f5be94cd7?auto=format&fit=crop&w=900&q=80'" alt="Featured Image" />
+        <img class="featured-img" [src]="featuredArticles[0].cover_image || 'assets/images-new/25.png'" alt="Featured Image" />
         <div class="featured-body">
           <span class="featured-category">{{ featuredArticles[0].category || 'Featured' }}</span>
           <h2 class="featured-title">{{ featuredArticles[0].title }}</h2>
@@ -45,7 +45,7 @@
     <!-- Static fallback if API fails or no featured articles -->
     <ng-container *ngIf="(!featuredLoading && featuredArticles.length === 0) || featuredError">
       <a routerLink="/blog-post/static" class="featured-card">
-        <img class="featured-img" src="https://images.unsplash.com/photo-1511688878353-3a2f5be94cd7?auto=format&fit=crop&w=900&q=80" alt="Slow Poison in Your Kitchen" />
+        <img class="featured-img" src="assets/images/blog-hero.svg" alt="Slow Poison in Your Kitchen" />
         <div class="featured-body">
           <span class="featured-category">Food Safety</span>
           <h2 class="featured-title">The 'Slow Poison' in Your Kitchen: 5 Daily Habits That Are Silently Harming Your Family</h2>

@@ -110,3 +110,77 @@
   .gallery-thumbs { gap: 6px; }
   .gallery-thumb { width: 56px; height: 56px; }
 }
+
+/* SUBSCRIPTION PLANS */
+.subscription-plans-list {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.plan-card {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  border: 1px solid rgba(26, 26, 26, 0.18);
+  background-color: transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover:not(.disabled) {
+    border-color: rgba(26, 26, 26, 0.40);
+  }
+
+  &.selected {
+    border-color: var(--green-deep);
+    background-color: rgba(44, 74, 30, 0.04);
+    box-shadow: inset 0 0 0 1px var(--green-deep);
+  }
+
+  &.disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+}
+
+.plan-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.plan-name {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--charcoal);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.plan-discount {
+  color: var(--green-deep);
+  font-size: 11px;
+  font-weight: 500;
+  background-color: rgba(44, 74, 30, 0.08);
+  padding: 2px 8px;
+  border-radius: 2px;
+}
+
+.plan-tagline {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  color: rgba(26, 26, 26, 0.50);
+}
+
+.plan-price {
+  font-family: var(--font-serif);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--charcoal);
+}

@@ -1,9 +1,10 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
-import { BlogsService, Article } from '../shared/services/blogs.service';
+import { BlogsService, Article } from '../core/services/blogs.service';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-blog-detail',
   standalone: true,
   imports: [CommonModule, RouterLink],

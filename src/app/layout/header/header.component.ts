@@ -1,5 +1,6 @@
-import { Component, signal, inject, OnInit, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { LogService } from '../../core/services/log.service';
+import { Component, signal, inject, OnInit, OnDestroy, ChangeDetectionStrategy, PLATFORM_ID, HostListener } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { AuthState } from '../../core/state/auth.state';
 import { CartState } from '../../core/state/cart.state';
@@ -7,6 +8,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { NotificationService } from '../../core/services/notification.service';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-header',
   standalone: true,
   imports: [CommonModule, RouterLink, RouterLinkActive],
@@ -14,6 +16,8 @@ import { NotificationService } from '../../core/services/notification.service';
   styleUrls: ['./header.component.scss']
 })
 export class HeaderComponent implements OnInit, OnDestroy {
+  private readonly logSvc = inject(LogService);
+  private readonly platformId = inject(PLATFORM_ID);
   bannerMessages = [
     'Current batch: AN-SON-0526 · Zero residue · SGS Certified',
     'Pre-harvest allocation · Lock your supply · Share the farm risk',
@@ -23,7 +27,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private bannerIntervalId: any;
 
   ngOnInit() {
-    if (typeof window !== 'undefined') {
+    if (isPlatformBrowser(this.platformId)) {
       this.bannerIntervalId = setInterval(() => {
         this.currentBannerIndex.update(idx => (idx + 1) % this.bannerMessages.length);
       }, 4000);
@@ -47,6 +51,16 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   isOpen = signal(false);
   isNotificationsOpen = signal(false);
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    if (!isPlatformBrowser(this.platformId)) return;
+    const target = event.target as HTMLElement;
+    const clickedInside = target.closest('.nav-notifications-container');
+    if (!clickedInside) {
+      this.closeNotifications();
+    }
+  }
 
   toggle() { 
     this.isOpen.update(v => !v); 
@@ -99,7 +113,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
         }
       }
     } catch (e) {
-      console.warn('Failed to parse notification metadata', e);
+      this.logSvc.warn('Failed to parse notification metadata', e);
     }
     
     this.closeNotifications();

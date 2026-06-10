@@ -179,10 +179,26 @@
           <div class="tier-perk"><div class="perk-dot"></div>The best first step.</div>
         </div>
         <div class="tier-price-block">
-          <div class="tier-price">₹680 <span class="tier-price-unit">/mo</span></div>
-          <div class="tier-cadence">₹136 per kg &nbsp;&middot;&nbsp; Cancel anytime</div>
+          @if (tierSelectedVariant()['Aarambh']) {
+            <div class="tier-price">{{ getDiscountedMonthlyPrice('Aarambh') | currencyInr }} <span class="tier-price-unit">/mo</span></div>
+            <div class="tier-cadence">
+              Regular: <span style="text-decoration: line-through;">{{ getOriginalPrice('Aarambh') | currencyInr }}</span>
+              &nbsp;&middot;&nbsp; {{ getSavingsPercentage('Aarambh') }}% plan discount
+            </div>
+          } @else {
+            <div class="tier-price">₹— <span class="tier-price-unit">/mo</span></div>
+            <div class="tier-cadence">Select a product to view price</div>
+          }
         </div>
-        <a routerLink="/products" class="btn-tier">Begin the Journey &rarr;</a>
+        <div class="tier-product-selector">
+          <select class="tier-product-dropdown" [value]="tierSelectedVariant()['Aarambh'] || ''" (change)="onTierProductSelect('Aarambh', $event)">
+            <option value="" disabled>Select a product</option>
+            @for (p of tierProducts()['Aarambh']; track p.variant_id) {
+              <option [value]="p.variant_id">{{ p.variant_name }}</option>
+            }
+          </select>
+          <button class="btn-tier" [disabled]="!tierSelectedVariant()['Aarambh']" (click)="goToProduct('Aarambh')">Begin the Journey &rarr;</button>
+        </div>
       </div>
 
       <div class="tier-card">
@@ -196,10 +212,26 @@
           <div class="tier-perk"><div class="perk-dot"></div>Monthly farm dispatch reports keep you informed of every step from field to courier.</div>
         </div>
         <div class="tier-price-block">
-          <div class="tier-price">₹1,260 <span class="tier-price-unit">/mo</span></div>
-          <div class="tier-cadence">₹126 per kg &nbsp;&middot;&nbsp; Billed monthly</div>
+          @if (tierSelectedVariant()['Pathik']) {
+            <div class="tier-price">{{ getDiscountedMonthlyPrice('Pathik') | currencyInr }} <span class="tier-price-unit">/mo</span></div>
+            <div class="tier-cadence">
+              Regular: <span style="text-decoration: line-through;">{{ getOriginalPrice('Pathik') | currencyInr }}</span>
+              &nbsp;&middot;&nbsp; {{ getSavingsPercentage('Pathik') }}% plan discount
+            </div>
+          } @else {
+            <div class="tier-price">₹— <span class="tier-price-unit">/mo</span></div>
+            <div class="tier-cadence">Select a product to view price</div>
+          }
         </div>
-        <a routerLink="/products" class="btn-tier">Secure Your Allocation &rarr;</a>
+        <div class="tier-product-selector">
+          <select class="tier-product-dropdown" [value]="tierSelectedVariant()['Pathik'] || ''" (change)="onTierProductSelect('Pathik', $event)">
+            <option value="" disabled>Select a product</option>
+            @for (p of tierProducts()['Pathik']; track p.variant_id) {
+              <option [value]="p.variant_id">{{ p.variant_name }}</option>
+            }
+          </select>
+          <button class="btn-tier" [disabled]="!tierSelectedVariant()['Pathik']" (click)="goToProduct('Pathik')">Secure Your Allocation &rarr;</button>
+        </div>
       </div>
 
       <div class="tier-card featured">
@@ -215,10 +247,26 @@
           <div class="tier-perk"><div class="perk-dot"></div>Exclusive access to new heirloom variety drops before public release.</div>
         </div>
         <div class="tier-price-block">
-          <div class="tier-price">₹2,380 <span class="tier-price-unit">/mo</span></div>
-          <div class="tier-cadence">₹119 per kg &nbsp;&middot;&nbsp; Seasonal price lock guarantee</div>
+          @if (tierSelectedVariant()['Tapasvi']) {
+            <div class="tier-price">{{ getDiscountedMonthlyPrice('Tapasvi') | currencyInr }} <span class="tier-price-unit">/mo</span></div>
+            <div class="tier-cadence">
+              Regular: <span style="text-decoration: line-through;">{{ getOriginalPrice('Tapasvi') | currencyInr }}</span>
+              &nbsp;&middot;&nbsp; {{ getSavingsPercentage('Tapasvi') }}% plan discount
+            </div>
+          } @else {
+            <div class="tier-price">₹— <span class="tier-price-unit">/mo</span></div>
+            <div class="tier-cadence">Select a product to view price</div>
+          }
         </div>
-        <a routerLink="/products" class="btn-tier">Lock Your Harvest &rarr;</a>
+        <div class="tier-product-selector">
+          <select class="tier-product-dropdown featured-dropdown" [value]="tierSelectedVariant()['Tapasvi'] || ''" (change)="onTierProductSelect('Tapasvi', $event)">
+            <option value="" disabled>Select a product</option>
+            @for (p of tierProducts()['Tapasvi']; track p.variant_id) {
+              <option [value]="p.variant_id">{{ p.variant_name }}</option>
+            }
+          </select>
+          <button class="btn-tier" [disabled]="!tierSelectedVariant()['Tapasvi']" (click)="goToProduct('Tapasvi')">Lock Your Harvest &rarr;</button>
+        </div>
       </div>
 
       <div class="tier-card">
@@ -233,10 +281,26 @@
           <div class="tier-perk"><div class="perk-dot"></div>A bespoke milling specification — particle size, sieve grade — means your flour is built to your household's specifications.</div>
         </div>
         <div class="tier-price-block">
-          <div class="tier-price">₹4,200 <span class="tier-price-unit">/mo</span></div>
-          <div class="tier-cadence">₹105 per kg &nbsp;&middot;&nbsp; Named plot stewardship</div>
+          @if (tierSelectedVariant()['Siddh']) {
+            <div class="tier-price">{{ getDiscountedMonthlyPrice('Siddh') | currencyInr }} <span class="tier-price-unit">/mo</span></div>
+            <div class="tier-cadence">
+              Regular: <span style="text-decoration: line-through;">{{ getOriginalPrice('Siddh') | currencyInr }}</span>
+              &nbsp;&middot;&nbsp; {{ getSavingsPercentage('Siddh') }}% plan discount
+            </div>
+          } @else {
+            <div class="tier-price">₹— <span class="tier-price-unit">/mo</span></div>
+            <div class="tier-cadence">Select a product to view price</div>
+          }
         </div>
-        <a routerLink="/products" class="btn-tier">Claim Your Plot &rarr;</a>
+        <div class="tier-product-selector">
+          <select class="tier-product-dropdown" [value]="tierSelectedVariant()['Siddh'] || ''" (change)="onTierProductSelect('Siddh', $event)">
+            <option value="" disabled>Select a product</option>
+            @for (p of tierProducts()['Siddh']; track p.variant_id) {
+              <option [value]="p.variant_id">{{ p.variant_name }}</option>
+            }
+          </select>
+          <button class="btn-tier" [disabled]="!tierSelectedVariant()['Siddh']" (click)="goToProduct('Siddh')">Claim Your Plot &rarr;</button>
+        </div>
       </div>
 
     </div>
@@ -336,5 +400,7 @@
       <a routerLink="/products" class="btn-ghost-light">Shop One-Time Instead &rarr;</a>
     </div>
   </div>
+
+
 
 </div>

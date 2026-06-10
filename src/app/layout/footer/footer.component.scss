@@ -1,7 +1,7 @@
 .footer-strip {
   height: 48px;
   width: 100%;
-  background-image: url('https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?auto=format&fit=crop&w=1200&q=80');
+  background-image: url('/assets/images-new/28.png');
   background-size: cover;
   background-position: center 30%;
   opacity: 0.85;
@@ -135,7 +135,8 @@ footer.site-footer {
   border-top: 1px solid rgba(245, 240, 232, 0.08);
 }
 
-.footer-legal, .footer-legal-links a {
+.footer-legal,
+.footer-legal-links a {
   font-family: var(--font-sans);
   font-size: 12px;
   color: rgba(245, 240, 232, 0.30);
@@ -160,12 +161,12 @@ footer.site-footer {
     padding: 48px 20px 32px;
     gap: 40px;
   }
-  
+
   .footer-top {
     flex-direction: column;
     gap: 32px;
   }
-  
+
   .footer-certification {
     flex-direction: column;
     gap: 16px;
@@ -173,17 +174,17 @@ footer.site-footer {
     text-align: left;
     align-items: flex-start;
   }
-  
+
   .cert-sep {
     display: none;
   }
-  
+
   .footer-bottom {
     flex-direction: column;
     gap: 12px;
     align-items: flex-start;
   }
-  
+
   .footer-legal-links {
     flex-wrap: wrap;
     gap: 16px;

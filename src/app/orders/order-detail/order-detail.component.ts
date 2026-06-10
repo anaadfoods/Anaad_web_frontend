@@ -1,5 +1,6 @@
-import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { LogService } from '../../core/services/log.service';
+import { Component, OnInit, OnDestroy, inject, signal, ChangeDetectionStrategy, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser, CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Order, OrderTracking } from '../../core/models/order.model';
 import { OrderService } from '../../core/services/order.service';
@@ -9,6 +10,7 @@ import { SafeImageDirective } from '../../shared/safe-image.directive';
 import { timer, switchMap, takeWhile, catchError, of, Subscription } from 'rxjs';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-order-detail',
   standalone: true,
   imports: [CommonModule, CurrencyInrPipe, SafeImageDirective, RouterLink],
@@ -16,9 +18,11 @@ import { timer, switchMap, takeWhile, catchError, of, Subscription } from 'rxjs'
   styleUrls: ['./order-detail.component.scss']
 })
 export class OrderDetailComponent implements OnInit, OnDestroy {
+  private readonly logSvc = inject(LogService);
   private readonly orderSvc = inject(OrderService);
   private readonly paymentSvc = inject(PaymentService);
   private readonly route = inject(ActivatedRoute);
+  private readonly platformId = inject(PLATFORM_ID);
 
   orderData = signal<Order | null>(null);
   trackingData = signal<OrderTracking | null>(null);
@@ -32,12 +36,14 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
   private pollSub?: Subscription;
 
   ngOnInit() {
-    this.route.params.subscribe(params => {
-      const orderId = params['id'];
-      if (orderId) {
-        this.loadOrderDetails(orderId);
-      }
-    });
+    if (isPlatformBrowser(this.platformId)) {
+      this.route.params.subscribe(params => {
+        const orderId = params['id'];
+        if (orderId) {
+          this.loadOrderDetails(orderId);
+        }
+      });
+    }
   }
 
   loadOrderDetails(orderId: string | number) {
@@ -48,9 +54,6 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
       next: (order) => {
         this.orderData.set(order);
         
-        // Check and verify payment status dynamically if it's pending
-        this.verifyPaymentStatus(order.id);
-
         // Load tracking info if order number is available
         if (order.order_number) {
           this.loadTracking(order.order_number);
@@ -61,7 +64,7 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
       error: (err) => {
         this.error.set('Failed to load order details');
         this.loading.set(false);
-        console.error('Error loading order:', err);
+        this.logSvc.error('Error loading order:', err);
       }
     });
   }
@@ -221,7 +224,7 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
       },
       error: (err) => {
         this.retryPaymentLoading.set(false);
-        console.error('Error initiating payment retry:', err);
+        this.logSvc.error('Error initiating payment retry:', err);
         alert('An error occurred while initiating payment. Please try again later.');
       }
     });
@@ -239,13 +242,13 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
 
     const order = this.orderData();
     if (!order) {
-      console.warn('[DEBUG] [OrderDetail] verifyPaymentStatus called but orderData is null');
+      this.logSvc.warn('[DEBUG] [OrderDetail] verifyPaymentStatus called but orderData is null');
       return;
     }
 
     const isPending = order.payment_status === 'PENDING_PAYMENT' || order.payment_status === 'PENDING';
 
-    console.log('[DEBUG] [OrderDetail] Evaluating order status for verification:', {
+    this.logSvc.debug('[DEBUG] [OrderDetail] Evaluating order status for verification:', {
       orderId,
       orderNumber: order.order_number,
       payment_status: order.payment_status,
@@ -256,7 +259,7 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
     });
 
     if (!isPending && !isPendingInSession) {
-      console.log('[DEBUG] [OrderDetail] Order is not pending/initiated in database or session. Skipping status verification.');
+      this.logSvc.debug('[DEBUG] [OrderDetail] Order is not pending/initiated in database or session. Skipping status verification.');
       return;
     }
 
@@ -265,10 +268,10 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
 
     let attempts = 0;
     const maxAttempts = 10;
-    console.log(`[DEBUG] [OrderDetail] Starting payment verification polling loop. Max attempts: ${maxAttempts}`);
+    this.logSvc.debug(`[DEBUG] [OrderDetail] Starting payment verification polling loop. Max attempts: ${maxAttempts}`);
 
     if (this.pollSub) {
-      console.log('[DEBUG] [OrderDetail] Unsubscribing previous polling subscription.');
+      this.logSvc.debug('[DEBUG] [OrderDetail] Unsubscribing previous polling subscription.');
       this.pollSub.unsubscribe();
     }
 
@@ -276,19 +279,19 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
       switchMap(() => {
         attempts++;
         const url = `/api/payments/status/${orderId}/`;
-        console.log(`[DEBUG] [OrderDetail] Polling attempt #${attempts} | GET: ${url}`);
+        this.logSvc.debug(`[DEBUG] [OrderDetail] Polling attempt #${attempts} | GET: ${url}`);
         return this.orderSvc.getPaymentStatus(orderId).pipe(
           catchError(err => {
-            console.error(`[DEBUG] [OrderDetail] Polling error on attempt #${attempts}:`, err);
+            this.logSvc.error(`[DEBUG] [OrderDetail] Polling error on attempt #${attempts}:`, err);
             return of(null);
           })
         );
       }),
       takeWhile(res => {
-        console.log(`[DEBUG] [OrderDetail] Polling attempt #${attempts} response details:`, res);
+        this.logSvc.debug(`[DEBUG] [OrderDetail] Polling attempt #${attempts} response details:`, res);
         if (!res) {
           if (attempts >= maxAttempts) {
-            console.warn('[DEBUG] [OrderDetail] Polling failed: No response and max attempts reached');
+            this.logSvc.warn('[DEBUG] [OrderDetail] Polling failed: No response and max attempts reached');
             return false;
           }
           return true;
@@ -297,32 +300,32 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
         const pStatus = res.payment_status;
         const tStatus = res.transaction_status;
 
-        console.log(`[DEBUG] [OrderDetail] Status check: payment_status=${pStatus}, transaction_status=${tStatus}`);
+        this.logSvc.debug(`[DEBUG] [OrderDetail] Status check: payment_status=${pStatus}, transaction_status=${tStatus}`);
 
         if (pStatus === 'PAID' && tStatus === 'SUCCESS') {
-          console.log('[DEBUG] [OrderDetail] Reached final success state. Stopping poll.');
+          this.logSvc.debug('[DEBUG] [OrderDetail] Reached final success state. Stopping poll.');
           return false;
         }
         if (tStatus === 'FAILED') {
-          console.log('[DEBUG] [OrderDetail] Reached failed state. Stopping poll.');
+          this.logSvc.debug('[DEBUG] [OrderDetail] Reached failed state. Stopping poll.');
           return false;
         }
         
         if (attempts >= maxAttempts) {
-          console.warn('[DEBUG] [OrderDetail] Stopped polling: Max attempts reached without final status.');
+          this.logSvc.warn('[DEBUG] [OrderDetail] Stopped polling: Max attempts reached without final status.');
           return false;
         }
         return true;
       }, true)
     ).subscribe({
       next: (res: any) => {
-        console.log('[DEBUG] [OrderDetail] Polling subscription finished. Final response resolved:', res);
+        this.logSvc.debug('[DEBUG] [OrderDetail] Polling subscription finished. Final response resolved:', res);
         const isSuccess = res?.payment_status === 'PAID' && res?.transaction_status === 'SUCCESS';
         
-        console.log('[DEBUG] [OrderDetail] Verification result flag:', { isSuccess });
+        this.logSvc.debug('[DEBUG] [OrderDetail] Verification result flag:', { isSuccess });
 
         if (isSuccess) {
-          console.log('[DEBUG] [OrderDetail] Payment successful. Clearing session keys & reloading order detail...');
+          this.logSvc.debug('[DEBUG] [OrderDetail] Payment successful. Clearing session keys & reloading order detail...');
           this.isVerifyingPayment.set(false);
           sessionStorage.removeItem('pendingPaymentId');
           sessionStorage.removeItem('pendingPaymentType');
@@ -331,17 +334,17 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
           this.loading.set(true);
           this.orderSvc.getOrderById(orderId).subscribe({
             next: (newOrder) => {
-              console.log('[DEBUG] [OrderDetail] Order details reloaded successfully:', newOrder);
+              this.logSvc.debug('[DEBUG] [OrderDetail] Order details reloaded successfully:', newOrder);
               this.orderData.set(newOrder);
               this.loading.set(false);
             },
             error: (err) => {
-              console.error('[DEBUG] [OrderDetail] Failed to reload order details after success:', err);
+              this.logSvc.error('[DEBUG] [OrderDetail] Failed to reload order details after success:', err);
               this.loading.set(false);
             }
           });
         } else if (attempts >= maxAttempts || (res && res.transaction_status === 'FAILED')) {
-          console.warn('[DEBUG] [OrderDetail] Verification finished without success. Clearing session keys.');
+          this.logSvc.warn('[DEBUG] [OrderDetail] Verification finished without success. Clearing session keys.');
           this.isVerifyingPayment.set(false);
           sessionStorage.removeItem('pendingPaymentId');
           sessionStorage.removeItem('pendingPaymentType');
@@ -349,7 +352,7 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
         }
       },
       error: (err) => {
-        console.error('[DEBUG] [OrderDetail] Polling subscription crashed:', err);
+        this.logSvc.error('[DEBUG] [OrderDetail] Polling subscription crashed:', err);
         this.isVerifyingPayment.set(false);
       }
     });

@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnDestroy, PLATFORM_ID, inject, signal, Output, EventEmitter, AfterViewInit, ViewChildren, QueryList, ElementRef, ViewChild, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy, PLATFORM_ID, inject, signal, Output, EventEmitter, AfterViewInit, ViewChildren, QueryList, ElementRef, ViewChild, OnChanges, SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 
 export interface PlanCard {
@@ -12,6 +12,7 @@ export interface PlanCard {
 }
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-plans-carousel',
   standalone: true,
   imports: [],

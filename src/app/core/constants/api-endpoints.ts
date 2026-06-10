@@ -50,6 +50,7 @@ export const API = {
   SUBSCRIPTIONS: {
     PLANS: '/api/subscriptions/plans/',
     PLAN_PRODUCTS: '/api/subscriptions/plans/', // append {planId}/products
+    PLAN_SEARCH: '/api/subscriptions/plans/search/',
     LIST: '/api/subscriptions/',
     CREATE: '/api/subscriptions/create/',
     DETAIL: '/api/subscriptions/',             // append {id}/
@@ -125,6 +126,7 @@ export const API = {
    * External payment handler — the secondary Node.js bridge server
    * that acts as a manual webhook trigger for Juspay server-to-server callbacks.
    * Mirrors Flutter's ApiConfig.paymentUrl (http://13.235.242.181:5000)
+   * TODO: Migrate to an HTTPS-enabled domain to resolve insecure HTTP connection.
    */
   PAYMENT_HANDLER: {
     BASE_URL: 'http://13.235.242.181:5000',

@@ -1,13 +1,18 @@
-import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject, ChangeDetectionStrategy, PLATFORM_ID, NgZone } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
 import { CartApiService } from '../../core/services/cart-api.service';
 import { FavoritesService } from '../../core/services/favorites.service';
 import { AuthState } from '../../core/state/auth.state';
+import { environment } from '../../../environments/environment';
+
+declare var google: any;
+declare var AppleID: any;
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-login',
   standalone: true,
   imports: [CommonModule, RouterLink, ReactiveFormsModule],
@@ -22,6 +27,8 @@ export class Login implements OnInit {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   readonly authState = inject(AuthState);
+  private readonly ngZone = inject(NgZone);
+  private readonly platformId = inject(PLATFORM_ID);
 
   loginForm = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
@@ -45,7 +52,102 @@ export class Login implements OnInit {
 
     // Already logged in - redirect
     if (this.authState.isAuthenticated()) {
-      this.router.navigate([this.returnUrl]);
+      this.router.navigateByUrl(this.returnUrl);
+      return;
+    }
+
+    if (isPlatformBrowser(this.platformId)) {
+      this.initGoogleSignIn();
+    }
+  }
+
+  private initGoogleSignIn() {
+    const checkGoogle = setInterval(() => {
+      if (typeof google !== 'undefined' && google.accounts?.id) {
+        clearInterval(checkGoogle);
+        google.accounts.id.initialize({
+          client_id: environment.googleClientId,
+          callback: (response: any) => this.handleGoogleCredentialResponse(response)
+        });
+        
+        const btnContainer = document.getElementById('googleBtn');
+        if (btnContainer) {
+          google.accounts.id.renderButton(btnContainer, {
+            theme: 'outline',
+            size: 'large',
+            width: '100%',
+            text: 'signin_with'
+          });
+        }
+      }
+    }, 100);
+    setTimeout(() => clearInterval(checkGoogle), 10000);
+  }
+
+  private handleGoogleCredentialResponse(response: any) {
+    this.ngZone.run(() => {
+      this.loading = true;
+      this.error = '';
+      this.successMessage = '';
+
+      this.authSvc.googleLogin(response.credential).subscribe({
+        next: () => {
+          this.cartSvc.syncOnLogin();
+          this.favSvc.syncOnLogin();
+          this.router.navigateByUrl(this.returnUrl);
+        },
+        error: (err) => {
+          this.loading = false;
+          const detail = err.error?.detail || err.error?.non_field_errors?.[0];
+          this.error = detail || 'Google sign in failed. Please try again.';
+        }
+      });
+    });
+  }
+
+  async loginWithApple() {
+    if (!isPlatformBrowser(this.platformId)) return;
+
+    if (typeof AppleID === 'undefined') {
+      this.error = 'Apple Sign-In is temporarily unavailable. Please try again.';
+      return;
+    }
+
+    try {
+      this.loading = true;
+      this.error = '';
+      this.successMessage = '';
+
+      AppleID.auth.init({
+        clientId: environment.appleClientId,
+        scope: 'name email',
+        redirectURI: `${window.location.origin}/login`,
+        usePopup: true
+      });
+
+      const res = await AppleID.auth.signIn();
+      const idToken = res.authorization.id_token;
+      const name = res.user ? `${res.user.name.firstName} ${res.user.name.lastName}` : undefined;
+
+      this.ngZone.run(() => {
+        this.authSvc.appleLogin(idToken, name).subscribe({
+          next: () => {
+            this.cartSvc.syncOnLogin();
+            this.favSvc.syncOnLogin();
+            this.router.navigateByUrl(this.returnUrl);
+          },
+          error: (err) => {
+            this.loading = false;
+            const detail = err.error?.detail || err.error?.non_field_errors?.[0];
+            this.error = detail || 'Apple sign in failed. Please try again.';
+          }
+        });
+      });
+    } catch (err) {
+      this.ngZone.run(() => {
+        this.loading = false;
+        console.error('Apple login error:', err);
+      });
     }
   }
 
@@ -70,7 +172,7 @@ export class Login implements OnInit {
       next: () => {
         this.cartSvc.syncOnLogin();
         this.favSvc.syncOnLogin();
-        this.router.navigate([this.returnUrl]);
+        this.router.navigateByUrl(this.returnUrl);
       },
       error: (err) => {
         this.loading = false;

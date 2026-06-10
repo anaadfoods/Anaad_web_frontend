@@ -10,7 +10,7 @@
 .btn-outline-dark:hover { transform: translateY(-2px); background-color: rgba(44, 74, 30, 0.04); }
 
 /* PAGE HERO */
-.page-hero { display: flex; flex-direction: row; align-items: flex-end; min-height: 72vh; padding: 0 64px 80px; position: relative; background-image: url('https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1920&q=80'); background-size: cover; background-position: center 30%; }
+.page-hero { display: flex; flex-direction: row; align-items: flex-end; min-height: 72vh; padding: 0 64px 80px; position: relative; background-image: url('/assets/images-new/3.png'); background-size: cover; background-position: center 30%; }
 .page-hero-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(26,26,26,0.20) 0%, rgba(26,26,26,0.75) 100%); }
 .page-hero-content { position: relative; z-index: 2; display: flex; flex-direction: column; gap: 20px; max-width: 700px; }
 .page-hero-content h1 { font-family: var(--font-serif); font-weight: 700; font-size: 52px; line-height: 1.1; color: var(--bg-parchment); letter-spacing: -0.01em; margin: 0; }

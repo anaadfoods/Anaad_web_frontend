@@ -25,6 +25,7 @@ form { display: flex; flex-direction: column; gap: 56px; }
 .mt-24 { margin-top: 24px; }
 .field-label { font-family: var(--font-sans); font-size: 11px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(26,26,26,0.50); }
 .field-input, .field-select { font-family: var(--font-sans); font-size: 14px; font-weight: 400; color: var(--charcoal); padding: 14px 16px; background-color: transparent; border: 1px solid rgba(26,26,26,0.18); outline: none; width: 100%; transition: border-color 0.2s; }
+.field-input::placeholder { color: rgba(26,26,26,0.35); font-weight: 300; }
 .field-input:focus, .field-select:focus { border-color: var(--green-deep); }
 .field-input.ng-invalid.ng-touched, .field-select.ng-invalid.ng-touched { border-color: #ef4444; }
 .checkout-error { font-family: var(--font-sans); font-size: 13px; color: #A93226; background: rgba(192,57,43,0.08); border: 1px solid rgba(192,57,43,0.18); padding: 14px 16px; }
@@ -113,3 +114,41 @@ form { display: flex; flex-direction: column; gap: 56px; }
 .hidden-radio { display: none; }
 textarea.field-input { resize: vertical; min-height: 80px; font-family: var(--font-sans); }
 .btn-place-order:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ADDRESS MODAL */
+.address-modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.address-modal {
+  background: #FDF9F1;
+  padding: 32px;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 500px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+}
+
+.address-modal-header h3 {
+  font-family: var(--font-serif);
+  font-size: 24px;
+  color: var(--charcoal);
+  margin: 0 0 8px 0;
+}
+
+.address-modal-header p {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  color: rgba(26,26,26,0.7);
+  line-height: 1.5;
+  margin: 0 0 24px 0;
+}

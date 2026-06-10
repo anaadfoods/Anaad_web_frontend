@@ -42,7 +42,7 @@ function isPublicEndpoint(url: string): boolean {
 }
 
 // Module-level refresh request to prevent duplicate refresh calls
-let refreshRequest: ReturnType<typeof import('rxjs')['of']> | null = null;
+let refreshRequest: Observable<TokenRefreshResponse> | null = null;
 
 export const authInterceptor: HttpInterceptorFn = (
   req: HttpRequest<unknown>,
@@ -88,10 +88,10 @@ export const authInterceptor: HttpInterceptorFn = (
           ).pipe(
             shareReplay({ bufferSize: 1, refCount: false }),
             finalize(() => { refreshRequest = null; })
-          ) as any;
+          );
         }
 
-        return (refreshRequest as any).pipe(
+        return refreshRequest.pipe(
           switchMap((response: TokenRefreshResponse) => {
             authState.setAccessToken(response.access);
             const retryReq = req.clone({

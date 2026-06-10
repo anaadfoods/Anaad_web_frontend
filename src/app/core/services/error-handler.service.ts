@@ -14,19 +14,18 @@ export class ErrorHandlerService {
       baseMessage = errorData.non_field_errors[0];
     }
     
-    // Append Fun Facts based on error status
     const status = err?.status;
     
     if (status === 0 || status === 502 || status === 504 || status === 503) {
-      return `Couldn't connect right now. Check your internet! 📶 \n\n🌿 Did you know? Desi cow dung has 300+ beneficial microbes that enrich soil naturally!`;
+      return `Could not connect to the server. Please check your internet connection.`;
     } 
     
     if (status >= 500) {
-      return `Our servers need a moment. Try again shortly! ☕ \n\n🐄 Fun fact: One desi cow can help fertilize up to 30 acres of farmland per year!`;
+      return `Our servers are experiencing an issue. Please try again shortly.`;
     }
     
     if (status === 401 || status === 403) {
-      return `Please log in again to continue 🔐 \n\n🌾 Natural farming uses zero chemicals - just cow-based inputs and love!`;
+      return `Session expired or unauthorized. Please log in again to continue.`;
     }
 
     return baseMessage;

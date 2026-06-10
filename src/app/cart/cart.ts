@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -12,6 +12,7 @@ import { ToastService } from '../core/services/toast.service';
 import { OrderService } from '../core/services/order.service';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-cart',
   standalone: true,
   imports: [CommonModule, RouterLink, FormsModule, CurrencyInrPipe, SafeImageDirective, QtySelectorComponent],
@@ -24,14 +25,9 @@ export class Cart implements OnInit {
   private readonly cartSvc = inject(CartApiService);
   private readonly toastSvc = inject(ToastService);
   private readonly orderSvc = inject(OrderService);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   clearingCart = false;
-  pincode = '';
-  deliveryCharge: number | null = null;
-  deliveryChargesObj: { cod?: number, prepaid?: number } | null = null;
-  expectedDeliveryDate = '';
-  calculatingDelivery = false;
-  deliveryError = '';
 
   ngOnInit() {
     // Reload cart from server on page load if authenticated
@@ -63,45 +59,5 @@ export class Cart implements OnInit {
       next: () => { this.clearingCart = false; },
       error: () => { this.clearingCart = false; }
     });
-  }
-
-  calculateDelivery() {
-    if (this.pincode.length !== 6) {
-      this.deliveryError = 'Please enter a valid 6-digit pincode';
-      return;
-    }
-    this.deliveryError = '';
-    this.calculatingDelivery = true;
-    
-    const items = this.cartState.items().map(i => ({ product_variant_id: i.product_variant, quantity: i.quantity }));
-    
-    this.orderSvc.calculateDeliveryCharges(this.pincode, items).subscribe({
-      next: (res) => {
-        this.deliveryChargesObj = res.delivery_charges;
-        this.deliveryCharge = res.delivery_charges?.cod ?? res.delivery_charges?.prepaid ?? 0;
-        this.expectedDeliveryDate = res.expected_delivery_date;
-        this.calculatingDelivery = false;
-      },
-      error: (err) => {
-        this.deliveryError = err.error?.error || 'Delivery is not available for this pincode.';
-        this.deliveryCharge = null;
-        this.deliveryChargesObj = null;
-        this.expectedDeliveryDate = '';
-        this.calculatingDelivery = false;
-      }
-    });
-  }
-
-  getDeliveryCharge(): number {
-    if (this.deliveryCharge !== null) return this.deliveryCharge;
-    return this.cartState.totalPrice() >= 1200 ? 0 : 150;
-  }
-
-  getGST(): number {
-    return +(this.cartState.totalPrice() * 0.05).toFixed(2);
-  }
-
-  getGrandTotal(): number {
-    return +(this.cartState.totalPrice() + this.getGST() + this.getDeliveryCharge()).toFixed(2);
   }
 }

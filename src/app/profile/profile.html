@@ -163,27 +163,32 @@
             <div class="form-grid">
               <div class="form-field">
                 <label>Username</label>
-                <input type="text" formControlName="username" placeholder="username" />
+                <input type="text" [class.field-error]="profileForm.get('username')?.invalid && profileForm.get('username')?.touched" formControlName="username" placeholder="username" />
+                <span class="field-error-msg" *ngIf="profileForm.get('username')?.touched && profileForm.get('username')?.invalid">Username is required.</span>
               </div>
               <div class="form-field">
                 <label>Email</label>
-                <input type="email" formControlName="email" placeholder="email@example.com" />
+                <input type="email" [class.field-error]="profileForm.get('email')?.invalid && profileForm.get('email')?.touched" formControlName="email" placeholder="email@example.com" />
+                <span class="field-error-msg" *ngIf="profileForm.get('email')?.touched && profileForm.get('email')?.invalid">Valid email is required.</span>
               </div>
               <div class="form-field">
                 <label>First Name</label>
-                <input type="text" formControlName="first_name" placeholder="First Name" />
+                <input type="text" [class.field-error]="profileForm.get('first_name')?.invalid && profileForm.get('first_name')?.touched" formControlName="first_name" placeholder="First Name" />
+                <span class="field-error-msg" *ngIf="profileForm.get('first_name')?.touched && profileForm.get('first_name')?.invalid">First name is required.</span>
               </div>
               <div class="form-field">
                 <label>Last Name</label>
-                <input type="text" formControlName="last_name" placeholder="Last Name" />
+                <input type="text" [class.field-error]="profileForm.get('last_name')?.invalid && profileForm.get('last_name')?.touched" formControlName="last_name" placeholder="Last Name" />
+                <span class="field-error-msg" *ngIf="profileForm.get('last_name')?.touched && profileForm.get('last_name')?.invalid">Last name is required.</span>
               </div>
               <div class="form-field">
                 <label>Phone</label>
-                <input type="tel" formControlName="phone_number" placeholder="+91..." />
+                <input type="tel" [class.field-error]="profileForm.get('phone_number')?.invalid && profileForm.get('phone_number')?.touched" formControlName="phone_number" placeholder="+91..." />
+                <span class="field-error-msg" *ngIf="profileForm.get('phone_number')?.touched && profileForm.get('phone_number')?.invalid">Valid phone number is required.</span>
               </div>
               <div class="form-field">
                 <label>Gender</label>
-                <select formControlName="gender">
+                <select [class.field-error]="profileForm.get('gender')?.invalid && profileForm.get('gender')?.touched" formControlName="gender">
                   <option value="">Select</option>
                   <option value="M">Male</option>
                   <option value="F">Female</option>
@@ -225,7 +230,7 @@
                   </a>
                 </span>
                 <div class="order-items-list">
-                  @for (item of (order.items || []); track item.id) {
+                  @for (item of (order.items || []); track item.id || item.product_variant || $index) {
                     <span>{{ getOrderItemName(item) }} ×{{ item.quantity }}</span>
                   } @empty {
                     <span class="muted">—</span>
@@ -240,6 +245,7 @@
                     *ngIf="order.status !== 'CANCELLED' && order.status !== 'DELIVERED'"
                     (click)="cancelOrder(order.id)">Cancel</button>
                   <button type="button" class="micro-btn"
+                    *ngIf="order.status === 'DELIVERED'"
                     (click)="downloadInvoice(order.order_number)">Invoice</button>
                 </div>
               </div>
@@ -261,8 +267,15 @@
             <p>Active, paused, cancelled, and pending subscription plans.</p>
           </div>
 
+          <div class="sub-tabs-container" style="display: flex; gap: 8px; margin-bottom: 20px;">
+            <button class="micro-btn" [class.active]="activeSubTab() === 'ACTIVE'" (click)="activeSubTab.set('ACTIVE')">Active</button>
+            <button class="micro-btn" [class.active]="activeSubTab() === 'PAUSED'" (click)="activeSubTab.set('PAUSED')">Paused</button>
+            <button class="micro-btn" [class.active]="activeSubTab() === 'CANCELLED'" (click)="activeSubTab.set('CANCELLED')">Cancelled</button>
+            <button class="micro-btn" [class.active]="activeSubTab() === 'ALL'" (click)="activeSubTab.set('ALL')">All</button>
+          </div>
+
           <div class="card-list">
-            @for (subscription of subscriptionsData(); track subscription.id) {
+            @for (subscription of filteredSubscriptions(); track subscription.id) {
               <div class="data-card">
                 <div class="card-main">
                   <span class="detail-label">
@@ -344,7 +357,7 @@
               </div>
               <span class="address-name">{{ profileData()?.first_name }} {{ profileData()?.last_name }}</span>
               <div class="address-lines" *ngIf="getProfileAddress().length; else noAddress">
-                @for (line of getProfileAddress(); track line) {
+                @for (line of getProfileAddress(); track $index) {
                   <span>{{ line }}</span>
                 }
               </div>
@@ -361,21 +374,24 @@
               </div>
               <div class="form-field">
                 <label>Street Address</label>
-                <input type="text" formControlName="address" placeholder="123 Main Street" />
-                <span class="field-error-msg" *ngIf="addressForm.get('address')?.touched && addressForm.get('address')?.invalid">Required.</span>
+                <input type="text" [class.field-error]="addressForm.get('address')?.invalid && addressForm.get('address')?.touched" formControlName="address" placeholder="123 Main Street" />
+                <span class="field-error-msg" *ngIf="addressForm.get('address')?.touched && addressForm.get('address')?.invalid">Street address is required.</span>
               </div>
               <div class="addr-row">
                 <div class="form-field">
                   <label>City</label>
-                  <input type="text" formControlName="city" placeholder="City" />
+                  <input type="text" [class.field-error]="addressForm.get('city')?.invalid && addressForm.get('city')?.touched" formControlName="city" placeholder="City" />
+                  <span class="field-error-msg" *ngIf="addressForm.get('city')?.touched && addressForm.get('city')?.invalid">City is required.</span>
                 </div>
                 <div class="form-field">
                   <label>State</label>
-                  <input type="text" formControlName="state" placeholder="State" />
+                  <input type="text" [class.field-error]="addressForm.get('state')?.invalid && addressForm.get('state')?.touched" formControlName="state" placeholder="State" />
+                  <span class="field-error-msg" *ngIf="addressForm.get('state')?.touched && addressForm.get('state')?.invalid">State is required.</span>
                 </div>
                 <div class="form-field">
                   <label>Pincode</label>
-                  <input type="text" formControlName="pincode" placeholder="110001" maxlength="6" />
+                  <input type="text" [class.field-error]="addressForm.get('pincode')?.invalid && addressForm.get('pincode')?.touched" formControlName="pincode" placeholder="110001" maxlength="6" />
+                  <span class="field-error-msg" *ngIf="addressForm.get('pincode')?.touched && addressForm.get('pincode')?.invalid">Valid 6-digit Pincode required.</span>
                 </div>
               </div>
               <button type="submit" class="action-btn primary" [disabled]="savingAddress()">

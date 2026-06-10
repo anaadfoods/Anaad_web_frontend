@@ -1,7 +1,7 @@
 <div class="rfp-page-wrap">
   <!-- HERO -->
   <section class="hero">
-    <img class="hero-image" src="https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=1600&q=80" alt="Remote Farming">
+    <img class="hero-image" src="assets/images-new/15.png" alt="Remote Farming">
     <div class="hero-overlay">
       <div class="hero-inner">
         <span class="hero-eyebrow">Remote Farming Program</span>
@@ -40,7 +40,7 @@
       <p class="pull-quote">"Your own farm. Your own batch number. Your own food story."</p>
     </div>
     <div class="what-image">
-      <img src="https://images.unsplash.com/photo-1500937386664-56d1dfef3854?w=800&q=80" alt="ICBN Farm">
+      <img src="assets/images-new/16.png" alt="ICBN Farm">
     </div>
   </section>
 
@@ -98,14 +98,14 @@
           <p class="tier-tagline dark">A dedicated plot. Your name on the batch. Produce to your door every quarter.</p>
         </div>
         <div class="tier-body">
-          <div>
+          <!-- <div>
             <p class="tier-price-label">Starting From</p>
             <div class="tier-price-row">
               <span class="tier-price">&#8377;24,999</span>
               <span class="tier-price-note">/ year</span>
             </div>
             <p style="font-size:12px; color:var(--warm-gray); margin-top:4px;">Billed annually · No hidden costs</p>
-          </div>
+          </div> -->
           <hr class="tier-divider">
           <div class="tier-features">
             <div class="tier-feature">
@@ -150,14 +150,14 @@
           <p class="tier-tagline light">Full farm management. Guaranteed procurement. Revenue sharing. Your capital, our expertise.</p>
         </div>
         <div class="tier-body">
-          <div>
+          <!-- <div>
             <p class="tier-price-label">Investment From</p>
             <div class="tier-price-row">
               <span class="tier-price">&#8377;2,50,000</span>
               <span class="tier-price-note">/ acre / year</span>
             </div>
             <p style="font-size:12px; color:var(--warm-gray); margin-top:4px;">Custom terms · Revenue share model available</p>
-          </div>
+          </div> -->
           <hr class="tier-divider">
           <div class="tier-features">
             <div class="tier-feature">
@@ -249,73 +249,46 @@
     <form [formGroup]="rfpForm" (ngSubmit)="onSubmit()" class="inquiry-form" novalidate>
       <div class="form-row">
         <div class="field-group">
-          <label>Full Name</label>
+          <label>Full Name *</label>
           <input type="text" formControlName="fullName" placeholder="Vikram Mehta" [class.error]="rfpForm.get('fullName')?.invalid && rfpForm.get('fullName')?.touched">
+          <span class="field-hint error" *ngIf="rfpForm.get('fullName')?.touched && rfpForm.get('fullName')?.invalid">Required (min 2 characters).</span>
         </div>
         <div class="field-group">
-          <label>Phone Number</label>
-          <input type="tel" formControlName="phone" placeholder="+91 98765 43210" [class.error]="rfpForm.get('phone')?.invalid && rfpForm.get('phone')?.touched">
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="field-group">
-          <label>Email Address</label>
+          <label>Email Address *</label>
           <input type="email" formControlName="email" placeholder="vikram@example.com" [class.error]="rfpForm.get('email')?.invalid && rfpForm.get('email')?.touched">
-        </div>
-        <div class="field-group">
-          <label>City / State</label>
-          <input type="text" formControlName="cityState" placeholder="Delhi, India" [class.error]="rfpForm.get('cityState')?.invalid && rfpForm.get('cityState')?.touched">
-        </div>
-      </div>
-
-      <div class="field-group">
-        <label>Select Your Tier</label>
-        <div class="radio-group">
-          <div class="radio-option" [class.selected]="rfpForm.get('tier')?.value === 'Mini Farm'" (click)="selectTier('Mini Farm')">
-            <div class="radio-dot" [class.filled]="rfpForm.get('tier')?.value === 'Mini Farm'"></div>
-            <div>
-              <p class="radio-label">Your Family's Mini Farm</p>
-              <p class="radio-sub">0.25 acre plot · Quarterly produce box · From &#8377;24,999/year</p>
-            </div>
-          </div>
-          <div class="radio-option" [class.selected]="rfpForm.get('tier')?.value === 'Contract'" (click)="selectTier('Contract')">
-            <div class="radio-dot" [class.filled]="rfpForm.get('tier')?.value === 'Contract'"></div>
-            <div>
-              <p class="radio-label">Contract Farming with ANAAD</p>
-              <p class="radio-sub">Full-acre partnership · Revenue share · From &#8377;2,50,000/acre/year</p>
-            </div>
-          </div>
+          <span class="field-hint error" *ngIf="rfpForm.get('email')?.touched && rfpForm.get('email')?.invalid">Valid email required.</span>
         </div>
       </div>
 
       <div class="form-row">
         <div class="field-group">
-          <label>Plot Size Interest</label>
-          <select formControlName="plotSize">
-            <option>0.25 acres (Mini Farm)</option>
-            <option>0.5 acres</option>
-            <option>1 acre</option>
-            <option>2+ acres (Contract)</option>
-            <option>Not sure — advise me</option>
-          </select>
+          <label>WhatsApp Number (10 digits) *</label>
+          <input type="tel" formControlName="phoneNumber" placeholder="9876543210" [class.error]="rfpForm.get('phoneNumber')?.invalid && rfpForm.get('phoneNumber')?.touched">
+          <span class="field-hint error" *ngIf="rfpForm.get('phoneNumber')?.touched && rfpForm.get('phoneNumber')?.invalid">10-digit number required.</span>
         </div>
         <div class="field-group">
-          <label>Preferred Start Season</label>
-          <select formControlName="startSeason">
-            <option>Kharif 2025 (June–Oct)</option>
-            <option>Rabi 2025–26 (Nov–Mar)</option>
-            <option>Kharif 2026</option>
-            <option>Flexible</option>
+          <label>Requirement Type *</label>
+          <select formControlName="requirementType" class="field-select" style="width:100%; height:44px; padding:0 12px; border:1px solid var(--border-color); border-radius:4px; font-family:inherit; background-color:var(--bg-color); color:var(--text-color);">
+            <option value="INDIVIDUAL">Individual Home</option>
+            <option value="FAMILY">Family Harvest Share</option>
+            <option value="BUSINESS">Business / Wholesale / B2B</option>
           </select>
         </div>
+      </div>
+
+      <div class="field-group" *ngIf="rfpForm.get('requirementType')?.value === 'FAMILY' || rfpForm.get('requirementType')?.value === 'BUSINESS'">
+        <label>Family / Business Name *</label>
+        <input type="text" formControlName="businessOrFamilyName" placeholder="E.g., Mehta Family / Gourmet Bakery" [class.error]="rfpForm.get('businessOrFamilyName')?.invalid && rfpForm.get('businessOrFamilyName')?.touched">
+        <span class="field-hint error" *ngIf="rfpForm.get('businessOrFamilyName')?.touched && rfpForm.get('businessOrFamilyName')?.invalid">Name is required for families or businesses.</span>
       </div>
 
       <div class="field-group">
-        <label>Tell Us About Your Interest</label>
-        <textarea formControlName="notes" placeholder="Why are you interested in the RFP? Any specific grains or crops you'd like grown? Any questions about the programme?"></textarea>
+        <label>Tell Us About Your Interest (Message) *</label>
+        <textarea formControlName="message" placeholder="Why are you interested in the Remote Farming Program? Any specific crops you want grown?" [class.error]="rfpForm.get('message')?.invalid && rfpForm.get('message')?.touched"></textarea>
+        <span class="field-hint error" *ngIf="rfpForm.get('message')?.touched && rfpForm.get('message')?.invalid">Message is required (min 10 characters).</span>
       </div>
 
-      <button type="submit" class="submit-btn" [disabled]="submitting()">
+      <button type="submit" class="submit-btn" [disabled]="submitting() || rfpForm.invalid">
         {{ submitting() ? 'SUBMITTING REQUEST...' : 'Submit RFP Inquiry &#8594;' }}
       </button>
       <p class="form-note">Our team will contact you within 72 hours. No commitment required at this stage.</p>

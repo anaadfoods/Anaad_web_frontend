@@ -1,10 +1,11 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { ResearchPapersService, ResearchPaper } from '../shared/services/research-papers.service';
+import { ResearchPapersService, ResearchPaper } from '../core/services/research-papers.service';
 import { SkeletonLoaderComponent } from '../shared/components/skeleton-loader/skeleton-loader.component';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-evidence-archive',
   standalone: true,
   imports: [CommonModule, RouterLink, SkeletonLoaderComponent],

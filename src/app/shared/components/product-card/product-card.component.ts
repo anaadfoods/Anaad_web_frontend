@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { ProductVariant } from '../../../core/models/product.model';
@@ -10,6 +10,7 @@ import { FavoritesService } from '../../../core/services/favorites.service';
 import { AuthState } from '../../../core/state/auth.state';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-product-card',
   standalone: true,
   imports: [CommonModule, RouterLink, CurrencyInrPipe, TruncatePipe, SafeImageDirective],

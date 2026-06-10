@@ -144,14 +144,14 @@
       <p>Single-origin. Cold-stone milled. Dispatched within 72 hours of processing. Your pantry deserves better than a warehouse shelf.</p>
     </div>
     <div class="products-grid">
-      @if (loadingProducts) {
+      @if (loadingProducts()) {
         <div aria-live="polite" class="loading-message">Loading products…</div>
-      } @else if (productsError) {
-        <div role="alert" class="error-message">{{ productsError }}</div>
-      } @else if (products.length === 0) {
+      } @else if (productsError()) {
+        <div role="alert" class="error-message">{{ productsError() }}</div>
+      } @else if (products().length === 0) {
         <div aria-live="polite" class="no-products-message">No products available right now.</div>
       } @else {
-        @for (product of products; track product.id) {
+        @for (product of products(); track product.id) {
           <div class="product-card" [routerLink]="['/products', product.id]" style="cursor: pointer;">
             <div class="product-image-wrap">
               <img [src]="product.image" [alt]="product.altText || product.name" />
@@ -213,14 +213,14 @@
       </p>
     </div>
     <div class="tier-grid">
-      @if (loadingPlans) {
+      @if (loadingPlans()) {
         <div aria-live="polite">Loading plans…</div>
-      } @else if (plansError) {
-        <div role="alert">{{ plansError }}</div>
-      } @else if (subscriptionPlans.length === 0) {
+      } @else if (plansError()) {
+        <div role="alert">{{ plansError() }}</div>
+      } @else if (subscriptionPlans().length === 0) {
         <div aria-live="polite">No plans available right now. Please check back later.</div>
       } @else {
-        @for (plan of subscriptionPlans; track plan.id; let i = $index) {
+        @for (plan of subscriptionPlans(); track plan.id; let i = $index) {
           <div class="tier-card" [class.featured]="plan.isFeatured || i === 2">
             <div class="tier-badge">{{ plan.badge || (i === 2 ? 'Most Chosen' : 'Tier') }}</div>
             <div class="tier-name">{{ plan.title }}</div>
@@ -231,11 +231,34 @@
                 <div class="tier-perk"><div class="perk-dot"></div>{{ perk }}</div>
               }
             </div>
-            <div class="tier-price-block" *ngIf="plan.price">
-              <div class="tier-price">{{ plan.price }} <span class="tier-price-unit">/mo</span></div>
-              <div class="tier-cadence">Billed monthly &nbsp;·&nbsp; Cancel anytime</div>
+            <div class="tier-price-block">
+              @if (tierSelectedVariant()[plan.id]) {
+                <div class="tier-price">{{ getDiscountedMonthlyPrice(plan.id) | currencyInr }} <span class="tier-price-unit">/mo</span></div>
+                <div class="tier-cadence">
+                  Regular: <span style="text-decoration: line-through;">{{ getOriginalPrice(plan.id) | currencyInr }}</span>
+                  &nbsp;&middot;&nbsp; {{ getSavingsPercentage(plan.id) }}% plan discount
+                </div>
+              } @else {
+                <div class="tier-price">₹— <span class="tier-price-unit">/mo</span></div>
+                <div class="tier-cadence">Select a product to view price</div>
+              }
             </div>
-            <a class="btn-tier" (click)="onPlanSelected(plan)">Begin Journey</a>
+            <div class="tier-product-selector">
+              <select class="tier-product-dropdown"
+                      [class.featured-dropdown]="plan.isFeatured || i === 2"
+                      [value]="tierSelectedVariant()[plan.id] || ''"
+                      (change)="onTierProductSelect(plan.id, $event)">
+                <option value="" disabled>Select a product</option>
+                @for (p of tierProducts()[plan.id]; track p.variant_id) {
+                  <option [value]="p.variant_id">{{ p.variant_name }}</option>
+                }
+              </select>
+              <button class="btn-tier" 
+                      [disabled]="!tierSelectedVariant()[plan.id]" 
+                      (click)="goToProduct(plan.id)">
+                Begin Journey &rarr;
+              </button>
+            </div>
           </div>
         }
       }

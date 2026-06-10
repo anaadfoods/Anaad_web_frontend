@@ -106,7 +106,7 @@
             <span class="summary-value">{{ orderData()?.tax | currencyInr }}</span>
           </div>
           <div class="summary-row" *ngIf="orderData()?.discount">
-            <span class="summary-label">Discount</span>
+            <span class="summary-label">Discount Included</span>
             <span class="summary-value" style="color: #3A7A2E;">-{{ orderData()?.discount | currencyInr }}</span>
           </div>
           <div class="summary-divider"></div>
@@ -141,7 +141,7 @@
           <button class="btn-invoice" style="background-color: var(--green-deep, #2C4A1E); color: #F5F0E8; border-color: var(--green-deep, #2C4A1E); font-weight: 600;" *ngIf="canRetryPayment()" [disabled]="retryPaymentLoading()" (click)="retryPayment()">
             {{ retryPaymentLoading() ? 'INITIATING PAYMENT...' : 'PAY NOW (ONLINE)' }}
           </button>
-          <button class="btn-invoice" (click)="downloadInvoice()">Download Invoice (PDF)</button>
+          <button class="btn-invoice" *ngIf="orderData()?.status === 'DELIVERED'" (click)="downloadInvoice()">Download Invoice (PDF)</button>
           <button class="btn-invoice" style="border-color: #DC143C; color: #DC143C;" *ngIf="canCancelOrder()" (click)="cancelOrder()">Cancel Order</button>
         </div>
       </div>

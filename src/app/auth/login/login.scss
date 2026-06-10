@@ -3,7 +3,7 @@
 
 .left-panel {
   position: relative;
-  background-image: url('https://images.unsplash.com/photo-1592417817098-8f3d6eb18865?auto=format&fit=crop&w=1200&q=80');
+  background-image: url('/assets/images-new/26.png');
   background-size: cover;
   background-position: center;
   display: flex;
@@ -87,3 +87,69 @@
 .left-badge-row { display: flex; align-items: center; gap: 10px; }
 .badge-check { color: var(--amber-harvest); font-size: 13px; }
 .badge-label { font-family: var(--font-sans); font-size: 13px; font-weight: 300; color: rgba(245,240,232,0.70); }
+
+/* Social Login Styling */
+.social-divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 16px 0 8px 0;
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(26, 26, 26, 0.40);
+
+  &::before, &::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid rgba(26, 26, 26, 0.12);
+  }
+  &::before { margin-right: 16px; }
+  &::after { margin-left: 16px; }
+}
+
+.social-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.google-btn-wrapper {
+  display: block;
+  width: 100%;
+  iframe {
+    width: 100% !important;
+  }
+}
+
+.btn-apple {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--bg-parchment);
+  background-color: #000000;
+  padding: 14px 0;
+  border: 1px solid #000000;
+  cursor: pointer;
+  transition: background-color 0.2s, opacity 0.2s;
+
+  &:hover {
+    opacity: 0.9;
+  }
+  
+  .apple-icon {
+    width: 15px;
+    height: 15px;
+    fill: currentColor;
+  }
+}

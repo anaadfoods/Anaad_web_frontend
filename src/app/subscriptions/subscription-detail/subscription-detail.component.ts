@@ -1,4 +1,5 @@
-import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
+import { LogService } from '../../core/services/log.service';
+import { Component, OnInit, OnDestroy, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -17,6 +18,7 @@ interface SubscriptionInvoice {
 }
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-subscription-detail',
   standalone: true,
   imports: [CommonModule, CurrencyInrPipe, RouterLink, FormsModule],
@@ -24,6 +26,7 @@ interface SubscriptionInvoice {
   styleUrls: ['./subscription-detail.component.scss']
 })
 export class SubscriptionDetailComponent implements OnInit, OnDestroy {
+  private readonly logSvc = inject(LogService);
   private readonly subscriptionSvc = inject(SubscriptionService);
   private readonly route = inject(ActivatedRoute);
 
@@ -70,7 +73,7 @@ export class SubscriptionDetailComponent implements OnInit, OnDestroy {
       error: (err) => {
         this.error.set('Failed to load subscription details');
         this.loading.set(false);
-        console.error('Error loading subscription:', err);
+        this.logSvc.error('Error loading subscription:', err);
       }
     });
   }
@@ -262,6 +265,65 @@ export class SubscriptionDetailComponent implements OnInit, OnDestroy {
     });
   }
 
+  getMonthlyDeliveryCharge(): number {
+    const sub = this.subscriptionData();
+    if (!sub) return 0;
+    if (sub.delivery_charges !== undefined) return parseFloat(sub.delivery_charges as any) || 0;
+    return (sub as any).delivery_fee || 0;
+  }
+
+  getSubscriptionDurationMonths(): number {
+    const sub = this.subscriptionData();
+    if (!sub) return 1;
+    if (sub.total_deliveries) return sub.total_deliveries; // Assuming 1 delivery per month for this calculation if no plan details
+    if (typeof sub.plan === 'object' && sub.plan !== null) {
+      return (sub.plan as any).duration_months || 1;
+    }
+    return 1;
+  }
+
+  getTotalAmount(): number {
+    const pStatus = this.paymentStatus();
+    if (pStatus && pStatus.amount) {
+      return parseFloat(pStatus.amount);
+    }
+    const sub = this.subscriptionData();
+    if (!sub) return 0;
+    if (sub.total !== undefined) return parseFloat(sub.total as any) || 0;
+    return (sub as any).total_amount || 0;
+  }
+
+  getTotalDeliveryCost(): number {
+    const sub = this.subscriptionData();
+    if (!sub) return 0;
+    if (sub.total_delivery_charges !== undefined) return parseFloat(sub.total_delivery_charges as any) || 0;
+    return this.getMonthlyDeliveryCharge() * this.getSubscriptionDurationMonths();
+  }
+
+  getTotalItemCost(): number {
+    const sub = this.subscriptionData();
+    if (!sub) return 0;
+    if (sub.subtotal !== undefined) return parseFloat(sub.subtotal as any) || 0;
+
+    const total = this.getTotalAmount();
+    const totalDelivery = this.getTotalDeliveryCost();
+    const itemCost = total - totalDelivery;
+    return itemCost > 0 ? itemCost : 0;
+  }
+
+  getMonthlyItemCost(): number {
+    const sub = this.subscriptionData();
+    if (!sub) return 0;
+    if (sub.items && sub.items.length > 0) {
+       let cost = 0;
+       for (const item of sub.items) {
+           cost += (parseFloat(item.discounted_price as any) || parseFloat(item.price as any) || 0) * item.quantity;
+       }
+       if (cost > 0) return cost;
+    }
+    return this.getTotalItemCost() / this.getSubscriptionDurationMonths();
+  }
+
   ngOnDestroy() {
     if (this.pollSub) {
       this.pollSub.unsubscribe();
@@ -274,13 +336,13 @@ export class SubscriptionDetailComponent implements OnInit, OnDestroy {
 
     const sub = this.subscriptionData();
     if (!sub) {
-      console.warn('[DEBUG] [SubscriptionDetail] verifyPaymentStatus called but subscriptionData is null');
+      this.logSvc.warn('[DEBUG] [SubscriptionDetail] verifyPaymentStatus called but subscriptionData is null');
       return;
     }
 
     const isPending = sub.payment_status === 'PENDING' || sub.payment_status === 'UNPAID';
 
-    console.log('[DEBUG] [SubscriptionDetail] Evaluating subscription status for verification:', {
+    this.logSvc.debug('[DEBUG] [SubscriptionDetail] Evaluating subscription status for verification:', {
       subscriptionId,
       subscriptionNumber: sub.subscription_number,
       payment_status: sub.payment_status,
@@ -291,7 +353,7 @@ export class SubscriptionDetailComponent implements OnInit, OnDestroy {
     });
 
     if (!isPending && !isPendingInSession) {
-      console.log('[DEBUG] [SubscriptionDetail] Subscription is not pending/unpaid in database or session. Skipping status verification.');
+      this.logSvc.debug('[DEBUG] [SubscriptionDetail] Subscription is not pending/unpaid in database or session. Skipping status verification.');
       return;
     }
 
@@ -300,10 +362,10 @@ export class SubscriptionDetailComponent implements OnInit, OnDestroy {
 
     let attempts = 0;
     const maxAttempts = 10;
-    console.log(`[DEBUG] [SubscriptionDetail] Starting payment verification polling loop. Max attempts: ${maxAttempts}`);
+    this.logSvc.debug(`[DEBUG] [SubscriptionDetail] Starting payment verification polling loop. Max attempts: ${maxAttempts}`);
 
     if (this.pollSub) {
-      console.log('[DEBUG] [SubscriptionDetail] Unsubscribing previous polling subscription.');
+      this.logSvc.debug('[DEBUG] [SubscriptionDetail] Unsubscribing previous polling subscription.');
       this.pollSub.unsubscribe();
     }
 
@@ -311,47 +373,47 @@ export class SubscriptionDetailComponent implements OnInit, OnDestroy {
       switchMap(() => {
         attempts++;
         const url = `/api/payments/subscription-status/${subscriptionId}/`;
-        console.log(`[DEBUG] [SubscriptionDetail] Polling attempt #${attempts} | GET: ${url}`);
+        this.logSvc.debug(`[DEBUG] [SubscriptionDetail] Polling attempt #${attempts} | GET: ${url}`);
         return this.subscriptionSvc.getSubscriptionPaymentStatus(subscriptionId).pipe(
           catchError(err => {
-            console.error(`[DEBUG] [SubscriptionDetail] Polling error on attempt #${attempts}:`, err);
+            this.logSvc.error(`[DEBUG] [SubscriptionDetail] Polling error on attempt #${attempts}:`, err);
             return of(null);
           })
         );
       }),
       takeWhile(res => {
-        console.log(`[DEBUG] [SubscriptionDetail] Polling attempt #${attempts} response details:`, res);
+        this.logSvc.debug(`[DEBUG] [SubscriptionDetail] Polling attempt #${attempts} response details:`, res);
         if (!res) {
           if (attempts >= maxAttempts) {
-            console.warn('[DEBUG] [SubscriptionDetail] Polling failed: No response and max attempts reached');
+            this.logSvc.warn('[DEBUG] [SubscriptionDetail] Polling failed: No response and max attempts reached');
             return false;
           }
           return true;
         }
 
         const tStatus = res.transaction_status;
-        console.log(`[DEBUG] [SubscriptionDetail] Status check: transaction_status=${tStatus}`);
+        this.logSvc.debug(`[DEBUG] [SubscriptionDetail] Status check: transaction_status=${tStatus}`);
 
         if (tStatus === 'SUCCESS' || tStatus === 'ACTIVE' || tStatus === 'FAILED') {
-          console.log(`[DEBUG] [SubscriptionDetail] Reached final subscription state: ${tStatus}. Stopping poll.`);
+          this.logSvc.debug(`[DEBUG] [SubscriptionDetail] Reached final subscription state: ${tStatus}. Stopping poll.`);
           return false;
         }
 
         if (attempts >= maxAttempts) {
-          console.warn('[DEBUG] [SubscriptionDetail] Stopped polling: Max attempts reached without final status.');
+          this.logSvc.warn('[DEBUG] [SubscriptionDetail] Stopped polling: Max attempts reached without final status.');
           return false;
         }
         return true;
       }, true)
     ).subscribe({
       next: (res: any) => {
-        console.log('[DEBUG] [SubscriptionDetail] Polling subscription finished. Final response resolved:', res);
+        this.logSvc.debug('[DEBUG] [SubscriptionDetail] Polling subscription finished. Final response resolved:', res);
         const isSuccess = res?.transaction_status === 'SUCCESS' || res?.transaction_status === 'ACTIVE';
 
-        console.log('[DEBUG] [SubscriptionDetail] Verification result flag:', { isSuccess });
+        this.logSvc.debug('[DEBUG] [SubscriptionDetail] Verification result flag:', { isSuccess });
 
         if (isSuccess) {
-          console.log('[DEBUG] [SubscriptionDetail] Payment successful. Clearing session keys & reloading subscription details...');
+          this.logSvc.debug('[DEBUG] [SubscriptionDetail] Payment successful. Clearing session keys & reloading subscription details...');
           this.isVerifyingPayment.set(false);
           sessionStorage.removeItem('pendingPaymentId');
           sessionStorage.removeItem('pendingPaymentType');
@@ -360,18 +422,18 @@ export class SubscriptionDetailComponent implements OnInit, OnDestroy {
           this.loading.set(true);
           this.subscriptionSvc.getSubscriptionById(subscriptionId).subscribe({
             next: (newSub) => {
-              console.log('[DEBUG] [SubscriptionDetail] Subscription details reloaded successfully:', newSub);
+              this.logSvc.debug('[DEBUG] [SubscriptionDetail] Subscription details reloaded successfully:', newSub);
               this.subscriptionData.set(newSub);
               this.loadPaymentStatus(subscriptionId);
               this.loadInvoices(subscriptionId);
             },
             error: (err) => {
-              console.error('[DEBUG] [SubscriptionDetail] Failed to reload subscription details:', err);
+              this.logSvc.error('[DEBUG] [SubscriptionDetail] Failed to reload subscription details:', err);
               this.loading.set(false);
             }
           });
         } else if (attempts >= maxAttempts || (res && res.transaction_status === 'FAILED')) {
-          console.warn('[DEBUG] [SubscriptionDetail] Verification finished without success. Clearing session keys.');
+          this.logSvc.warn('[DEBUG] [SubscriptionDetail] Verification finished without success. Clearing session keys.');
           this.isVerifyingPayment.set(false);
           sessionStorage.removeItem('pendingPaymentId');
           sessionStorage.removeItem('pendingPaymentType');
@@ -379,7 +441,7 @@ export class SubscriptionDetailComponent implements OnInit, OnDestroy {
         }
       },
       error: (err) => {
-        console.error('[DEBUG] [SubscriptionDetail] Polling subscription crashed:', err);
+        this.logSvc.error('[DEBUG] [SubscriptionDetail] Polling subscription crashed:', err);
         this.isVerifyingPayment.set(false);
       }
     });

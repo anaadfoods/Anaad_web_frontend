@@ -1,0 +1,271 @@
+<div class="help-page-wrap">
+  <!-- HERO / HEADER -->
+  <section class="help-hero">
+    <div class="hero-inner">
+      <span class="hero-eyebrow">Support Center</span>
+      <h1 class="hero-title">How can we help you today?</h1>
+      <p class="hero-subtitle">
+        Find answers to frequently asked questions about our heirloom grains, farm traceability, and community subscriptions, or get in touch with our team.
+      </p>
+
+      <!-- SEARCH BAR -->
+      <div class="search-container">
+        <span class="search-icon">🔍</span>
+        <input 
+          type="text" 
+          placeholder="Search topics, e.g. 'ICBN', 'shipping', 'pause subscription'..." 
+          [value]="searchQuery()"
+          (input)="onSearchChange($event)"
+          aria-label="Search FAQs"
+        />
+        @if (searchQuery()) {
+          <button class="search-clear-btn" (click)="searchQuery.set(''); activeQuestionIndex.set(null)" aria-label="Clear search">✕</button>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- MAIN PAGE CONTENT -->
+  <div class="container help-body-grid">
+    
+    <!-- FAQ ACCORDION SECTION -->
+    <section class="faq-section">
+      <h2 class="section-title">Frequently Asked Questions</h2>
+      
+      <!-- CATEGORY PILLS -->
+      <div class="category-filters">
+        <button [class.active]="selectedCategory() === 'all'" (click)="setCategory('all')">All FAQs</button>
+        <button [class.active]="selectedCategory() === 'general'" (click)="setCategory('general')">General Inquiry</button>
+        <button [class.active]="selectedCategory() === 'orders'" (click)="setCategory('orders')">Orders & Shipping</button>
+        <button [class.active]="selectedCategory() === 'subscriptions'" (click)="setCategory('subscriptions')">Subscriptions</button>
+        <button [class.active]="selectedCategory() === 'rfp'" (click)="setCategory('rfp')">Remote Farming</button>
+      </div>
+
+      <!-- FAQ ACCORDION LIST -->
+      <div class="faq-accordion-list">
+        @if (filteredFaqs().length === 0) {
+          <div class="no-results-card">
+            <span class="no-results-icon">🍃</span>
+            <p>No questions found matching "{{ searchQuery() }}"</p>
+            <span>Try searching for other keywords, or submit your query using the form below.</span>
+          </div>
+        } @else {
+          @for (faq of filteredFaqs(); track faq.question; let idx = $index) {
+            <div class="accordion-item" [class.open]="activeQuestionIndex() === idx">
+              <button 
+                class="accordion-header" 
+                (click)="toggleAccordion(idx)"
+                [attr.aria-expanded]="activeQuestionIndex() === idx"
+              >
+                <span class="accordion-q">{{ faq.question }}</span>
+                <span class="accordion-chevron"></span>
+              </button>
+              <div class="accordion-panel" [style.max-height]="activeQuestionIndex() === idx ? '500px' : '0'">
+                <div class="accordion-panel-inner">
+                  <p class="accordion-a">{{ faq.answer }}</p>
+                </div>
+              </div>
+            </div>
+          }
+        }
+      </div>
+    </section>
+
+    <!-- SUPPORT FORM & CONTACT CARDS SECTION -->
+    <div class="support-contact-layout">
+      
+      <!-- CONTACT INFO SIDEBAR -->
+      <aside class="contact-info-column">
+        <div class="info-card quick-connect">
+          <h3>Quick Support</h3>
+          <p>Prefer direct messaging? Reach out through our primary support channel.</p>
+          
+          <a href="https://wa.me/919996166186" target="_blank" rel="noopener noreferrer" class="whatsapp-btn">
+            <span class="wa-icon">💬</span> Chat on WhatsApp
+          </a>
+          <span class="connect-subtext">Typically responds in under 2 hours</span>
+        </div>
+
+        <div class="info-card contact-details">
+          <h3>Contact Channels</h3>
+          
+          <div class="contact-item">
+            <span class="item-icon">📧</span>
+            <div class="item-text">
+              <span class="item-label">Email Support</span>
+              <a href="mailto:connect@anaadfoods.com" class="item-link">connect@anaadfoods.com</a>
+            </div>
+          </div>
+
+          <div class="contact-item">
+            <span class="item-icon">🚨</span>
+            <div class="item-text">
+              <span class="item-label">Complaints & Escalations</span>
+              <a href="mailto:complaints@anaadfoods.com" class="item-link">complaints@anaadfoods.com</a>
+            </div>
+          </div>
+
+          <div class="contact-item">
+            <span class="item-icon">📞</span>
+            <div class="item-text">
+              <span class="item-label">Phone Hotline</span>
+              <a href="tel:+919996166186" class="item-link">+91 9996 166 186</a>
+            </div>
+          </div>
+
+          <div class="contact-item">
+            <span class="item-icon">🕒</span>
+            <div class="item-text">
+              <span class="item-label">Business Hours</span>
+              <span class="item-value">Mon – Sat, 9:00 AM – 6:00 PM IST</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="info-card office-card">
+          <span class="tag">Farmstead Office</span>
+          <h3>ANAAD Foods Pvt. Ltd.</h3>
+          <p class="address-text">
+            Village Farmstead, ICBN Agriculture Zone,<br>
+            Sonipat, Haryana – 131101, India
+          </p>
+        </div>
+      </aside>
+
+      <!-- HELP SUBMISSION FORM -->
+      <section class="form-section">
+        <div class="form-header">
+          <h2>Send Us a Message</h2>
+          <p>Fill out the details below, and our support team will get back to you within 24 hours.</p>
+        </div>
+
+        <!-- Form status alerts -->
+        @if (success()) {
+          <div class="alert alert-success">
+            <span class="alert-icon">✓</span>
+            <div class="alert-content">
+              <h4>Message Sent Successfully</h4>
+              <p>Thank you for reaching out. We have logged your query and will contact you shortly.</p>
+            </div>
+          </div>
+        }
+
+        @if (errorMessage()) {
+          <div class="alert alert-danger">
+            <span class="alert-icon">⚠</span>
+            <div class="alert-content">
+              <h4>Submission Failed</h4>
+              <p>{{ errorMessage() }}</p>
+            </div>
+          </div>
+        }
+
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" class="support-form" novalidate>
+          <div class="form-group">
+            <label for="fullName">Full Name</label>
+            <input 
+              id="fullName" 
+              type="text" 
+              formControlName="fullName" 
+              placeholder="E.g., Arjun Sharma"
+              [class.invalid]="f.fullName.invalid && (f.fullName.touched || f.fullName.dirty)"
+            />
+            @if (f.fullName.invalid && (f.fullName.touched || f.fullName.dirty)) {
+              <span class="error-msg">Full name is required (min 2 characters).</span>
+            }
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="email">Email Address</label>
+              <input 
+                id="email" 
+                type="email" 
+                formControlName="email" 
+                placeholder="arjun@example.com"
+                [class.invalid]="f.email.invalid && (f.email.touched || f.email.dirty)"
+              />
+              @if (f.email.invalid && (f.email.touched || f.email.dirty)) {
+                <span class="error-msg">Please enter a valid email address.</span>
+              }
+            </div>
+
+            <div class="form-group">
+              <label for="phoneNumber">WhatsApp Number (10 digits)</label>
+              <div class="phone-input-wrapper">
+                <span class="prefix">+91</span>
+                <input 
+                  id="phoneNumber" 
+                  type="tel" 
+                  formControlName="phoneNumber" 
+                  placeholder="9876543210"
+                  [class.invalid]="f.phoneNumber.invalid && (f.phoneNumber.touched || f.phoneNumber.dirty)"
+                />
+              </div>
+              @if (f.phoneNumber.invalid && (f.phoneNumber.touched || f.phoneNumber.dirty)) {
+                <span class="error-msg">Please enter a valid 10-digit number.</span>
+              }
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="requirementType">Requirement Type</label>
+              <select id="requirementType" formControlName="requirementType">
+                <option value="INDIVIDUAL">Individual Home</option>
+                <option value="FAMILY">Family Harvest Share</option>
+                <option value="BUSINESS">Business / Wholesale / B2B</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="businessOrFamilyName">
+                Family / Business Name 
+                @if (f.requirementType.value === 'FAMILY' || f.requirementType.value === 'BUSINESS') {
+                  <span class="required">*</span>
+                }
+              </label>
+              <input 
+                id="businessOrFamilyName" 
+                type="text" 
+                formControlName="businessOrFamilyName" 
+                placeholder="E.g., Sharma Family / Gourmet Bakery"
+                [class.invalid]="f.businessOrFamilyName.invalid && (f.businessOrFamilyName.touched || f.businessOrFamilyName.dirty)"
+              />
+              @if (f.businessOrFamilyName.invalid && (f.businessOrFamilyName.touched || f.businessOrFamilyName.dirty)) {
+                <span class="error-msg">This field is required for families or businesses.</span>
+              }
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="message">Your Message</label>
+            <textarea 
+              id="message" 
+              formControlName="message" 
+              rows="5"
+              placeholder="Describe your query in detail. If related to an order, please include the order ID..."
+              [class.invalid]="f.message.invalid && (f.message.touched || f.message.dirty)"
+            ></textarea>
+            @if (f.message.invalid && (f.message.touched || f.message.dirty)) {
+              <span class="error-msg">Please enter your message (min 10 characters).</span>
+            }
+          </div>
+
+          <div class="form-group checkbox-group">
+            <input id="isFromRfp" type="checkbox" formControlName="isFromRfp" />
+            <label for="isFromRfp">This inquiry is related to the Remote Farming Program (RFP)</label>
+          </div>
+
+          <button type="submit" class="submit-btn" [disabled]="form.invalid || submitting()">
+            @if (submitting()) {
+              <span class="spinner"></span> Submitting...
+            } @else {
+              Send Support Ticket
+            }
+          </button>
+        </form>
+      </section>
+    </div>
+  </div>
+</div>

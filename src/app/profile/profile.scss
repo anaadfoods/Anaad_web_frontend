@@ -256,9 +256,13 @@
 .form-field label { font-family: var(--font-sans); font-size: 11px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(26,26,26,0.45); }
 .form-field input, .form-field select, .form-field textarea {
   font-family: var(--font-sans); font-size: 14px; color: var(--charcoal, #1A1A1A);
-  padding: 12px 14px; border: 1px solid rgba(26,26,26,0.15); outline: none; background: transparent; width: 100%;
+  padding: 12px 14px; border: 1px solid rgba(26,26,26,0.15); outline: none; background: transparent; width: 100%; transition: border-color 0.2s;
+}
+.form-field input::placeholder, .form-field textarea::placeholder {
+  color: rgba(26,26,26,0.35); font-weight: 300;
 }
 .form-field input:focus, .form-field select:focus { border-color: var(--green-deep, #2C4A1E); }
+.form-field input.field-error, .form-field select.field-error { border-color: #c0392b; }
 .action-btn.primary {
   font-family: var(--font-sans); font-size: 12px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;
   background: var(--green-deep, #2C4A1E); color: #F5F0E8; border: none; padding: 16px 32px; cursor: pointer;

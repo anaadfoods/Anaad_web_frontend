@@ -19,6 +19,7 @@ import { Observable, catchError, of, timeout } from 'rxjs';
 import { API } from '../constants/api-endpoints';
 import { PaymentStatus } from '../models/order.model';
 import { SubscriptionPaymentStatus } from '../models/subscription.model';
+import { LogService } from './log.service';
 
 export interface PaymentInitiationResult {
   success: boolean;
@@ -36,6 +37,7 @@ export interface PaymentInitiationResult {
 @Injectable({ providedIn: 'root' })
 export class PaymentService {
   private readonly http = inject(HttpClient);
+  private readonly logSvc = inject(LogService);
 
   // ── Payment Initiation ────────────────────
 
@@ -98,7 +100,7 @@ export class PaymentService {
       .pipe(
         timeout(5000),
         catchError(err => {
-          console.warn('[PaymentService] triggerJuspayWebhook failed (non-blocking):', err);
+          this.logSvc.warn('[PaymentService] triggerJuspayWebhook failed (non-blocking):', err);
           return of(null);
         })
       );

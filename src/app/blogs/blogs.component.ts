@@ -1,10 +1,11 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { BlogsService, Article } from '../shared/services/blogs.service';
+import { BlogsService, Article } from '../core/services/blogs.service';
 import { SkeletonLoaderComponent } from '../shared/components/skeleton-loader/skeleton-loader.component';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-blogs',
   standalone: true,
   imports: [CommonModule, RouterLink, SkeletonLoaderComponent],

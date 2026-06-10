@@ -1,3 +1,4 @@
+import { LogService } from '../core/services/log.service';
 // ============================================
 // PaymentSuccess Component
 //
@@ -19,19 +20,22 @@
 //       5. On FAILED/timeout → shows pending warning → navigates to details
 // ============================================
 
-import { Component, OnInit, OnDestroy, inject, PLATFORM_ID } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, PLATFORM_ID, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { OrderService } from '../core/services/order.service';
 import { SubscriptionService } from '../core/services/subscription.service';
 import { PaymentService } from '../core/services/payment.service';
 import { ToastService } from '../core/services/toast.service';
+import { PaymentStatus } from '../core/models/order.model';
+import { SubscriptionPaymentStatus } from '../core/models/subscription.model';
 import {
   timer, switchMap, takeWhile, catchError, of,
   forkJoin, timeout, Subscription as RxSubscription
 } from 'rxjs';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-payment-success',
   standalone: true,
   imports: [CommonModule],
@@ -39,6 +43,7 @@ import {
   styleUrl: './payment-success.scss'
 })
 export class PaymentSuccess implements OnInit, OnDestroy {
+  private readonly logSvc = inject(LogService);
   private readonly router       = inject(Router);
   private readonly route        = inject(ActivatedRoute);
   private readonly orderSvc     = inject(OrderService);
@@ -69,10 +74,10 @@ export class PaymentSuccess implements OnInit, OnDestroy {
   ngOnInit(): void {
     if (!isPlatformBrowser(this.platformId)) return;
 
-    console.log('[PaymentSuccess] ngOnInit');
+    this.logSvc.debug('[PaymentSuccess] ngOnInit');
 
     this.route.queryParams.subscribe(params => {
-      console.log('[PaymentSuccess] Query params:', params);
+      this.logSvc.debug('[PaymentSuccess] Query params:', params);
 
       // Phase 1: resolve the pending transaction context
       // Priority: query params → sessionStorage fallback (set during checkout redirect)
@@ -93,7 +98,7 @@ export class PaymentSuccess implements OnInit, OnDestroy {
         if (parts.length > 1) orderIdStr = parts[1];
       }
 
-      console.log('[PaymentSuccess] Resolved:', { orderIdStr, isSubscription, orderNum });
+      this.logSvc.debug('[PaymentSuccess] Resolved:', { orderIdStr, isSubscription, orderNum });
 
       // Clear sessionStorage immediately so a page refresh doesn't re-trigger
       sessionStorage.removeItem('pendingPaymentId');
@@ -101,7 +106,7 @@ export class PaymentSuccess implements OnInit, OnDestroy {
       sessionStorage.removeItem('pendingPaymentNumber');
 
       if (!orderIdStr) {
-        console.error('[PaymentSuccess] No pending transaction reference found.');
+        this.logSvc.error('[PaymentSuccess] No pending transaction reference found.');
         this.statusMessage = 'No pending transaction found. Redirecting...';
         this.paymentSuccess = false;
         this.startHomeRedirect();
@@ -134,13 +139,13 @@ export class PaymentSuccess implements OnInit, OnDestroy {
     orderNumber: string
   ): void {
     this.statusMessage = 'Synchronizing transaction details...';
-    console.log('[PaymentSuccess] Starting verification:', { orderId, isSubscription, orderNumber });
+    this.logSvc.debug('[PaymentSuccess] Starting verification:', { orderId, isSubscription, orderNumber });
 
     // Step 1: Trigger the Node.js bridge (non-blocking, mirrors postOrderId)
     const bridgeTrigger$ = this.paymentSvc.triggerJuspayWebhook(orderNumber).pipe(
       timeout(5000),
       catchError(err => {
-        console.warn('[PaymentSuccess] Bridge trigger failed (non-blocking):', err);
+        this.logSvc.warn('[PaymentSuccess] Bridge trigger failed (non-blocking):', err);
         return of(null);
       })
     );
@@ -155,7 +160,7 @@ export class PaymentSuccess implements OnInit, OnDestroy {
         return timer(0, 2000).pipe(
           switchMap(() => {
             attempts++;
-            console.log(`[PaymentSuccess] Poll attempt #${attempts}`);
+            this.logSvc.debug(`[PaymentSuccess] Poll attempt #${attempts}`);
 
             const statusPoll$ = isSubscription
               ? this.subSvc.getPaymentStatus(orderId).pipe(catchError(() => of(null)))
@@ -163,12 +168,12 @@ export class PaymentSuccess implements OnInit, OnDestroy {
 
             return statusPoll$;
           }),
-          takeWhile(res => {
-            console.log(`[PaymentSuccess] Attempt #${attempts} response:`, res);
+          takeWhile((res: PaymentStatus | SubscriptionPaymentStatus | null) => {
+            this.logSvc.debug(`[PaymentSuccess] Attempt #${attempts} response:`, res);
             if (!res) return attempts < maxAttempts;
 
-            const pStatus = (res as any).payment_status;
-            const tStatus = (res as any).transaction_status;
+            const pStatus = res.payment_status;
+            const tStatus = res.transaction_status;
 
             if (isSubscription) {
               if (tStatus === 'SUCCESS' || tStatus === 'ACTIVE' || tStatus === 'FAILED') {
@@ -184,8 +189,8 @@ export class PaymentSuccess implements OnInit, OnDestroy {
         );
       })
     ).subscribe({
-      next: (res: any) => {
-        console.log('[PaymentSuccess] Final poll response:', res);
+      next: (res: PaymentStatus | SubscriptionPaymentStatus | null) => {
+        this.logSvc.debug('[PaymentSuccess] Final poll response:', res);
 
         const isSuccess = isSubscription
           ? (res?.transaction_status === 'SUCCESS' || res?.transaction_status === 'ACTIVE')
@@ -193,7 +198,7 @@ export class PaymentSuccess implements OnInit, OnDestroy {
 
         this.receiptDetails = {
           id: orderId,
-          number: res?.order_number || res?.orderNumber || orderNumber,
+          number: (res as any)?.order_number || (res as any)?.orderNumber || orderNumber,
           transactionId: res?.transaction_id || res?.merchant_transaction_id || '—',
           amount: res?.amount || '—',
           type: isSubscription ? 'subscription' : 'order',
@@ -210,7 +215,7 @@ export class PaymentSuccess implements OnInit, OnDestroy {
             'success',
             5000
           );
-          console.log('[PaymentSuccess] SUCCESS — starting redirect timer');
+          this.logSvc.debug('[PaymentSuccess] SUCCESS — starting redirect timer');
         } else {
           this.paymentSuccess = false;
           this.statusMessage =
@@ -221,13 +226,13 @@ export class PaymentSuccess implements OnInit, OnDestroy {
             'info',
             6000
           );
-          console.warn('[PaymentSuccess] PENDING/FAILED — navigating to details');
+          this.logSvc.warn('[PaymentSuccess] PENDING/FAILED — navigating to details');
         }
 
         this.startRedirectTimer(orderId, isSubscription);
       },
       error: (err) => {
-        console.error('[PaymentSuccess] Verification stream error:', err);
+        this.logSvc.error('[PaymentSuccess] Verification stream error:', err);
         this.paymentSuccess = false;
         this.statusMessage = 'An error occurred during verification. Please check your profile.';
         this.startRedirectTimer(orderId, isSubscription);
