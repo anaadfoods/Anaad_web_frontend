@@ -1,0 +1,246 @@
+﻿<div class="journey-page">
+  <header class="journey-intro">
+    <a routerLink="/" class="journey-intro__back">Back to home</a>
+    <p class="journey-intro__eyebrow">From Soil to Soul</p>
+    <h1 class="journey-intro__title">Anaad</h1>
+    <div class="journey-intro__rule" aria-hidden="true"></div>
+    <p class="journey-intro__sub">A journey of purity, trust and traceability</p>
+    <p class="journey-intro__hint">Scroll and watch the creeper carry every stage upward</p>
+    <span class="journey-intro__chevron" aria-hidden="true"></span>
+  </header>
+
+  <div class="journey" #journeyRoot>
+    <div class="journey__vine" aria-hidden="true">
+      <svg viewBox="0 0 240 4700" preserveAspectRatio="xMidYMin meet">
+        <defs>
+          <linearGradient id="vineStroke" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#4a6b35"></stop>
+            <stop offset="0.55" stop-color="#3d5c2c"></stop>
+            <stop offset="1" stop-color="#2c4a1e"></stop>
+          </linearGradient>
+        </defs>
+
+        <path
+          #vinePath
+          class="journey__vine-path"
+          d="M 110 0
+             C 214 122, 214 262, 146 386
+             C 80 512, 12 634, 48 776
+             C 82 920, 214 1042, 182 1194
+             C 150 1348, 24 1468, 52 1622
+             C 82 1778, 216 1900, 186 2056
+             C 156 2214, 24 2334, 54 2492
+             C 86 2652, 214 2774, 184 2930
+             C 154 3088, 24 3208, 56 3368
+             C 88 3528, 218 3650, 186 3806
+             C 152 3966, 42 4096, 76 4258
+             C 108 4414, 168 4544, 150 4700"
+          fill="none"
+          stroke="url(#vineStroke)"
+          stroke-width="8"
+          stroke-linecap="round"
+        ></path>
+
+        @for (leaf of leaves(); track $index) {
+          <g
+            class="journey__leaf"
+            [class.is-grown]="progress() >= leaf.t"
+            [attr.transform]="'translate(' + leaf.x + ' ' + leaf.y + ') rotate(' + leaf.rot + ')' + (leaf.flip ? ' scale(-1 1)' : '')"
+          >
+            <path d="M0 0 C14 -8, 30 -6, 34 6 C30 18, 12 20, 0 12 C-3 7, -3 4, 0 0 Z" fill="#3d5c2c" opacity="0.92"></path>
+            <path d="M2 5 C12 4, 22 4, 30 7" stroke="#2c4a1e" stroke-width="1.2" fill="none" opacity="0.65"></path>
+          </g>
+        }
+
+        @for (flower of blossoms(); track $index) {
+          <g class="journey__blossom" [class.is-open]="progress() >= flower.t" [attr.transform]="'translate(' + flower.x + ' ' + flower.y + ')'">
+            @for (petal of petalAngles; track petal) {
+              <ellipse cx="0" cy="-8" rx="3.6" ry="6.8" fill="#fdfaf2" [attr.transform]="'rotate(' + petal + ')'" />
+            }
+            <circle r="3.2" fill="#e9b949"></circle>
+          </g>
+        }
+
+        <g class="journey__crawler" [attr.transform]="'translate(' + orbX() + ' ' + orbY() + ') rotate(' + orbAngle() + ')'">
+          <circle r="26" class="journey__crawler-glow"></circle>
+          <circle r="15" class="journey__crawler-glow journey__crawler-glow--inner"></circle>
+
+          <!-- young stem rising into the tip -->
+          <path class="journey__head-stem" d="M0 26 C 2 14, -2 4, 0 -6" fill="none" stroke="#3d5c2c" stroke-width="4.6" stroke-linecap="round"></path>
+
+          <!-- curling tendril -->
+          <g class="journey__head-tendril">
+            <path d="M0 -4 C 10 -10, 18 -8, 19 -1 C 20 5, 14 8, 10 5 C 7 3, 8 -1, 11 -1" fill="none" stroke="#4a6b35" stroke-width="2.4" stroke-linecap="round"></path>
+          </g>
+
+          <!-- unfurling leaves -->
+          <g class="journey__head-leaf journey__head-leaf--l">
+            <path d="M0 6 C -14 4, -24 8, -26 16 C -22 24, -10 24, -2 16 C 0 12, 0 9, 0 6 Z" fill="#436330"></path>
+            <path d="M-3 9 C -10 11, -17 14, -22 17" stroke="#2c4a1e" stroke-width="1.1" fill="none" opacity="0.7"></path>
+          </g>
+          <g class="journey__head-leaf journey__head-leaf--r">
+            <path d="M0 10 C 14 8, 24 12, 26 20 C 22 28, 10 28, 2 20 C 0 16, 0 13, 0 10 Z" fill="#4f7339"></path>
+            <path d="M3 13 C 10 15, 17 18, 22 21" stroke="#2c4a1e" stroke-width="1.1" fill="none" opacity="0.7"></path>
+          </g>
+
+          <!-- blossom crown at the tip -->
+          <g class="journey__head-bloom">
+            @for (petal of petalAngles; track petal) {
+              <ellipse cx="0" cy="-9.5" rx="4.4" ry="8.4" fill="#fdfaf2" stroke="#ead9b0" stroke-width="0.6" [attr.transform]="'rotate(' + petal + ')'" />
+            }
+            <circle r="4" fill="#e9b949"></circle>
+            <circle r="1.6" fill="#c08c1d"></circle>
+          </g>
+
+          <!-- drifting pollen sparkles -->
+          <circle class="journey__head-spark journey__head-spark--a" cx="-14" cy="-12" r="1.8"></circle>
+          <circle class="journey__head-spark journey__head-spark--b" cx="15" cy="-16" r="1.4"></circle>
+          <circle class="journey__head-spark journey__head-spark--c" cx="4" cy="-24" r="1.2"></circle>
+        </g>
+      </svg>
+    </div>
+
+    @for (stage of stages; track stage.id) {
+      <section
+        #scene
+        class="scene"
+        [class.scene--left]="stage.align === 'left'"
+        [class.scene--right]="stage.align === 'right'"
+        [style.--art-shift-x]="stage.artShiftX + 'px'"
+        [style.--art-shift-y]="stage.artShiftY + 'px'"
+        [style.--copy-shift-x]="stage.copyShiftX + 'px'"
+        [style.--copy-shift-y]="stage.copyShiftY + 'px'"
+        [style.--frame-tilt]="stage.frameTilt + 'deg'"
+        [style.--art-width]="stage.artWidth"
+        [attr.aria-labelledby]="'stage-' + stage.id + '-title'"
+      >
+        @if (stage.align === 'left') {
+          <div class="scene__copy">
+            <span class="scene__num">{{ stage.id }}</span>
+            <h2 class="scene__title" [id]="'stage-' + stage.id + '-title'">{{ stage.title }}</h2>
+            <div class="scene__rule" aria-hidden="true"></div>
+            <p class="scene__text">{{ stage.summary }}</p>
+            <p class="scene__detail">{{ stage.detail }}</p>
+          </div>
+        }
+
+        <div class="scene__art">
+          <figure class="scene__frame">
+            <img [src]="stage.image" [alt]="stage.alt" />
+            <span class="scene__sunglow" [class.scene__sunglow--dawn]="stage.dawnGlow" aria-hidden="true"></span>
+
+            @switch (stage.effect) {
+              @case ('seeds') {
+                <span class="scene__seeds" aria-hidden="true">
+                  @for (seed of seeds; track $index) {
+                    <i [style.left.%]="seed.left" [style.width.px]="seed.size" [style.height.px]="seed.size" [style.animation-delay.s]="seed.delay" [style.animation-duration.s]="seed.dur" [style.--drift.px]="seed.drift"></i>
+                  }
+                </span>
+                <span class="scene__sprout-glow" aria-hidden="true"></span>
+              }
+              @case ('motes') {
+                <span class="scene__motes" aria-hidden="true">
+                  @for (mote of motes; track $index) {
+                    <i [style.left.%]="mote.left" [style.width.px]="mote.size" [style.height.px]="mote.size" [style.animation-delay.s]="mote.delay" [style.animation-duration.s]="mote.dur" [style.--drift.px]="mote.drift"></i>
+                  }
+                </span>
+                <span class="scene__bell-glow" aria-hidden="true"></span>
+              }
+              @case ('crop') {
+                <span class="scene__crop-wave" aria-hidden="true">
+                  @for (stem of stems; track stem) {
+                    <i [style.left.%]="stem"></i>
+                  }
+                </span>
+              }
+              @case ('chaff') {
+                <span class="scene__chaff" aria-hidden="true">
+                  @for (piece of chaff; track $index) {
+                    <i [style.left.%]="piece.left" [style.width.px]="piece.size + 4" [style.height.px]="piece.size + 1" [style.animation-delay.s]="piece.delay" [style.animation-duration.s]="piece.dur" [style.--drift.px]="piece.drift"></i>
+                  }
+                </span>
+              }
+              @case ('fire') {
+                <span class="scene__hearth-glow" aria-hidden="true"></span>
+                <span class="scene__smoke" aria-hidden="true">
+                  @for (puff of smoke; track $index) {
+                    <i [style.left.%]="puff.left" [style.width.px]="puff.size * 4" [style.height.px]="puff.size * 4" [style.animation-delay.s]="puff.delay" [style.animation-duration.s]="puff.dur + 1" [style.--drift.px]="puff.drift"></i>
+                  }
+                </span>
+              }
+              @case ('dust') {
+                <span class="scene__dust" aria-hidden="true">
+                  @for (grain of dust; track $index) {
+                    <i [style.left.%]="grain.left" [style.width.px]="grain.size" [style.height.px]="grain.size" [style.animation-delay.s]="grain.delay" [style.animation-duration.s]="grain.dur + 1.4" [style.--drift.px]="grain.drift"></i>
+                  }
+                </span>
+              }
+              @case ('package') {
+                <span class="scene__package-glow" aria-hidden="true"></span>
+                <span class="scene__package-lines" aria-hidden="true">
+                  @for (spark of packageSpark; track $index) {
+                    <i [style.left.%]="spark.left" [style.animation-delay.s]="spark.delay" [style.animation-duration.s]="spark.dur"></i>
+                  }
+                </span>
+              }
+              @case ('wheel') {
+                <span class="scene__wheel-pulse" aria-hidden="true"></span>
+                <span class="scene__wheel-dust" aria-hidden="true">
+                  @for (cloud of wheelDust; track $index) {
+                    <i [style.left.%]="cloud.left" [style.width.px]="cloud.size + 2" [style.height.px]="cloud.size + 2" [style.animation-delay.s]="cloud.delay" [style.animation-duration.s]="cloud.dur" [style.--drift.px]="cloud.drift"></i>
+                  }
+                </span>
+              }
+              @case ('route') {
+                <span class="scene__route-net" aria-hidden="true">
+                  <span class="scene__route-line scene__route-line--a"></span>
+                  <span class="scene__route-line scene__route-line--b"></span>
+                  <span class="scene__route-line scene__route-line--c"></span>
+                  @for (node of routeNodes; track $index) {
+                    <i class="scene__route-node" [style.left.%]="node.left" [style.top.%]="node.top" [style.animation-delay.s]="node.delay"></i>
+                  }
+                </span>
+              }
+              @case ('steam') {
+                <span class="scene__table-glow" aria-hidden="true"></span>
+                <span class="scene__steam" aria-hidden="true">
+                  @for (wisp of steam; track $index) {
+                    <i [style.left.%]="wisp.left" [style.animation-delay.s]="wisp.delay" [style.animation-duration.s]="wisp.dur + 1"></i>
+                  }
+                </span>
+              }
+              @case ('halo') {
+                <span class="scene__final-halo" aria-hidden="true"></span>
+                <span class="scene__final-sparkles" aria-hidden="true">
+                  @for (sparkle of haloSpark; track $index) {
+                    <i [style.left.%]="sparkle.left" [style.width.px]="sparkle.size + 2" [style.height.px]="sparkle.size + 2" [style.animation-delay.s]="sparkle.delay" [style.animation-duration.s]="sparkle.dur + 0.8" [style.--drift.px]="sparkle.drift"></i>
+                  }
+                </span>
+              }
+            }
+          </figure>
+        </div>
+
+        @if (stage.align === 'right') {
+          <div class="scene__copy">
+            <span class="scene__num">{{ stage.id }}</span>
+            <h2 class="scene__title" [id]="'stage-' + stage.id + '-title'">{{ stage.title }}</h2>
+            <div class="scene__rule" aria-hidden="true"></div>
+            <p class="scene__text">{{ stage.summary }}</p>
+            <p class="scene__detail">{{ stage.detail }}</p>
+          </div>
+        }
+      </section>
+    }
+
+    <footer class="journey-next">
+      <div class="journey-next__seedling" aria-hidden="true">
+        <span class="journey-next__stem"></span>
+        <span class="journey-next__leaf journey-next__leaf--l"></span>
+        <span class="journey-next__leaf journey-next__leaf--r"></span>
+      </div>
+      <p class="journey-next__label">Traceability journey complete</p>
+      <p class="journey-next__sub">One isolated preview. Eleven living stages.</p>
+    </footer>
+  </div>
+</div>
