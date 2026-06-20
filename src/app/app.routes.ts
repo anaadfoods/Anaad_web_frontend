@@ -8,6 +8,9 @@ export const routes: Routes = [
 
   // Traceability journey preview (isolated - safe to delete)
   { path: 'traceability-journey', loadComponent: () => import('./traceability-journey/traceability-journey.component').then(m => m.TraceabilityJourneyComponent), title: 'From Soil to Soul • Anaad Foods' },
+  { path: 'traceability', redirectTo: 'traceability-journey', pathMatch: 'full' },
+  { path: 'tracebility', redirectTo: 'traceability-journey', pathMatch: 'full' },
+  { path: 'tracibility', redirectTo: 'traceability-journey', pathMatch: 'full' },
 
   // Auth
   { path: 'login', loadComponent: () => import('./auth/login/login').then(m => m.Login), canActivate: [guestGuard], title: 'Sign In â€¢ Anaad Foods' },

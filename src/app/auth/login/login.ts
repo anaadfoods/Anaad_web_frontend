@@ -52,7 +52,7 @@ export class Login implements OnInit {
 
     // Already logged in - redirect
     if (this.authState.isAuthenticated()) {
-      this.router.navigateByUrl(this.returnUrl);
+      this.redirectAfterLogin();
       return;
     }
 
@@ -94,7 +94,7 @@ export class Login implements OnInit {
         next: () => {
           this.cartSvc.syncOnLogin();
           this.favSvc.syncOnLogin();
-          this.router.navigateByUrl(this.returnUrl);
+          this.redirectAfterLogin();
         },
         error: (err) => {
           this.loading = false;
@@ -134,7 +134,7 @@ export class Login implements OnInit {
           next: () => {
             this.cartSvc.syncOnLogin();
             this.favSvc.syncOnLogin();
-            this.router.navigateByUrl(this.returnUrl);
+            this.redirectAfterLogin();
           },
           error: (err) => {
             this.loading = false;
@@ -172,7 +172,7 @@ export class Login implements OnInit {
       next: () => {
         this.cartSvc.syncOnLogin();
         this.favSvc.syncOnLogin();
-        this.router.navigateByUrl(this.returnUrl);
+        this.redirectAfterLogin();
       },
       error: (err) => {
         this.loading = false;
@@ -180,5 +180,25 @@ export class Login implements OnInit {
         this.error = detail || 'Invalid credentials. Please try again.';
       }
     });
+  }
+
+  /** Supports cross-origin return (e.g. localhost dev after login on web.anaadfoods.com) */
+  private redirectAfterLogin(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+
+    const isExternal =
+      this.returnUrl.startsWith('http://') || this.returnUrl.startsWith('https://');
+
+    if (isExternal) {
+      const target = new URL(this.returnUrl);
+      const access = this.authState.accessToken();
+      const refresh = this.authState.refreshToken();
+      if (access) target.searchParams.set('access_token', access);
+      if (refresh) target.searchParams.set('refresh_token', refresh);
+      window.location.href = target.toString();
+      return;
+    }
+
+    this.router.navigateByUrl(this.returnUrl);
   }
 }
