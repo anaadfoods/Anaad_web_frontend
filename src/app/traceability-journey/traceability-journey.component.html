@@ -308,6 +308,21 @@
               <!-- Front Side -->
               <div class="scene__copy-front">
                 <span class="scene__num">{{ stage.id }}</span>
+                @if (stage.id === 2 && traceFarmer(); as farmer) {
+                  @if (farmerPhotoUrl(); as photo) {
+                    <div class="scene__farmer-profile">
+                      <div class="scene__farmer-profile-photo">
+                        <img [src]="photo" [alt]="farmer.name" />
+                      </div>
+                      <div class="scene__farmer-profile-meta">
+                        <span class="scene__farmer-profile-name">{{ farmer.name }}</span>
+                        @if (farmer.place) {
+                          <span class="scene__farmer-profile-place">{{ farmer.place }}</span>
+                        }
+                      </div>
+                    </div>
+                  }
+                }
                 <h2 class="scene__title" [id]="'stage-' + stage.id + '-title'">{{ stage.title }}</h2>
                 <svg class="scene__rule" viewBox="0 0 100 12" aria-hidden="true">
                   <path class="scene__rule-path" d="M 5 6 Q 32 3, 50 7 Q 68 11, 95 6" fill="none" stroke="url(#goldGradient)" stroke-width="1.8" stroke-linecap="round" />
@@ -366,9 +381,9 @@
                     @case (2) {
                       @if (traceFarmer(); as farmer) {
                         <div style="display: flex; gap: 1rem; align-items: center; margin-bottom: 0.5rem;">
-                          @if (farmer.photoUrl) {
+                          @if (farmerPhotoUrl(); as photo) {
                             <div class="ledger-avatar" style="margin-bottom: 0;">
-                              <img [src]="farmer.photoUrl" alt="{{ farmer.name }}" />
+                              <img [src]="photo" [alt]="farmer.name" />
                             </div>
                           }
                           <div>
@@ -975,6 +990,21 @@
               <!-- Front Side -->
               <div class="scene__copy-front">
                 <span class="scene__num">{{ stage.id }}</span>
+                @if (stage.id === 2 && traceFarmer(); as farmer) {
+                  @if (farmerPhotoUrl(); as photo) {
+                    <div class="scene__farmer-profile">
+                      <div class="scene__farmer-profile-photo">
+                        <img [src]="photo" [alt]="farmer.name" />
+                      </div>
+                      <div class="scene__farmer-profile-meta">
+                        <span class="scene__farmer-profile-name">{{ farmer.name }}</span>
+                        @if (farmer.place) {
+                          <span class="scene__farmer-profile-place">{{ farmer.place }}</span>
+                        }
+                      </div>
+                    </div>
+                  }
+                }
                 <h2 class="scene__title" [id]="'stage-' + stage.id + '-title'">{{ stage.title }}</h2>
                 <svg class="scene__rule" viewBox="0 0 100 12" aria-hidden="true">
                   <path class="scene__rule-path" d="M 5 6 Q 32 3, 50 7 Q 68 11, 95 6" fill="none" stroke="url(#goldGradient)" stroke-width="1.8" stroke-linecap="round" />
@@ -1033,9 +1063,9 @@
                     @case (2) {
                       @if (traceFarmer(); as farmer) {
                         <div style="display: flex; gap: 1rem; align-items: center; margin-bottom: 0.5rem;">
-                          @if (farmer.photoUrl) {
+                          @if (farmerPhotoUrl(); as photo) {
                             <div class="ledger-avatar" style="margin-bottom: 0;">
-                              <img [src]="farmer.photoUrl" alt="{{ farmer.name }}" />
+                              <img [src]="photo" [alt]="farmer.name" />
                             </div>
                           }
                           <div>

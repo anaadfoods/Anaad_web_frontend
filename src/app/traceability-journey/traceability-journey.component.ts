@@ -150,6 +150,7 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
   protected readonly traceSeed = computed(() => this.journey()?.seed ?? null);
   protected readonly traceCropCycle = computed(() => this.journey()?.cropCycle ?? null);
   protected readonly traceFarmer = computed(() => this.journey()?.cropCycle?.farmer ?? null);
+  protected readonly farmerPhotoUrl = computed(() => this.resolveFarmerPhoto(this.traceFarmer()));
   protected readonly traceFarmland = computed(() => this.journey()?.farmland ?? null);
   protected readonly traceFarmingActivities = computed(() => this.journey()?.farmingActivities ?? []);
   protected readonly traceFarmlandWorkEntries = computed(() => this.journey()?.farmland?.workEntries ?? []);
@@ -184,9 +185,9 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
     this.orderTracking() !== null || this.subTracking() !== null
   );
   protected readonly devTokenInput = signal('');
-  /** Crop ID for this traceability journey (URL or trace API) */
+  /** Crop ID for this traceability journey (canonical from API when loaded) */
   protected readonly tracedCropId = computed(() =>
-    this.currentCropId() ?? this.traceCropCycle()?.cycleCode ?? this.DEFAULT_CROP_ID
+    this.traceCropCycle()?.cycleCode ?? this.currentCropId() ?? this.DEFAULT_CROP_ID
   );
 
   private pathLength = 0;
@@ -614,9 +615,18 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
   }
 
   private padCropCycleId(cropId: string): string {
-    const match = cropId.match(/^(CC-)(\d+)$/i);
+    const match = cropId.match(/^CC-(\d+)$/i);
     if (!match) return cropId;
-    return `CC-${match[2].padStart(7, '0')}`;
+    const num = parseInt(match[1], 10);
+    return `CC-${String(num).padStart(7, '0')}`;
+  }
+
+  /** Supabase trace API uses 6-digit crop codes (e.g. CC-000019) */
+  private padCropCycleIdForTrace(cropId: string): string {
+    const match = cropId.match(/^CC-(\d+)$/i);
+    if (!match) return cropId;
+    const num = parseInt(match[1], 10);
+    return `CC-${String(num).padStart(6, '0')}`;
   }
 
   /** Submit phone number to fetch orders/subscriptions for this crop */
@@ -863,7 +873,12 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
     this.isLoading.set(true);
     this.traceError.set(null);
 
-    this.traceabilityService.getJourney(params).subscribe({
+    const apiParams = { ...params };
+    if (apiParams.cropId) {
+      apiParams.cropId = this.padCropCycleIdForTrace(apiParams.cropId);
+    }
+
+    this.traceabilityService.getJourney(apiParams).subscribe({
       next: (journey) => {
         this.journey.set(journey);
         this.updateStagesFromApi(journey);
@@ -1154,11 +1169,18 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
       this.stages[0].detail = `Seed: ${crop.seedCode}.${crop.sourceOfSeed ? ' Source: ' + crop.sourceOfSeed + '.' : ''}`;
     }
 
-    // Stage 2 ΓÇö Know Your Farmer
+    // Stage 2 — Know Your Farmer
     if (crop?.farmer) {
       const f = crop.farmer;
-      this.stages[1].summary = `${f.name}${f.place ? ' ΓÇö ' + f.place : ''}`;
+      const photo = this.resolveFarmerPhoto(f);
+      this.stages[1].summary = `${f.name}${f.place ? ' — ' + f.place : ''}`;
       this.stages[1].detail = `${f.experience ? 'Experience: ' + f.experience + (typeof f.experience === 'number' ? ' years' : '') + '. ' : ''}${f.age ? 'Age: ' + f.age + '.' : ''}`;
+      if (photo) {
+        this.stages[1].image = photo;
+        this.stages[1].alt = `${f.name}${f.place ? ', ' + f.place : ''} — Anaad farmer`;
+        this.stages[1].imageFit = 'cover';
+        this.stages[1].imagePosition = 'center';
+      }
     }
 
     // Stage 3 ΓÇö Crop Cycle
@@ -1277,6 +1299,14 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
       this.stages[11].summary = `${auth.message}`;
       this.stages[11].detail = `Scan #${auth.scanCount}${auth.verifiedAt ? ' | Verified: ' + this.formatDateTime(auth.verifiedAt) : ''}${auth.qrCode ? ' | QR: ' + auth.qrCode : ''}`;
     }
+  }
+
+  /** Resolve farmer photo from API (supports camelCase and snake_case keys) */
+  resolveFarmerPhoto(farmer: TraceFarmer | null | undefined): string | null {
+    if (!farmer) return null;
+    const raw = farmer as TraceFarmer & { photo_url?: string | null; photo?: string | null; image_url?: string | null };
+    const url = farmer.photoUrl ?? raw.photo_url ?? raw.photo ?? raw.image_url ?? null;
+    return url && url.trim().length > 0 ? url.trim() : null;
   }
 
   /** Format YYYY-MM-DD to human readable (e.g., "15 Mar 2026") */

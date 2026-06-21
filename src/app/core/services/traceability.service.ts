@@ -5,6 +5,7 @@ import { API } from '../constants/api-endpoints';
 import {
   TraceabilityJourney,
   TraceApiResponse,
+  TraceFarmer,
   CropCycleOrdersResponse,
   ShiprocketOrderTracking,
   ShiprocketSubShipment
@@ -28,7 +29,7 @@ export class TraceabilityService {
     }).pipe(
       map(response => {
         if (response.success && response.journey) {
-          return response.journey;
+          return this.normalizeJourney(response.journey);
         }
         throw new Error('Invalid API response');
       }),
@@ -89,5 +90,26 @@ export class TraceabilityService {
           return [];
         })
       );
+  }
+
+  private normalizeJourney(journey: TraceabilityJourney): TraceabilityJourney {
+    const farmer = journey.cropCycle?.farmer;
+    if (farmer && journey.cropCycle) {
+      journey.cropCycle.farmer = this.normalizeFarmer(farmer);
+    }
+    return journey;
+  }
+
+  private normalizeFarmer(farmer: TraceFarmer): TraceFarmer {
+    const raw = farmer as TraceFarmer & {
+      photo_url?: string | null;
+      photo?: string | null;
+      image_url?: string | null;
+    };
+    const photoUrl = farmer.photoUrl ?? raw.photo_url ?? raw.photo ?? raw.image_url ?? null;
+    return {
+      ...farmer,
+      photoUrl: photoUrl && photoUrl.trim().length > 0 ? photoUrl.trim() : null,
+    };
   }
 }
