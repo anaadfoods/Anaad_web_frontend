@@ -19,11 +19,11 @@ app.use(
     contentSecurityPolicy: {
       directives: {
         ...helmet.contentSecurityPolicy.getDefaultDirectives(),
-        'connect-src': ["'self'", 'https://bck.anaadfoods.com', 'https://accounts.google.com'],
+        'connect-src': ["'self'", 'https://bck.anaadfoods.com', 'https://bck-dev.anaadfoods.com', 'https://accounts.google.com', 'https://appleid.apple.com', 'https://nwmimvqcoxxdulpmdqvp.supabase.co'],
         'font-src': ["'self'", 'https://fonts.googleapis.com', 'https://fonts.gstatic.com'],
         'style-src': ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
         'img-src': ["'self'", 'data:', 'https:'],
-        'script-src': ["'self'", "'unsafe-inline'", 'https://accounts.google.com/gsi/client', 'https://appleid.cdn-apple.com'],
+        'script-src': ["'self'", "'unsafe-inline'", 'https://accounts.google.com', 'https://appleid.cdn-apple.com'],
         'script-src-attr': ["'unsafe-inline'"],
         'frame-src': ["'self'", 'https://accounts.google.com', 'https://appleid.apple.com'],
       },

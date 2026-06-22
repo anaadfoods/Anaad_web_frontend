@@ -80,7 +80,73 @@
             </div>
           </div>
 
-          <button type="submit" class="submit-btn" [disabled]="submitting">
+          <!-- OTP VERIFICATION SECTION -->
+          <div class="otp-verification-section">
+            @if (otpStep() === 'idle') {
+              <button type="button" class="otp-trigger-btn" (click)="startOtpVerification()" [disabled]="f.phoneNumber.invalid && f.email.invalid">
+                🔐 Verify Your Identity (Required)
+              </button>
+              <p class="otp-hint">You must verify via OTP before submitting the form.</p>
+            }
+
+            @if (otpStep() === 'choosing') {
+              <div class="otp-method-chooser">
+                <p class="otp-label">Choose verification method:</p>
+                <div class="otp-method-btns">
+                  <button type="button" class="otp-method-btn" (click)="sendOtp('phone')" [disabled]="f.phoneNumber.invalid || otpSending()">
+                    📱 Verify via Phone
+                  </button>
+                  <button type="button" class="otp-method-btn" (click)="sendOtp('email')" [disabled]="f.email.invalid || otpSending()">
+                    📧 Verify via Email
+                  </button>
+                </div>
+                @if (otpSending()) {
+                  <p class="otp-sending">Sending OTP...</p>
+                }
+              </div>
+            }
+
+            @if (otpStep() === 'sent') {
+              <div class="otp-input-section">
+                <p class="otp-label">Enter the OTP sent to your {{ otpMethod() === 'phone' ? 'phone' : 'email' }}:</p>
+                @if (otpSuccessMsg()) {
+                  <p class="otp-success-msg">{{ otpSuccessMsg() }}</p>
+                }
+                <div class="otp-input-row">
+                  <input
+                    type="text"
+                    class="otp-input"
+                    placeholder="Enter OTP"
+                    maxlength="8"
+                    [value]="otpValue()"
+                    (input)="onOtpInput($event)"
+                  />
+                  <button type="button" class="otp-verify-btn" (click)="verifyOtp()" [disabled]="otpVerifying() || !otpValue()">
+                    {{ otpVerifying() ? 'Verifying...' : 'Verify' }}
+                  </button>
+                </div>
+                <div class="otp-actions-row">
+                  <button type="button" class="otp-resend-btn" (click)="resendOtp()" [disabled]="otpResendTimer() > 0">
+                    {{ otpResendTimer() > 0 ? 'Resend in ' + otpResendTimer() + 's' : 'Resend OTP' }}
+                  </button>
+                  <button type="button" class="otp-change-btn" (click)="resetOtp()">Change Method</button>
+                </div>
+              </div>
+            }
+
+            @if (otpStep() === 'verified') {
+              <div class="otp-verified-badge">
+                <span class="verified-icon">✓</span>
+                <span>Identity verified successfully via {{ otpMethod() === 'phone' ? 'Phone' : 'Email' }}</span>
+              </div>
+            }
+
+            @if (otpError()) {
+              <p class="otp-error-msg">{{ otpError() }}</p>
+            }
+          </div>
+
+          <button type="submit" class="submit-btn" [disabled]="submitting || otpStep() !== 'verified'">
             {{ submitting ? 'Joining…' : 'Join Now' }}
           </button>
         </form>
@@ -158,7 +224,7 @@
   <div class="comparison-container">
     <div class="comparison-grid">
       <div class="info-card card-brown-gradient">
-        <img src="assets/images/waitlist-card--tan.webp" class="card-image" alt="" srcset="">
+        <img src="assets/images-new/25.png" class="card-image" alt="" srcset="">
       </div>
       <div class="info-card card-gray">
         <h4>The Old Way</h4>

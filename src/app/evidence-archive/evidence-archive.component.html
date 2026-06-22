@@ -13,14 +13,14 @@
   </div>
 
   <!-- FILTER ROW -->
-  <div class="filter-row">
+  <!-- <div class="filter-row">
     <span class="filter-label">Filter by</span>
     <span class="filter-pill active">All Studies</span>
     <span class="filter-pill">Peer Reviewed</span>
     <span class="filter-pill">Soil Science</span>
     <span class="filter-pill">Toxicology</span>
     <span class="filter-pill">Nutrition</span>
-  </div>
+  </div> -->
 
   <!-- STUDIES -->
   <div class="studies-section">
@@ -52,7 +52,7 @@
       <div class="study-num-col">
         <span class="study-num">{{ (i + 1).toString().padStart(2, '0') }}</span>
         <!-- Tags placeholder (if API eventually provides them, map here) -->
-        <span class="study-type-tag peer">Peer Reviewed</span>
+        <!-- <span class="study-type-tag peer">Peer Reviewed</span> -->
       </div>
       <div class="study-content">
         <div class="study-source-row">
@@ -61,15 +61,16 @@
         </div>
         <h2 class="study-title">{{ paper.title }}</h2>
         <span class="study-insights-label">Key Findings</span>
-        
+
         <!-- The API description HTML contains the findings and why it matters -->
         <!-- For perfect matching, we apply the study-insights class to the wrapper. -->
         <!-- If the backend HTML doesn't match the specific layout, it will still render. -->
         <div class="dynamic-html-content" [innerHTML]="paper.description"></div>
 
         <div style="margin-top: 16px; display:flex; gap:16px;">
-          <a *ngIf="paper.external_link" [href]="paper.external_link" target="_blank" style="font-family: var(--font-sans); font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--green-deep); text-decoration: underline;">Read Original Paper</a>
-          <a *ngIf="paper.pdf_file" [href]="paper.pdf_file" target="_blank" style="font-family: var(--font-sans); font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--green-deep); text-decoration: underline;">Download PDF</a>
+          <a *ngIf="paper.external_link" [href]="paper.external_link" target="_blank"
+            style="font-family: var(--font-sans); font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--green-deep); text-decoration: underline;">Read
+            Original Paper</a>
         </div>
       </div>
     </div>
@@ -80,7 +81,8 @@
     <div class="cta-left">
       <span class="cta-tag">Act on the evidence</span>
       <h2>The data is clear.<br />The choice is yours.</h2>
-      <p>Every study above points to the same conclusion: what you eat, and how it was grown, has consequences that extend far beyond your kitchen. Choose grain that is clean at the source.</p>
+      <p>Every study above points to the same conclusion: what you eat, and how it was grown, has consequences that
+        extend far beyond your kitchen. Choose grain that is clean at the source.</p>
       <div class="cta-actions">
         <a routerLink="/products" class="btn-cta-primary">Shop Clean Grain &#8594;</a>
         <a routerLink="/blogs" class="btn-cta-secondary">Read the Blog</a>

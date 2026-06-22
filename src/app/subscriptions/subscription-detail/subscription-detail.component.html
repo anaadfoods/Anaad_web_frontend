@@ -3,7 +3,7 @@
   <div class="payment-verification-overlay" *ngIf="isVerifyingPayment()">
     <div class="verification-spinner-card">
       <div class="loading-spinner-spinner"></div>
-      <h3>{{ verificationMessage() }}</h3>
+      <h3 class="heading-3">{{ verificationMessage() }}</h3>
       <p>Confirming transaction details with the bank. Please do not close or refresh this page.</p>
     </div>
   </div>
@@ -26,7 +26,7 @@
         <div class="sub-hero-left">
           <a routerLink="/profile" class="back-link">&#8592; Back to My Account</a>
           <span class="sub-tag">Community Barn Agreement &mdash; {{ getPlanName() }}</span>
-          <h1>{{ getPlanName() }}</h1>
+          <h1 class="heading-display heading-display--light">{{ getPlanName() }}</h1>
           <p class="sub-hero-desc">Annual commitment to the land. First-harvest priority, full household grain supply,
             and a direct line to your farming family.</p>
         </div>
@@ -52,6 +52,14 @@
             's' : '' }}</span>
           <span class="sub-stat-label">Duration</span>
         </div>
+        <div class="sub-stat">
+          <span class="sub-stat-val">{{ subscriptionData()?.completed_deliveries ?? 0 }}</span>
+          <span class="sub-stat-label">Completed Deliveries</span>
+        </div>
+        <div class="sub-stat">
+          <span class="sub-stat-val">{{ getPendingDeliveries() }}</span>
+          <span class="sub-stat-label">Pending Deliveries</span>
+        </div>
         <div class="sub-stat" *ngIf="subscriptionData()?.pause_start_date">
           <span class="sub-stat-val">Paused</span>
           <span class="sub-stat-label">Until {{ formatDate(subscriptionData()?.pause_end_date) }}</span>
@@ -76,7 +84,7 @@
         <div class="pause-form" *ngIf="showPauseForm()"
           style="margin-bottom: 40px; padding: 24px; border: 1px solid var(--amber-harvest); background-color: #FDF9F1; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-            <h3 style="margin: 0; font-family: var(--font-serif); color: var(--charcoal); font-size: 20px;">Pause Deliveries</h3>
+            <h3 class="heading-3" style="margin: 0; color: var(--charcoal);">Pause Deliveries</h3>
             <button (click)="showPauseForm.set(false)" style="background: none; border: none; font-size: 24px; cursor: pointer; color: rgba(26,26,26,0.4); line-height: 1; padding: 0;">&times;</button>
           </div>
           <p style="font-size: 14px; color: rgba(26,26,26,0.7); margin-top: 0; margin-bottom: 20px; line-height: 1.5;">Temporarily hold your deliveries. You can pause your subscription based on your plan's allowed pause limits.</p>
@@ -100,20 +108,22 @@
         <!-- ITEMS -->
         <div>
           <span class="section-tag">Items</span>
-          <h2 class="section-title">Subscription Contents</h2>
+          <h2 class="section-title heading-2">Subscription Contents</h2>
           <div class="next-box-card">
             <div class="next-box-header">
               <div style="display:flex; flex-direction:column; gap:4px;">
                 <span class="next-box-date-label">Next Delivery</span>
-                <span class="next-box-date">{{ formatDate(subscriptionData()?.next_delivery_date) }}</span>
+                <span class="next-box-date heading-3">{{ formatDate(subscriptionData()?.next_delivery_date) }}</span>
               </div>
             </div>
             <div class="next-box-items">
               @for (item of subscriptionData()?.items; track item.id) {
               <div class="box-item-row">
-                <img class="box-item-img"
-                  [src]="item.product_var_image || 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=112&q=80'"
-                  [alt]="getOrderItemName(item)" />
+                <div class="box-item-img-wrap">
+                  <img class="box-item-img"
+                    [src]="item.product_var_image || 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=112&q=80'"
+                    [alt]="getOrderItemName(item)" />
+                </div>
                 <div class="box-item-info" style="display: flex; flex-direction: column;">
                   <span *ngIf="item.product_category" style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--amber-harvest);">{{ item.product_category }}</span>
                   <span class="box-item-name" style="font-size: 16px; font-weight: 500; color: var(--charcoal); margin-bottom: 4px; margin-top: 2px;">{{ getOrderItemName(item) }}</span>
@@ -142,7 +152,7 @@
         <!-- INVOICES -->
         <div style="margin-top: 56px;" *ngIf="subscriptionData()?.status === 'ACTIVE'">
           <span class="section-tag">History</span>
-          <h2 class="section-title">Invoices</h2>
+          <h2 class="section-title heading-2">Invoices</h2>
           <div class="dispatch-table" *ngIf="invoices().length > 0; else noSubscriptionInvoices">
             <div class="dispatch-head" style="grid-template-columns: 1fr 100px;">
               <span>Invoice</span>
@@ -169,7 +179,7 @@
 
       <!-- RIGHT -->
       <div class="sub-right">
-        <span class="sidebar-title">Delivery Info</span>
+        <span class="sidebar-title heading-3">Delivery Info</span>
         <div class="detail-rows">
           <div class="detail-row">
             <span class="detail-label">Recipient</span>
@@ -190,7 +200,7 @@
         </div>
         <div class="sidebar-divider"></div>
 
-        <span class="sidebar-title" style="margin-top:16px;">Payment Info</span>
+        <span class="sidebar-title heading-3" style="margin-top:16px;">Payment Info</span>
         <div class="detail-rows">
           <div class="detail-row">
             <span class="detail-label">Method</span>
@@ -206,7 +216,7 @@
 
         <div class="sidebar-divider"></div>
 
-        <span class="sidebar-title" style="margin-top:16px;">Pricing Summary</span>
+        <span class="sidebar-title heading-3" style="margin-top:16px;">Pricing Summary</span>
         <div class="detail-rows">
           <div class="detail-row">
             <span class="detail-label">Monthly Item Cost (Discounted)</span>
@@ -239,6 +249,34 @@
             <span class="detail-label">Total Amount</span>
             <span class="detail-value" style="color: var(--amber-harvest);">{{ getTotalAmount() | currencyInr }}</span>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cancellation Modal -->
+    <div class="cancel-modal-overlay" [class.active]="showCancelModal()" (click)="showCancelModal.set(false)">
+      <div class="cancel-modal-card" (click)="$event.stopPropagation()">
+        <h3>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="#c0392b" style="display:inline-block; vertical-align:middle; margin-top:-3px; margin-right:8px;">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+          </svg>
+          Cancel Subscription
+        </h3>
+        <p class="consequence-lead">Are you sure you want to cancel your Community Barn Agreement?</p>
+        
+        <div class="consequences-list">
+          <p style="font-weight: 600; margin: 0 0 8px 0; font-family: var(--font-sans); font-size: 13.5px; color: #c0392b;">Please note the consequences of this action:</p>
+          <ul style="margin: 0; padding-left: 20px; list-style-type: disc;">
+            <li>Your **first-harvest priority** for heirloom crops will be permanently cancelled.</li>
+            <li>The **seasonal price lock** on your items will be removed, meaning future rates may increase.</li>
+            <li>Deliveries will stop immediately at the end of your current active billing cycle.</li>
+            <li>This action is irreversible and cannot be undone.</li>
+          </ul>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn-modal-action btn-modal-keep" (click)="showCancelModal.set(false)">Keep My Subscription</button>
+          <button class="btn-modal-action btn-modal-cancel" (click)="cancelSubscriptionConfirmed()">Yes, Cancel Subscription</button>
         </div>
       </div>
     </div>

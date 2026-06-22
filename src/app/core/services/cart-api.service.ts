@@ -5,11 +5,14 @@
 
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, catchError, finalize, map, tap, throwError } from 'rxjs';
+import { Observable, catchError, finalize, map, tap, throwError, of } from 'rxjs';
 import { API } from '../constants/api-endpoints';
 import { CartState } from '../state/cart.state';
+import { ToastService } from './toast.service';
+import { ProductVariant } from '../models/product.model';
 import {
   Cart,
+  CartItem,
   AddCartItemRequest,
   UpdateCartItemRequest,
   RemoveCartItemRequest,
@@ -19,6 +22,7 @@ import {
 export class CartApiService {
   private readonly http = inject(HttpClient);
   private readonly cartState = inject(CartState);
+  private readonly toastSvc = inject(ToastService);
 
   private extractData(res: any): any {
     let current = res;
@@ -46,8 +50,40 @@ export class CartApiService {
     );
   }
 
-  addItem(productVariant: number, quantity: number = 1): Observable<Cart> {
+  addItem(productVariant: number, quantity: number = 1, variant?: ProductVariant): Observable<Cart> {
     const previous = this.cartState.cart();
+    const existingQty = this.cartState.getItemQuantity(productVariant);
+    const newQty = existingQty + quantity;
+    if (newQty > 5) {
+      const allowedAdd = Math.max(0, 5 - existingQty);
+      if (allowedAdd === 0) {
+        this.toastSvc.show('Limit reached: You can only add up to 5 units of any product.', 'error');
+        return throwError(() => new Error('Limit reached'));
+      }
+      this.toastSvc.show('Quantity capped at 5: You can only add up to 5 units of any product.', 'info');
+      quantity = allowedAdd;
+    }
+
+    if (variant) {
+      const priceVal = variant.final_price ?? variant.price ?? '0.00';
+      const primaryImage = (variant.images?.find(i => i.is_primary) ?? variant.images?.[0] ?? variant.product_images?.[0])?.image ?? '';
+      const unitVal = variant.unit ?? variant.weight_unit ?? '';
+      const cartItem: CartItem = {
+        id: 0,
+        product_variant: variant.id,
+        product_variant_detail: variant,
+        product_name: variant.product_name,
+        variant_name: variant.sku ?? '',
+        quantity,
+        price: priceVal,
+        total_price: (parseFloat(priceVal) * quantity).toFixed(2),
+        image: primaryImage,
+        weight: variant.weight,
+        unit: unitVal
+      };
+      this.cartState.optimisticAdd(cartItem);
+    }
+
     const body: AddCartItemRequest = { product_variant_id: productVariant, quantity };
     return this.http.post<Cart>(API.CART.ADD, body).pipe(
       map(res => {
@@ -66,6 +102,10 @@ export class CartApiService {
   /** Update item quantity */
   updateItem(productVariant: number, quantity: number): Observable<Cart> {
     const previous = this.cartState.cart();
+    if (quantity > 5) {
+      this.toastSvc.show('Limit reached: You can only add up to 5 units of any product.', 'error');
+      quantity = 5;
+    }
     this.cartState.optimisticUpdateQuantity(productVariant, quantity);
     const body: UpdateCartItemRequest = { product_variant_id: productVariant, quantity };
     return this.http.post<Cart>(API.CART.UPDATE, body).pipe(

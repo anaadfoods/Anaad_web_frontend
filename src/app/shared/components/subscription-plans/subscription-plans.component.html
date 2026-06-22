@@ -1,0 +1,66 @@
+<div class="carousel-wrapper" [class.coverflow-mode]="isCoverflow">
+  <button *ngIf="subscriptionPlans().length > 0" class="carousel-nav prev" (click)="scrollCarousel('left')" aria-label="Previous">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+  </button>
+  <button *ngIf="subscriptionPlans().length > 0" class="carousel-nav next" (click)="scrollCarousel('right')" aria-label="Next">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+  </button>
+
+  <div class="tier-grid" #tierGrid (scroll)="onScroll()">
+  @if (loadingPlans()) {
+    <div aria-live="polite">Loading plans…</div>
+  } @else if (plansError()) {
+    <div role="alert">{{ plansError() }}</div>
+  } @else if (subscriptionPlans().length === 0) {
+    <div aria-live="polite">No plans available right now. Please check back later.</div>
+  } @else {
+    @for (plan of extendedPlans(); track $index; let i = $index) {
+      <div class="tier-card" [class.featured]="plan.isFeatured || (i % subscriptionPlans().length) === 2" [class.is-center]="activeIndex() === i">
+        <a [routerLink]="['/commitment']" fragment="tiers" class="tier-badge" style="text-decoration: none;">{{ plan.badge || ((i % subscriptionPlans().length) === 2 ? 'Most Popular' : 'Tier') }}</a>
+        <div class="tier-name" [innerHTML]="plan.title"></div>
+        <div class="tier-subtitle" [innerHTML]="plan.subtitle"></div>
+        @if (plan.description) {
+          <div class="tier-description" [innerHTML]="plan.description"></div>
+        }
+        <div class="tier-divider"></div>
+        <div class="tier-perks">
+          @for (perk of plan.perks; track perk) {
+            <div class="tier-perk"><div class="perk-dot"></div><span [innerHTML]="perk"></span></div>
+          }
+        </div>
+        <div class="tier-price-block">
+          @if (tierSelectedVariant()[plan.id]) {
+            <div class="tier-price">{{ getDiscountedMonthlyPrice(plan.id) | currencyInr }} <span class="tier-price-unit">/mo</span></div>
+            <div class="tier-cadence">
+              Regular: <span style="text-decoration: line-through;">{{ getOriginalPrice(plan.id) | currencyInr }}</span>
+              &nbsp;&middot;&nbsp; {{ getSavingsPercentage(plan.id) }}% plan discount
+            </div>
+          } @else {
+            <div class="tier-price">₹— <span class="tier-price-unit">/mo</span></div>
+            <div class="tier-cadence">Select a product to view price</div>
+          }
+        </div>
+        <div class="tier-product-selector">
+          <select class="tier-product-dropdown"
+                  [class.featured-dropdown]="plan.isFeatured || (i % subscriptionPlans().length) === 2"
+                  [value]="tierSelectedVariant()[plan.id] || ''"
+                  (change)="onTierProductSelect(plan.id, $event)">
+            <option value="" disabled>Select a product</option>
+            @for (p of tierProducts()[plan.id]; track p.variant_id) {
+              <option [value]="p.variant_id">{{ p.variant_name }}</option>
+            }
+          </select>
+          <button class="btn-tier" 
+                  [disabled]="!tierSelectedVariant()[plan.id]" 
+                  (click)="goToProduct(plan.id)">
+            Begin Journey &rarr;
+          </button>
+        </div>
+      </div>
+    }
+  }
+  </div>
+</div>
+<div class="subscription-actions" *ngIf="showAction" style="text-align: center; margin-top: 48px;">
+  <a [routerLink]="actionLink" class="btn-product" style="display: inline-block; width: auto; padding-inline: 40px; border-color: var(--green-deep); color: var(--green-deep);" [innerHTML]="actionText"></a>
+</div>

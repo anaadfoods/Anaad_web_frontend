@@ -1,4 +1,5 @@
 import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Meta, Title } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ProductService } from '../../core/services/product.service';
@@ -37,6 +38,8 @@ export class ProductDetail implements OnInit {
   private readonly router = inject(Router);
   private readonly subscriptionSvc = inject(SubscriptionService);
   private readonly toastSvc = inject(ToastService);
+  private readonly meta = inject(Meta);
+  private readonly title = inject(Title);
 
   variant = signal<ProductVariant | null>(null);
   loading = signal<boolean>(true);
@@ -51,6 +54,13 @@ export class ProductDetail implements OnInit {
   planPrices = signal<{plan_id: number, plan_name: string, discounted_price: number, discount_percentage: number}[]>([]);
   eligiblePlanIds = signal<number[]>([]);
   purchaseType = signal<'single' | 'subscription'>('single');
+  showFullDescription = signal<boolean>(false);
+
+  toggleDescription(event: Event) {
+    event.preventDefault();
+    this.showFullDescription.update(v => !v);
+  }
+
   selectedPlanId = signal<number | null>(null);
 
   ngOnInit() {
@@ -78,7 +88,17 @@ export class ProductDetail implements OnInit {
     this.error.set('');
     this.productSvc.getVariant(variantId).subscribe({
       next: (v) => {
+        this.selectedImageIndex.set(0);
         this.variant.set(v);
+        
+        // SEO Tags for SSR
+        this.title.setTitle(`${v.product_name} - ANAAD Foods`);
+        this.meta.updateTag({ name: 'description', content: v.product_description || 'Heirloom grain, traced from living soil.' });
+        const ogImage = v.images?.length ? v.images[0].image : (v.product_images?.length ? v.product_images[0].image : '');
+        if (ogImage) {
+          this.meta.updateTag({ property: 'og:image', content: ogImage });
+        }
+
         this.checkPlanEligibility(v.id);
         this.loading.set(false);
       },
@@ -100,6 +120,10 @@ export class ProductDetail implements OnInit {
           const isSubscribeAction = this.route.snapshot.queryParamMap.get('subscribe') === 'true';
           const queryPlanId = this.route.snapshot.queryParamMap.get('plan_id');
           const parsedPlanId = queryPlanId ? Number(queryPlanId) : null;
+          const queryQty = this.route.snapshot.queryParamMap.get('qty');
+          if (queryQty) {
+            this.quantity.set(Number(queryQty));
+          }
 
           if (parsedPlanId && eligibleIds.includes(parsedPlanId)) {
             this.purchaseType.set('subscription');
@@ -151,6 +175,19 @@ export class ProductDetail implements OnInit {
     return v.is_in_stock !== false;
   }
 
+  isActive(): boolean {
+    const v = this.variant();
+    if (!v) return false;
+    return v.is_active !== false;
+  }
+
+  get maxAllowedQuantity(): number {
+    const v = this.variant();
+    if (!v) return 5;
+    const stock = v.stock ?? (v as any).stock_quantity ?? 5;
+    return Math.min(5, stock);
+  }
+
   addToCart() {
     const v = this.variant();
     if (!v || !this.hasStock()) return;
@@ -159,16 +196,18 @@ export class ProductDetail implements OnInit {
       return;
     }
     this.addingToCart.set(true);
-    this.cartSvc.addItem(v.id, this.quantity()).subscribe({
+    this.cartSvc.addItem(v.id, this.quantity(), v).subscribe({
       next: () => {
         this.addingToCart.set(false);
         this.addedToCart.set(true);
         this.toastSvc.show(`Added ${v.product_name} to cart!`, 'success');
         setTimeout(() => this.addedToCart.set(false), 2500);
       },
-      error: () => {
+      error: (err) => {
         this.addingToCart.set(false);
-        this.toastSvc.show('Failed to add item to cart.', 'error');
+        if (err.message !== 'Limit reached') {
+          this.toastSvc.show('Failed to add item to cart.', 'error');
+        }
       }
     });
   }
@@ -199,10 +238,14 @@ export class ProductDetail implements OnInit {
       return;
     }
 
+    const finalQty = (this.purchaseType() === 'single' && this.cartQuantity > 0)
+      ? this.cartQuantity
+      : this.quantity();
+
     const queryParams: any = {
       direct_buy: 'true',
       variant_id: v.id,
-      qty: this.quantity()
+      qty: finalQty
     };
 
     if (this.purchaseType() === 'subscription' && this.selectedPlanId()) {

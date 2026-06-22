@@ -7,12 +7,21 @@
     <div class="form-col">
 
       <div class="checkout-header">
-        <div class="checkout-breadcrumb">
-          <a routerLink="/cart" class="crumb">Cart</a>
-          <span class="crumb-sep">&#8594;</span>
-          <span class="crumb active">Checkout</span>
-          <span class="crumb-sep">&#8594;</span>
-          <span class="crumb">Confirmation</span>
+        <div class="checkout-stepper">
+          <div class="step completed">
+            <div class="step-circle">&#10003;</div>
+            <span class="step-label">Cart</span>
+          </div>
+          <div class="step-line completed"></div>
+          <div class="step active">
+            <div class="step-circle">2</div>
+            <span class="step-label">Checkout</span>
+          </div>
+          <div class="step-line"></div>
+          <div class="step">
+            <div class="step-circle">3</div>
+            <span class="step-label">Payment</span>
+          </div>
         </div>
       </div>
 
@@ -22,10 +31,34 @@
 
       <form [formGroup]="checkoutForm" (ngSubmit)="placeOrder()" novalidate>
 
+        <!-- PAYMENT METHOD -->
+        <div class="form-block">
+          <div class="form-block-header">
+            <h2 class="form-block-title">Payment Method</h2>
+          </div>
+          <div class="field-row">
+            <!-- <label class="radio-card" [class.selected]="f.paymentMethod.value === 'prepaid'">
+              <input type="radio" formControlName="paymentMethod" value="prepaid" class="hidden-radio" />
+              <div class="radio-dot-outer"><div class="radio-dot-inner"></div></div>
+              <div class="radio-card-info">
+                <span class="radio-card-name">Pay Now (UPI/Card)</span>
+                <span class="radio-card-desc">Instant confirmation</span>
+              </div>
+            </label> -->
+            <label class="radio-card" [class.selected]="f.paymentMethod.value === 'cod'">
+              <input type="radio" formControlName="paymentMethod" value="cod" class="hidden-radio" />
+              <div class="radio-dot-outer"><div class="radio-dot-inner"></div></div>
+              <div class="radio-card-info">
+                <span class="radio-card-name">Cash on Delivery</span>
+                <span class="radio-card-desc">No upfront payment needed</span>
+              </div>
+            </label>
+          </div>
+        </div>
+
         <!-- CONTACT -->
         <div class="form-block">
           <div class="form-block-header">
-            <span class="form-block-number">Step 01</span>
             <h2 class="form-block-title">Contact Information</h2>
           </div>
           <div class="field-row">
@@ -51,9 +84,13 @@
             </div>
             <div class="field-group">
               <label class="field-label">Phone Number *</label>
-              <input class="field-input" [class.field-error]="f.phone.invalid && f.phone.touched" type="tel"
-                formControlName="phone" placeholder="+91 98765 43210" />
+              <div class="phone-input-wrap">
+                <span class="phone-prefix">+91</span>
+                <input class="field-input phone-input" [class.field-error]="f.phone.invalid && f.phone.touched" type="tel"
+                  formControlName="phone" placeholder="98765 43210" />
+              </div>
               <span class="field-hint error" *ngIf="f.phone.touched && f.phone.invalid">Valid phone required.</span>
+              <span class="field-hint" *ngIf="!(f.phone.touched && f.phone.invalid)">Enter 10-digit mobile number without country code.</span>
             </div>
           </div>
         </div>
@@ -61,7 +98,6 @@
         <!-- SHIPPING -->
         <div class="form-block">
           <div class="form-block-header">
-            <span class="form-block-number">Step 02</span>
             <h2 class="form-block-title">Shipping Address</h2>
           </div>
           <div class="field-row full">
@@ -116,28 +152,6 @@
           </div>
         </div>
 
-        <!-- PAYMENT -->
-        <div class="form-block">
-          <div class="form-block-header">
-            <span class="form-block-number">Step 03</span>
-            <h2 class="form-block-title">Payment Method</h2>
-          </div>
-          <div class="radio-cards">
-            <!-- COD ONLY Selection -->
-            <label class="radio-card" [class.selected]="f.paymentMethod.value === 'cod'">
-              <input type="radio" formControlName="paymentMethod" value="cod" class="hidden-radio" />
-              <div class="radio-dot-outer">
-                <div class="radio-dot-inner"></div>
-              </div>
-              <div class="radio-card-info">
-                <span class="radio-card-name">Cash on Delivery (COD)</span>
-                <span class="radio-card-desc">Pay when your order arrives at your doorstep</span>
-              </div>
-              <span class="radio-card-badge">Cash</span>
-            </label>
-          </div>
-        </div>
-
         <!-- NOTES -->
         <div class="form-block">
           <div class="field-group">
@@ -157,7 +171,9 @@
       <div class="order-items">
         @for (item of checkoutItems(); track item.product_variant || $index) {
         <div class="order-item">
+          <div class="order-item-img-wrap">
           <img class="order-item-img" [src]="item.image || ''" appSafeImage [alt]="item.product_name" />
+        </div>
           <div class="order-item-info">
             <span class="order-item-name">{{ item.product_name }}</span>
             <span class="order-item-meta">{{ item.weight }}{{ item.unit }} × {{ item.quantity }}</span>
@@ -204,8 +220,14 @@
             <span class="summary-label">Subtotal</span>
             <span class="summary-value">{{ getTotalPrice() | currencyInr }}</span>
           </div>
-          <div class="summary-row">
+          <div class="summary-row" *ngIf="f.paymentMethod.value === 'cod'">
             <span class="summary-label">COD Charges</span>
+            <span class="summary-value" [class.free]="getDeliveryCharge() === 0">
+              {{ getDeliveryCharge() === 0 ? 'Free' : (getDeliveryCharge() | currencyInr) }}
+            </span>
+          </div>
+          <div class="summary-row" *ngIf="f.paymentMethod.value !== 'cod'">
+            <span class="summary-label">Delivery Charges</span>
             <span class="summary-value" [class.free]="getDeliveryCharge() === 0">
               {{ getDeliveryCharge() === 0 ? 'Free' : (getDeliveryCharge() | currencyInr) }}
             </span>
@@ -238,7 +260,8 @@
 
   <!-- ADDRESS MODAL -->
   <div class="address-modal-overlay" *ngIf="showAddressModal()">
-    <div class="address-modal">
+    <div class="address-modal" style="position: relative;">
+      <button type="button" class="address-modal-close" (click)="closeAddressModal()" aria-label="Close modal">&times;</button>
       <div class="address-modal-header">
         <h3>Shipping Details Required</h3>
         <p>Please provide your shipping address and pincode to continue with your subscription and calculate delivery charges.</p>
@@ -274,9 +297,12 @@
           <span class="field-hint error" *ngIf="addressModalForm.get('pin')?.touched && addressModalForm.get('pin')?.invalid">Valid 6-digit PIN is required.</span>
         </div>
         
-        <div class="address-modal-actions">
-          <button type="submit" class="btn-customise" [disabled]="savingAddressModal()" style="width: 100%; padding: 14px; background: var(--green-deep); color: white; border: none; font-weight: 600; font-family: var(--font-sans); cursor: pointer; border-radius: 4px; margin-top: 24px;">
-            {{ savingAddressModal() ? 'Saving...' : 'Save & Continue' }}
+        <div class="address-modal-actions" style="display: flex; gap: 12px; margin-top: 24px;">
+          <button type="button" class="btn-cancel" (click)="closeAddressModal()" style="flex: 1; padding: 14px; background: transparent; color: var(--charcoal); border: 1px solid rgba(26,26,26,0.2); font-weight: 600; font-family: var(--font-sans); cursor: pointer; border-radius: 4px;">
+            Cancel &amp; Go Back
+          </button>
+          <button type="submit" class="btn-customise" [disabled]="savingAddressModal()" style="flex: 1; padding: 14px; background: var(--green-deep); color: white; border: none; font-weight: 600; font-family: var(--font-sans); cursor: pointer; border-radius: 4px;">
+            {{ savingAddressModal() ? 'Saving...' : 'Save &amp; Continue' }}
           </button>
         </div>
       </form>

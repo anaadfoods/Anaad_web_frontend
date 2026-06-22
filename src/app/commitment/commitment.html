@@ -1,49 +1,106 @@
 <div class="commitment-page-wrap">
-  
+
   <div class="commitment-hero">
     <div class="hero-overlay"></div>
     <div class="hero-content">
       <div class="section-label">Commitment-Based Agriculture</div>
-      <h1>You are not buying grain.<br><em>You are funding a field.</em></h1>
-      <p>Commitment-Based Agriculture is a direct financial relationship between your household and our acreage. You commit before the seed is sown. We commit to growing it without compromise. We share what the season brings.</p>
-      <a href="#tiers" class="btn-amber-hero">Choose Your Tier &rarr;</a>
+      <h1>You are not buying food.<br><em>You are funding a field.</em></h1>
+      <div style="display: flex; flex-direction: column; gap: 12px;">
+        <p>Commitment-Based Agriculture replaces transactions with relationships.</p>
+        <p>Before we sow the first seed, you reserve a portion of our upcoming harvest. We grow exclusively for committed households — not anonymous markets. Your commitment gives us certainty. Our responsibility is to return it as food worthy of your family's table.</p>
+      </div>
+      <a [routerLink]="['/commitment']" fragment="tiers" class="btn-amber-hero">Choose Your Tier &rarr;</a>
     </div>
   </div>
+
+  <!-- Share the Risk Section -->
+  <section class="shared-risk-section" style="padding-top: 64px;">
+    <div class="shared-risk-card" style="margin: 0 auto clamp(20px, 4vw, 40px) auto;">
+      <h2>Share the risk. <em>Secure the harvest.</em></h2>
+      <div class="risk-body" style="margin-top: 24px;">
+        <p>In conventional retail, farmers decide what to grow by guessing what the market will buy. If they guess wrong, prices crash and food is wasted. Our subscribers commit before sowing. That commitment gives us the confidence to grow only what has already found a home — without cutting corners on how it is grown.</p>
+        <p>When you subscribe, you are not simply placing a recurring order. You are pre-funding a portion of the next sowing cycle. In return, you receive your grain before anyone else, at a price locked before the harvest, from a crop you helped make possible.</p>
+      </div>
+    </div>
+  </section>
 
   <section class="why-cba">
     <div class="why-cba-content">
       <div class="section-label">Why It Matters</div>
       <div class="divider-rule"></div>
-      <h2>The moment you buy grain off a supermarket shelf, <em>you have already lost.</em></h2>
-      <p>Conventional retail forces farmers to grow for volume, shelf-life, and margin — not nutrition. By the time flour reaches a supermarket shelf, it may have spent months in a warehouse, milled months before that, from grain grown under conditions that prioritise yield over quality. Commitment-Based Agriculture inverts this entirely.</p>
+      <h2>The moment you buy food off a supermarket shelf, <em>you have already lost.</em></h2>
+      <p>By the time conventional food reaches your kitchen, it has already passed through traders, warehouses, processors, and months of storage. Every step in that chain rewards shelf-life and volume — not freshness, nutrition, or accountability.</p>
+      <p>Commitment-Based Agriculture reverses that journey. We begin with your household instead of ending there. Your food is grown for you before it exists, not sold to you after it's forgotten.</p>
     </div>
+
+    <!-- Conventional vs ANAAD Table -->
+    <div class="vs-shelf-container">
+      <h3>Why not just buy off a shelf?</h3>
+      <div class="vs-shelf-table-wrap">
+        <table class="vs-shelf-table">
+          <thead>
+            <tr>
+              <th>Conventional Retail</th>
+              <th>ANAAD Commitment</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>You buy after harvest</td>
+              <td>You reserve before sowing</td>
+            </tr>
+            <tr>
+              <td>Farmer unknown</td>
+              <td>Farmer known, field named</td>
+            </tr>
+            <tr>
+              <td>Food stored for months, nutrition fades</td>
+              <td>Freshly milled, nutrition stays alive</td>
+            </tr>
+            <tr>
+              <td>Price set by commodity markets, unstable</td>
+              <td>Price locked for your full season, no surprises</td>
+            </tr>
+            <tr>
+              <td>Anonymous supply chain, untraceable</td>
+              <td>Traceable to the specific field</td>
+            </tr>
+            <tr>
+              <td>Certificate on request</td>
+              <td>Batch ledger public, always</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
     <div class="why-cba-benefits">
       <div class="benefit-row">
         <div class="benefit-icon"><span>01</span></div>
         <div class="benefit-body">
-          <h4>Guaranteed Pre-Harvest Allocation</h4>
-          <p>Your supply is reserved before the seed enters the ground. No stock uncertainty. No seasonal sell-outs. No substitutions with whatever happened to be available.</p>
+          <h4>Your Harvest Allocated After Harvest</h4>
+          <p>When you subscribe, a portion of the harvest is allocated to your name for the duration of your subscription cycle. No stock uncertainty, no seasonal sell-outs, no substitutions — your family's supply is secured once the harvest is ready.</p>
         </div>
       </div>
       <div class="benefit-row">
         <div class="benefit-icon"><span>02</span></div>
         <div class="benefit-body">
-          <h4>Locked Seasonal Pricing</h4>
-          <p>Your price is fixed at subscription start for the full crop season — regardless of market fluctuations in wheat or logistics costs. You are immune to supply chain volatility.</p>
+          <h4>One Price. One Season. No Surprises.</h4>
+          <p>Your price is fixed at the start of your subscription for the full crop season. Whether wheat prices rise or logistics costs change, your price stays the same. You're protected from market volatility.</p>
         </div>
       </div>
       <div class="benefit-row">
         <div class="benefit-icon"><span>03</span></div>
         <div class="benefit-body">
-          <h4>Milled to Order, Never Stocked</h4>
-          <p>We mill your allocation within 14 days of your dispatch date. You will never receive flour that has been sitting in a warehouse. We do not have a warehouse.</p>
+          <h4>Never Warehoused. Always Freshly Milled.</h4>
+          <p>The grain is stored in a protected environment to prevent contamination. When scheduled milling cycles arrive, your allocation is milled into flour and dispatched. You never receive flour that has been sitting in a warehouse.</p>
         </div>
       </div>
       <div class="benefit-row">
         <div class="benefit-icon"><span>04</span></div>
         <div class="benefit-body">
-          <h4>Direct Farm Relationship</h4>
-          <p>From Pathik tier upward, you receive direct access to farm communications — sowing updates, weather reports, harvest previews. You will know more about where your food comes from than most farmers' distributors do.</p>
+          <h4>Know Your Farmer. Know Your Food.</h4>
+          <p>Every subscriber receives our monthly digital farm dispatch with updates from the field. Higher subscription tiers get direct access to sowing progress, weather reports, and harvest previews — straight from the farmer who grows for you.</p>
         </div>
       </div>
     </div>
@@ -56,73 +113,61 @@
         <div class="section-label">Market Volatility Analyzer</div>
         <div class="divider-rule"></div>
         <h2>Conventional Volatility vs.<br><em>ANAAD Price Lock</em></h2>
-        <p>Conventional agricultural supply chains route your money through up to six brokers, wholesalers, and warehouse managers. Prices rise when global supply chain disruptions or seasonal panics occur. With Commitment-Based Agriculture, we bypass middlemen completely, locking in your price before sowing.</p>
-        
+        <p>Conventional supply chains move your money through up to six brokers, wholesalers, and warehouse managers. Prices rise when supply disruptions happen or when seasonal panic hits. With Commitment-Based Agriculture, we bypass middlemen completely and lock in your price before sowing.</p>
+
         <div class="analyzer-controls">
           <div class="control-group">
-            <label class="control-label">Heirloom Variety</label>
-            <select [value]="selectedVariety" (change)="onVarietyChange($event)" class="control-select">
-              <option value="sona_moti">Sona Moti Wheat (Rare, Ancient)</option>
-              <option value="chawal_kathiya">Chawal Kathiya Wheat (Rare, High Fibrous)</option>
-              <option value="sharbati">Sharbati Wheat (Premium, Sweet)</option>
+            <label class="control-label">Product & Unit Size</label>
+            <select [value]="selectedVariantId()" (change)="onProductChange($event)" class="control-select">
+              <option *ngFor="let product of siddhProducts()" [value]="product.variant_id">
+                {{ product.name }} - {{ product.weight }}
+              </option>
             </select>
           </div>
-          
+
           <div class="control-group">
-            <label class="control-label">Monthly Household Needs: <strong>{{ selectedQuantity }} kg</strong></label>
-            <input type="range" min="5" max="50" step="5" [value]="selectedQuantity" (input)="onQuantityChange($event)" class="control-slider">
-            <span class="slider-helper">Tiers range from 5kg (Aarambh) to 40kg+ (Siddh)</span>
+            <label class="control-label">Monthly Household Needs: <strong>{{ selectedQuantity() }} kg</strong></label>
+            <div class="slider-wrapper">
+              <input type="range" [min]="unitWeight()" [max]="maxQuantity()" [step]="unitWeight()"
+                [value]="selectedQuantity()" (input)="onQuantityChange($event)" class="control-slider">
+              <div class="slider-value-indicator" [style.left.%]="getSliderPercentage()">
+                {{ selectedQuantity() }} kg
+              </div>
+            </div>
+            <span class="slider-helper">Quantity must be a multiple of {{ unitWeight() }}kg</span>
           </div>
 
           <div class="control-group">
             <label class="control-label">Commitment Horizon</label>
-            <select [value]="selectedMonths" (change)="onMonthsChange($event)" class="control-select">
-              <option [value]="1">1 Month (No Lock)</option>
-              <option [value]="3">3 Months (Short Horizon)</option>
-              <option [value]="6">6 Months (Full Crop Season)</option>
-              <option [value]="12">12 Months (Full Calendar Year)</option>
-            </select>
           </div>
         </div>
       </div>
-      
+
       <div class="analyzer-results-card">
         <div class="results-badge">Value Analyzer Intuitions</div>
-        
+
         <div class="price-comparison">
           <div class="price-metric conventional">
-            <div class="metric-desc">Conventional Est. Cost</div>
+            <div class="metric-desc">Individual Product Price</div>
             <div class="metric-price">₹{{ getConventionalPrice() }}</div>
-            <div class="metric-helper">Retail markup & middleman fees</div>
+            <div class="metric-helper">Standard MRP</div>
           </div>
-          
+
           <div class="price-divider"></div>
-          
+
           <div class="price-metric anaad">
-            <div class="metric-desc">ANAAD Locked Cost</div>
+            <div class="metric-desc">Siddh Product Price</div>
             <div class="metric-price text-green">₹{{ getAnaadPrice() }}</div>
-            <div class="metric-helper">Direct to farm · Price locked in</div>
+            <div class="metric-helper">Save {{ getDiscountPercentage() }}%</div>
           </div>
         </div>
-        
-        <div class="results-details">
-          <div class="results-row">
-            <span class="detail-label">Middlemen markup bypassed</span>
-            <span class="detail-val text-green font-semibold">₹{{ getMiddlemenSavings() }}</span>
-          </div>
-          <div class="results-row">
-            <span class="detail-label">Acreage of living soil funded</span>
-            <span class="detail-val text-amber font-semibold">{{ getSoilFunded() }} sq. yards</span>
-          </div>
-          <div class="results-row">
-            <span class="detail-label">Market price spike protection</span>
-            <span class="detail-val font-semibold">100% Guaranteed</span>
-          </div>
-        </div>
-        
-        <div class="results-footer">
-          <div class="footer-dot"></div>
-          <span>Stabilizing farm price risk & soil health in Sonipat.</span>
+
+        <div class="results-footer"
+          style="display: flex; justify-content: center; background-color: transparent; border-top: none; padding-top: 0;">
+          <button class="btn-amber" (click)="subscribeToSiddh()"
+            style="width: 100%; border: none; padding: 18px 0; font-family: var(--font-sans); font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.15em; border-radius: 8px; cursor: pointer; transition: opacity 0.2s;">
+            Subscribe to Siddh Plan &rarr;
+          </button>
         </div>
       </div>
     </div>
@@ -132,29 +177,72 @@
     <div class="hiw-header">
       <div class="section-label">The Process</div>
       <div class="divider-rule"></div>
-      <h2>How your subscription works. <em>No ambiguity.</em></h2>
-      <p style="font-family: var(--font-sans); font-size: 14px; color: var(--text-faded, rgba(26,26,26,0.6)); line-height: 1.6; max-width: 800px; margin-top: 8px;">Four steps. One season. A relationship that compounds.</p>
+      <h2>How your subscription works</h2>
+      <p style="font-family: var(--font-sans); font-size: 14px; color: var(--text-faded, rgba(26,26,26,0.6)); line-height: 1.6; max-width: 800px; margin-top: 8px;">
+        Four steps. One season. A relationship that grows stronger over time.</p>
     </div>
     <div class="hiw-steps">
       <div class="hiw-step">
         <div class="hiw-step-num">01</div>
         <h4>Choose Your Tier</h4>
-        <p>Select the monthly quantity that suits your household. Every tier includes full batch ledger access and our unconditional zero-residue guarantee.</p>
+        <p>Select the commitment duration that fits your household. Every tier includes full batch ledger access and our unconditional zero-residue guarantee.</p>
       </div>
       <div class="hiw-step">
         <div class="hiw-step-num">02</div>
         <h4>Your Allocation Is Reserved</h4>
-        <p>Your portion of the upcoming harvest is entered into our farm records before sowing begins. We adjust the sowing area based on total committed subscriptions. Your demand shapes what we plant.</p>
+        <p>When you subscribe, a portion of the harvest is reserved in your name for the duration of your subscription. Your field is planned around committed households, and we adjust our sowing area based on total reservations.</p>
       </div>
       <div class="hiw-step">
         <div class="hiw-step-num">03</div>
         <h4>Harvest, Test, and Report</h4>
-        <p>Once your grain is harvested, it goes to SGS India before anything else happens. You receive the batch report via email before your flour is dispatched. You see the data before the bag arrives.</p>
+        <p>Once your grain is harvested, regular batch testing is conducted. You receive the batch report via email before your flour is dispatched. You see the data before the bag arrives.</p>
       </div>
       <div class="hiw-step">
         <div class="hiw-step-num">04</div>
         <h4>Milled and Dispatched to You</h4>
-        <p>Cold stone-milled within 14 days of harvest clearance. Nitrogen-flushed. Dispatched to your door within 72 hours of milling. Auto-repeat every 30 days until you say otherwise.</p>
+        <p>The grain is milled into flour during scheduled milling cycles. Once milled, it is dispatched to your door. Subscriptions auto-repeat every 30 days until you choose to stop.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Every Commitment Includes -->
+  <section class="commitment-includes">
+    <div class="includes-container">
+      <div class="section-label">Trust & Guarantees</div>
+      <h2>Every commitment includes</h2>
+      <div class="includes-grid">
+        <div class="include-item">
+          <span class="check-icon">✓</span>
+          <span><strong>Zero-residue testing</strong> — every single batch checked by SGS India</span>
+        </div>
+        <div class="include-item">
+          <span class="check-icon">✓</span>
+          <span><strong>Full batch ledger access</strong> via The Registry</span>
+        </div>
+        <div class="include-item">
+          <span class="check-icon">✓</span>
+          <span><strong>Harvest report</strong> delivered directly to you before dispatch</span>
+        </div>
+        <div class="include-item">
+          <span class="check-icon">✓</span>
+          <span><strong>Field-level traceability</strong> back to your specific field and batch ID</span>
+        </div>
+        <div class="include-item">
+          <span class="check-icon">✓</span>
+          <span><strong>Cold stone-milled</strong> within 14 days of harvest clearance</span>
+        </div>
+        <div class="include-item">
+          <span class="check-icon">✓</span>
+          <span><strong>Nitrogen-flushed packaging</strong> for 9-month shelf stability</span>
+        </div>
+        <div class="include-item">
+          <span class="check-icon">✓</span>
+          <span><strong>Dispatched quickly</strong> within 72 hours of fresh milling</span>
+        </div>
+        <div class="include-item">
+          <span class="check-icon">✓</span>
+          <span><strong>Pan-India delivery</strong> straight to your doorstep</span>
+        </div>
       </div>
     </div>
   </section>
@@ -163,150 +251,13 @@
     <div class="tiers-header">
       <div class="section-label">Commitment Tiers</div>
       <h2>Four levels of commitment.<br>One standard of quality.</h2>
-      <p>Every tier receives the same zero-residue grain, the same cold-milled flour, the same batch transparency. What changes is quantity, access, and depth of relationship.</p>
+      <p>Every tier receives the same zero-residue grain, the same cold-milled flour, the same batch transparency. What
+        changes is commitment duration, savings, and depth of relationship.</p>
     </div>
-    <div class="tier-grid">
-
-      <div class="tier-card">
-        <div class="tier-badge">Entry</div>
-        <div class="tier-name">AARAMBH — The Beginning</div>
-        <div class="tier-subtitle">Start here. No lock-in. Full transparency.</div>
-        <div class="tier-divider"></div>
-        <div class="tier-perks">
-          <div class="tier-perk"><div class="perk-dot"></div>Five kilograms of cold-milled heirloom flour per month.</div>
-          <div class="tier-perk"><div class="perk-dot"></div>Full batch ledger access.</div>
-          <div class="tier-perk"><div class="perk-dot"></div>A quarterly farm newsletter that takes you inside the growing season.</div>
-          <div class="tier-perk"><div class="perk-dot"></div>The best first step.</div>
-        </div>
-        <div class="tier-price-block">
-          @if (tierSelectedVariant()['Aarambh']) {
-            <div class="tier-price">{{ getDiscountedMonthlyPrice('Aarambh') | currencyInr }} <span class="tier-price-unit">/mo</span></div>
-            <div class="tier-cadence">
-              Regular: <span style="text-decoration: line-through;">{{ getOriginalPrice('Aarambh') | currencyInr }}</span>
-              &nbsp;&middot;&nbsp; {{ getSavingsPercentage('Aarambh') }}% plan discount
-            </div>
-          } @else {
-            <div class="tier-price">₹— <span class="tier-price-unit">/mo</span></div>
-            <div class="tier-cadence">Select a product to view price</div>
-          }
-        </div>
-        <div class="tier-product-selector">
-          <select class="tier-product-dropdown" [value]="tierSelectedVariant()['Aarambh'] || ''" (change)="onTierProductSelect('Aarambh', $event)">
-            <option value="" disabled>Select a product</option>
-            @for (p of tierProducts()['Aarambh']; track p.variant_id) {
-              <option [value]="p.variant_id">{{ p.variant_name }}</option>
-            }
-          </select>
-          <button class="btn-tier" [disabled]="!tierSelectedVariant()['Aarambh']" (click)="goToProduct('Aarambh')">Begin the Journey &rarr;</button>
-        </div>
-      </div>
-
-      <div class="tier-card">
-        <div class="tier-badge">Seeker</div>
-        <div class="tier-name">PATHIK — The Seeker</div>
-        <div class="tier-subtitle">Ten kilograms. Priority allocation. Farm visit eligibility.</div>
-        <div class="tier-divider"></div>
-        <div class="tier-perks">
-          <div class="tier-perk"><div class="perk-dot"></div>For households ready to commit to a full nutrition protocol.</div>
-          <div class="tier-perk"><div class="perk-dot"></div>Priority harvest allocation means your supply is reserved first.</div>
-          <div class="tier-perk"><div class="perk-dot"></div>Monthly farm dispatch reports keep you informed of every step from field to courier.</div>
-        </div>
-        <div class="tier-price-block">
-          @if (tierSelectedVariant()['Pathik']) {
-            <div class="tier-price">{{ getDiscountedMonthlyPrice('Pathik') | currencyInr }} <span class="tier-price-unit">/mo</span></div>
-            <div class="tier-cadence">
-              Regular: <span style="text-decoration: line-through;">{{ getOriginalPrice('Pathik') | currencyInr }}</span>
-              &nbsp;&middot;&nbsp; {{ getSavingsPercentage('Pathik') }}% plan discount
-            </div>
-          } @else {
-            <div class="tier-price">₹— <span class="tier-price-unit">/mo</span></div>
-            <div class="tier-cadence">Select a product to view price</div>
-          }
-        </div>
-        <div class="tier-product-selector">
-          <select class="tier-product-dropdown" [value]="tierSelectedVariant()['Pathik'] || ''" (change)="onTierProductSelect('Pathik', $event)">
-            <option value="" disabled>Select a product</option>
-            @for (p of tierProducts()['Pathik']; track p.variant_id) {
-              <option [value]="p.variant_id">{{ p.variant_name }}</option>
-            }
-          </select>
-          <button class="btn-tier" [disabled]="!tierSelectedVariant()['Pathik']" (click)="goToProduct('Pathik')">Secure Your Allocation &rarr;</button>
-        </div>
-      </div>
-
-      <div class="tier-card featured">
-        <div class="tier-badge">Most Chosen</div>
-        <div class="tier-name">TAPASVI — The Disciplined</div>
-        <div class="tier-subtitle">Twenty kilograms. Guaranteed pre-harvest reserve. Seasonal price lock.</div>
-        <div class="tier-divider"></div>
-        <div class="tier-perks">
-          <div class="tier-perk"><div class="perk-dot"></div>Our most popular tier.</div>
-          <div class="tier-perk"><div class="perk-dot"></div>Your allocation is guaranteed before the seed goes in the ground — not allocated on a first-come basis.</div>
-          <div class="tier-perk"><div class="perk-dot"></div>Two annual farm visits.</div>
-          <div class="tier-perk"><div class="perk-dot"></div>Direct communication with the farmer.</div>
-          <div class="tier-perk"><div class="perk-dot"></div>Exclusive access to new heirloom variety drops before public release.</div>
-        </div>
-        <div class="tier-price-block">
-          @if (tierSelectedVariant()['Tapasvi']) {
-            <div class="tier-price">{{ getDiscountedMonthlyPrice('Tapasvi') | currencyInr }} <span class="tier-price-unit">/mo</span></div>
-            <div class="tier-cadence">
-              Regular: <span style="text-decoration: line-through;">{{ getOriginalPrice('Tapasvi') | currencyInr }}</span>
-              &nbsp;&middot;&nbsp; {{ getSavingsPercentage('Tapasvi') }}% plan discount
-            </div>
-          } @else {
-            <div class="tier-price">₹— <span class="tier-price-unit">/mo</span></div>
-            <div class="tier-cadence">Select a product to view price</div>
-          }
-        </div>
-        <div class="tier-product-selector">
-          <select class="tier-product-dropdown featured-dropdown" [value]="tierSelectedVariant()['Tapasvi'] || ''" (change)="onTierProductSelect('Tapasvi', $event)">
-            <option value="" disabled>Select a product</option>
-            @for (p of tierProducts()['Tapasvi']; track p.variant_id) {
-              <option [value]="p.variant_id">{{ p.variant_name }}</option>
-            }
-          </select>
-          <button class="btn-tier" [disabled]="!tierSelectedVariant()['Tapasvi']" (click)="goToProduct('Tapasvi')">Lock Your Harvest &rarr;</button>
-        </div>
-      </div>
-
-      <div class="tier-card">
-        <div class="tier-badge">Master</div>
-        <div class="tier-name">SIDDH — The Master</div>
-        <div class="tier-subtitle">Forty kilograms. A named field block. The deepest relationship with this land.</div>
-        <div class="tier-divider"></div>
-        <div class="tier-perks">
-          <div class="tier-perk"><div class="perk-dot"></div>Your allocation comes from a specific, named field block on our 28 acres.</div>
-          <div class="tier-perk"><div class="perk-dot"></div>You receive its GPS coordinates, quarterly soil test reports, and photo documentation from your plot each season.</div>
-          <div class="tier-perk"><div class="perk-dot"></div>Your flour comes from land you can point to on a map.</div>
-          <div class="tier-perk"><div class="perk-dot"></div>A bespoke milling specification — particle size, sieve grade — means your flour is built to your household's specifications.</div>
-        </div>
-        <div class="tier-price-block">
-          @if (tierSelectedVariant()['Siddh']) {
-            <div class="tier-price">{{ getDiscountedMonthlyPrice('Siddh') | currencyInr }} <span class="tier-price-unit">/mo</span></div>
-            <div class="tier-cadence">
-              Regular: <span style="text-decoration: line-through;">{{ getOriginalPrice('Siddh') | currencyInr }}</span>
-              &nbsp;&middot;&nbsp; {{ getSavingsPercentage('Siddh') }}% plan discount
-            </div>
-          } @else {
-            <div class="tier-price">₹— <span class="tier-price-unit">/mo</span></div>
-            <div class="tier-cadence">Select a product to view price</div>
-          }
-        </div>
-        <div class="tier-product-selector">
-          <select class="tier-product-dropdown" [value]="tierSelectedVariant()['Siddh'] || ''" (change)="onTierProductSelect('Siddh', $event)">
-            <option value="" disabled>Select a product</option>
-            @for (p of tierProducts()['Siddh']; track p.variant_id) {
-              <option [value]="p.variant_id">{{ p.variant_name }}</option>
-            }
-          </select>
-          <button class="btn-tier" [disabled]="!tierSelectedVariant()['Siddh']" (click)="goToProduct('Siddh')">Claim Your Plot &rarr;</button>
-        </div>
-      </div>
-
-    </div>
+    <app-subscription-plans [isCoverflow]="true"></app-subscription-plans>
   </section>
-
-  <section class="comparison">
+  <!-- 
+  <section class="comparison">s
     <div class="section-label">Feature Comparison</div>
     <h3>What's included at each tier.</h3>
     <div class="comp-table">
@@ -319,84 +270,178 @@
       </div>
       <div class="comp-row">
         <div class="comp-feature">Zero-residue guarantee</div>
-        <div class="comp-cell yes">&#10003;</div><div class="comp-cell yes">&#10003;</div><div class="comp-cell highlight yes">&#10003;</div><div class="comp-cell yes">&#10003;</div>
+        <div class="comp-cell yes">&#10003;</div>
+        <div class="comp-cell yes">&#10003;</div>
+        <div class="comp-cell highlight yes">&#10003;</div>
+        <div class="comp-cell yes">&#10003;</div>
       </div>
       <div class="comp-row">
         <div class="comp-feature">Full batch ledger access</div>
-        <div class="comp-cell yes">&#10003;</div><div class="comp-cell yes">&#10003;</div><div class="comp-cell highlight yes">&#10003;</div><div class="comp-cell yes">&#10003;</div>
+        <div class="comp-cell yes">&#10003;</div>
+        <div class="comp-cell yes">&#10003;</div>
+        <div class="comp-cell highlight yes">&#10003;</div>
+        <div class="comp-cell yes">&#10003;</div>
       </div>
       <div class="comp-row">
-        <div class="comp-feature">Monthly quantity</div>
-        <div class="comp-cell">5 kg</div><div class="comp-cell">10 kg</div><div class="comp-cell highlight">20 kg</div><div class="comp-cell">40 kg</div>
+        <div class="comp-feature">Plan Duration</div>
+        <div class="comp-cell">1 month</div>
+        <div class="comp-cell">3 months</div>
+        <div class="comp-cell highlight">6 months</div>
+        <div class="comp-cell">12 months</div>
+      </div>
+      <div class="comp-row">
+        <div class="comp-feature">Discount</div>
+        <div class="comp-cell">50% (First month)</div>
+        <div class="comp-cell">7%</div>
+        <div class="comp-cell highlight">15%</div>
+        <div class="comp-cell">30%</div>
       </div>
       <div class="comp-row">
         <div class="comp-feature">Seasonal price lock</div>
-        <div class="comp-cell">—</div><div class="comp-cell">—</div><div class="comp-cell highlight yes">&#10003;</div><div class="comp-cell yes">&#10003;</div>
+        <div class="comp-cell">—</div>
+        <div class="comp-cell">—</div>
+        <div class="comp-cell highlight yes">&#10003;</div>
+        <div class="comp-cell yes">&#10003;</div>
       </div>
       <div class="comp-row">
         <div class="comp-feature">Farm visit access</div>
-        <div class="comp-cell">—</div><div class="comp-cell">1 per year</div><div class="comp-cell highlight">2 per year</div><div class="comp-cell">Unlimited</div>
+        <div class="comp-cell">—</div>
+        <div class="comp-cell">1 per year</div>
+        <div class="comp-cell highlight">2 per year</div>
+        <div class="comp-cell">Unlimited</div>
       </div>
       <div class="comp-row">
         <div class="comp-feature">Direct farmer communication</div>
-        <div class="comp-cell">—</div><div class="comp-cell">—</div><div class="comp-cell highlight yes">&#10003;</div><div class="comp-cell yes">&#10003;</div>
+        <div class="comp-cell">—</div>
+        <div class="comp-cell">—</div>
+        <div class="comp-cell highlight yes">&#10003;</div>
+        <div class="comp-cell yes">&#10003;</div>
       </div>
       <div class="comp-row">
         <div class="comp-feature">Heirloom seed share</div>
-        <div class="comp-cell">—</div><div class="comp-cell">—</div><div class="comp-cell highlight">—</div><div class="comp-cell yes">&#10003;</div>
+        <div class="comp-cell">—</div>
+        <div class="comp-cell">—</div>
+        <div class="comp-cell highlight">—</div>
+        <div class="comp-cell yes">&#10003;</div>
       </div>
       <div class="comp-row">
         <div class="comp-feature">Named plot stewardship</div>
-        <div class="comp-cell">—</div><div class="comp-cell">—</div><div class="comp-cell highlight">—</div><div class="comp-cell yes">&#10003;</div>
+        <div class="comp-cell">—</div>
+        <div class="comp-cell">—</div>
+        <div class="comp-cell highlight">—</div>
+        <div class="comp-cell yes">&#10003;</div>
       </div>
       <div class="comp-row">
         <div class="comp-feature">Bespoke milling specification</div>
-        <div class="comp-cell">—</div><div class="comp-cell">—</div><div class="comp-cell highlight">—</div><div class="comp-cell yes">&#10003;</div>
+        <div class="comp-cell">—</div>
+        <div class="comp-cell">—</div>
+        <div class="comp-cell highlight">—</div>
+        <div class="comp-cell yes">&#10003;</div>
       </div>
+      <div class="comp-row">
+        <div class="comp-feature">Community Harvest Gathering</div>
+        <div class="comp-cell">—</div>
+        <div class="comp-cell">Optional</div>
+        <div class="comp-cell highlight">Included</div>
+        <div class="comp-cell">Priority invitation</div>
+      </div>
+    </div>
+  </section> -->
+
+  <!-- Social Proof Quote Section -->
+  <section class="social-proof">
+    <div class="quote-container">
+      <p class="quote-text">"Our family visited the farm in Sonipat last winter and saw the Gir cows and the fields
+        firsthand. The connection to the land is real, and you can honestly taste the freshness and vitality in the
+        Chawal Kathiya flour every single morning."</p>
+      <div class="quote-author">&mdash; The Sharma Family, Delhi &middot; Tapasvi subscribers since November 2024</div>
     </div>
   </section>
 
-  <section class="faq">
+  <!-- <section class="faq">
     <div class="faq-left">
       <div class="section-label">Questions</div>
       <div class="divider-rule"></div>
       <h2>Common questions.</h2>
-      <p>If your question is not answered here, write to us directly at farm&#64;anaadfoods.com — we respond within one working day.</p>
+      <p>If your question is not answered here, write to us directly at farm&#64;anaadfoods.com — we respond within one
+        working day.</p>
     </div>
     <div class="faq-right">
       <div class="faq-item">
+        <div class="faq-q">What is Commitment-Based Agriculture?</div>
+        <div class="faq-a">Instead of purchasing grain after it has been harvested, you reserve a portion of our upcoming crop before sowing begins. Your commitment enables us to plan our acreage around specific households — avoiding speculative commodity markets entirely.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Why subscribe instead of buying products individually?</div>
+        <div class="faq-a">Subscribers receive pre-harvest allocation, seasonal price protection, freshly milled flour, complete batch transparency, and a direct relationship with the farm. One-time purchases depend on available stock and current pricing — and they support the same farming, just without the advance commitment that makes it sustainable for us.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Is my price fixed for the entire commitment period?</div>
+        <div class="faq-a">Yes. Once your subscription begins, your per-kilogram price is locked for the full duration of your chosen plan, regardless of market price movements or seasonal shortages.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Can I change my monthly quantity?</div>
+        <div class="faq-a">Depending on the stage of the agricultural season, you may increase your allocation. Reductions are subject to crop planning commitments already in place. Our team will walk you through what's possible when you contact us.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">What if I move to a new address?</div>
+        <div class="faq-a">You can update your delivery address before the next dispatch cycle through your account. Your subscription remains active as long as deliveries are serviceable at the new location — enter your new PIN code to check coverage.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Do all tiers receive the same quality of grain?</div>
+        <div class="faq-a">Absolutely. Every tier receives the same zero-residue, ICBN-grown grain and the same cold-milled flour with full batch transparency. The difference between tiers is quantity, commitment duration, and the depth of access and relationship — not the quality of what arrives at your door.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Why do longer commitments cost less per kilogram?</div>
+        <div class="faq-a">Longer commitments give us greater certainty before sowing — which reduces our financial risk, allows us to bypass speculative markets, and lets us plan our acreage precisely. Those efficiencies come back to you as a lower per-kilogram price.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">How do I know the grain is genuinely chemical-free?</div>
+        <div class="faq-a">Every harvest batch is independently tested by SGS India before dispatch. You receive the lab report for your specific batch before your flour is shipped. You can also access the complete batch ledger — every result, every harvest, publicly — at The Registry.</div>
+      </div>
+      <div class="faq-item">
         <div class="faq-q">Can I cancel my subscription at any time?</div>
-        <div class="faq-a">Yes. There are no lock-in periods, cancellation fees, or minimum commitment durations. Cancel before your next billing date and no further charge will be made. We only ask that you give us 5 days notice so we can adjust our milling schedule accordingly.</div>
+        <div class="faq-a">Yes. There are no lock-in periods, cancellation fees, or minimum commitment durations. Cancel
+          before your next billing date and no further charge will be made. We only ask that you give us 5 days notice
+          so we can adjust our milling schedule accordingly.</div>
       </div>
       <div class="faq-item">
         <div class="faq-q">What happens if a harvest fails or is delayed?</div>
-        <div class="faq-a">In the event of a harvest shortfall due to weather or crop failure, we will notify all subscribers immediately, issue a full pro-rated refund for the affected month, and — where stock exists — offer supply from our reserve grain bank. We will never ship a batch that has not passed lab clearance.</div>
+        <div class="faq-a">In the event of a shortfall due to weather or crop failure, every committed household shares proportionally in the available harvest. We will notify you immediately, provide a transparent account, adjust your subscription billing proportionally for that cycle, and — where stock exists — offer supply from our reserve grain bank. We will never quietly substitute grain or ship an untested batch.</div>
       </div>
       <div class="faq-item">
         <div class="faq-q">Can I choose which variety I receive each month?</div>
-        <div class="faq-a">Yes. At the time of subscription setup, you select your preferred variety: Sona Moti, Chawal Kathiya, or Sharbati. Tapasvi and Siddh tier subscribers may request a split allocation across varieties each month.</div>
+        <div class="faq-a">Yes. At the time of subscription setup, you select your preferred variety: Sona Moti, Chawal
+          Kathiya, or Sharbati. Tapasvi and Siddh tier subscribers may request a split allocation across varieties each
+          month.</div>
       </div>
       <div class="faq-item">
         <div class="faq-q">How fresh is the flour when it arrives?</div>
-        <div class="faq-a">Your flour is milled within 14 days of your dispatch date and shipped within 72 hours of milling. The nitrogen-flushed packaging maintains freshness for up to 9 months from the milling date, but under normal household use you will consume it long before that.</div>
+        <div class="faq-a">Your flour is milled within 14 days of harvest clearance and shipped within 72 hours of
+          milling. The nitrogen-flushed packaging maintains freshness for up to 9 months from the milling date, but
+          under normal household use you will consume it long before that.</div>
       </div>
       <div class="faq-item">
         <div class="faq-q">Do you ship pan-India?</div>
-        <div class="faq-a">Yes. We currently dispatch to all major metro areas and Tier 1 cities via temperature-controlled courier. We are expanding to Tier 2 cities through 2026. Enter your PIN code at checkout to confirm serviceability before subscribing.</div>
+        <div class="faq-a">Yes. We currently dispatch to all major metro areas and Tier 1 cities via
+          temperature-controlled courier. We are expanding to Tier 2 cities through 2026. Enter your PIN code at
+          checkout to confirm serviceability before subscribing.</div>
       </div>
       <div class="faq-item">
         <div class="faq-q">What does "named plot stewardship" mean for Siddh subscribers?</div>
-        <div class="faq-a">Siddh subscribers are assigned a specific field block on our 28-acre farm. That block is cultivated exclusively for their allocation. You receive GPS coordinates, seasonal soil test reports, and photo documentation from your named plot every quarter. Your flour comes from a specific piece of land you can point to on a map.</div>
+        <div class="faq-a">Siddh is not a subscription plan. It is a standing relationship with a specific piece of farmland. Your named plot is cultivated exclusively for your household's allocation. You receive its GPS coordinates, quarterly soil test reports, and photo documentation through every season. When your flour arrives, you know precisely which field it came from and what happened there.</div>
       </div>
     </div>
-  </section>
+  </section> -->
 
   <div class="final-cta">
     <div class="section-label" style="color:var(--amber-harvest)">Begin Today</div>
-    <h2>Your kitchen.<br><em>Our acreage.</em></h2>
-    <p>Choose your tier, lock your allocation, and receive your first batch within 30 days — accompanied by the full lab report for your specific grain.</p>
+    <h2>Subscribe for food that is planned better and prepared fresher.</h2>
+    <div style="display: flex; flex-direction: column; gap: 12px; align-items: center;">
+      <p>A subscription is the easiest way to stay stocked with ANAAD food while helping the farm plan milling and dispatch more smoothly. It gives you a simpler, more dependable way to receive food that stays closely connected to the farm and the schedule behind it.</p>
+    </div>
     <div class="cta-actions">
-      <a href="#tiers" class="btn-amber">Choose Your Tier &rarr;</a>
+      <a [routerLink]="['/commitment']" fragment="tiers" class="btn-amber">Choose Your Tier &rarr;</a>
       <a routerLink="/products" class="btn-ghost-light">Shop One-Time Instead &rarr;</a>
     </div>
   </div>

@@ -5,10 +5,10 @@
 
 // ---------------------
 // Breakpoint Variables
-// ---------------------
-$breakpoint-mobile: 768px;
-$breakpoint-tablet: 1024px;
-$breakpoint-desktop: 1280px;
+$breakpoint-mobile: 768px;     // Tablet starts at 768px
+$breakpoint-tablet: 1024px;    // Laptop starts at 1024px
+$breakpoint-desktop: 1440px;   // Desktop starts at 1440px
+$breakpoint-ultrawide: 1920px;  // Ultra-wide starts at 1920px
 
 // ---------------------
 // Media Query Mixins
@@ -28,23 +28,59 @@ $breakpoint-desktop: 1280px;
     }
 }
 
-// Desktop and up (>= 1024px)
+// Tablet only (768px - 1023px)
+@mixin tablet-only {
+    @media (min-width: #{$breakpoint-mobile}) and (max-width: #{$breakpoint-tablet - 1px}) {
+        @content;
+    }
+}
+
+// Laptop and up (>= 1024px)
+@mixin laptop-up {
+    @media (min-width: #{$breakpoint-tablet}) {
+        @content;
+    }
+}
+
+// Desktop and up (>= 1024px) (kept for backwards compatibility)
 @mixin desktop-up {
     @media (min-width: #{$breakpoint-tablet}) {
         @content;
     }
 }
 
-// Large desktop (>= 1280px)
-@mixin large-desktop {
+// Laptop only (1024px - 1439px)
+@mixin laptop-only {
+    @media (min-width: #{$breakpoint-tablet}) and (max-width: #{$breakpoint-desktop - 1px}) {
+        @content;
+    }
+}
+
+// Desktop and up (>= 1440px)
+@mixin desktop-only-up {
     @media (min-width: #{$breakpoint-desktop}) {
         @content;
     }
 }
 
-// Tablet only (768px - 1023px)
-@mixin tablet-only {
-    @media (min-width: #{$breakpoint-mobile}) and (max-width: #{$breakpoint-tablet - 1px}) {
+// Desktop only (1440px - 1919px)
+@mixin desktop-only {
+    @media (min-width: #{$breakpoint-desktop}) and (max-width: #{$breakpoint-ultrawide - 1px}) {
+        @content;
+    }
+}
+
+// Large desktop (>= 1280px)
+$breakpoint-large-desktop: 1280px;
+@mixin large-desktop {
+    @media (min-width: #{$breakpoint-large-desktop}) {
+        @content;
+    }
+}
+
+// Ultra-wide and up (>= 1920px)
+@mixin ultrawide {
+    @media (min-width: #{$breakpoint-ultrawide}) {
         @content;
     }
 }
@@ -123,3 +159,10 @@ $breakpoint-desktop: 1280px;
         gap: 1rem;
     }
 }
+
+// ---------------------
+// Global Section Padding Rule
+// ---------------------
+section {
+    padding-inline: clamp(1.25rem, 5vw, 4rem);
+}

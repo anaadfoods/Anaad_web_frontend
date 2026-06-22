@@ -7,7 +7,7 @@
         <span class="check-icon" style="color: #000;">&#8987;</span>
       </div>
       <span class="confirm-tag">Processing...</span>
-      <h1>{{ paymentStatus }}</h1>
+      <h1 class="heading-display">{{ paymentStatus }}</h1>
     </ng-container>
 
     <!-- FAILED -->
@@ -16,7 +16,7 @@
         <span class="check-icon">&#10006;</span>
       </div>
       <span class="confirm-tag" style="color: #dc3545;">Payment Failed</span>
-      <h1>{{ paymentStatus }}</h1>
+      <h1 class="heading-display">{{ paymentStatus }}</h1>
       <p class="confirm-body">There was an issue processing your payment. Your order has not been placed.</p>
     </ng-container>
 
@@ -26,7 +26,7 @@
         <span class="check-icon">&#10003;</span>
       </div>
       <span class="confirm-tag">Order Confirmed</span>
-      <h1>Your grains are<br /><em>on their way.</em></h1>
+      <h1 class="heading-display">Your grains are<br /><em>on their way.</em></h1>
       <p class="confirm-body">Thank you for your order. We are preparing your nitrogen-flushed packs with care. You will receive a dispatch confirmation with your batch traceability link within 24 hours.</p>
       <p class="confirm-order-id">Order <strong>#{{ orderNumber ? orderNumber : (orderId || 'AN-PENDING') }}</strong></p>
       <p class="confirm-email-note">A confirmation has been sent to your registered email.</p>
@@ -36,30 +36,30 @@
   <!-- NEXT STEPS -->
   <div class="next-steps">
     <span class="section-tag">What happens now</span>
-    <h2>Your Order Journey</h2>
+    <h2 class="heading-2">Your Order Journey</h2>
     <div class="steps-grid">
       <div class="step-card">
         <span class="step-card-num">01</span>
         <span class="step-card-icon">&#128203;</span>
-        <span class="step-card-title">Order Confirmed</span>
+        <span class="step-card-title heading-3">Order Confirmed</span>
         <p class="step-card-desc">Payment received. Our team at the Rajasthan processing unit has been notified. Your order is in the queue.</p>
       </div>
       <div class="step-card">
         <span class="step-card-num">02</span>
         <span class="step-card-icon">&#9879;</span>
-        <span class="step-card-title">Packed &amp; Sealed</span>
+        <span class="step-card-title heading-3">Packed &amp; Sealed</span>
         <p class="step-card-desc">Within 24 hours, grains are stone-milled fresh and packed in nitrogen-flushed food-grade pouches.</p>
       </div>
       <div class="step-card">
         <span class="step-card-num">03</span>
         <span class="step-card-icon">&#128666;</span>
-        <span class="step-card-title">Cold-chain Dispatch</span>
+        <span class="step-card-title heading-3">Cold-chain Dispatch</span>
         <p class="step-card-desc">Handed to Blue Dart Express within 48 hours. You receive a tracking link and your SGS batch certificate.</p>
       </div>
       <div class="step-card">
         <span class="step-card-num">04</span>
         <span class="step-card-icon">&#127968;</span>
-        <span class="step-card-title">Delivered in 4–6 Days</span>
+        <span class="step-card-title heading-3">Delivered in 4–6 Days</span>
         <p class="step-card-desc">Cold-chain delivery to your door. Sign, open, smell the grain. That is what honest farming tastes like.</p>
       </div>
     </div>
@@ -70,11 +70,13 @@
     <div class="summary-inner">
 
       <div class="summary-left">
-        <span class="summary-left-title">Order Summary</span>
+        <span class="summary-left-title heading-3">Order Summary</span>
         <div class="ordered-items">
           @for (item of orderItems; track item.id || item.product_variant_id) {
           <div class="ordered-item">
-            <img class="ordered-item-img" [src]="item.image || item.product_variant?.images?.[0]?.image || 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=120&q=80'" appSafeImage alt="Product" />
+            <div class="ordered-item-img-wrap">
+              <img class="ordered-item-img" [src]="item.image || item.product_variant?.images?.[0]?.image || 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=120&q=80'" appSafeImage alt="Product" />
+            </div>
             <div class="ordered-item-info">
               <span class="ordered-item-name">{{ getItemName(item) }} &#215;{{ item.quantity }}</span>
               <span class="ordered-item-meta">{{ item.weight || item.product_variant?.weight || '1' }} kg &nbsp;&middot;&nbsp; Batch Pending</span>
@@ -93,7 +95,7 @@
       </div>
 
       <div class="summary-right" *ngIf="orderData || subscriptionData">
-        <span class="sr-title">Payment</span>
+        <span class="sr-title heading-3">Payment</span>
         <div class="sr-row">
           <span class="sr-label">Subtotal</span>
           <span class="sr-value">{{ getSubtotal() | currencyInr }}</span>
@@ -129,7 +131,7 @@
   <div class="referral-nudge">
     <div class="referral-nudge-text">
       <span class="nudge-tag">Refer &amp; Earn</span>
-      <h3>Share good food.<br />Earn &#8377;300 per friend.</h3>
+      <h3 class="heading-2">Share good food.<br />Earn &#8377;300 per friend.</h3>
       <p>Every friend you bring to ANAAD earns you &#8377;300 in store credits — and gets them &#8377;200 off their first order. No cap, no expiry games.</p>
     </div>
     <div class="nudge-code">

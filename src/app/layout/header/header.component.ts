@@ -1,11 +1,12 @@
 import { LogService } from '../../core/services/log.service';
-import { Component, signal, inject, OnInit, OnDestroy, ChangeDetectionStrategy, PLATFORM_ID, HostListener } from '@angular/core';
+import { Component, signal, inject, OnInit, OnDestroy, ChangeDetectionStrategy, PLATFORM_ID, HostListener, effect } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { AuthState } from '../../core/state/auth.state';
 import { CartState } from '../../core/state/cart.state';
 import { AuthService } from '../../core/services/auth.service';
 import { NotificationService } from '../../core/services/notification.service';
+import { ToastService } from '../../core/services/toast.service';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -19,15 +20,38 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private readonly logSvc = inject(LogService);
   private readonly platformId = inject(PLATFORM_ID);
   bannerMessages = [
-    'Current batch: AN-SON-0526 · Zero residue · SGS Certified',
+    'Milled this week: Batch AN-SON-0526 · Zero residue · SGS verified',
     'Pre-harvest allocation · Lock your supply · Share the farm risk',
     'Milled this week · Dispatched in 72 hours · Pan-India delivery'
   ];
   currentBannerIndex = signal(0);
   private bannerIntervalId: any;
 
+  shouldPopBadge = signal(false);
+  private isFirstCartCheck = true;
+
+  constructor() {
+    effect(() => {
+      const count = this.cartState.itemCount();
+      if (this.isFirstCartCheck) {
+        this.isFirstCartCheck = false;
+        return;
+      }
+      if (count > 0) {
+        this.shouldPopBadge.set(true);
+        setTimeout(() => {
+          this.shouldPopBadge.set(false);
+        }, 300);
+      }
+    }, { allowSignalWrites: true });
+  }
+
   ngOnInit() {
     if (isPlatformBrowser(this.platformId)) {
+      setTimeout(() => {
+        this.updateBannerHeight();
+      }, 0);
+
       this.bannerIntervalId = setInterval(() => {
         this.currentBannerIndex.update(idx => (idx + 1) % this.bannerMessages.length);
       }, 4000);
@@ -41,6 +65,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   currentBannerMessage() {
+    const msgs = this.toastSvc.messages();
+    if (msgs.length > 0) {
+      return msgs[msgs.length - 1].message;
+    }
     return this.bannerMessages[this.currentBannerIndex()];
   }
   readonly authState = inject(AuthState);
@@ -48,6 +76,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   readonly notificationSvc = inject(NotificationService);
   private readonly authSvc = inject(AuthService);
   private readonly router = inject(Router);
+  readonly toastSvc = inject(ToastService);
 
   isOpen = signal(false);
   isNotificationsOpen = signal(false);
@@ -135,5 +164,24 @@ export class HeaderComponent implements OnInit, OnDestroy {
       hour: '2-digit',
       minute: '2-digit'
     });
+  }
+
+  private updateBannerHeight() {
+    if (isPlatformBrowser(this.platformId)) {
+      const banner = document.querySelector('.top-banner') as HTMLElement;
+      if (banner) {
+        document.documentElement.style.setProperty('--banner-h', banner.offsetHeight + 'px');
+      }
+    }
+  }
+
+  @HostListener('window:resize')
+  onResize() {
+    this.updateBannerHeight();
+  }
+
+  @HostListener('document:keydown.escape')
+  closeMenu() {
+    this.close();
   }
 }

@@ -4,15 +4,31 @@
 /* LEFT PANEL — decorative */
 .left-panel {
   position: relative;
-  background-image: url('/assets/images-new/27.png');
-  background-size: cover;
-  background-position: center;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
   padding: 64px;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url('/assets/images-new/27.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: 0;
+  }
 }
-.left-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(26,26,26,0.88) 0%, rgba(44,74,30,0.45) 55%, rgba(44,74,30,0.10) 100%); }
+
+@media (max-aspect-ratio: 1/1) {
+  .left-panel::before {
+    background-size: auto 125%;
+  }
+}
+
+.left-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(26,26,26,0.88) 0%, rgba(44,74,30,0.45) 55%, rgba(44,74,30,0.10) 100%); z-index: 1; }
 .left-content { position: relative; z-index: 2; display: flex; flex-direction: column; gap: 20px; }
 .left-tagline { font-family: var(--font-sans); font-size: 11px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--amber-harvest); }
 .left-headline { font-family: var(--font-serif); font-size: 40px; font-weight: 700; color: var(--bg-parchment); line-height: 1.15; }
@@ -44,7 +60,7 @@
 .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .field-group { display: flex; flex-direction: column; gap: 8px; }
 .field-label { font-family: var(--font-sans); font-size: 11px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(26,26,26,0.50); }
-.field-input { font-family: var(--font-sans); font-size: 14px; font-weight: 400; color: var(--charcoal); padding: 14px 16px; background-color: transparent; border: 1px solid rgba(26,26,26,0.18); outline: none; width: 100%; transition: border-color 0.2s; }
+.field-input { font-family: var(--font-sans); font-size: 16px; font-weight: 400; color: var(--charcoal); padding: 14px 16px; background-color: transparent; border: 1px solid rgba(26,26,26,0.18); outline: none; width: 100%; transition: border-color 0.2s; -webkit-appearance: none; border-radius: 0; }
 .field-input:focus { border-color: var(--green-deep); }
 .field-input.ng-invalid.ng-touched { border-color: #ef4444; }
 
@@ -67,9 +83,39 @@
 /* MOBILE RESPONSIVE */
 @media (max-width: 900px) {
   .page-wrap { grid-template-columns: 1fr; }
-  .left-panel { min-height: 400px; padding: 40px 24px; }
+  .left-panel { display: none; }
   .right-panel { padding: 40px 24px; }
   .field-row { grid-template-columns: 1fr; }
+
+  .mobile-brand-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--green-deep);
+    height: 80px;
+  }
+  .mobile-brand-header .wordmark {
+    font-family: var(--font-serif);
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--bg-parchment);
+    line-height: 1;
+    letter-spacing: 0.1em;
+  }
+  .mobile-brand-header .tagline {
+    font-family: var(--font-sans);
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--amber-harvest);
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    margin-top: 4px;
+  }
+}
+
+.mobile-brand-header {
+  display: none;
 }
 
 /* Additions for register */
@@ -110,3 +156,47 @@
 .left-badge-row { display: flex; align-items: center; gap: 10px; }
 .badge-check { color: var(--amber-harvest, #C9943A); font-size: 13px; }
 .badge-label { font-family: var(--font-sans); font-size: 13px; font-weight: 300; color: rgba(245,240,232,0.70); }
+
+/* OTP VERIFICATION INLINE */
+.otp-verification-inline {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.btn-otp-action {
+  align-self: flex-start;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--bg-parchment);
+  background-color: var(--green-deep);
+  padding: 8px 16px;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s;
+
+  &:hover:not(:disabled) {
+    opacity: 0.9;
+  }
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &.verify {
+    background-color: var(--amber-harvest);
+    color: var(--charcoal);
+  }
+}
+.otp-input-inline-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.otp-field {
+  max-width: 140px;
+  padding: 8px 12px;
+  font-size: 14px;
+}

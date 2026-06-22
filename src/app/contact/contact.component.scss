@@ -91,3 +91,217 @@
   .mission-band { padding-left: 20px; padding-right: 20px; }
   .faq-section { padding-left: 20px; padding-right: 20px; }
 }
+
+// --- OTP VERIFICATION ---
+.otp-verification-section {
+  background: linear-gradient(135deg, rgba(63, 94, 70, 0.04) 0%, rgba(201, 148, 58, 0.04) 100%);
+  border: 1px dashed rgba(63, 94, 70, 0.3);
+  border-radius: var(--radius-md, 8px);
+  padding: 20px;
+  margin-top: 8px;
+  animation: fadeIn 300ms ease;
+}
+
+.otp-trigger-btn {
+  width: 100%;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, var(--deep-green, #2C4A1E) 0%, #2c5e3a 100%);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md, 8px);
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 250ms ease;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.otp-hint {
+  text-align: center;
+  font-size: 0.78rem;
+  color: #777;
+  margin-top: 8px;
+}
+
+.otp-label {
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 0.88rem;
+  color: var(--deep-green, #2C4A1E);
+  margin-bottom: 12px;
+}
+
+.otp-method-chooser {
+  .otp-method-btns {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+}
+
+.otp-method-btn {
+  flex: 1;
+  min-width: 140px;
+  padding: 12px 16px;
+  background: white;
+  border: 1px solid var(--border-color, #e0ddd6);
+  border-radius: var(--radius-md, 8px);
+  font-family: inherit;
+  font-weight: 500;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 250ms ease;
+  color: var(--deep-green, #2C4A1E);
+
+  &:hover:not(:disabled) {
+    background: #f7f9f7;
+    border-color: var(--deep-green, #2C4A1E);
+    transform: translateY(-1px);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.otp-sending {
+  font-size: 0.85rem;
+  color: var(--deep-green, #2C4A1E);
+  margin-top: 8px;
+  font-weight: 500;
+}
+
+.otp-input-row {
+  display: flex;
+  gap: 12px;
+  align-items: stretch;
+  margin-bottom: 12px;
+}
+
+.otp-input {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1px solid var(--border-color, #e0ddd6);
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 1.1rem;
+  letter-spacing: 0.15em;
+  background-color: white;
+  text-align: center;
+  transition: all 250ms ease;
+
+  &:focus {
+    outline: none;
+    border-color: var(--deep-green, #2C4A1E);
+    box-shadow: 0 0 0 3px rgba(63, 94, 70, 0.1);
+  }
+}
+
+.otp-verify-btn {
+  padding: 10px 20px;
+  background: var(--deep-green, #2C4A1E);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 250ms ease;
+  white-space: nowrap;
+
+  &:hover:not(:disabled) {
+    background: #2c5e3a;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.otp-actions-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.otp-resend-btn,
+.otp-change-btn {
+  background: none;
+  border: none;
+  font-family: inherit;
+  font-size: 0.82rem;
+  cursor: pointer;
+  color: var(--deep-green, #2C4A1E);
+  font-weight: 500;
+  padding: 0;
+  transition: color 200ms ease;
+
+  &:hover:not(:disabled) {
+    text-decoration: underline;
+  }
+
+  &:disabled {
+    color: #999;
+    cursor: not-allowed;
+  }
+}
+
+.otp-success-msg {
+  font-size: 0.82rem;
+  color: var(--deep-green, #2C4A1E);
+  margin-bottom: 12px;
+  font-weight: 500;
+}
+
+.otp-error-msg {
+  font-size: 0.82rem;
+  color: #8B2020;
+  margin-top: 8px;
+  font-weight: 500;
+}
+
+.otp-verified-badge {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(63, 94, 70, 0.08);
+  border: 1px solid rgba(63, 94, 70, 0.25);
+  border-radius: var(--radius-md, 8px);
+  padding: 12px 16px;
+  color: var(--deep-green, #2C4A1E);
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 0.9rem;
+  animation: fadeIn 300ms ease;
+
+  .verified-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    background: var(--deep-green, #2C4A1E);
+    color: white;
+    border-radius: 50%;
+    font-size: 0.75rem;
+    font-weight: bold;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}

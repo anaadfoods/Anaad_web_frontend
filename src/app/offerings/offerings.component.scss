@@ -1,7 +1,8 @@
 /* Enhanced hero animations */
 .hero {
   background: linear-gradient(180deg, color-mix(in srgb, var(--color-primary) 95%, transparent) 0%, color-mix(in srgb, var(--color-primary) 85%, transparent) 60%, transparent 100%);
-  padding: 96px 0 48px;
+  margin-top: -135px;
+  padding: calc(96px + 135px) 0 48px;
   text-align: center;
   color: #fff;
   overflow: hidden;
@@ -270,6 +271,24 @@
   transform: scale(1.05);
 }
 
+.card.left .media img {
+  transform: scale(1.64);
+  transform-origin: center center;
+}
+.card.left:hover .media img {
+  filter: saturate(1.1) contrast(1.05);
+  transform: scale(1.72);
+}
+
+.card.right .media img {
+  transform: scale(1.51);
+  transform-origin: center center;
+}
+.card.right:hover .media img {
+  filter: saturate(1.1) contrast(1.05);
+  transform: scale(1.58);
+}
+
 .overlay {
   position: absolute;
   inset: 0;
@@ -297,11 +316,17 @@
   position: relative;
   z-index: 3;
   color: #fff;
-  // padding: 2px; 
+  padding: 32px; 
   display: grid;
   align-content: end;
   height: 100%;
   transition: all 0.3s ease;
+}
+
+@media (max-width: 768px) {
+  .card .content {
+    padding: 24px;
+  }
 }
 
 .card:hover .content {
@@ -794,6 +819,8 @@
   object-fit: cover;
   border-radius: 8px;
   display: block;
+  transform: scale(2.07);
+  transform-origin: center center;
 }
 
 @media (min-width: 768px) {
@@ -1278,7 +1305,8 @@
 
 @media (max-width: 768px) {
   .hero {
-    padding: 60px 16px 32px;
+    margin-top: -115px;
+    padding: calc(60px + 115px) 16px 32px;
   }
 
   .meta h3 {

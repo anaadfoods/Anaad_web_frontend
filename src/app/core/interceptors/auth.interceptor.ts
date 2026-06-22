@@ -32,7 +32,7 @@ const PUBLIC_URL_FRAGMENTS = [
   '/api/core/cities',
   '/api/subscriptions/plans',
   '/api/blogs',
-  '/api/research-papers',
+  '/api/blog/research-papers',
   '/api/plans',
   '/api/user-queries',
 ];

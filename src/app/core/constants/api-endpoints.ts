@@ -9,7 +9,7 @@ export const API = {
     LOGIN: '/api/auth/token/',
     REFRESH: '/api/auth/token/refresh/',
     GOOGLE: '/api/auth/google/',
-    APPLE: '/api/auth/apple/',
+    APPLE: '/api/auth/apple/callback/',
     SEND_OTP: '/api/auth/send-otp/',
     VERIFY_OTP: '/api/auth/verify-otp/',
     TEST_TOKEN: '/api/auth/test-token/',
@@ -74,8 +74,8 @@ export const API = {
   },
 
   RESEARCH_PAPERS: {
-    LIST: '/api/research-papers/',
-    DETAIL: '/api/research-papers/',
+    LIST: '/api/blog/research-papers/',
+    DETAIL: '/api/blog/research-papers/',
   },
 
   USER_QUERIES: {

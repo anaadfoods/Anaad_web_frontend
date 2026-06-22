@@ -1,6 +1,6 @@
-@import './styles/theme';
-@import './styles/animations';
-@import './styles/utilities';
+@use './styles/theme';
+@use './styles/animations';
+@use './styles/utilities';
 
 /* ───────────────────────────────────────
    RESET & BASE
@@ -11,12 +11,25 @@
   padding: 0;
 }
 
+html {
+  font-size: 100%;
+}
+
 html, body {
-  font-size: 16px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overflow-x: hidden;
+  overflow-x: clip;
   max-width: 100%;
+}
+
+:focus-visible {
+  outline: 3px solid var(--amber-harvest);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+header :focus-visible {
+  outline-color: var(--bg-parchment);
 }
 
 body {
@@ -28,6 +41,8 @@ body {
 img {
   display: block;
   max-width: 100%;
+  height: auto;
+  object-fit: contain;
 }
 
 a {
@@ -142,5 +157,5 @@ a {
 }
 .reveal.is-visible {
   opacity: 1;
-  transform: translateY(0);
+  transform: none;
 }

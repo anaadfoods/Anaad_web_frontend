@@ -1,7 +1,7 @@
-import { Component, OnDestroy, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Title, Meta } from '@angular/platform-browser';
 import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 import { CategoryService } from '../../core/services/category.service';
@@ -17,7 +17,7 @@ import { ToastService } from '../../core/services/toast.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-product-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, ProductCardComponent, SkeletonLoaderComponent],
+  imports: [CommonModule, FormsModule, ProductCardComponent, SkeletonLoaderComponent, RouterLink],
   templateUrl: './product-list.html',
   styleUrls: ['./product-list.scss'],
 })
@@ -38,6 +38,15 @@ export class ProductList implements OnInit, OnDestroy {
   filteredProducts = signal<ProductVariant[]>([]);
 
   activeCategoryId = signal<string>('all');
+  activeCategoryName = computed(() => {
+    const activeId = this.activeCategoryId();
+    if (activeId === 'all') {
+      return 'All Products';
+    }
+    const cat = this.categories().find(c => c.id.toString() === activeId);
+    return cat ? cat.name : 'Products';
+  });
+
   loading = signal<boolean>(true);
   searchQuery = signal<string>('');
   cartAddingIds = signal<Set<number>>(new Set());
@@ -54,7 +63,10 @@ export class ProductList implements OnInit, OnDestroy {
     // Handle category from query param
     this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe(params => {
       if (params['category']) {
-        this.activeCategoryId.set(params['category']);
+        this.resolveCategoryParam(params['category']);
+      } else {
+        this.activeCategoryId.set('all');
+        this.applyFilters();
       }
     });
   }
@@ -67,19 +79,59 @@ export class ProductList implements OnInit, OnDestroy {
   loadData() {
     this.loading.set(true);
 
-    this.categorySvc.getCategories().subscribe({
-      next: (cats) => this.categories.set(cats),
-      error: () => undefined
-    });
-
     this.productSvc.getVariants().subscribe({
       next: (variants) => {
         this.allProducts.set(variants);
+        
+        // Dynamically extract categories from the loaded variants
+        const categoryMap = new Map<number, ProductCategory>();
+        variants.forEach(v => {
+          if (v.category && v.category.id && v.category.name) {
+            categoryMap.set(v.category.id, v.category);
+          }
+        });
+        this.categories.set(Array.from(categoryMap.values()));
+
+        const currentCat = this.activeCategoryId();
+        if (currentCat !== 'all' && isNaN(Number(currentCat))) {
+          this.resolveCategoryParam(currentCat);
+        }
+
         this.applyFilters();
         this.loading.set(false);
       },
       error: () => this.loading.set(false)
     });
+
+    // Variants already loaded above
+  }
+
+  resolveCategoryParam(param: string) {
+    if (!param || param === 'all') {
+      this.activeCategoryId.set('all');
+      this.applyFilters();
+      return;
+    }
+
+    const isNumeric = !isNaN(Number(param));
+    if (isNumeric) {
+      this.activeCategoryId.set(param);
+      this.applyFilters();
+      return;
+    }
+
+    const cats = this.categories();
+    if (cats.length > 0) {
+      const found = cats.find(c => c.name.toLowerCase() === param.toLowerCase());
+      if (found) {
+        this.activeCategoryId.set(found.id.toString());
+      } else {
+        this.activeCategoryId.set(param);
+      }
+      this.applyFilters();
+    } else {
+      this.activeCategoryId.set(param);
+    }
   }
 
   filterByCategory(categoryId: string) {
@@ -144,18 +196,20 @@ export class ProductList implements OnInit, OnDestroy {
     adding.add(variant.id);
     this.cartAddingIds.set(adding);
 
-    this.cartSvc.addItem(variant.id, 1).subscribe({
+    this.cartSvc.addItem(variant.id, 1, variant).subscribe({
       next: () => {
         const done = new Set(this.cartAddingIds());
         done.delete(variant.id);
         this.cartAddingIds.set(done);
         this.toastSvc.show(`Added ${variant.product_name} to cart!`, 'success');
       },
-      error: () => {
+      error: (err) => {
         const done = new Set(this.cartAddingIds());
         done.delete(variant.id);
         this.cartAddingIds.set(done);
-        this.toastSvc.show(`Failed to add ${variant.product_name} to cart.`, 'error');
+        if (err.message !== 'Limit reached') {
+          this.toastSvc.show(`Failed to add ${variant.product_name} to cart.`, 'error');
+        }
       },
     });
   }

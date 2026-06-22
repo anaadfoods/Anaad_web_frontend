@@ -4,12 +4,13 @@
   <section class="hero" revealOnScroll>
     <div class="hero-overlay"></div>
     <div class="hero-content">
-      <div class="hero-eyebrow">ICBN Farming &nbsp;·&nbsp; Sonipat, Haryana &nbsp;·&nbsp; Est. 2019</div>
-      <h1>Your food begins<br>where no chemical has <em>touched.</em></h1>
-      <p>ANAAD grows heirloom grain on 28 acres of living soil in Sonipat — then traces every grain to your kitchen. No warehouse. No broker. No guesses.</p>
+      <div class="hero-eyebrow">ICBN Farming &nbsp;·&nbsp; Est. 2023</div>
+      <h1 class="heading-display heading-display--light">Traceable food from living soil,<br>grown beyond the market's <em>shortcuts.</em>
+      </h1>
+      <p>ANAAD Foods is an Indigenous Cow Based Natural farming brand growing nutrient-dense grains with on-farm inputs, living soil practices, and full traceability from seed to kitchen shelf. Established in 2023, the work is rooted in transparent farming that protects crop integrity without toxic fertilizers or pesticides and is supported by a commitment-based growing model that is not driven by anonymous market cycles.</p>
       <div class="hero-actions">
-        <a routerLink="/our-soil" class="btn-primary">Walk the Farm &rarr;</a>
-        <a routerLink="/registry" class="btn-ghost-light">See the Lab Reports &rarr;</a>
+        <a routerLink="/our-soil" class="btn-primary">How We Farm &rarr;</a>
+        <a [routerLink]="['/registry']" fragment="ledger" class="btn-ghost-light">View Batch Records &rarr;</a>
       </div>
     </div>
   </section>
@@ -17,31 +18,33 @@
   <!-- ═══ MANIFESTO SECTION ═══ -->
   <section class="manifesto" revealOnScroll>
     <div class="manifesto-left">
-      <div class="section-label">Our Philosophy</div>
+      <div class="section-label">Our Pledge</div>
       <div class="divider-rule"></div>
-      <h2>We don't use the word <em>'organic.'</em> Here is why.</h2>
-      <p>Organic certifications tell you what's absent from your food. They say nothing about whether the soil it came from is alive, dying, or dead. We practice Indigenous Cow-Based Natural farming — a complete biological system, not a compliance checklist.</p>
+      <h2 class="heading-1">Here is <em>why.</em></h2>
+      <div style="display: flex; flex-direction: column; gap: 16px;">
+        <p>Organic certifications can tell you what has been left out, but they do not always tell you whether the soil beneath the crop is truly alive. For grain to be deeply nourishing, the soil must be active with life, because living soil helps the crop access minerals, build resilience, and develop fuller nutrition naturally.</p>
+        <p>ANAAD practices Indigenous Cow Based Natural farming by building fertility inside the soil with on-farm inputs. The goal is simple: support a thriving soil ecosystem so the crop can grow in the way nature intended.</p>
+      </div>
     </div>
     <div class="manifesto-right">
       <div class="manifesto-card">
         <div class="manifesto-card-number">01 — Seed Integrity</div>
-        <h3>Zero Hybridization. Original nutrition.</h3>
-        <p>We save and sow pure heirloom varieties — Sona Moti, Chawal Kathiya, Sharbati — that carry the genetic memory of centuries. No F1 hybrids, no proprietary genetics, no patents on your food.</p>
+        <h3 class="heading-3">Seed integrity, carried forward</h3>
+        <p>The farm grows carefully selected traditional grain varieties that are naturally suited to the local soil and climate. This helps preserve character, resilience, and nutrition while honoring a generational lineage of seeds that can be carried forward season after season.</p>
       </div>
       <div class="manifesto-card">
         <div class="manifesto-card-number">02 — Soil Science</div>
-        <h3>Billions of microorganisms. Every application.</h3>
-        <p>Our fertility comes from Jeevamrit and Panchagavya — fermented cultures derived from the Desi cow — delivering over 500 million CFU of beneficial bacteria per litre. The soil is not a substrate. It is a living organism we are responsible for.</p>
+        <h3 class="heading-3">Enriching the microbial population</h3>
+        <p>A healthy microbial population is essential because soil microbes help unlock nutrition for the crop in forms the plant can actually absorb. Nitrogen-fixing bacteria such as Rhizobium and Azotobacter, phosphate-solubilizing bacteria such as Bacillus megaterium and Pseudomonas fluorescens, and potassium-mobilizing bacteria such as Bacillus mucilaginosus help keep soil fertility active and balanced, making microbial abundance essential for reducing dependence on synthetic farm chemicals.</p>
       </div>
       <div class="manifesto-card">
         <div class="manifesto-card-number">03 — Post-Harvest</div>
-        <h3>Cold stone-milled. Below 40°C. Always.</h3>
-        <p>Modern roller mills run hot. Heat destroys wheat germ oil, B vitamins, and the enzymes that make whole grain flour actually useful to your body. Our granite stone mill runs cold. What enters your kitchen is what left the field.</p>
+        <h3 class="heading-3">Tradition, strengthened by technology</h3>
+        <p>ANAAD combines traditional wisdom with modern processing discipline to retain maximum nutrition while achieving the consistency and efficiency needed for contemporary food systems. The result is processing that respects the integrity of the crop without compromising the nutritional value cultivated in the field.</p>
       </div>
     </div>
   </section>
-
-  <!-- ═══ RADICAL TRANSPARENCY ═══ -->
+  <!-- ═══ RADICAL TRANSPARENCY ═══ 
   <section class="transparency" revealOnScroll>
     <div class="transparency-dashboard">
       <div class="dashboard-header">
@@ -83,7 +86,7 @@
     <div class="transparency-content">
       <div class="section-label">ANAAD · OPEN LEDGER</div>
       <div class="divider-rule"></div>
-      <h2>Your current batch.<br>Right now.</h2>
+      <h2 class="heading-2">Your current batch.<br>Right now.</h2>
       <p>Every harvest is independently tested and published before a single gram ships. This is not marketing. This is a public record.</p>
       <div class="transparency-stats">
         <div class="stat-block">
@@ -101,36 +104,55 @@
       </div>
       <a routerLink="/ledger" class="link-cta">Read the Full Lab Report &rarr;</a>
     </div>
-  </section>
+  </section> -->
 
   <!-- ═══ ACTIVE SUBSCRIPTION DASHBOARD ═══ -->
-  <ng-container *ngIf="authState.isAuthenticated() && activeSubscriptions().length > 0">
+  <ng-container *ngIf="authState.isAuthenticated()">
     <section class="active-subs" revealOnScroll>
       <div class="active-subs-header">
         <div class="section-label">Your Commitment</div>
-        <h2>Active Subscriptions</h2>
+        <h2 class="heading-2">Active Subscriptions</h2>
       </div>
       <div class="active-subs-grid">
+        @if (activeSubscriptions().length > 0) {
         @for (sub of activeSubscriptions(); track sub.id) {
-          <div class="active-sub-card" [routerLink]="['/subscriptions', sub.id]">
-            <div class="active-sub-header">
-              <h3>{{ $any(sub).plan_details?.name || sub.plan_name || 'Anaad Subscription' }}</h3>
-              <span class="status-badge" [class]="sub.status.toLowerCase()">{{ sub.status }}</span>
+        <div class="active-sub-card" [routerLink]="['/subscriptions', sub.id]">
+          <div class="active-sub-header">
+            <h3 class="heading-3">{{ $any(sub).plan_details?.name || sub.plan_name || 'Anaad Subscription' }}</h3>
+            <span class="status-badge" [class]="sub.status.toLowerCase()">{{ sub.status }}</span>
+          </div>
+          <div class="active-sub-body">
+            <div class="sub-detail">
+              <span class="detail-label">Next Delivery</span>
+              <span class="detail-value">{{ sub.next_delivery_date || 'Pending' }}</span>
             </div>
-            <div class="active-sub-body">
-              <div class="sub-detail">
-                <span class="detail-label">Next Delivery</span>
-                <span class="detail-value">{{ sub.next_delivery_date || 'Pending' }}</span>
-              </div>
-              <div class="sub-detail">
-                <span class="detail-label">Remaining Installments</span>
-                <span class="detail-value">{{ $any(sub).remaining_installments || 0 }}</span>
-              </div>
+            <div class="sub-detail">
+              <span class="detail-label">Completed Deliveries</span>
+              <span class="detail-value">{{ $any(sub).completed_deliveries || 0 }}</span>
             </div>
-            <div class="active-sub-footer">
-              <span class="manage-text">Manage Subscription &#8594;</span>
+            <div class="sub-detail">
+              <span class="detail-label">Remaining Deliveries</span>
+              <span class="detail-value">{{ $any(sub).total_deliveries - $any(sub).completed_deliveries || 0 }}</span>
             </div>
           </div>
+          <div class="active-sub-footer">
+            <span class="manage-text">Manage Subscription &#8594;</span>
+          </div>
+        </div>
+        }
+        } @else {
+        <div class="active-sub-card empty-state-card" routerLink="/commitment">
+          <div class="active-sub-header">
+            <h3 class="heading-3">Start your first commitment</h3>
+          </div>
+          <div class="active-sub-body">
+            <p class="empty-state-text">You have no active commitments. Secure your direct household grain supply from
+              our upcoming sowing cycles.</p>
+          </div>
+          <div class="active-sub-footer">
+            <span class="manage-text">Choose Your Tier &rarr;</span>
+          </div>
+        </div>
         }
       </div>
     </section>
@@ -140,131 +162,108 @@
   <section class="shop" revealOnScroll>
     <div class="shop-header">
       <div class="section-label">Heirloom Pantry</div>
-      <h2>The Staple Collection.</h2>
-      <p>Single-origin. Cold-stone milled. Dispatched within 72 hours of processing. Your pantry deserves better than a warehouse shelf.</p>
+      <h2 class="heading-2">Here's what our Farmers have to Offer</h2>
+      <p>Grains and flours grown on the farm, handled with care, and prepared with nutrition in mind. Freshly milled flour is made available every month so what reaches the pantry stays closely connected to the harvest.</p>
     </div>
     <div class="products-grid">
       @if (loadingProducts()) {
-        <div aria-live="polite" class="loading-message">Loading products…</div>
+      <div aria-live="polite" class="loading-message">Loading products…</div>
       } @else if (productsError()) {
-        <div role="alert" class="error-message">{{ productsError() }}</div>
+      <div role="alert" class="error-message">{{ productsError() }}</div>
       } @else if (products().length === 0) {
-        <div aria-live="polite" class="no-products-message">No products available right now.</div>
+      <div aria-live="polite" class="no-products-message">No products available right now.</div>
       } @else {
-        @for (product of products(); track product.id) {
-          <div class="product-card" [routerLink]="['/products', product.id]" style="cursor: pointer;">
-            <div class="product-image-wrap">
-              <img [src]="product.image" [alt]="product.altText || product.name" />
-            </div>
-            <div class="product-body">
-              <div class="product-tagline">{{ getProductSubcopy(product.name) }}</div>
-              <h3>{{ product.name }}</h3>
-              <div class="product-meta">
-                <span class="product-format">Stone-Milled</span>
-                <span class="product-price">{{ product.pricePerKg }}</span>
-              </div>
-              <a class="btn-product">Allocate to Pantry</a>
-            </div>
-          </div>
-        }
+      @for (variant of products(); track variant.id) {
+      <app-product-card [variant]="variant" (addToCart)="onAddToCart($event)">
+      </app-product-card>
+      }
       }
     </div>
-    <div class="shop-actions" style="text-align: center; margin-top: 48px;">
-      <a routerLink="/products" class="btn-product" style="display: inline-block; width: auto; padding-inline: 40px;">Browse the Full Pantry &rarr;</a>
+    <div class="shop-actions">
+      <a routerLink="/products" class="btn-product shop-actions-link">Browse the Full Pantry &rarr;</a>
     </div>
   </section>
 
   <!-- ═══ TRUST STRIP ═══ -->
   <div class="trust-strip">
-    <div class="trust-item">
-      <div class="trust-item-label">Processing</div>
-      <div class="trust-item-value">Cold Stone-Milled</div>
-    </div>
-    <div class="trust-separator"></div>
-    <div class="trust-item">
-      <div class="trust-item-label">Dispatch</div>
-      <div class="trust-item-value">Within 72 Hours</div>
-    </div>
-    <div class="trust-separator"></div>
-    <div class="trust-item">
-      <div class="trust-item-label">Farm</div>
-      <div class="trust-item-value">Sonipat, Haryana</div>
-    </div>
-    <div class="trust-separator"></div>
-    <div class="trust-item">
-      <div class="trust-item-label">Packaging</div>
-      <div class="trust-item-value">Nitrogen-Flushed</div>
-    </div>
-    <div class="trust-separator"></div>
-    <div class="trust-item">
-      <div class="trust-item-label">Verified By</div>
-      <div class="trust-item-value">SGS India</div>
+    <div class="trust-marquee-track">
+      <!-- First set -->
+      <div class="trust-item">
+        <div class="trust-item-label">Farming Method</div>
+        <div class="trust-item-value">Indigenous Cow Based Natural</div>
+      </div>
+      <div class="trust-separator"></div>
+      <div class="trust-item">
+        <div class="trust-item-label">Packaging Type</div>
+        <div class="trust-item-value">Vacuum Packed</div>
+      </div>
+      <div class="trust-separator"></div>
+      <div class="trust-item">
+        <div class="trust-item-label">Processing</div>
+        <div class="trust-item-value">Nutrition Focused</div>
+      </div>
+      <div class="trust-separator"></div>
+      <div class="trust-item">
+        <div class="trust-item-label">Avail</div>
+        <div class="trust-item-value">Subscription Based</div>
+      </div>
+      <div class="trust-separator"></div>
+
+      <!-- Duplicate set for seamless loop -->
+      <div class="trust-item">
+        <div class="trust-item-label">Farming Method</div>
+        <div class="trust-item-value">Indigenous Cow Based Natural</div>
+      </div>
+      <div class="trust-separator"></div>
+      <div class="trust-item">
+        <div class="trust-item-label">Packaging Type</div>
+        <div class="trust-item-value">Vacuum Packed</div>
+      </div>
+      <div class="trust-separator"></div>
+      <div class="trust-item">
+        <div class="trust-item-label">Processing</div>
+        <div class="trust-item-value">Nutrition Focused</div>
+      </div>
+      <div class="trust-separator"></div>
+      <div class="trust-item">
+        <div class="trust-item-label">Avail</div>
+        <div class="trust-item-value">Subscription Based</div>
+      </div>
+      <div class="trust-separator"></div>
     </div>
   </div>
+
+  <!-- ═══ WHY WE STARTED FARMING SECTION ═══ -->
+  <section class="why-started" revealOnScroll>
+    <div class="why-started-content">
+      <div class="section-label">Our Story</div>
+      <div class="divider-rule"></div>
+      <h2 class="heading-2">We took up farming because it was the only honest answer to the question in front of us.</h2>
+      <div class="why-started-body">
+        <p>Could untraceable food ever be good enough for the families closest to us? That question led ANAAD back to ancestral land, and it took three full growing cycles to begin building the kind of farm that could answer it with conviction.</p>
+        <p>ANAAD is built by farmers who chose to stay accountable to the food at every step, from the seed sown in the field to the day it lands on your kitchen shelf. The search for a truthful answer to that original question continues to guide every decision and will always keep the work fueled.</p>
+      </div>
+    </div>
+    <div class="why-started-image">
+      <div class="farm-placeholder">
+        <span class="brand-text">FOUNDERS IN THE FIELD</span>
+        <span class="sub-text">Photograph coming soon</span>
+      </div>
+    </div>
+  </section>
 
   <!-- ═══ COMMITMENT / SUBSCRIPTION ═══ -->
   <section class="subscription" revealOnScroll>
     <div class="subscription-header">
       <div class="section-label">Commitment-Based Agriculture</div>
-      <h2>Share the risk. Secure the harvest.</h2>
-      <p>When you subscribe, you become a stakeholder — not a customer. You pre-fund a portion of our next sowing. We grow it without compromise. You receive it before anyone else does.</p>
-      <p style="font-family: var(--font-sans); font-size: 15px; color: rgba(26,26,26,0.6); max-width: 600px; margin-top: 12px; font-weight: 300;">
-        Conventional retail demands that farmers grow for volume, shelf-life, and margin — not nutrition. Commitment-Based Agriculture removes that pressure entirely. Your subscription directly shapes what we plant next season.
+      <h2 class="heading-2">Share the risk. Secure the harvest.</h2>
+      <p>In conventional industrial farming, growers often decide what to sow by predicting what the market might buy. When that prediction fails, prices fall, produce is devalued, and food goes to waste. ANAAD's subscribers commit before sowing, giving the farm the confidence to grow only what already has a home while staying uncompromising about how it is grown.</p>
+      <p class="subscription-note">
+        A subscription is not just a recurring order. It funds a part of the next sowing cycle in advance. In return, subscribers receive grain ahead of the wider market, at a price fixed before harvest, from a crop their commitment helped bring to life.
       </p>
     </div>
-    <div class="tier-grid">
-      @if (loadingPlans()) {
-        <div aria-live="polite">Loading plans…</div>
-      } @else if (plansError()) {
-        <div role="alert">{{ plansError() }}</div>
-      } @else if (subscriptionPlans().length === 0) {
-        <div aria-live="polite">No plans available right now. Please check back later.</div>
-      } @else {
-        @for (plan of subscriptionPlans(); track plan.id; let i = $index) {
-          <div class="tier-card" [class.featured]="plan.isFeatured || i === 2">
-            <div class="tier-badge">{{ plan.badge || (i === 2 ? 'Most Chosen' : 'Tier') }}</div>
-            <div class="tier-name">{{ plan.title }}</div>
-            <div class="tier-subtitle">{{ plan.subtitle }}</div>
-            <div class="tier-divider"></div>
-            <div class="tier-perks">
-              @for (perk of plan.perks; track perk) {
-                <div class="tier-perk"><div class="perk-dot"></div>{{ perk }}</div>
-              }
-            </div>
-            <div class="tier-price-block">
-              @if (tierSelectedVariant()[plan.id]) {
-                <div class="tier-price">{{ getDiscountedMonthlyPrice(plan.id) | currencyInr }} <span class="tier-price-unit">/mo</span></div>
-                <div class="tier-cadence">
-                  Regular: <span style="text-decoration: line-through;">{{ getOriginalPrice(plan.id) | currencyInr }}</span>
-                  &nbsp;&middot;&nbsp; {{ getSavingsPercentage(plan.id) }}% plan discount
-                </div>
-              } @else {
-                <div class="tier-price">₹— <span class="tier-price-unit">/mo</span></div>
-                <div class="tier-cadence">Select a product to view price</div>
-              }
-            </div>
-            <div class="tier-product-selector">
-              <select class="tier-product-dropdown"
-                      [class.featured-dropdown]="plan.isFeatured || i === 2"
-                      [value]="tierSelectedVariant()[plan.id] || ''"
-                      (change)="onTierProductSelect(plan.id, $event)">
-                <option value="" disabled>Select a product</option>
-                @for (p of tierProducts()[plan.id]; track p.variant_id) {
-                  <option [value]="p.variant_id">{{ p.variant_name }}</option>
-                }
-              </select>
-              <button class="btn-tier" 
-                      [disabled]="!tierSelectedVariant()[plan.id]" 
-                      (click)="goToProduct(plan.id)">
-                Begin Journey &rarr;
-              </button>
-            </div>
-          </div>
-        }
-      }
-    </div>
-    <div class="subscription-actions" style="text-align: center; margin-top: 48px;">
-      <a routerLink="/commitment" class="btn-product" style="display: inline-block; width: auto; padding-inline: 40px; border-color: var(--green-deep); color: var(--green-deep);">Choose Your Commitment Tier &rarr;</a>
-    </div>
+    <app-subscription-plans [showAction]="true" actionLink="/commitment" actionText="Choose Your Commitment Tier &rarr;"
+      [isCoverflow]="true">
+    </app-subscription-plans>
   </section>
 </div>

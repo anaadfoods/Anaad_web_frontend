@@ -1,15 +1,18 @@
 <div class="blogs-page-wrap">
   <!-- HERO -->
   <div class="blog-hero">
-    <span class="blog-hero-tag">The ANAAD Field Notes</span>
-    <h1>Soil, Soul,<br />&amp; <em>Sovereignty.</em></h1>
-    <p class="blog-hero-sub">In an era of artificial substitutes, the truth is your strongest defense. These are our dispatches from the ground.</p>
+    <div class="blog-container">
+      <span class="blog-hero-tag">The ANAAD Field Notes</span>
+      <h1>Soil, Soul,<br />and <em>Sovereignty.</em></h1>
+      <p class="blog-hero-sub">In an era of artificial substitutes, the truth is your strongest defense. These are our
+        dispatches from the ground.</p>
+    </div>
   </div>
 
   <!-- FEATURED POST -->
-  <div class="featured-section">
+  <div class="featured-section blog-container">
     <span class="featured-label">Featured</span>
-    
+
     <ng-container *ngIf="featuredLoading">
       <div class="featured-card" style="border: none;">
         <app-skeleton-loader width="100%" height="440px" borderRadius="0"></app-skeleton-loader>
@@ -18,24 +21,28 @@
           <app-skeleton-loader width="80%" height="34px" borderRadius="4px"></app-skeleton-loader>
           <app-skeleton-loader width="100%" height="14px" borderRadius="2px"></app-skeleton-loader>
           <app-skeleton-loader width="90%" height="14px" borderRadius="2px"></app-skeleton-loader>
-          <app-skeleton-loader width="120px" height="40px" borderRadius="4px" style="margin-top: 8px;"></app-skeleton-loader>
+          <app-skeleton-loader width="120px" height="40px" borderRadius="4px"
+            style="margin-top: 8px;"></app-skeleton-loader>
         </div>
       </div>
     </ng-container>
 
     <ng-container *ngIf="!featuredLoading && featuredArticles.length > 0">
-      <a [routerLink]="['/blog-post', featuredArticles[0].id]" class="featured-card">
-        <img class="featured-img" [src]="featuredArticles[0].cover_image || 'assets/images-new/25.png'" alt="Featured Image" />
+      <a [routerLink]="['/blogs', featuredArticles[0].id]" class="featured-card">
+        <div class="featured-img-wrap">
+          <img class="featured-img" [class.has-fallback-image]="!featuredArticles[0]?.cover_image" [src]="getImageUrl(featuredArticles[0].cover_image, 'assets/images-new/25.png')"
+            [alt]="featuredArticles[0].title || 'Featured Image'" />
+        </div>
         <div class="featured-body">
-          <span class="featured-category">{{ featuredArticles[0].category || 'Featured' }}</span>
+          <span class="featured-category">{{ displayCategory(featuredArticles[0].category) }}</span>
           <h2 class="featured-title">{{ featuredArticles[0].title }}</h2>
           <p class="featured-excerpt">{{ featuredArticles[0].subtitle }}</p>
           <div class="featured-meta">
             <span class="meta-author">ANAAD Editorial</span>
             <div class="meta-sep"></div>
-            <span class="feat-date">{{ featuredArticles[0].created_at | date:'dd MMM yyyy' }}</span>
+            <span class="feat-date">{{ parseDate(featuredArticles[0].created_at) | date:'dd MMM yyyy' }}</span>
             <div class="meta-sep"></div>
-            <span class="meta-read">8 min read</span>
+            <span class="meta-read">{{ getReadTime(featuredArticles[0]) }}</span>
           </div>
           <span class="btn-read">Read Article &#8594;</span>
         </div>
@@ -44,12 +51,17 @@
 
     <!-- Static fallback if API fails or no featured articles -->
     <ng-container *ngIf="(!featuredLoading && featuredArticles.length === 0) || featuredError">
-      <a routerLink="/blog-post/static" class="featured-card">
-        <img class="featured-img" src="assets/images/blog-hero.svg" alt="Slow Poison in Your Kitchen" />
+      <a routerLink="/blogs/1" class="featured-card">
+        <div class="featured-img-wrap">
+          <img class="featured-img" src="assets/images/blog-hero.svg" alt="Slow Poison in Your Kitchen" />
+        </div>
         <div class="featured-body">
           <span class="featured-category">Food Safety</span>
-          <h2 class="featured-title">The 'Slow Poison' in Your Kitchen: 5 Daily Habits That Are Silently Harming Your Family</h2>
-          <p class="featured-excerpt">Before you check the calories — do you check the soil it grew in? The food on your table may look healthy. But the question no one is asking is where it came from and what it carried with it.</p>
+          <h2 class="featured-title">The 'Slow Poison' in Your Kitchen: 5 Daily Habits That Are Silently Harming Your
+            Family</h2>
+          <p class="featured-excerpt">Before you check the calories — do you check the soil it grew in? The food on your
+            table may look healthy. But the question no one is asking is where it came from and what it carried with it.
+          </p>
           <div class="featured-meta">
             <span class="meta-author">ANAAD Editorial</span>
             <div class="meta-sep"></div>
@@ -63,15 +75,10 @@
     </ng-container>
   </div>
 
-  <!-- FILTER BAR -->
-  <div class="filter-bar">
-    <span class="filter-tab" *ngFor="let cat of categories" [class.active]="activeCategory === cat" (click)="setCategory(cat)">
-      {{ cat }}
-    </span>
-  </div>
+
 
   <!-- BLOG GRID -->
-  <div class="blog-grid-section">
+  <div class="blog-grid-section blog-container">
     <ng-container *ngIf="loading">
       <div class="blog-grid">
         <div class="blog-card" *ngFor="let i of [1, 2, 3]">
@@ -87,31 +94,41 @@
     </ng-container>
 
     <div class="blog-grid" *ngIf="!loading && filteredArticles.length > 0">
-      <a [routerLink]="['/blog-post', article.id]" class="blog-card" *ngFor="let article of filteredArticles">
-        <div class="blog-card-img"><img [src]="article.cover_image || 'https://images.unsplash.com/photo-1586348943529-beaae6c28db9?auto=format&fit=crop&w=600&q=80'" alt="Blog Image" /></div>
+      <a [routerLink]="['/blogs', article.id]" class="blog-card" role="article"
+        *ngFor="let article of filteredArticles">
+        <div class="blog-card-img">
+          <img
+            [src]="getImageUrl(article.cover_image, 'https://images.unsplash.com/photo-1586348943529-beaae6c28db9?auto=format&fit=crop&w=600&q=80')"
+            [alt]="article.title || 'Blog Image'" />
+        </div>
         <div class="blog-card-body">
-          <span class="blog-card-category">{{ article.category || 'Article' }}</span>
+          <span class="blog-card-category">{{ displayCategory(article.category) }}</span>
           <span class="blog-card-title">{{ article.title }}</span>
           <p class="blog-card-excerpt">{{ article.subtitle }}</p>
           <div class="blog-card-meta">
-            <span class="blog-card-date">{{ article.created_at | date:'dd MMM yyyy' }}</span>
+            <span class="blog-card-date">{{ parseDate(article.created_at) | date:'dd MMM yyyy' }}</span>
             <div class="meta-sep"></div>
-            <span class="blog-card-read">5 min</span>
+            <span class="blog-card-read">{{ getReadTime(article) }}</span>
             <span class="blog-card-arrow">&#8594;</span>
           </div>
         </div>
       </a>
     </div>
 
-    <!-- Static fallback if API fails -->
-    <div class="blog-grid" *ngIf="(!loading && filteredArticles.length === 0) || error">
+
+
+    <!-- Fallback if API returned nothing or error occurred -->
+    <div class="blog-grid" *ngIf="(!loading && articles.length === 0) || error">
       <!-- Card 1 -->
-      <a routerLink="/blog-post/static" class="blog-card">
-        <div class="blog-card-img"><img src="https://images.unsplash.com/photo-1586348943529-beaae6c28db9?auto=format&fit=crop&w=600&q=80" alt="" /></div>
+      <a routerLink="/blogs/1" class="blog-card" role="article">
+        <div class="blog-card-img"><img
+            src="https://images.unsplash.com/photo-1586348943529-beaae6c28db9?auto=format&fit=crop&w=600&q=80"
+            alt="The Resignation Letter We Never Wrote" /></div>
         <div class="blog-card-body">
           <span class="blog-card-category">Culture</span>
           <span class="blog-card-title">The Resignation Letter We Never Wrote</span>
-          <p class="blog-card-excerpt">What happens when the people who feed a nation decide they can no longer afford to?</p>
+          <p class="blog-card-excerpt">What happens when the people who feed a nation decide they can no longer afford
+            to?</p>
           <div class="blog-card-meta">
             <span class="blog-card-date">28 Apr 2025</span>
             <div class="meta-sep"></div>
@@ -121,8 +138,10 @@
         </div>
       </a>
       <!-- Card 2 -->
-      <a routerLink="/blog-post/static" class="blog-card">
-        <div class="blog-card-img"><img src="https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=600&q=80" alt="" /></div>
+      <a routerLink="/blogs/2" class="blog-card" role="article">
+        <div class="blog-card-img"><img
+            src="https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=600&q=80"
+            alt="The Independence We Forgot to Fight For" /></div>
         <div class="blog-card-body">
           <span class="blog-card-category">Economy</span>
           <span class="blog-card-title">The Independence We Forgot to Fight For</span>
@@ -136,8 +155,10 @@
         </div>
       </a>
       <!-- Card 3 -->
-      <a routerLink="/blog-post/static" class="blog-card">
-        <div class="blog-card-img"><img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=80" alt="" /></div>
+      <a routerLink="/blogs/3" class="blog-card" role="article">
+        <div class="blog-card-img"><img
+            src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=80"
+            alt="The Lethal Lunchbox" /></div>
         <div class="blog-card-body">
           <span class="blog-card-category">Food Safety</span>
           <span class="blog-card-title">The Lethal Lunchbox: Is Your "Love" Actually Harm?</span>
@@ -155,36 +176,66 @@
 
   <!-- EVIDENCE ARCHIVE BAND -->
   <div class="evidence-band">
-    <div class="evidence-left">
-      <span class="evidence-tag">Clinical Research Papers</span>
-      <h2>The Science<br />Behind <em>ICBN.</em></h2>
-      <p class="evidence-body">We didn't invent these standards. Nature did. Science confirmed it. Browse our database of 20+ peer-reviewed studies on soil health, heirloom nutrition, and the dangers of synthetic agriculture.</p>
-      <div class="evidence-tags">
-        <span class="evidence-tag-pill">Peer Reviewed</span>
-        <span class="evidence-tag-pill">Soil Science</span>
-        <span class="evidence-tag-pill">Toxicology</span>
-        <span class="evidence-tag-pill">Nutrition</span>
+    <div class="blog-container evidence-content-wrap">
+      <div class="evidence-left">
+        <span class="evidence-tag">Clinical Research Papers</span>
+        <h2>The Science<br />Behind <em>ICBN.</em></h2>
+        <p class="evidence-body">We didn't invent these standards. Nature did. Science confirmed it. Browse our database
+          of 20+ peer-reviewed studies on soil health, heirloom nutrition, and the dangers of synthetic agriculture.</p>
+        <div class="evidence-tags">
+          <span class="evidence-tag-pill">Peer Reviewed</span>
+          <span class="evidence-tag-pill">Soil Science</span>
+          <span class="evidence-tag-pill">Toxicology</span>
+          <span class="evidence-tag-pill">Nutrition</span>
+        </div>
       </div>
-    </div>
-    <div class="evidence-right">
-      <div class="evidence-stat">
-        <span class="evidence-stat-val">20+</span>
-        <span class="evidence-stat-label">Peer-reviewed studies</span>
+      <div class="evidence-right">
+        <div class="evidence-stat">
+          <span class="evidence-stat-val">20+</span>
+          <span class="evidence-stat-label">Peer-reviewed studies</span>
+        </div>
+        <a routerLink="/evidence" class="btn-evidence">Browse the Archive &#8594;</a>
       </div>
-      <a routerLink="/evidence" class="btn-evidence">Browse the Archive &#8594;</a>
-    </div>
-  </div>
-
-  <!-- NEWSLETTER -->
-  <div class="newsletter-band">
-    <div class="newsletter-left">
-      <span class="newsletter-tag">Field Notes</span>
-      <h2>Stay close to the land.</h2>
-      <p>Get our dispatches — harvest updates, new research, and honest food stories — delivered to your inbox. No noise. Just signal.</p>
-    </div>
-    <div class="newsletter-form">
-      <input class="newsletter-input" type="email" placeholder="your@email.com" />
-      <button class="newsletter-btn">Subscribe</button>
     </div>
   </div>
 </div>
+
+<!-- NEWSLETTER -->
+<!-- <div class="newsletter-band">
+  <div class="newsletter-left">
+    <span class="newsletter-tag">Field Notes</span>
+    <h2>Stay close to the land.</h2>
+    <p>Get our dispatches — harvest updates, new research, and honest food stories — delivered to your inbox. No noise.
+      Just signal.</p>
+  </div> -->
+<!-- <div class="newsletter-right" style="flex-shrink: 0;"> -->
+<!-- <ng-container *ngIf="newsletterState !== 'success'">
+      <div class="newsletter-form-container" style="display: flex; flex-direction: column; gap: 8px;">
+        <div class="newsletter-form">
+          <input class="newsletter-input" [class.input-error]="newsletterState === 'error'" type="email" name="email"
+            [(ngModel)]="newsletterEmail" placeholder="your@email.com" (keyup.enter)="onNewsletterSubmit()"
+            [disabled]="newsletterState === 'loading'" />
+          <button class="newsletter-btn" (click)="onNewsletterSubmit()" [disabled]="newsletterState === 'loading'">
+            <span *ngIf="newsletterState !== 'loading'">Subscribe</span>
+            <span *ngIf="newsletterState === 'loading'" class="newsletter-spinner"></span>
+          </button>
+        </div>
+        <span *ngIf="newsletterState === 'error'" class="newsletter-error-text"
+          style="color: #d32f2f; font-family: var(--font-sans); font-size: 12px; margin-top: 4px;">{{ newsletterErrorMsg
+          }}</span>
+      </div>
+    </ng-container> -->
+
+<!--   <ng-container *ngIf="newsletterState === 'success'">
+        <div class="newsletter-success">
+       <span class="success-icon" style="color: var(--green-deep); font-weight: bold; margin-right: 8px;">✓</span>
+        <p
+          style="margin: 0; display: inline-block; font-family: var(--font-sans); font-size: 14px; color: var(--charcoal);">
+          Thank you! You have successfully subscribed.</p> -->
+<!-- <button class="newsletter-success-reset" (click)="resetNewsletter()"
+          style="display: block; margin-top: 8px; background: none; border: none; color: var(--green-deep); font-family: var(--font-sans); font-size: 12px; text-decoration: underline; cursor: pointer; padding: 0;">Subscribe
+          another email</button>
+      </div>
+    </ng-container>  -->
+<!-- </div> -->
+<!-- </div> -->
