@@ -302,6 +302,9 @@
     </div>
 
     @for (stage of stages; track stage.id) {
+      @if (isLockedDeliveryStage(stage.id)) {
+        <!-- stages 10–12 hidden for guests — replaced by single teaser below -->
+      } @else {
       <section
         #scene
         class="scene"
@@ -365,12 +368,12 @@
                   <span>Verify batch proof</span>
                   <svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
                 </button>
-                @if (stage.id === 9) {
+                @if (stage.id === 9 && isRegisteredUser()) {
                   <button class="scene__unlock-btn" 
-                          (click)="unlockDelivery()" 
+                          (click)="onDeliveryUnlockClick()" 
                           (mouseenter)="setInteractiveHover(true)" 
                           (mouseleave)="setInteractiveHover(false)"
-                          aria-label="Track your delivery">
+                          aria-label="Unlock delivery tracking">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                     <span>{{ isUnlocked() ? 'Track Your Delivery Below' : 'Unlock Delivery Tracking' }}</span>
                   </button>
@@ -440,9 +443,6 @@
                         @if (crop.sowingDate) {
                           <div class="ledger-item"><strong>Sowing Date</strong>: {{ formatDate(crop.sowingDate) }}</div>
                         }
-                        @if (crop.expectedHarvestDate) {
-                          <div class="ledger-item"><strong>Expected Harvest</strong>: {{ formatDate(crop.expectedHarvestDate) }}</div>
-                        }
                         @if (traceFarmland(); as farmland) {
                           @if (farmland.block) {
                             <ng-container *ngTemplateOutlet="stage3FarmlandBlock; context: { block: farmland.block, patch: farmland.patch, farmerPlace: traceFarmer()?.place ?? null }" />
@@ -451,7 +451,6 @@
                           <div class="ledger-item"><strong>Block & Patch</strong>: {{ crop.blockName || 'N/A' }}{{ crop.patchName ? ' - ' + crop.patchName : '' }}</div>
                         }
                         <div class="ledger-item"><strong>Techniques</strong>: {{ crop.naturalFarmingTechniques || 'Natural Farming' }}</div>
-                        <div class="ledger-item"><strong>Crop Grade</strong>: {{ crop.cropGrade || 'A' }}</div>
                       } @else {
                         <div class="ledger-item">Crop cycle data not yet recorded.</div>
                       }
@@ -503,9 +502,6 @@
                         @if (harvest.rawQuantity) {
                           <div class="ledger-item"><strong>Quantity Harvested</strong>: {{ harvest.rawQuantity }}</div>
                         }
-                        @if (harvest.qualityGrade) {
-                          <div class="ledger-item"><strong>Quality Grade</strong>: {{ harvest.qualityGrade }}</div>
-                        }
                         @if (harvest.moistureLevel !== null) {
                           <div class="ledger-item"><strong>Moisture Level</strong>: {{ harvest.moistureLevel }}%</div>
                         }
@@ -531,9 +527,6 @@
                         <div class="ledger-item"><strong>Stored Date (Day In)</strong>: {{ formatDateTime(h.storedAt!) }}</div>
                         @if (h.curedUntil) {
                           <div class="ledger-item"><strong>Released Date (Day Out)</strong>: {{ formatDateTime(h.curedUntil) }}</div>
-                        }
-                        @if (h.curingDurationDays !== null) {
-                          <div class="ledger-item"><strong>Curing Duration</strong>: {{ h.curingDurationDays }} {{ h.curingDurationDays === 1 ? 'day' : 'days' }}</div>
                         }
                       } @else {
                         <div class="ledger-item">Raw material inventory not yet tracked.</div>
@@ -671,7 +664,7 @@
                         <div class="delivery-lock-msg">
                           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                           <span>Unlock delivery tracking to see live transportation data.</span>
-                          <button class="delivery-lock-msg__btn" (click)="unlockDelivery()" (mouseenter)="setInteractiveHover(true)" (mouseleave)="setInteractiveHover(false)">Unlock Now</button>
+                          <button class="delivery-lock-msg__btn" (click)="onDeliveryUnlockClick()" (mouseenter)="setInteractiveHover(true)" (mouseleave)="setInteractiveHover(false)">Unlock Now</button>
                         </div>
                       }
                     }
@@ -721,7 +714,7 @@
                         <div class="delivery-lock-msg">
                           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                           <span>Unlock delivery tracking to see live delivery milestones.</span>
-                          <button class="delivery-lock-msg__btn" (click)="unlockDelivery()" (mouseenter)="setInteractiveHover(true)" (mouseleave)="setInteractiveHover(false)">Unlock Now</button>
+                          <button class="delivery-lock-msg__btn" (click)="onDeliveryUnlockClick()" (mouseenter)="setInteractiveHover(true)" (mouseleave)="setInteractiveHover(false)">Unlock Now</button>
                         </div>
                       }
                     }
@@ -758,7 +751,7 @@
                         </div>
                       } @else if (!isUnlocked()) {
                         <div style="margin-top: 0.75rem; text-align: center;">
-                          <button class="delivery-lock-msg__btn" (click)="unlockDelivery()" (mouseenter)="setInteractiveHover(true)" (mouseleave)="setInteractiveHover(false)">Unlock Delivery Tracking</button>
+                          <button class="delivery-lock-msg__btn" (click)="onDeliveryUnlockClick()" (mouseenter)="setInteractiveHover(true)" (mouseleave)="setInteractiveHover(false)">Unlock Delivery Tracking</button>
                         </div>
                       }
                     }
@@ -1060,12 +1053,12 @@
                   <span>Verify batch proof</span>
                   <svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
                 </button>
-                @if (stage.id === 9) {
+                @if (stage.id === 9 && isRegisteredUser()) {
                   <button class="scene__unlock-btn" 
-                          (click)="unlockDelivery()" 
+                          (click)="onDeliveryUnlockClick()" 
                           (mouseenter)="setInteractiveHover(true)" 
                           (mouseleave)="setInteractiveHover(false)"
-                          aria-label="Track your delivery">
+                          aria-label="Unlock delivery tracking">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                     <span>{{ isUnlocked() ? 'Track Your Delivery Below' : 'Unlock Delivery Tracking' }}</span>
                   </button>
@@ -1135,9 +1128,6 @@
                         @if (crop.sowingDate) {
                           <div class="ledger-item"><strong>Sowing Date</strong>: {{ formatDate(crop.sowingDate) }}</div>
                         }
-                        @if (crop.expectedHarvestDate) {
-                          <div class="ledger-item"><strong>Expected Harvest</strong>: {{ formatDate(crop.expectedHarvestDate) }}</div>
-                        }
                         @if (traceFarmland(); as farmland) {
                           @if (farmland.block) {
                             <ng-container *ngTemplateOutlet="stage3FarmlandBlock; context: { block: farmland.block, patch: farmland.patch, farmerPlace: traceFarmer()?.place ?? null }" />
@@ -1146,7 +1136,6 @@
                           <div class="ledger-item"><strong>Block & Patch</strong>: {{ crop.blockName || 'N/A' }}{{ crop.patchName ? ' - ' + crop.patchName : '' }}</div>
                         }
                         <div class="ledger-item"><strong>Techniques</strong>: {{ crop.naturalFarmingTechniques || 'Natural Farming' }}</div>
-                        <div class="ledger-item"><strong>Crop Grade</strong>: {{ crop.cropGrade || 'A' }}</div>
                       } @else {
                         <div class="ledger-item">Crop cycle data not yet recorded.</div>
                       }
@@ -1198,9 +1187,6 @@
                         @if (harvest.rawQuantity) {
                           <div class="ledger-item"><strong>Quantity Harvested</strong>: {{ harvest.rawQuantity }}</div>
                         }
-                        @if (harvest.qualityGrade) {
-                          <div class="ledger-item"><strong>Quality Grade</strong>: {{ harvest.qualityGrade }}</div>
-                        }
                         @if (harvest.moistureLevel !== null) {
                           <div class="ledger-item"><strong>Moisture Level</strong>: {{ harvest.moistureLevel }}%</div>
                         }
@@ -1226,9 +1212,6 @@
                         <div class="ledger-item"><strong>Stored Date (Day In)</strong>: {{ formatDateTime(h.storedAt!) }}</div>
                         @if (h.curedUntil) {
                           <div class="ledger-item"><strong>Released Date (Day Out)</strong>: {{ formatDateTime(h.curedUntil) }}</div>
-                        }
-                        @if (h.curingDurationDays !== null) {
-                          <div class="ledger-item"><strong>Curing Duration</strong>: {{ h.curingDurationDays }} {{ h.curingDurationDays === 1 ? 'day' : 'days' }}</div>
                         }
                       } @else {
                         <div class="ledger-item">Raw material inventory not yet tracked.</div>
@@ -1366,7 +1349,7 @@
                         <div class="delivery-lock-msg">
                           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                           <span>Unlock delivery tracking to see live transportation data.</span>
-                          <button class="delivery-lock-msg__btn" (click)="unlockDelivery()" (mouseenter)="setInteractiveHover(true)" (mouseleave)="setInteractiveHover(false)">Unlock Now</button>
+                          <button class="delivery-lock-msg__btn" (click)="onDeliveryUnlockClick()" (mouseenter)="setInteractiveHover(true)" (mouseleave)="setInteractiveHover(false)">Unlock Now</button>
                         </div>
                       }
                     }
@@ -1416,7 +1399,7 @@
                         <div class="delivery-lock-msg">
                           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                           <span>Unlock delivery tracking to see live delivery milestones.</span>
-                          <button class="delivery-lock-msg__btn" (click)="unlockDelivery()" (mouseenter)="setInteractiveHover(true)" (mouseleave)="setInteractiveHover(false)">Unlock Now</button>
+                          <button class="delivery-lock-msg__btn" (click)="onDeliveryUnlockClick()" (mouseenter)="setInteractiveHover(true)" (mouseleave)="setInteractiveHover(false)">Unlock Now</button>
                         </div>
                       }
                     }
@@ -1453,7 +1436,7 @@
                         </div>
                       } @else if (!isUnlocked()) {
                         <div style="margin-top: 0.75rem; text-align: center;">
-                          <button class="delivery-lock-msg__btn" (click)="unlockDelivery()" (mouseenter)="setInteractiveHover(true)" (mouseleave)="setInteractiveHover(false)">Unlock Delivery Tracking</button>
+                          <button class="delivery-lock-msg__btn" (click)="onDeliveryUnlockClick()" (mouseenter)="setInteractiveHover(true)" (mouseleave)="setInteractiveHover(false)">Unlock Delivery Tracking</button>
                         </div>
                       }
                     }
@@ -1471,10 +1454,41 @@
             </div>
           </div>
         }
+
       </section>
 
-      <!-- ── Delivery Gate: shown between Stage 9 and Stage 10 ─────────────── -->
-      @if (stage.id === 9) {
+      } <!-- end @else (non-locked stages) -->
+
+      @if (stage.id === 9 && !isRegisteredUser()) {
+        <div class="journey-coming-soon">
+          <div class="journey-coming-soon__inner">
+            <div class="journey-coming-soon__eyebrow" aria-hidden="true">
+              <span class="journey-coming-soon__line"></span>
+              <span class="journey-coming-soon__eyebrow-text">Stages 10 · 11 · 12</span>
+              <span class="journey-coming-soon__line"></span>
+            </div>
+            <p class="journey-coming-soon__text">
+              Stages 10–12 — <em>Transit</em>, <em>Delivery</em>, and <em>Trust complete</em> — are on the way for registered Anaad customers.
+            </p>
+            <button
+              type="button"
+              class="journey-coming-soon__btn"
+              (click)="openDeliveryPreviewModal()"
+              (mouseenter)="setInteractiveHover(true)"
+              (mouseleave)="setInteractiveHover(false)"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <rect x="3" y="11" width="18" height="11" rx="2"/>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              </svg>
+              <span>Coming soon · Learn more</span>
+            </button>
+          </div>
+        </div>
+      }
+
+      <!-- ── Delivery Gate: shown between Stage 9 and Stage 10 (registered users) ── -->
+      @if (stage.id === 9 && isRegisteredUser()) {
         <div class="delivery-gate">
           <div class="delivery-gate__inner">
             <div class="delivery-gate__eyebrow">
@@ -1493,15 +1507,14 @@
                   </svg>
                 </div>
                 <h3 class="delivery-gate__title">Track Your Delivery</h3>
-                <p class="delivery-gate__sub">Your product's final journey — from our warehouse to your door — is personal. Log in to trace it live.</p>
+                <p class="delivery-gate__sub">Your product's final journey — from our warehouse to your door — is personal. Unlock below to trace it live with your registered mobile number.</p>
                 <button class="delivery-gate__unlock-btn"
-                        (click)="unlockDelivery()"
+                        (click)="onDeliveryUnlockClick()"
                         (mouseenter)="setInteractiveHover(true)"
                         (mouseleave)="setInteractiveHover(false)">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                   <span>Unlock Delivery Tracking</span>
                 </button>
-                <p class="delivery-gate__login-note">You'll be redirected to login and brought back here automatically.</p>
               </div>
 
             } @else if (!deliveryPhoneSubmitted()) {
@@ -1930,3 +1943,88 @@
     }
   </ng-template>
 </div>
+
+@if (showRegisteredModal()) {
+  <div
+    class="registered-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="registered-modal-title"
+  >
+    <button
+      type="button"
+      class="registered-modal__backdrop"
+      (click)="closeDeliveryPreviewModal()"
+      aria-label="Close dialog"
+    ></button>
+
+    <div class="registered-modal__panel">
+      <button
+        type="button"
+        class="registered-modal__close"
+        (click)="closeDeliveryPreviewModal()"
+        (mouseenter)="setInteractiveHover(true)"
+        (mouseleave)="setInteractiveHover(false)"
+        aria-label="Close"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+
+      <div class="registered-modal__chips" aria-hidden="true">
+        <span class="registered-modal__chip registered-modal__chip--soon">Coming soon</span>
+        <span class="registered-modal__chip registered-modal__chip--lock">Locked</span>
+      </div>
+
+      <div class="registered-modal__seal" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+          <rect x="3" y="11" width="18" height="11" rx="2"/>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+      </div>
+
+      <p class="registered-modal__eyebrow">Stages 10 · 11 · 12</p>
+      <h2 id="registered-modal-title" class="registered-modal__title">The final miles are almost here</h2>
+      <p class="registered-modal__lead">
+        The journey from soil to shelf is open to everyone. The last three chapters — transit, doorstep delivery, and final trust confirmation — are being prepared for registered Anaad customers who ordered this batch.
+      </p>
+
+      <ul class="registered-modal__steps">
+        <li>
+          <span class="registered-modal__step-num">10</span>
+          <div>
+            <strong>Transit</strong>
+            <p>Live transportation milestones, carrier handoffs, hub scans, and AWB tracking as your batch leaves our warehouse.</p>
+          </div>
+        </li>
+        <li>
+          <span class="registered-modal__step-num">11</span>
+          <div>
+            <strong>Delivery</strong>
+            <p>Real-time delivery events — out for delivery, route updates, and arrival at your registered address.</p>
+          </div>
+        </li>
+        <li>
+          <span class="registered-modal__step-num">12</span>
+          <div>
+            <strong>Trust complete</strong>
+            <p>Final verification that this exact batch reached you — your personal proof that the full journey is complete.</p>
+          </div>
+        </li>
+      </ul>
+
+      <p class="registered-modal__note">Live delivery tracking is coming soon. These stages will unlock for registered customers — no action needed right now.</p>
+
+      <div class="registered-modal__actions">
+        <button
+          type="button"
+          class="registered-modal__btn registered-modal__btn--primary"
+          (click)="closeDeliveryPreviewModal()"
+          (mouseenter)="setInteractiveHover(true)"
+          (mouseleave)="setInteractiveHover(false)"
+        >
+          Got it
+        </button>
+      </div>
+    </div>
+  </div>
+}
