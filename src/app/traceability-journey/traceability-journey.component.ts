@@ -204,6 +204,8 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
 
   protected readonly progress = signal(0);
   protected readonly currentStage = signal(1);
+  protected readonly showRegisteredModal = signal(false);
+  protected readonly isRegisteredUser = computed(() => this.authState.isAuthenticated());
   protected readonly journeyComplete = computed(() => this.currentStage() === 12);
   protected readonly orbX = signal(110);
   protected readonly orbY = signal(0);
@@ -542,11 +544,38 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
 
   // ── Delivery Unlock Flow ──────────────────────────────────────────────────
 
-  /** Redirect to login, returning to this page with unlocked=1 flag */
-  unlockDelivery(): void {
-    const cropId = this.currentCropId() ?? this.tracedCropId() ?? this.DEFAULT_CROP_ID;
-    const returnPath = `/traceability-journey?crop_id=${encodeURIComponent(cropId)}&unlocked=1`;
-    this.router.navigate(['/login'], { queryParams: { returnUrl: returnPath } });
+  /** Guests see a coming-soon preview modal; registered users unlock delivery in-page */
+  isLockedDeliveryStage(stageId: number): boolean {
+    return stageId >= 10 && !this.authState.isAuthenticated();
+  }
+
+  openDeliveryPreviewModal(): void {
+    this.showRegisteredModal.set(true);
+  }
+
+  closeDeliveryPreviewModal(): void {
+    this.showRegisteredModal.set(false);
+  }
+
+  onDeliveryUnlockClick(): void {
+    if (!this.authState.isAuthenticated()) {
+      this.openDeliveryPreviewModal();
+      return;
+    }
+
+    this.isUnlocked.set(true);
+    this.scrollToDeliveryGate();
+  }
+
+  closeRegisteredModal(): void {
+    this.closeDeliveryPreviewModal();
+  }
+
+  private scrollToDeliveryGate(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    requestAnimationFrame(() => {
+      document.querySelector('.delivery-gate')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
   }
 
   /** Pad CC-000019 → CC-0000019 (7-digit number part) for the orders API */
@@ -1516,6 +1545,13 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
     this.blossoms.set(blossoms);
   }
 
+  @HostListener('document:keydown.escape')
+  onEscapeKey(): void {
+    if (this.showRegisteredModal()) {
+      this.closeDeliveryPreviewModal();
+    }
+  }
+
   @HostListener('window:scroll')
   onScroll(): void {
     this.schedule();
@@ -1786,17 +1822,11 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
         }
         break;
       case 3:
-        if (crop?.cropGrade) {
-          badges.push({ label: `Grade ${crop.cropGrade}`, tone: 'gold' });
-        }
         if (crop?.season) {
           badges.push({ label: crop.season, tone: 'neutral' });
         }
         break;
       case 5:
-        if (harvest?.qualityGrade) {
-          badges.push({ label: harvest.qualityGrade, tone: 'gold' });
-        }
         if (harvest?.rawQuantity) {
           badges.push({ label: harvest.rawQuantity, tone: 'neutral' });
         }
