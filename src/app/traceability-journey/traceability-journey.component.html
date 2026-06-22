@@ -445,9 +445,7 @@
                         }
                         @if (traceFarmland(); as farmland) {
                           @if (farmland.block) {
-                            <div class="ledger-item"><strong>Facility Type</strong>: {{ farmland.block.facilityType || 'Open Field' }}</div>
-                            <div class="ledger-item"><strong>Block & Patch</strong>: {{ farmland.block.name }}{{ farmland.patch ? ' - ' + farmland.patch.name : '' }}</div>
-                            <div class="ledger-item"><strong>Location</strong>: {{ farmland.block.villageName ? farmland.block.villageName + ', ' : '' }}{{ farmland.block.district ? farmland.block.district + ', ' : '' }}{{ farmland.block.state || '' }}</div>
+                            <ng-container *ngTemplateOutlet="stage3FarmlandBlock; context: { block: farmland.block, patch: farmland.patch, farmerPlace: traceFarmer()?.place ?? null }" />
                           }
                         } @else {
                           <div class="ledger-item"><strong>Block & Patch</strong>: {{ crop.blockName || 'N/A' }}{{ crop.patchName ? ' - ' + crop.patchName : '' }}</div>
@@ -1142,9 +1140,7 @@
                         }
                         @if (traceFarmland(); as farmland) {
                           @if (farmland.block) {
-                            <div class="ledger-item"><strong>Facility Type</strong>: {{ farmland.block.facilityType || 'Open Field' }}</div>
-                            <div class="ledger-item"><strong>Block & Patch</strong>: {{ farmland.block.name }}{{ farmland.patch ? ' - ' + farmland.patch.name : '' }}</div>
-                            <div class="ledger-item"><strong>Location</strong>: {{ farmland.block.villageName ? farmland.block.villageName + ', ' : '' }}{{ farmland.block.district ? farmland.block.district + ', ' : '' }}{{ farmland.block.state || '' }}</div>
+                            <ng-container *ngTemplateOutlet="stage3FarmlandBlock; context: { block: farmland.block, patch: farmland.patch, farmerPlace: traceFarmer()?.place ?? null }" />
                           }
                         } @else {
                           <div class="ledger-item"><strong>Block & Patch</strong>: {{ crop.blockName || 'N/A' }}{{ crop.patchName ? ' - ' + crop.patchName : '' }}</div>
@@ -1856,6 +1852,32 @@
     <div class="glass-cursor__ring"></div>
     <div class="glass-cursor__dot"></div>
   </div>
+
+  <ng-template #stage3FarmlandBlock let-block="block" let-patch="patch" let-farmerPlace="farmerPlace">
+    <div class="ledger-item"><strong>Facility Type</strong>: {{ block.facilityType || 'Open Field' }}</div>
+    <div class="ledger-item"><strong>Block & Patch</strong>: {{ block.name }}{{ patch ? ' - ' + patch.name : '' }}</div>
+    <div class="ledger-item"><strong>Location</strong>: {{ formatBlockLocation(block, farmerPlace, patch?.name) }}</div>
+    @if (hasBlockGps(block)) {
+      <div class="ledger-item ledger-item--gps">
+        <strong>Farm coordinates</strong>:
+        <span class="ledger-gps-coords">{{ formatBlockGps(block) }}</span>
+      </div>
+      @if (getBlockMapsUrl(block); as mapsUrl) {
+        <a
+          class="ledger-map-link"
+          [href]="mapsUrl"
+          target="_blank"
+          rel="noopener noreferrer"
+          (click)="$event.stopPropagation()"
+          (mouseenter)="setInteractiveHover(true)"
+          (mouseleave)="setInteractiveHover(false)"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z" fill="currentColor"/></svg>
+          View farm on map
+        </a>
+      }
+    }
+  </ng-template>
 
   <ng-template #stageDataLine let-stage="stage">
     @if (stage.detail) {

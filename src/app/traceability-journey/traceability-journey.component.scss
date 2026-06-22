@@ -1280,6 +1280,56 @@
       color: #2c4a1e;
       font-weight: 600;
     }
+
+    &--gps {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 0.35rem;
+    }
+  }
+
+  .ledger-gps-coords {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.02em;
+    color: #5c4a32;
+    background: rgba(168, 118, 46, 0.08);
+    border: 1px solid rgba(168, 118, 46, 0.16);
+    border-radius: 4px;
+    padding: 0.12rem 0.45rem;
+  }
+
+  .ledger-map-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin-top: 0.15rem;
+    margin-bottom: 0.35rem;
+    padding: 0.45rem 0.75rem;
+    border-radius: 4px;
+    border: 1px solid rgba(74, 107, 53, 0.28);
+    background: rgba(74, 107, 53, 0.06);
+    color: #3d5c2c;
+    font-family: var(--font-sans);
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+
+    svg {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+    }
+
+    &:hover {
+      background: rgba(74, 107, 53, 0.12);
+      border-color: #4a6b35;
+      box-shadow: 0 4px 12px rgba(74, 107, 53, 0.12);
+    }
   }
 
   .ledger-scrollable {

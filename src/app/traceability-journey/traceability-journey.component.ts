@@ -28,6 +28,7 @@ import {
   TraceFarmer,
   TraceFarmingActivity,
   TraceFarmland,
+  TraceFarmlandBlock,
   TraceFarmlandWorkEntry,
   TraceHarvest,
   TraceProcessing,
@@ -267,12 +268,12 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
   protected readonly stages: Stage[] = [
     {
       id: 1,
-      title: 'Land preparation',
+      title: 'Know your seed',
       summary:
-        'Every journey begins with the ground itself. Before the seed is sown, the field is prepared with prepped cow dung and natural soil treatment, helping restore the living strength of the land and creating a healthier beginning for what will grow next.',
-      detail: 'Date of land preparation: Pending',
+        'Every journey begins with two quiet choices — the seed that carries life forward, and the land that receives it. Before a single grain is sown, the field is readied with prepped cow dung and natural soil care, so the seed meets living soil, not exhausted ground. At ANAAD, we trace both: where the seed came from, and how the land was prepared to welcome it.',
+      detail: 'Seed & land preparation: Pending',
       image: 'assets/traceability/stage-1.png',
-      alt: 'A field being prepared with natural soil treatment before sowing.',
+      alt: 'Seed and prepared field — the first steps of a traceable harvest.',
       effect: 'seeds',
       align: 'right',
       artShiftX: 50,
@@ -1115,9 +1116,7 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
     const workEntries = farmland?.workEntries ?? [];
 
     const landPrepDate = this.findLandPreparationDate(journey);
-    this.stages[0].detail = landPrepDate
-      ? `Date of land preparation: ${this.formatDate(landPrepDate)}`
-      : 'Date of land preparation: Pending';
+    this.stages[0].detail = this.buildStage1Detail(journey, landPrepDate);
 
     const farmer = crop?.farmer;
     if (farmer) {
@@ -1271,6 +1270,39 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
     return landWork?.startDate ?? landWork?.endDate ?? null;
   }
 
+  private buildStage1Detail(journey: TraceabilityJourney, landPrepDate: string | null): string {
+    const seed = journey.seed;
+    const crop = journey.cropCycle;
+    const parts: string[] = [];
+
+    if (seed) {
+      parts.push(seed.cropName);
+      if (seed.variety) {
+        parts.push(seed.variety);
+      }
+      if (seed.isOrganic) {
+        parts.push('Organic');
+      }
+      if (seed.source) {
+        parts.push(`from ${seed.source}`);
+      }
+    } else if (crop) {
+      parts.push(crop.cropName);
+      if (crop.seedCode) {
+        parts.push(`Seed ${crop.seedCode}`);
+      }
+      if (crop.sourceOfSeed) {
+        parts.push(`from ${crop.sourceOfSeed}`);
+      }
+    }
+
+    if (landPrepDate) {
+      parts.push(`Land prepared ${this.formatDate(landPrepDate)}`);
+    }
+
+    return parts.length ? parts.join(' · ') : 'Seed & land preparation: Pending';
+  }
+
   /** Resolve harvest date from harvest record or crop cycle */
   private findHarvestDate(journey: TraceabilityJourney): string | null {
     return journey.harvest?.harvestDate ?? journey.cropCycle?.actualHarvestDate ?? null;
@@ -1284,6 +1316,56 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
     } catch {
       return dateStr;
     }
+  }
+
+  formatBlockAddress(block: TraceFarmlandBlock): string | null {
+    const parts = [block.villageName, block.district, block.state].filter(
+      (part): part is string => !!part && part.trim().length > 0
+    );
+    return parts.length ? parts.join(', ') : null;
+  }
+
+  formatBlockLocation(
+    block: TraceFarmlandBlock,
+    farmerPlace?: string | null,
+    patchName?: string | null
+  ): string {
+    const address = this.formatBlockAddress(block);
+    if (address) {
+      return address;
+    }
+
+    if (farmerPlace?.trim()) {
+      return farmerPlace.trim();
+    }
+
+    if (block.name) {
+      return patchName ? `${block.name} — ${patchName}` : block.name;
+    }
+
+    if (this.hasBlockGps(block)) {
+      return this.formatBlockGps(block);
+    }
+
+    return 'On farm';
+  }
+
+  hasBlockGps(block: TraceFarmlandBlock): boolean {
+    return block.gpsLatitude != null && block.gpsLongitude != null;
+  }
+
+  formatBlockGps(block: TraceFarmlandBlock): string {
+    return `${block.gpsLatitude!.toFixed(6)}, ${block.gpsLongitude!.toFixed(6)}`;
+  }
+
+  getBlockMapsUrl(block: TraceFarmlandBlock): string | null {
+    if (block.googleMapsUrl?.trim()) {
+      return block.googleMapsUrl.trim();
+    }
+    if (this.hasBlockGps(block)) {
+      return `https://www.google.com/maps/search/?api=1&query=${block.gpsLatitude},${block.gpsLongitude}`;
+    }
+    return null;
   }
 
   /** Format ISO timestamp to human readable (e.g., "15 Mar 2026, 8:00 AM") */
