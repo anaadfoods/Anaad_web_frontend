@@ -1452,58 +1452,15 @@
                   </svg>
                 </div>
                 <h3 class="delivery-gate__title">Track Your Delivery</h3>
-                @if (isLocalDev()) {
-                  <p class="delivery-gate__sub">Local dev mode — Google sign-in and external login redirect are unavailable here. Continue below, then paste your token from web.anaadfoods.com.</p>
-                } @else {
-                  <p class="delivery-gate__sub">Your product's final journey — from our warehouse to your door — is personal. Log in to trace it live.</p>
-                }
+                <p class="delivery-gate__sub">Your product's final journey — from our warehouse to your door — is personal. Log in to trace it live.</p>
                 <button class="delivery-gate__unlock-btn"
                         (click)="unlockDelivery()"
                         (mouseenter)="setInteractiveHover(true)"
                         (mouseleave)="setInteractiveHover(false)">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                  <span>{{ isLocalDev() ? 'Continue (Local Dev)' : 'Unlock Delivery Tracking' }}</span>
+                  <span>Unlock Delivery Tracking</span>
                 </button>
-                @if (!isLocalDev()) {
-                  <p class="delivery-gate__login-note">You'll be redirected to login and brought back here automatically.</p>
-                }
-              </div>
-
-            } @else if (isLocalDev() && !authState.isAuthenticated()) {
-              <!-- State 1b: Localhost dev — paste token from web.anaadfoods.com -->
-              <div class="delivery-gate__card delivery-gate__card--dev">
-                <h3 class="delivery-gate__title">Connect Your Login (Dev)</h3>
-                <p class="delivery-gate__sub">Sign in on the real site in a new tab, then paste your access token here so delivery APIs work on localhost.</p>
-                <ol class="delivery-gate__dev-steps">
-                  <li>
-                    <button type="button" class="delivery-gate__dev-link"
-                            (click)="openDevLogin()"
-                            (mouseenter)="setInteractiveHover(true)"
-                            (mouseleave)="setInteractiveHover(false)">
-                      Open web.anaadfoods.com/login
-                    </button>
-                    and sign in with Google
-                  </li>
-                  <li>Press F12 → Application → Local Storage → web.anaadfoods.com</li>
-                  <li>Copy the value of <code>anaad_access_token</code></li>
-                  <li>Paste it below and click Apply Token</li>
-                </ol>
-                @if (deliveryError()) {
-                  <div class="delivery-gate__error">{{ deliveryError() }}</div>
-                }
-                <textarea
-                  class="delivery-gate__dev-token"
-                  rows="3"
-                  placeholder="Paste anaad_access_token here..."
-                  [value]="devTokenInput()"
-                  (input)="devTokenInput.set($any($event.target).value)"
-                ></textarea>
-                <button class="delivery-gate__submit-btn"
-                        (click)="applyDevToken()"
-                        (mouseenter)="setInteractiveHover(true)"
-                        (mouseleave)="setInteractiveHover(false)">
-                  Apply Token
-                </button>
+                <p class="delivery-gate__login-note">You'll be redirected to login and brought back here automatically.</p>
               </div>
 
             } @else if (!deliveryPhoneSubmitted()) {

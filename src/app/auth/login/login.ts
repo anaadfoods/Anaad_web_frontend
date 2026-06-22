@@ -45,7 +45,7 @@ export class Login implements OnInit {
     // Synchronously grab returnUrl first
     const returnUrl = this.route.snapshot.queryParams['returnUrl'];
     if (returnUrl) this.returnUrl = returnUrl;
-    
+
     this.route.queryParams.subscribe(params => {
       if (params['registered']) this.successMessage = 'Account created! Please sign in.';
     });
@@ -57,6 +57,20 @@ export class Login implements OnInit {
     }
 
     if (isPlatformBrowser(this.platformId)) {
+      // Localhost: Google OAuth does not work locally — use real dev login site
+      const isLocalhost =
+        window.location.hostname === 'localhost' ||
+        window.location.hostname === '127.0.0.1';
+
+      if (isLocalhost && environment.externalLoginUrl) {
+        const fullReturn = this.returnUrl.startsWith('http')
+          ? this.returnUrl
+          : `${window.location.origin}${this.returnUrl.startsWith('/') ? '' : '/'}${this.returnUrl}`;
+        window.location.href =
+          `${environment.externalLoginUrl}?returnUrl=${encodeURIComponent(fullReturn)}`;
+        return;
+      }
+
       this.initGoogleSignIn();
     }
   }

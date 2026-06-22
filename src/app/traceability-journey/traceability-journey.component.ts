@@ -184,7 +184,6 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
   protected readonly hasDeliveryData = computed(() =>
     this.orderTracking() !== null || this.subTracking() !== null
   );
-  protected readonly devTokenInput = signal('');
   /** Crop ID for this traceability journey (canonical from API when loaded) */
   protected readonly tracedCropId = computed(() =>
     this.traceCropCycle()?.cycleCode ?? this.currentCropId() ?? this.DEFAULT_CROP_ID
@@ -501,18 +500,18 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
       }
 
       // Cross-origin login callback: tokens passed back from web.anaadfoods.com
-      if (accessToken && refreshToken && isPlatformBrowser(this.platformId)) {
-        this.authState.setTokens(accessToken, refreshToken);
+      if (accessToken && isPlatformBrowser(this.platformId)) {
+        if (refreshToken) {
+          this.authState.setTokens(accessToken, refreshToken);
+        } else {
+          this.authState.setAccessToken(accessToken);
+        }
+        if (unlockedParam === '1') {
+          this.isUnlocked.set(true);
+        }
         this.authService.fetchProfile().subscribe({
-          next: () => {
-            if (unlockedParam === '1') {
-              this.isUnlocked.set(true);
-            }
-            this.stripTokensFromUrl();
-          },
-          error: () => {
-            this.stripTokensFromUrl();
-          }
+          next: () => this.stripTokensFromUrl(),
+          error: () => this.stripTokensFromUrl(),
         });
         return;
       }
@@ -536,49 +535,9 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
 
   /** Redirect to login, returning to this page with unlocked=1 flag */
   unlockDelivery(): void {
-    const cropId = this.currentCropId() ?? this.DEFAULT_CROP_ID;
+    const cropId = this.currentCropId() ?? this.tracedCropId() ?? this.DEFAULT_CROP_ID;
     const returnPath = `/traceability-journey?crop_id=${encodeURIComponent(cropId)}&unlocked=1`;
-
-    // Localhost: skip external login (CloudFront blocks cross-origin returnUrl)
-    if (this.isLocalDev()) {
-      this.isUnlocked.set(true);
-      this.deliveryError.set(null);
-      return;
-    }
-
     this.router.navigate(['/login'], { queryParams: { returnUrl: returnPath } });
-  }
-
-  /** True when running on localhost — dev-only unlock + token paste flow */
-  isLocalDev(): boolean {
-    if (!isPlatformBrowser(this.platformId)) return false;
-    const host = window.location.hostname;
-    return host === 'localhost' || host === '127.0.0.1';
-  }
-
-  /** Dev-only: apply JWT copied from web.anaadfoods.com localStorage */
-  applyDevToken(): void {
-    const token = this.devTokenInput().trim();
-    if (!token) {
-      this.deliveryError.set('Paste your access token from web.anaadfoods.com.');
-      return;
-    }
-
-    this.deliveryError.set(null);
-    this.authState.setAccessToken(token);
-    this.authService.fetchProfile().subscribe({
-      next: () => this.deliveryError.set(null),
-      error: () => {
-        this.deliveryError.set(
-          'Token invalid or expired. Open web.anaadfoods.com/login in a new tab, sign in, then copy anaad_access_token from DevTools → Application → Local Storage.'
-        );
-      }
-    });
-  }
-
-  openDevLogin(): void {
-    if (!isPlatformBrowser(this.platformId)) return;
-    window.open('https://web.anaadfoods.com/login', '_blank', 'noopener,noreferrer');
   }
 
   /** Pad CC-000019 → CC-0000019 (7-digit number part) for the orders API */
