@@ -56,11 +56,25 @@ export class Login implements OnInit, OnDestroy {
 
     // Already logged in - redirect
     if (this.authState.isAuthenticated()) {
-      this.router.navigateByUrl(this.returnUrl);
+      this.redirectAfterLogin();
       return;
     }
 
     if (isPlatformBrowser(this.platformId)) {
+      // Localhost: Google OAuth does not work locally — use real dev login site
+      const isLocalhost =
+        window.location.hostname === 'localhost' ||
+        window.location.hostname === '127.0.0.1';
+
+      if (isLocalhost && environment.externalLoginUrl) {
+        const fullReturn = this.returnUrl.startsWith('http')
+          ? this.returnUrl
+          : `${window.location.origin}${this.returnUrl.startsWith('/') ? '' : '/'}${this.returnUrl}`;
+        window.location.href =
+          `${environment.externalLoginUrl}?returnUrl=${encodeURIComponent(fullReturn)}`;
+        return;
+      }
+
       this.initGoogleSignIn();
     }
   }
@@ -100,7 +114,7 @@ export class Login implements OnInit, OnDestroy {
         next: () => {
           this.cartSvc.syncOnLogin();
           this.favSvc.syncOnLogin();
-          this.router.navigateByUrl(this.returnUrl);
+          this.redirectAfterLogin();
         },
         error: (err) => {
           this.loading = false;
@@ -160,22 +174,18 @@ export class Login implements OnInit, OnDestroy {
       // ✅ Capture response directly from signIn()
       const response = await AppleID.auth.signIn();
 
-      console.log('Apple signIn response:', response);
-
-      if (response?.authorization?.id_token) {
-        let name: string | undefined;
-        if (response.user) {
-          name = [
-            response.user.name?.firstName,
-            response.user.name?.lastName
-          ].filter(Boolean).join(' ');
-        }
-        this.handleAppleLoginSuccess(response.authorization.id_token, name);
-      } else {
-        this.ngZone.run(() => {
-          this.loading = false;
-          this.error = 'Apple Sign-In failed. No token received.';
-          this.cdr.markForCheck();
+      this.ngZone.run(() => {
+        this.authSvc.appleLogin(idToken, name).subscribe({
+          next: () => {
+            this.cartSvc.syncOnLogin();
+            this.favSvc.syncOnLogin();
+            this.redirectAfterLogin();
+          },
+          error: (err) => {
+            this.loading = false;
+            const detail = err.error?.detail || err.error?.non_field_errors?.[0];
+            this.error = detail || 'Apple sign in failed. Please try again.';
+          }
         });
       }
 
@@ -220,7 +230,7 @@ export class Login implements OnInit, OnDestroy {
       next: () => {
         this.cartSvc.syncOnLogin();
         this.favSvc.syncOnLogin();
-        this.router.navigateByUrl(this.returnUrl);
+        this.redirectAfterLogin();
       },
       error: (err) => {
         this.loading = false;
@@ -229,5 +239,25 @@ export class Login implements OnInit, OnDestroy {
         this.cdr.markForCheck();
       }
     });
+  }
+
+  /** Supports cross-origin return (e.g. localhost dev after login on web.anaadfoods.com) */
+  private redirectAfterLogin(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+
+    const isExternal =
+      this.returnUrl.startsWith('http://') || this.returnUrl.startsWith('https://');
+
+    if (isExternal) {
+      const target = new URL(this.returnUrl);
+      const access = this.authState.accessToken();
+      const refresh = this.authState.refreshToken();
+      if (access) target.searchParams.set('access_token', access);
+      if (refresh) target.searchParams.set('refresh_token', refresh);
+      window.location.href = target.toString();
+      return;
+    }
+
+    this.router.navigateByUrl(this.returnUrl);
   }
 }

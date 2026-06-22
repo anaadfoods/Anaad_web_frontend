@@ -132,4 +132,14 @@ export const API = {
     BASE_URL: 'http://13.235.242.181:5000',
     HANDLE_JUSPAY_RESPONSE: 'http://13.235.242.181:5000/handleJuspayResponse',
   },
+
+  TRACEABILITY: {
+    TRACE: 'https://nwmimvqcoxxdulpmdqvp.supabase.co/functions/v1/trace',
+  },
+
+  CROP_DELIVERY: {
+    CROP_ORDERS: '/api/core/crop-cycle-orders/',
+    TRACKING_BY_ORDER: '/api/shiprocket/orders/tracking_by_order/',
+    TRACKING_BY_SUBSCRIPTION: '/api/shiprocket/orders/tracking_by_subscription/',
+  },
 } as const;
