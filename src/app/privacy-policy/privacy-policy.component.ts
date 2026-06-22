@@ -19,10 +19,10 @@ export class PrivacyPolicyComponent implements OnInit {
   ngOnInit() {
     this.legalSvc.getLatestLegal().subscribe({
       next: docs => {
-        const policy = docs.find(d => d.is_privacy_policy);
+        const policy = docs.find(d => d.type_display?.toLowerCase().includes('privacy'));
         if (policy) { 
           this.content.set(policy.content); 
-          this.title.set(policy.title); 
+          this.title.set(policy.type_display); 
         } else {
           this.content.set(`
             <h3>Privacy Policy</h3>
@@ -44,3 +44,4 @@ export class PrivacyPolicyComponent implements OnInit {
     });
   }
 }
+

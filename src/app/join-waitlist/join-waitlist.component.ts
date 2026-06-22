@@ -6,6 +6,7 @@ import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { UserQueriesService, UserQueryPayload } from '../core/services/user-queries.service';
 import { RegistrationSourceService } from '../core/services/registration-source.service';
+import { AuthService } from '../core/services/auth.service';
 
 interface MemberCountResponse {
   success: boolean;
@@ -29,11 +30,23 @@ export class JoinWaitlistComponent implements OnInit {
   private http = inject(HttpClient);
   private userQueriesService = inject(UserQueriesService);
   private registrationSourceService = inject(RegistrationSourceService);
+  private readonly authService = inject(AuthService);
 
   // Member count signals
   memberCount = signal<number>(0);
   displayCount = signal<number>(0);
   isCountLoading = signal<boolean>(true);
+
+  // OTP Verification Signals
+  otpStep = signal<'idle' | 'choosing' | 'sent' | 'verified'>('idle');
+  otpMethod = signal<'phone' | 'email' | null>(null);
+  otpSending = signal<boolean>(false);
+  otpVerifying = signal<boolean>(false);
+  otpError = signal<string>('');
+  otpSuccessMsg = signal<string>('');
+  otpValue = signal<string>('');
+  otpResendTimer = signal<number>(0);
+  private resendInterval: any = null;
 
   form = this.fb.group({
     fullName: ['', [Validators.required, Validators.minLength(2)]],
@@ -109,6 +122,125 @@ export class JoinWaitlistComponent implements OnInit {
     }, stepTime);
   }
 
+  // ── OTP Verification Flow ─────────────────
+
+  /** Show the OTP method chooser */
+  startOtpVerification(): void {
+    if (this.form.get('phoneNumber')?.invalid && this.form.get('email')?.invalid) {
+      this.otpError.set('Please enter a valid phone number or email address first.');
+      return;
+    }
+    this.otpError.set('');
+    this.otpStep.set('choosing');
+  }
+
+  /** Send OTP via chosen method */
+  sendOtp(method: 'phone' | 'email'): void {
+    this.otpMethod.set(method);
+    this.otpError.set('');
+    this.otpSuccessMsg.set('');
+    this.otpSending.set(true);
+
+    const identifier = method === 'phone'
+      ? (this.form.get('phoneNumber')?.value || '')
+      : (this.form.get('email')?.value || '');
+
+    if (!identifier) {
+      this.otpError.set(`Please enter a valid ${method === 'phone' ? 'phone number' : 'email address'} first.`);
+      this.otpSending.set(false);
+      return;
+    }
+
+    this.authService.sendOtp({ identifier, type: method }).subscribe({
+      next: (res) => {
+        this.otpSuccessMsg.set(res.message || `OTP sent to your ${method}.`);
+        this.otpStep.set('sent');
+        this.otpSending.set(false);
+        this.startResendTimer();
+      },
+      error: (err) => {
+        this.otpError.set(err.error?.message || `Failed to send OTP. Please try again.`);
+        this.otpSending.set(false);
+      }
+    });
+  }
+
+  /** Verify the entered OTP */
+  verifyOtp(): void {
+    const otp = this.otpValue().trim();
+    if (!otp || otp.length < 4) {
+      this.otpError.set('Please enter a valid OTP.');
+      return;
+    }
+
+    this.otpVerifying.set(true);
+    this.otpError.set('');
+
+    const method = this.otpMethod()!;
+    const identifier = method === 'phone'
+      ? (this.form.get('phoneNumber')?.value || '')
+      : (this.form.get('email')?.value || '');
+
+    this.authService.verifyOtp({ identifier, otp, type: method }).subscribe({
+      next: (res) => {
+        this.otpSuccessMsg.set(res.message || 'Verified successfully!');
+        this.otpStep.set('verified');
+        this.otpVerifying.set(false);
+        this.clearResendTimer();
+      },
+      error: (err) => {
+        this.otpError.set(err.error?.message || 'Invalid OTP. Please try again.');
+        this.otpVerifying.set(false);
+      }
+    });
+  }
+
+  /** Resend OTP */
+  resendOtp(): void {
+    if (this.otpResendTimer() > 0) return;
+    const method = this.otpMethod();
+    if (method) {
+      this.sendOtp(method);
+    }
+  }
+
+  /** Update OTP input value */
+  onOtpInput(event: Event): void {
+    this.otpValue.set((event.target as HTMLInputElement).value);
+  }
+
+  /** Start the 30s resend cooldown timer */
+  private startResendTimer(): void {
+    this.clearResendTimer();
+    this.otpResendTimer.set(30);
+    this.resendInterval = setInterval(() => {
+      const current = this.otpResendTimer();
+      if (current <= 1) {
+        this.clearResendTimer();
+      } else {
+        this.otpResendTimer.set(current - 1);
+      }
+    }, 1000);
+  }
+
+  private clearResendTimer(): void {
+    if (this.resendInterval) {
+      clearInterval(this.resendInterval);
+      this.resendInterval = null;
+    }
+    this.otpResendTimer.set(0);
+  }
+
+  /** Reset OTP state */
+  resetOtp(): void {
+    this.otpStep.set('idle');
+    this.otpMethod.set(null);
+    this.otpValue.set('');
+    this.otpError.set('');
+    this.otpSuccessMsg.set('');
+    this.clearResendTimer();
+  }
+
   onSubmit() {
     this.logSvc.debug('Form submit triggered');
     this.submitted = true;
@@ -119,6 +251,11 @@ export class JoinWaitlistComponent implements OnInit {
 
     if (this.form.invalid) {
       this.logSvc.debug('Form is invalid, errors:', this.form.errors);
+      return;
+    }
+
+    if (this.otpStep() !== 'verified') {
+      this.otpError.set('Please verify your identity with OTP before submitting.');
       return;
     }
 
@@ -146,6 +283,7 @@ export class JoinWaitlistComponent implements OnInit {
         this.submitting = false;
         this.form.reset();
         this.submitted = false;
+        this.resetOtp();
         // Clear source data after successful submission
         this.registrationSourceService.clearAll();
         this.router.navigateByUrl('/thank-you');
@@ -159,3 +297,4 @@ export class JoinWaitlistComponent implements OnInit {
     });
   }
 }
+

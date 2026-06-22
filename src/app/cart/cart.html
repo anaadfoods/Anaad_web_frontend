@@ -3,8 +3,7 @@
   <div class="page-header">
     <span class="page-header-meta">Review &amp; Confirm</span>
     <h1>Your Cart</h1>
-    <p class="page-header-sub">{{ cartState.itemCount() }} item{{ cartState.itemCount() !== 1 ? 's' : '' }} — free
-      cold-chain shipping above ₹1,200</p>
+    <p class="page-header-sub">{{ cartState.itemCount() }} item{{ cartState.itemCount() !== 1 ? 's' : '' }}</p>
   </div>
 
   <!-- AUTH NOTICE -->
@@ -28,7 +27,9 @@
 
       @for (item of cartState.items(); track item.product_variant) {
       <div class="cart-item">
-        <img class="cart-item-img" [src]="item.image || ''" appSafeImage [alt]="item.product_name" />
+        <div class="cart-item-img-wrap">
+          <img class="cart-item-img" [src]="item.image || ''" appSafeImage [alt]="item.product_name" />
+        </div>
 
         <div class="cart-item-info">
           <span class="cart-item-tag">Heirloom Staple</span>
@@ -37,12 +38,16 @@
         </div>
 
         <div class="qty-selector-wrap">
-          <app-qty-selector [value]="item.quantity" [min]="1" [max]="20"
+          <span class="mobile-inline-label">Quantity:</span>
+          <app-qty-selector [value]="item.quantity" [min]="1" [max]="5"
             (valueChange)="updateQuantity(item.product_variant, $event)">
           </app-qty-selector>
         </div>
 
-        <span class="cart-item-price">{{ item.total_price | currencyInr }}</span>
+        <span class="cart-item-price">
+          <span class="mobile-inline-label">Price:</span>
+          {{ item.total_price | currencyInr }}
+        </span>
 
         <button type="button" class="cart-remove" (click)="removeItem(item.product_variant)"
           title="Remove item">&#215;</button>
@@ -54,9 +59,20 @@
         <a routerLink="/products" class="btn-continue">
           <span>&#8592;</span> Continue Shopping
         </a>
-        <button type="button" class="btn-clear" (click)="clearCart()" [disabled]="clearingCart">
-          {{ clearingCart ? 'Clearing...' : 'Clear Cart' }}
-        </button>
+        <div class="clear-cart-wrap">
+          <ng-container *ngIf="!showClearConfirm">
+            <button type="button" class="btn-clear" (click)="showClearConfirm = true">Clear Cart</button>
+          </ng-container>
+          <ng-container *ngIf="showClearConfirm">
+            <div class="clear-confirm-group">
+              <span class="confirm-text">Are you sure?</span>
+              <button type="button" class="btn-confirm-yes" (click)="clearCart()" [disabled]="clearingCart">
+                {{ clearingCart ? 'Clearing...' : '[Yes, clear]' }}
+              </button>
+              <button type="button" class="btn-confirm-no" (click)="showClearConfirm = false">[Keep cart]</button>
+            </div>
+          </ng-container>
+        </div>
       </div>
     </div>
 
@@ -72,7 +88,9 @@
         </div>
         <div class="summary-row">
           <span class="summary-label">Delivery Fee</span>
-          <span class="summary-value">Proceed to checkout</span>
+          <span class="summary-value">
+            <span>Calculated at checkout</span>
+          </span>
         </div>
         <div class="summary-divider"></div>
         <div class="summary-total-row">
@@ -109,9 +127,11 @@
 
   <!-- EMPTY STATE -->
   <div class="cart-empty" *ngIf="cartState.itemCount() === 0">
-    <div class="cart-empty-icon">&#9750;</div>
-    <h3>Your cart is empty</h3>
-    <p>Your pantry awaits the season's finest harvest. Explore our current heirloom offerings.</p>
-    <a routerLink="/products" class="btn-shop-now">Return to Pantry</a>
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--amber-harvest); margin-bottom: 16px;">
+      <path d="M4 6h16l-2 14H6L4 6z"></path><path d="M8 11v4"></path><path d="M16 11v4"></path><path d="M12 11v4"></path><path d="M10 6V4a2 2 0 0 1 4 0v2"></path>
+    </svg>
+    <h3>Your pantry is empty</h3>
+    <p>Add some heirloom grain to get started.</p>
+    <a routerLink="/products" class="btn-shop-now">Browse the Pantry &#8594;</a>
   </div>
 </div>

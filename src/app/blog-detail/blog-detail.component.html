@@ -3,120 +3,162 @@
   <div class="breadcrumb">
     <a routerLink="/blogs">Blogs</a>
     <span class="breadcrumb-sep">&#8594;</span>
-    <a routerLink="/blogs">{{ (article?.category || 'Culture') }}</a>
+    <a routerLink="/blogs">{{ displayCategory(article?.category) }}</a>
     <span class="breadcrumb-sep">&#8594;</span>
     <span class="breadcrumb-current">{{ article?.title || 'The Resignation Letter We Never Wrote' }}</span>
   </div>
 
   @if (loading) {
-    <div style="padding: 100px; text-align: center; font-family: var(--font-sans);">Loading article...</div>
+  <div style="padding: 100px; text-align: center; font-family: var(--font-sans);">Loading article...</div>
   }
 
   @if (!loading && (notFound || error)) {
-    <div style="padding: 100px; text-align: center; font-family: var(--font-sans);">
-      <h2>Article not found</h2>
-      <button (click)="goBack()" style="margin-top:20px; padding: 10px 20px; background: var(--green-deep); color: white; border: none; cursor:pointer;">Back to Blogs</button>
-    </div>
+  <div style="padding: 100px; text-align: center; font-family: var(--font-sans);">
+    <h2>Article not found</h2>
+    <button (click)="goBack()"
+      style="margin-top:20px; padding: 10px 20px; background: var(--green-deep); color: white; border: none; cursor:pointer;">Back
+      to Blogs</button>
+  </div>
   }
 
   @if (!loading && (!error && !notFound) && (article || isStatic)) {
-    <!-- ARTICLE HERO -->
-    <div class="article-hero">
-      <span class="article-category">{{ article?.category || 'Culture' }} &nbsp;&middot;&nbsp; 6 min read</span>
-      <h1>{{ article?.title || 'The Resignation Letter' }}<br *ngIf="isStatic" /><em *ngIf="isStatic">We Never Wrote.</em></h1>
-      <p class="article-hero-lead">{{ article?.subtitle || 'What happens when the people who feed a nation decide they can no longer afford to? And what does it mean for the rest of us when they stop?' }}</p>
-      
-      <div class="article-meta-row">
-        <div class="author-avatar"><span class="avatar-initials">AN</span></div>
-        <div class="author-info">
-          <span class="author-name">{{ article?.author || 'ANAAD Editorial Desk' }}</span>
-          <span class="author-role">Field &amp; Research Team, Sonipat</span>
-        </div>
-        <div class="meta-divider"></div>
-        <span class="meta-item">{{ (article?.created_at | date:'dd MMMM yyyy') || 'Unknown Date' }}</span>
-        <div class="meta-divider"></div>
-        <span class="meta-item">{{ article?.read_time || '6 min read' }}</span>
-        
-        <div class="share-row">
-          <span class="share-label">Share</span>
-          <span class="share-btn">WhatsApp</span>
-          <span class="share-btn">Instagram</span>
-          <span class="share-btn">Copy Link</span>
-        </div>
+  <!-- ARTICLE HERO -->
+  <div class="article-hero">
+    <span class="article-category">{{ displayCategory(article?.category) }} &nbsp;&middot;&nbsp; {{ article ?
+      getReadTime(article) : '6 min read' }}</span>
+    <h1>{{ article?.title || 'The Resignation Letter' }}<br *ngIf="isStatic" /><em *ngIf="isStatic">We Never Wrote.</em>
+    </h1>
+    <p class="article-hero-lead">{{ article?.subtitle || 'What happens when the people who feed a nation decide they can
+      no longer afford to? And what does it mean for the rest of us when they stop?' }}</p>
+
+    <div class="article-meta-row">
+      <div class="author-avatar"><span class="avatar-initials">AN</span></div>
+      <div class="author-info">
+        <span class="author-name">{{ article?.author || 'ANAAD Editorial Desk' }}</span>
+        <span class="author-role">Field &amp; Research Team, Sonipat</span>
+      </div>
+      <div class="meta-divider"></div>
+      <span class="meta-item">{{ parseDate(article?.created_at) ? (parseDate(article?.created_at) | date:'dd MMMM yyyy')
+        : '16 June 2026' }}</span>
+      <div class="meta-divider"></div>
+      <span class="meta-item">{{ article ? getReadTime(article) : '6 min read' }}</span>
+
+      <div class="share-row">
+        <span class="share-label">Share</span>
+        <button class="share-btn" (click)="shareWhatsApp()">WhatsApp</button>
+        <button class="share-btn" (click)="shareInstagram()">Instagram</button>
+        <button class="share-btn" (click)="copyLink()">Copy Link</button>
       </div>
     </div>
+  </div>
 
-    <!-- HERO IMAGE -->
-    <img class="article-hero-img" [src]="article?.cover_image || 'https://images.unsplash.com/photo-1586348943529-beaae6c28db9?auto=format&fit=crop&w=1600&q=80'" alt="Blog Cover" />
+  <!-- HERO IMAGE -->
+  <img class="article-hero-img"
+    [src]="getImageUrl(article?.cover_image, 'https://images.unsplash.com/photo-1586348943529-beaae6c28db9?auto=format&fit=crop&w=1600&q=80')"
+    alt="Blog Cover" />
 
-    <!-- ARTICLE LAYOUT -->
-    <div class="article-layout">
-      <!-- BODY -->
-      <div class="article-body">
-        
-        <ng-container *ngIf="article">
-          <div [innerHTML]="article.content"></div>
-        </ng-container>
+  <!-- ARTICLE LAYOUT -->
+  <div class="article-layout">
+    <!-- BODY -->
+    <div class="article-body">
 
-        <ng-container *ngIf="isStatic">
-          <p>India has 146 million farming households. Each one is a small enterprise — carrying the weight of feeding a billion people, absorbing the volatility of weather, markets, and policy. And yet, when we talk about a "farming crisis," we reach for statistics. We talk about MSP, loan waivers, and input costs. We rarely sit with what it actually means when a farmer decides to stop.</p>
+      <ng-container *ngIf="article">
+        <div [innerHTML]="article.content"></div>
 
-          <div class="pull-quote">
-            <p>"The soil remembers what we choose to forget. When we drain it of nutrients for yield, we drain ourselves of nourishment for generations."</p>
-            <cite>— ANAAD Field Journal, Rabi Season 2024</cite>
+        <div class="tags-row" *ngIf="article.tags && article.tags.length > 0">
+          <span class="article-tag" *ngFor="let tag of article.tags">{{ tag }}</span>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="isStatic">
+        <p>India has 146 million farming households. Each one is a small enterprise — carrying the weight of feeding a
+          billion people, absorbing the volatility of weather, markets, and policy. And yet, when we talk about a
+          "farming crisis," we reach for statistics. We talk about MSP, loan waivers, and input costs. We rarely sit
+          with what it actually means when a farmer decides to stop.</p>
+
+        <div class="pull-quote">
+          <p>"The soil remembers what we choose to forget. When we drain it of nutrients for yield, we drain ourselves
+            of nourishment for generations."</p>
+          <cite>— ANAAD Field Journal, Rabi Season 2024</cite>
+        </div>
+
+        <h2 id="static-1">The Letter That Was Never Sent</h2>
+
+        <p>In the winter of 2023, we visited a family in Sikar district, Rajasthan. The patriarch — a third-generation
+          wheat farmer — showed us a piece of paper he had drafted on his phone's notepad. It was a resignation letter.
+          Not to an employer. To farming itself. He never sent it. But it existed. That it existed at all told us
+          everything we needed to know about the state of Indian agriculture in the era of synthetic inputs.</p>
+
+        <p>His father had grown the same Sona Moti wheat variety for forty years without purchasing a single bag of
+          fertilizer. The soil was fed by cows. The pests were managed by companion planting. The yield was enough. Then
+          the Green Revolution arrived — and with it, the promise of more. More yield. More income. More security.</p>
+
+        <h2 id="static-2">What "More" Cost Us</h2>
+
+        <div class="data-cards-row">
+          <div class="data-card">
+            <span class="data-card-label">Nutrient Loss</span>
+            <span class="data-card-val">30%</span>
+            <span class="data-card-desc">Decline in Zinc &amp; Iron in modern wheat vs. heirloom varieties (ICAR,
+              2024)</span>
           </div>
-
-          <h2>The Letter That Was Never Sent</h2>
-
-          <p>In the winter of 2023, we visited a family in Sikar district, Rajasthan. The patriarch — a third-generation wheat farmer — showed us a piece of paper he had drafted on his phone's notepad. It was a resignation letter. Not to an employer. To farming itself. He never sent it. But it existed. That it existed at all told us everything we needed to know about the state of Indian agriculture in the era of synthetic inputs.</p>
-
-          <p>His father had grown the same Sona Moti wheat variety for forty years without purchasing a single bag of fertilizer. The soil was fed by cows. The pests were managed by companion planting. The yield was enough. Then the Green Revolution arrived — and with it, the promise of more. More yield. More income. More security.</p>
-
-          <h2>What "More" Cost Us</h2>
-
-          <div class="data-cards-row">
-            <div class="data-card">
-              <span class="data-card-label">Nutrient Loss</span>
-              <span class="data-card-val">30%</span>
-              <span class="data-card-desc">Decline in Zinc &amp; Iron in modern wheat vs. heirloom varieties (ICAR, 2024)</span>
-            </div>
-            <div class="data-card">
-              <span class="data-card-label">Farmer Debt</span>
-              <span class="data-card-val">&#8377;74,121</span>
-              <span class="data-card-desc">Average per-household agricultural debt in India (NSSO, 2023)</span>
-            </div>
-            <div class="data-card">
-              <span class="data-card-label">Input Cost Rise</span>
-              <span class="data-card-val">340%</span>
-              <span class="data-card-desc">Increase in synthetic fertilizer costs over the last two decades</span>
-            </div>
+          <div class="data-card">
+            <span class="data-card-label">Farmer Debt</span>
+            <span class="data-card-val">&#8377;74,121</span>
+            <span class="data-card-desc">Average per-household agricultural debt in India (NSSO, 2023)</span>
           </div>
-
-          <p>The "more" cost the farmer his independence. Hybrid seeds required repurchase every season. Synthetic fertilizers required cash upfront. Pesticides became non-negotiable once the natural soil ecosystem collapsed. Each cycle pushed the farmer deeper into a debt trap — one engineered not by laziness or poor decisions, but by a system designed to extract maximum yield from the land without regard for its long-term health.</p>
-
-          <h3>The Soil Cannot Resign</h3>
-
-          <p>Here is the part that keeps our team awake: the farmer can write a resignation letter. The soil cannot. Once you strip a piece of land of its microbial life, its carbon content, its mineral balance — it does not simply bounce back when you change your mind. The damage is measured in decades. Sometimes in generations.</p>
-
-          <img class="article-img-embed" src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1200&q=80" alt="Aerial view of farmland in Rajasthan" />
-          <span class="article-img-caption">Wheat fields in Sikar, Rajasthan — where heirloom varieties are still grown using ICBN methods. Photo: ANAAD Archives.</span>
-
-          <h2>ICBN as a Counter-Resignation</h2>
-
-          <p>Indian Cow Based Natural farming — ICBN — is not romantic nostalgia. It is a precisely documented, peer-reviewed agricultural methodology that restores soil health through the biological inputs of the desi cow: Jeevamrit, Panchagavya, Gomaya compost, and Gomutra Ark. Our farms in Gannaur, Haryana have been transitioning partner farmers to ICBN for three years. What we have observed is not a miracle. It is a restoration.</p>
-
-          <p>The resignation letter is still on that farmer's phone in Sikar. He has not deleted it. But this past Rabi season, he chose not to send it. He chose, instead, to accept ANAAD's ICBN seed and support — and to grow his family's Sona Moti wheat one more time. That choice is not guaranteed to last. But it is, right now, a beginning.</p>
-
-          <div class="pull-quote">
-            <p>"Every family that chooses to source their grain honestly is writing a counter-letter. Not to farming. To the system that tried to end it."</p>
+          <div class="data-card">
+            <span class="data-card-label">Input Cost Rise</span>
+            <span class="data-card-val">340%</span>
+            <span class="data-card-desc">Increase in synthetic fertilizer costs over the last two decades</span>
           </div>
+        </div>
 
-          <h2>What You Can Do</h2>
+        <p>The "more" cost the farmer his independence. Hybrid seeds required repurchase every season. Synthetic
+          fertilizers required cash upfront. Pesticides became non-negotiable once the natural soil ecosystem collapsed.
+          Each cycle pushed the farmer deeper into a debt trap — one engineered not by laziness or poor decisions, but
+          by a system designed to extract maximum yield from the land without regard for its long-term health.</p>
 
-          <p>The revolution starts on your plate — not in Parliament, not in policy documents. When you choose to understand where your grain comes from, who grew it, and under what conditions, you are participating in something larger than a grocery transaction. You are making a land decision. A farmer decision. A soil decision.</p>
+        <h3 id="static-3">The Soil Cannot Resign</h3>
 
-          <p>Read the batch certificate next time you order from ANAAD. Understand that the SGS lab result on the back of your flour pack is not a marketing asset. It is proof that a farmer somewhere chose not to write that letter.</p>
-        </ng-container>
+        <p>Here is the part that keeps our team awake: the farmer can write a resignation letter. The soil cannot. Once
+          you strip a piece of land of its microbial life, its carbon content, its mineral balance — it does not simply
+          bounce back when you change your mind. The damage is measured in decades. Sometimes in generations.</p>
+
+        <img class="article-img-embed"
+          src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1200&q=80"
+          alt="Aerial view of farmland in Rajasthan" />
+        <span class="article-img-caption">Wheat fields in Sikar, Rajasthan — where heirloom varieties are still grown
+          using ICBN methods. Photo: ANAAD Archives.</span>
+
+        <h2 id="static-4">ICBN as a Counter-Resignation</h2>
+
+        <p>Indian Cow Based Natural farming — ICBN — is not romantic nostalgia. It is a precisely documented,
+          peer-reviewed agricultural methodology that restores soil health through the biological inputs of the desi
+          cow: Jeevamrit, Panchagavya, Gomaya compost, and Gomutra Ark. Our farms in Gannaur, Haryana have been
+          transitioning partner farmers to ICBN for three years. What we have observed is not a miracle. It is a
+          restoration.</p>
+
+        <p>The resignation letter is still on that farmer's phone in Sikar. He has not deleted it. But this past Rabi
+          season, he chose not to send it. He chose, instead, to accept ANAAD's ICBN seed and support — and to grow his
+          family's Sona Moti wheat one more time. That choice is not guaranteed to last. But it is, right now, a
+          beginning.</p>
+
+        <div class="pull-quote">
+          <p>"Every family that chooses to source their grain honestly is writing a counter-letter. Not to farming. To
+            the system that tried to end it."</p>
+        </div>
+
+        <h2 id="static-5">What You Can Do</h2>
+
+        <p>The revolution starts on your plate — not in Parliament, not in policy documents. When you choose to
+          understand where your grain comes from, who grew it, and under what conditions, you are participating in
+          something larger than a grocery transaction. You are making a land decision. A farmer decision. A soil
+          decision.</p>
+
+        <p>Read the batch certificate next time you order from ANAAD. Understand that the SGS lab result on the back of
+          your flour pack is not a marketing asset. It is proof that a farmer somewhere chose not to write that letter.
+        </p>
 
         <div class="tags-row">
           <span class="article-tag">Farming</span>
@@ -125,93 +167,140 @@
           <span class="article-tag">Culture</span>
           <span class="article-tag">Soil Health</span>
         </div>
+      </ng-container>
 
-      </div><!-- /article-body -->
+    </div><!-- /article-body -->
 
-      <!-- SIDEBAR -->
-      <div class="article-sidebar">
-        <div class="sidebar-block">
-          <span class="sidebar-block-title">In this article</span>
-          <div class="toc-item"><span class="toc-num">01</span><span class="toc-text">The Letter That Was Never Sent</span></div>
-          <div class="toc-item"><span class="toc-num">02</span><span class="toc-text">What "More" Cost Us</span></div>
-          <div class="toc-item"><span class="toc-num">03</span><span class="toc-text">The Soil Cannot Resign</span></div>
-          <div class="toc-item"><span class="toc-num">04</span><span class="toc-text">ICBN as a Counter-Resignation</span></div>
-          <div class="toc-item"><span class="toc-num">05</span><span class="toc-text">What You Can Do</span></div>
-        </div>
-
-        <div class="sidebar-cta">
-          <span class="sidebar-cta-tag">Join the Movement</span>
-          <h4>Eat with intention. Grow with purpose.</h4>
-          <p>Get first-harvest access and full batch traceability with a Community Barn Agreement.</p>
-          <a routerLink="/commitment" class="btn-sidebar-cta">Explore CBA Tiers &#8594;</a>
-        </div>
-
-        <div class="sidebar-block">
-          <span class="sidebar-block-title">Related Research</span>
-          <div class="sidebar-research">
-            <div class="research-link"><div class="research-dot"></div><span class="research-title">The Nutritional Decay of Modern Wheat — ICAR / Down To Earth (2024)</span></div>
-            <div class="research-link"><div class="research-dot"></div><span class="research-title">Emmer vs. Bread Wheat Nutritional Comparison — Research Gate</span></div>
-            <div class="research-link"><div class="research-dot"></div><span class="research-title">Pesticide Residues in Indian Grain Supply — NIH / PubMed</span></div>
-          </div>
-          <a routerLink="/evidence" style="font-family: var(--font-sans); font-size: 12px; font-weight: 500; color: var(--green-deep); text-decoration: underline; text-underline-offset: 3px; margin-top: 8px; display: block;">View Evidence Archive &#8594;</a>
+    <!-- SIDEBAR -->
+    <div class="article-sidebar">
+      <div class="sidebar-block" *ngIf="tocItems.length > 0">
+        <span class="sidebar-block-title">In this article</span>
+        <div class="toc-list" role="navigation" aria-label="Table of Contents">
+          <button *ngFor="let item of tocItems; let idx = index" class="toc-item-btn" [class.toc-h3]="item.level === 3"
+            (click)="scrollToSection(item.id)">
+            <span class="toc-num">{{ (idx + 1) < 10 ? '0' + (idx + 1) : (idx + 1) }}</span>
+                <span class="toc-text">{{ item.text }}</span>
+          </button>
         </div>
       </div>
 
-    </div><!-- /article-layout -->
+      <div class="sidebar-cta" style="margin-bottom: 24px;">
+        <span class="sidebar-cta-tag">Dohey wnload</span>
+        <h4>Get this article as a PDF</h4>
+        <p>Request a beautifully formatted PDF version of this article for offline reading or printing.</p>
+        <button (click)="requestPdf()" class="btn-sidebar-cta" style="border: none; cursor: pointer;">Request PDF
+          &#8594;</button>
+      </div>
 
-    <!-- ARTICLE FOOTER CTA -->
-    <div class="article-footer-cta">
-      <div class="afc-left">
-        <span class="afc-tag">Take Action</span>
-        <h2>The revolution starts<br />on your plate.</h2>
-        <p>Your next grocery decision is a land decision. Choose grain that carries a name, a batch number, and a farmer behind it.</p>
-        <a routerLink="/pantry" class="btn-afc">Shop Heirloom Grains &#8594;</a>
+      <div class="sidebar-cta">
+        <span class="sidebar-cta-tag">Join the Movement</span>
+        <h4>Eat with intention. Grow with purpose.</h4>
+        <p>Get first-harvest access and full batch traceability with a Community Barn Agreement.</p>
+        <a [routerLink]="['/commitment']" fragment="tiers" class="btn-sidebar-cta">Explore CBA Tiers &#8594;</a>
+      </div>
+
+      <div class="sidebar-block">
+        <span class="sidebar-block-title">Related Research</span>
+        <div class="sidebar-research">
+          <div class="research-link">
+            <div class="research-dot"></div><span class="research-title">The Nutritional Decay of Modern Wheat — ICAR /
+              Down To Earth (2024)</span>
+          </div>
+          <div class="research-link">
+            <div class="research-dot"></div><span class="research-title">Emmer vs. Bread Wheat Nutritional Comparison —
+              Research Gate</span>
+          </div>
+          <div class="research-link">
+            <div class="research-dot"></div><span class="research-title">Pesticide Residues in Indian Grain Supply — NIH
+              / PubMed</span>
+          </div>
+        </div>
+        <a routerLink="/evidence"
+          style="font-family: var(--font-sans); font-size: 12px; font-weight: 500; color: var(--green-deep); text-decoration: underline; text-underline-offset: 3px; margin-top: 8px; display: block;">View
+          Evidence Archive &#8594;</a>
       </div>
     </div>
+  </div><!-- /article-layout -->
 
-    <!-- RELATED POSTS -->
-    <div class="related-section">
-      <div class="related-header">
-        <span class="related-tag">Continue reading</span>
-        <h2>More from the Field</h2>
+  <!-- ARTICLE FOOTER CTA -->
+  <div class="article-footer-cta">
+    <div class="afc-left">
+      <span class="afc-tag">Take Action</span>
+      <h2>The revolution starts<br />on your plate.</h2>
+      <p>Your next grocery decision is a land decision. Choose grain that carries a name, a batch number, and a farmer
+        behind it.</p>
+      <a routerLink="/products" class="btn-afc">Shop Heirloom Grains &#8594;</a>
+    </div>
+  </div>
+
+  <!-- RELATED POSTS -->
+  <div class="related-section">
+    <div class="related-header">
+      <span class="related-tag">Continue reading</span>
+      <h2>More from the Field</h2>
+    </div>
+    <div class="related-grid" *ngIf="relatedArticles.length > 0">
+      <a *ngFor="let rel of relatedArticles" [routerLink]="['/blogs', rel.id]" class="related-card">
+        <img class="related-img"
+          [src]="getImageUrl(rel.cover_image, 'https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=600&q=80')"
+          alt="Related Post" />
+        <div class="related-body">
+          <span class="related-cat">{{ displayCategory(rel.category) }}</span>
+          <span class="related-title">{{ rel.title }}</span>
+          <span class="related-read">{{ rel.read_time || '5 min read' }}</span>
+        </div>
+      </a>
+    </div>
+    <div class="related-grid" *ngIf="relatedArticles.length === 0">
+      <!-- Fallback static related -->
+      <a routerLink="/blogs/static" class="related-card">
+        <img class="related-img"
+          src="https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=600&q=80" alt="" />
+        <div class="related-body">
+          <span class="related-cat">Economy</span>
+          <span class="related-title">The Independence We Forgot to Fight For</span>
+          <span class="related-read">7 min read</span>
+        </div>
+      </a>
+      <a routerLink="/blogs/static" class="related-card">
+        <img class="related-img"
+          src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=80" alt="" />
+        <div class="related-body">
+          <span class="related-cat">Food Safety</span>
+          <span class="related-title">The Lethal Lunchbox: Is Your "Love" Actually Harm?</span>
+          <span class="related-read">9 min read</span>
+        </div>
+      </a>
+      <a routerLink="/blogs/static" class="related-card">
+        <img class="related-img"
+          src="https://images.unsplash.com/photo-1592417817098-8f3d6eb18865?auto=format&fit=crop&w=600&q=80" alt="" />
+        <div class="related-body">
+          <span class="related-cat">Food Safety</span>
+          <span class="related-title">Something "Old" is Coming to Replace Your "Modern" Diet</span>
+          <span class="related-read">9 min read</span>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <!-- Share Link Modal -->
+  <div class="share-modal-overlay" [class.active]="showShareModal()" (click)="closeShareModal()">
+    <div class="share-modal-card" (click)="$event.stopPropagation()">
+      <button class="share-modal-close" (click)="closeShareModal()" aria-label="Close modal">&times;</button>
+      <h3>Share this Article</h3>
+      <p>Copy the link below to share this story with your friends, family, or paste it directly into your social media posts.</p>
+      
+      <div class="share-input-group">
+        <input type="text" readonly [value]="shareUrl()" #shareInput />
+        <button class="btn-modal-copy" [class.copied]="linkCopied()" (click)="copyShareLink(shareInput)">
+          {{ linkCopied() ? 'Copied!' : 'Copy Link' }}
+        </button>
       </div>
-      <div class="related-grid" *ngIf="relatedArticles.length > 0">
-        <a *ngFor="let rel of relatedArticles" [routerLink]="['/blog-post', rel.id]" class="related-card">
-          <img class="related-img" [src]="rel.cover_image || 'https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=600&q=80'" alt="Related Post" />
-          <div class="related-body">
-            <span class="related-cat">{{ rel.category || 'Article' }}</span>
-            <span class="related-title">{{ rel.title }}</span>
-            <span class="related-read">{{ rel.read_time || '5 min read' }}</span>
-          </div>
-        </a>
-      </div>
-      <div class="related-grid" *ngIf="relatedArticles.length === 0">
-        <!-- Fallback static related -->
-        <a routerLink="/blog-post/static" class="related-card">
-          <img class="related-img" src="https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=600&q=80" alt="" />
-          <div class="related-body">
-            <span class="related-cat">Economy</span>
-            <span class="related-title">The Independence We Forgot to Fight For</span>
-            <span class="related-read">7 min read</span>
-          </div>
-        </a>
-        <a routerLink="/blog-post/static" class="related-card">
-          <img class="related-img" src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=80" alt="" />
-          <div class="related-body">
-            <span class="related-cat">Food Safety</span>
-            <span class="related-title">The Lethal Lunchbox: Is Your "Love" Actually Harm?</span>
-            <span class="related-read">9 min read</span>
-          </div>
-        </a>
-        <a routerLink="/blog-post/static" class="related-card">
-          <img class="related-img" src="https://images.unsplash.com/photo-1592417817098-8f3d6eb18865?auto=format&fit=crop&w=600&q=80" alt="" />
-          <div class="related-body">
-            <span class="related-cat">Food Safety</span>
-            <span class="related-title">Something "Old" is Coming to Replace Your "Modern" Diet</span>
-            <span class="related-read">9 min read</span>
-          </div>
-        </a>
+      
+      <div class="share-copy-feedback">
+        <span *ngIf="linkCopied()">&#10003; Link copied to clipboard successfully!</span>
       </div>
     </div>
+  </div>
   }
 </div>

@@ -53,20 +53,25 @@ export class ProductService {
   }
 
   private normalizeVariant(variant: ProductVariant): ProductVariant {
-    const category: ProductCategory | undefined = variant.category ?? (variant.product_category
-      ? { id: 0, name: variant.product_category }
+    let normalized = { ...variant };
+
+    // Map categories properly based on revised category names
+    let category: ProductCategory | undefined = normalized.category ?? (normalized.product_category
+      ? { id: Number((normalized as any).product_category_id) || 0, name: normalized.product_category }
       : undefined);
-    const images = variant.images?.length ? variant.images : (variant.product_images ?? []);
-    const finalPrice = variant.final_price ?? variant.price;
+
+    const images = normalized.images?.length ? normalized.images : (normalized.product_images ?? []);
+    const finalPrice = normalized.final_price ?? normalized.price;
+
     return {
-      ...variant,
+      ...normalized,
       category,
       images,
-      unit: variant.unit ?? variant.weight_unit ?? '',
-      stock: variant.stock ?? (variant as any).stock_quantity ?? (variant.is_in_stock === false ? 0 : 10),
+      unit: normalized.unit ?? normalized.weight_unit ?? '',
+      stock: normalized.stock ?? (normalized as any).stock_quantity ?? (normalized.is_in_stock === false ? 0 : 10),
       price: finalPrice,
-      compare_at_price: variant.compare_at_price ?? (variant.final_price ? variant.price : undefined),
-      is_available: variant.is_available ?? variant.is_active ?? variant.is_in_stock ?? true,
+      compare_at_price: normalized.compare_at_price ?? (normalized.final_price ? normalized.price : undefined),
+      is_available: normalized.is_available ?? normalized.is_active ?? normalized.is_in_stock ?? true,
     };
   }
 }

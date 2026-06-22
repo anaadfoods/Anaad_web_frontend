@@ -39,6 +39,7 @@ export class SubscriptionDetailComponent implements OnInit, OnDestroy {
   pauseStartDate = '';
   pauseEndDate = '';
   showPauseForm = signal<boolean>(false);
+  showCancelModal = signal<boolean>(false);
   pauseLoading = signal<boolean>(false);
 
   isVerifyingPayment = signal<boolean>(false);
@@ -150,20 +151,23 @@ export class SubscriptionDetailComponent implements OnInit, OnDestroy {
   }
 
   cancelSubscription() {
+    this.showCancelModal.set(true);
+  }
+
+  cancelSubscriptionConfirmed() {
     const subscription = this.subscriptionData();
     if (!subscription) return;
 
-    if (confirm('Are you sure you want to cancel this subscription? This action cannot be undone.')) {
-      this.subscriptionSvc.cancelSubscription(subscription.id).subscribe({
-        next: () => {
-          alert('Subscription cancelled successfully');
-          this.loadSubscriptionDetails(subscription.id.toString());
-        },
-        error: () => {
-          alert('Failed to cancel subscription');
-        }
-      });
-    }
+    this.showCancelModal.set(false);
+    this.subscriptionSvc.cancelSubscription(subscription.id).subscribe({
+      next: () => {
+        alert('Subscription cancelled successfully');
+        this.loadSubscriptionDetails(subscription.id.toString());
+      },
+      error: () => {
+        alert('Failed to cancel subscription');
+      }
+    });
   }
 
   payNextInstallment() {
@@ -254,6 +258,15 @@ export class SubscriptionDetailComponent implements OnInit, OnDestroy {
     // const status = this.paymentStatus();
     // return status?.installment_payment_status === 'PENDING';
     return false;
+  }
+
+  getPendingDeliveries(): number {
+    const sub = this.subscriptionData();
+    if (!sub) return 0;
+    const total = sub.total_deliveries ?? 0;
+    const completed = sub.completed_deliveries ?? 0;
+    const pending = total - completed;
+    return pending > 0 ? pending : 0;
   }
 
   formatDate(date: string | undefined | null): string {

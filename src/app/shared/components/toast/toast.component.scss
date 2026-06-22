@@ -74,14 +74,32 @@
   }
 }
 
-@media (max-width: 600px) {
+@keyframes slideDown {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@media (max-width: 768px) {
   .toast-container {
-    bottom: 24px;
-    right: 24px;
-    left: 24px;
+    bottom: auto;
+    right: auto;
+    top: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    align-items: center;
+    width: 100%;
+    padding: 0 16px;
   }
   .toast-message {
     min-width: 0;
     width: 100%;
+    max-width: 400px;
+    animation: slideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
 }

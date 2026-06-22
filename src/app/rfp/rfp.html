@@ -288,7 +288,67 @@
         <span class="field-hint error" *ngIf="rfpForm.get('message')?.touched && rfpForm.get('message')?.invalid">Message is required (min 10 characters).</span>
       </div>
 
-      <button type="submit" class="submit-btn" [disabled]="submitting() || rfpForm.invalid">
+      <!-- OTP VERIFICATION SECTION -->
+      <div class="otp-verification-section">
+        <ng-container *ngIf="otpStep() === 'idle'">
+          <button type="button" class="otp-trigger-btn" (click)="startOtpVerification()" [disabled]="rfpForm.get('phoneNumber')?.invalid && rfpForm.get('email')?.invalid">
+            🔐 Verify Your Identity (Required)
+          </button>
+          <p class="otp-hint">You must verify via OTP before submitting the form.</p>
+        </ng-container>
+
+        <ng-container *ngIf="otpStep() === 'choosing'">
+          <div class="otp-method-chooser">
+            <p class="otp-label">Choose verification method:</p>
+            <div class="otp-method-btns">
+              <button type="button" class="otp-method-btn" (click)="sendOtp('phone')" [disabled]="rfpForm.get('phoneNumber')?.invalid || otpSending()">
+                📱 Verify via Phone
+              </button>
+              <button type="button" class="otp-method-btn" (click)="sendOtp('email')" [disabled]="rfpForm.get('email')?.invalid || otpSending()">
+                📧 Verify via Email
+              </button>
+            </div>
+            <p class="otp-sending" *ngIf="otpSending()">Sending OTP...</p>
+          </div>
+        </ng-container>
+
+        <ng-container *ngIf="otpStep() === 'sent'">
+          <div class="otp-input-section">
+            <p class="otp-label">Enter the OTP sent to your {{ otpMethod() === 'phone' ? 'phone' : 'email' }}:</p>
+            <p class="otp-success-msg" *ngIf="otpSuccessMsg()">{{ otpSuccessMsg() }}</p>
+            <div class="otp-input-row">
+              <input
+                type="text"
+                class="otp-input"
+                placeholder="Enter OTP"
+                maxlength="8"
+                [value]="otpValue()"
+                (input)="onOtpInput($event)"
+              />
+              <button type="button" class="otp-verify-btn" (click)="verifyOtp()" [disabled]="otpVerifying() || !otpValue()">
+                {{ otpVerifying() ? 'Verifying...' : 'Verify' }}
+              </button>
+            </div>
+            <div class="otp-actions-row">
+              <button type="button" class="otp-resend-btn" (click)="resendOtp()" [disabled]="otpResendTimer() > 0">
+                {{ otpResendTimer() > 0 ? 'Resend in ' + otpResendTimer() + 's' : 'Resend OTP' }}
+              </button>
+              <button type="button" class="otp-change-btn" (click)="resetOtp()">Change Method</button>
+            </div>
+          </div>
+        </ng-container>
+
+        <ng-container *ngIf="otpStep() === 'verified'">
+          <div class="otp-verified-badge">
+            <span class="verified-icon">✓</span>
+            <span>Identity verified successfully via {{ otpMethod() === 'phone' ? 'Phone' : 'Email' }}</span>
+          </div>
+        </ng-container>
+
+        <p class="otp-error-msg" *ngIf="otpError()">{{ otpError() }}</p>
+      </div>
+
+      <button type="submit" class="submit-btn" [disabled]="submitting() || rfpForm.invalid || otpStep() !== 'verified'">
         {{ submitting() ? 'SUBMITTING REQUEST...' : 'Submit RFP Inquiry &#8594;' }}
       </button>
       <p class="form-note">Our team will contact you within 72 hours. No commitment required at this stage.</p>

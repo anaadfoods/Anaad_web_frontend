@@ -1,108 +1,174 @@
 <div class="registry-page-wrap">
 
   <div class="page-hero-dark">
-    <div class="section-label">Open Access &nbsp;&middot;&nbsp; No Login Required &nbsp;&middot;&nbsp; Updated Per Harvest Cycle</div>
-    <h1>The complete record of everything<br>we <em>grow and test.</em></h1>
-    <p>47 batches. 12,400+ data points. Zero selective disclosure. This is not a highlights page — it is an unedited public archive.</p>
-    <div class="hero-dark-meta">
-      <div class="hero-meta-item">
-        <div class="hero-meta-label">Batches Published</div>
-        <div class="hero-meta-value">47</div>
-      </div>
-      <div class="hero-meta-item">
-        <div class="hero-meta-label">Data Points Verified</div>
-        <div class="hero-meta-value">12,400+</div>
-      </div>
-    </div>
+    <div class="section-label">Trace your food from field to shelf.</div>
+    <h1>Product <em>Registry</em></h1>
+    <p>At ANAAD, trust is built on transparency. That means every product you receive can be traced back to the field where it was grown, the batch it came from, and the care that went into making it.</p>
+    <p style="margin-top: 16px;">This registry is not about a single certificate. It is about sharing real records for every batch of every product we offer. From grain to flour and any other items we produce, you will find batch-level details that show where the food came from and how it was handled.</p>
   </div>
 
-  <!-- SUBSCRIPTION PLANS SECTION -->
-  <section class="plans-section">
-    <div class="plans-header">
-      <span class="section-label">ANAAD · COMMITMENT</span>
-      <h2>Lock in freshness.<br><em>Season after season.</em></h2>
-      <p>A Commitment subscription is not a delivery service. It is a direct financial relationship between your household and our acreage. Choose your tier below.</p>
-    </div>
+  <!-- TRUST DOWNLOADABLE WIDGET -->
+  <section class="trust-downloadable" style="padding: clamp(40px, 6vw, 64px) clamp(24px, 5vw, 64px); background-color: var(--bg-parchment); text-align: center; border-bottom: 1px solid rgba(26,26,26,0.10);">
+    <h2 style="font-family: var(--font-serif); font-size: 32px; color: var(--charcoal); margin-bottom: 16px;">We believe trust should be downloadable.</h2>
+    <p style="font-family: var(--font-sans); font-size: 16px; color: var(--text-faded, rgba(26,26,26,0.7)); line-height: 1.6; max-width: 700px; margin: 0 auto;">
+      Every batch record is available to download. You can access field details, handling steps, and batch information in a file you can keep, share, or verify at any time.
+    </p>
+  </section>
 
-    <div class="plans-loading" *ngIf="loading()">Loading subscription plans...</div>
-    <div class="plans-error" *ngIf="error()">{{ error() }}</div>
-
-    <div class="plans-grid" *ngIf="!loading() && plans().length > 0">
-      @for (plan of plans(); track plan.id) {
-        <div [ngClass]="['plan-card', 'duration-' + plan.duration_months]" [class.featured]="plan.duration_months === 6">
-          <div class="plan-header">
-            <span class="plan-duration-badge">{{ getDurationLabel(plan.duration_months) }}</span>
-            <span class="plan-featured-badge" *ngIf="plan.duration_months === 6">Most Chosen</span>
-            <span class="plan-discount-badge" *ngIf="getDiscountLabel(plan)">{{ getDiscountLabel(plan) }}</span>
-          </div>
-          <h3 class="plan-name">{{ getPlanCustomName(plan.duration_months) }}</h3>
-          <p class="plan-tagline">{{ getPlanCustomHeadline(plan.duration_months) }}</p>
-          <p class="plan-desc">{{ getPlanCustomSub(plan.duration_months) }}</p>
-          <div class="plan-features">
-            <div class="plan-feature" *ngIf="plan.allows_installments">
-              <span>&#10003;</span> Installment option available
-            </div>
-            <div class="plan-feature">
-              <span>&#10003;</span> Free cold-chain delivery
-            </div>
-            <div class="plan-feature">
-              <span>&#10003;</span> Pause or cancel anytime
-            </div>
-          </div>
-          <a routerLink="/login" [queryParams]="{returnUrl: '/registry'}" class="plan-cta" *ngIf="!authState.isAuthenticated()">
-            Subscribe Now
-          </a>
-          <a routerLink="/products" class="plan-cta" *ngIf="authState.isAuthenticated()">
-            Choose Products
-          </a>
-        </div>
-      }
-    </div>
-
-    <div class="no-plans" *ngIf="!loading() && plans().length === 0 && !error()">
-      <p>No subscription plans are currently available. Check back soon.</p>
-    </div>
+  <!-- SUBSCRIPTION PLANS WIDGET -->
+  <section class="plans-wrapper" style="padding-block: 64px 32px;">
+    <app-subscription-plans [isCoverflow]="true"></app-subscription-plans>
   </section>
 
   <!-- BATCH LEDGER -->
-  <section class="ledger">
+  <section class="ledger" id="ledger">
     <div class="ledger-header" style="flex-direction: column; align-items: flex-start; gap: 16px;">
       <div class="ledger-header-left">
-        <h2>The Batch <em>Ledger</em></h2>
-        <p style="font-family: var(--font-sans); font-size: 14px; color: var(--text-faded, rgba(26,26,26,0.6)); line-height: 1.6; max-width: 800px; margin-top: 8px;">
-          Every harvest from our Sonipat farm is submitted to SGS India Pvt. Ltd. for independent residue analysis before a single gram is milled or dispatched. The results below are published in full — not curated, not filtered. If a batch ever fails, it will appear here too.
+        <h2>Batch <em>Ledger</em></h2>
+        <p style="font-family: var(--font-sans); font-size: 14px; color: var(--text-faded, rgba(26,26,26,0.55)); line-height: 1.6; max-width: 800px; margin-top: 8px;">
+          The Batch Ledger is the central record for all ANAAD products. It lists every batch across all product lines, not just grain. Each entry includes the field where the product was grown, the harvest date, processing details, packaging information, and the path it followed before reaching you.
         </p>
+        <!-- <p style="font-family: var(--font-sans); font-size: 13px; font-weight: 500; color: var(--amber-harvest); margin-top: 12px;">
+          If you have a specific batch, you can search using the Batch ID and access the full record for that product.
+        </p> -->
       </div>
-      <div class="ledger-filter">
-        <button class="filter-chip" [class.active]="filter === 'All'" (click)="setFilter('All')">All Batches</button>
-        <button class="filter-chip" [class.active]="filter === 'Wheat'" (click)="setFilter('Wheat')">Wheat</button>
-        <button class="filter-chip" [class.active]="filter === 'Rice'" (click)="setFilter('Rice')">Rice</button>
-        <button class="filter-chip" [class.active]="filter === 'Pulses'" (click)="setFilter('Pulses')">Pulses</button>
-        <button class="filter-chip" [class.active]="filter === 'Millets'" (click)="setFilter('Millets')">Millets</button>
-      </div>
+      <!-- <div class="ledger-filter">
+        <button class="filter-chip" [class.active]="filter() === 'All'" (click)="setFilter('All')">All Batches</button>
+        <button class="filter-chip" [class.active]="filter() === 'Wheat'" (click)="setFilter('Wheat')">Wheat</button>
+        <button class="filter-chip" [class.active]="filter() === 'Rice'" (click)="setFilter('Rice')">Rice</button>
+        <button class="filter-chip" [class.active]="filter() === 'Pulses'" (click)="setFilter('Pulses')">Pulses / Mustard</button>
+        <button class="filter-chip" [class.active]="filter() === 'Millets'" (click)="setFilter('Millets')">Millets</button>
+      </div> -->
     </div>
 
-    <div class="batch-table">
-      <div class="batch-table-head">
-        <span>Batch ID</span>
-        <span>Harvest Date</span>
-        <span>Crop Variety</span>
-        <span>Pesticide Result</span>
-        <span>Independent Certifier</span>
-        <span>Full Report</span>
+    <!-- LOADING STATE -->
+    @if (isLoading()) {
+      <div class="ledger-loading-container">
+        <div class="ledger-spinner"></div>
+        <p class="ledger-state-text">Loading farm registry records...</p>
       </div>
+    }
 
-      @for (b of filteredBatches(); track b.id) {
-      <div class="batch-row">
-        <span class="batch-id">{{ b.id }}</span>
-        <span class="batch-date">{{ b.date }}</span>
-        <span class="batch-variety">{{ b.variety }}</span>
-        <span class="batch-result" [class.pass]="b.pass">{{ b.result }}</span>
-        <span class="batch-certifier">SGS India Pvt. Ltd.</span>
-        <span class="batch-link"><a href="mailto:farm@anaadfoods.com?subject=Request for Lab Report - Batch {{ b.id }}" class="report-email-link">Request via email</a></span>
+    <!-- ERROR STATE -->
+    @else if (error()) {
+      <div class="ledger-error-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="48" height="48" fill="var(--amber-harvest)">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+        </svg>
+        <p class="ledger-state-text">{{ error() }}</p>
+        <button class="retry-btn" (click)="loadCrops()">Retry Loading</button>
       </div>
+    }
+
+    <!-- DATA STATE -->
+    @else {
+      @if (filteredCrops().length === 0) {
+        <div class="ledger-empty-container">
+          <p class="ledger-state-text">No batch records found matching the selection.</p>
+        </div>
+      } @else {
+        <!-- Desktop/Tablet Layout (Visible on larger screens) -->
+        <div class="batch-table-desktop">
+          <div class="batch-table">
+            <div class="batch-table-head" style="grid-template-columns: 1.3fr 100px 1.3fr 110px 110px 115px 90px 150px;">
+              <span>Product</span>
+              <span>Batch ID</span>
+              <span>Field / Location</span>
+              <span>Harvest Date</span>
+              <span>Processing Date</span>
+              <span>Packaging Type</span>
+              <span>Status</span>
+              <span>Record</span>
+            </div>
+
+            @for (c of filteredCrops(); track c.crop_id) {
+              <div class="batch-row" style="grid-template-columns: 1.3fr 100px 1.3fr 110px 110px 115px 90px 150px;">
+                <span class="batch-variety">{{ c.crop_name }}</span>
+                <span class="batch-id">{{ c.crop_id }}</span>
+                <span class="batch-variety secondary-text">{{ getLocation(c) }}</span>
+                <span class="batch-date">{{ getHarvestDate(c) }}</span>
+                <span class="batch-date">{{ getProcessingDate(c) }}</span>
+                <span class="batch-variety secondary-text">{{ getPackaging(c) }}</span>
+                <span class="batch-result" [class.pass]="getStatus(c) === 'Verified' || getStatus(c) === 'Available'">{{ getStatus(c) }}</span>
+                <span class="batch-link">
+                  @if (hasPhotos(c)) {
+                    <div class="report-links-container">
+                      @for (report of c.reports; track report.title) {
+                        @for (photo of report.photos; track photo; let idx = $index) {
+                          <button class="download-btn-small" (click)="downloadFile(photo, c.crop_id + '_doc_' + (idx + 1) + '.jpg')" [title]="getFilename(photo, c.crop_id + '_doc_' + (idx + 1) + '.jpg')">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="12" height="12" fill="currentColor">
+                              <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/>
+                            </svg>
+                          </button>
+                        }
+                      }
+                    </div>
+                  } @else {
+                    <a href="mailto:farm@anaadfoods.com?subject=Request for Batch Record - {{ c.crop_id }}" class="report-email-link" title="Request records for this batch">Request</a>
+                  }
+                </span>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Mobile Layout (Visible on screens < 768px) -->
+        <div class="batch-cards-mobile">
+          @for (c of filteredCrops(); track c.crop_id) {
+            <div class="batch-card-mobile">
+              <div class="card-header">
+                <span class="crop-name">{{ c.crop_name }}</span>
+                <span class="status-badge" [class.pass]="getStatus(c) === 'Verified' || getStatus(c) === 'Available'">{{ getStatus(c) }}</span>
+              </div>
+              
+              <div class="card-body">
+                <div class="info-row">
+                  <span class="label">Batch ID:</span>
+                  <span class="value batch-id-badge">{{ c.crop_id }}</span>
+                </div>
+                <div class="info-row">
+                  <span class="label">Location:</span>
+                  <span class="value">{{ getLocation(c) }}</span>
+                </div>
+                <div class="info-row">
+                  <span class="label">Harvest Date:</span>
+                  <span class="value">{{ getHarvestDate(c) }}</span>
+                </div>
+                <div class="info-row">
+                  <span class="label">Processing:</span>
+                  <span class="value">{{ getProcessingDate(c) }}</span>
+                </div>
+                <div class="info-row">
+                  <span class="label">Packaging:</span>
+                  <span class="value">{{ getPackaging(c) }}</span>
+                </div>
+              </div>
+              
+              <div class="card-footer">
+                <span class="footer-label">Records:</span>
+                <div class="footer-content">
+                  @if (hasPhotos(c)) {
+                    <div class="report-links-container">
+                      @for (report of c.reports; track report.title) {
+                        @for (photo of report.photos; track photo; let idx = $index) {
+                          <button class="download-btn-small" (click)="downloadFile(photo, c.crop_id + '_doc_' + (idx + 1) + '.jpg')" [title]="getFilename(photo, c.crop_id + '_doc_' + (idx + 1) + '.jpg')">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="11" height="11" fill="currentColor">
+                              <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/>
+                            </svg>
+                          </button>
+                        }
+                      }
+                    </div>
+                  } @else {
+                    <a href="mailto:farm@anaadfoods.com?subject=Request for Batch Record - {{ c.crop_id }}" class="report-email-link" title="Request records for this batch">Request via Email</a>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+        </div>
       }
-    </div>
+    }
   </section>
 
 </div>

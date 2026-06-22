@@ -26,19 +26,19 @@ export class TermsConditionsComponent implements OnInit {
       next: docs => {
         let doc;
         if (url.includes('refund-policy')) {
-          doc = docs.find(d => (d as any).is_refund_policy);
+          doc = docs.find(d => d.type_display?.toLowerCase().includes('refund'));
           this.title.set('Refund Policy');
         } else if (url.includes('shipping-policy')) {
-          doc = docs.find(d => (d as any).is_shipping_policy);
+          doc = docs.find(d => d.type_display?.toLowerCase().includes('shipping'));
           this.title.set('Shipping Policy');
         } else {
-          doc = docs.find(d => d.is_terms_and_conditions);
+          doc = docs.find(d => d.type_display?.toLowerCase().includes('terms'));
           this.title.set('Terms & Conditions');
         }
         
         if (doc) {
           this.content.set(doc.content);
-          this.title.set(doc.title);
+          this.title.set(doc.type_display);
         } else {
           // Provide fallback content
           if (url.includes('refund-policy')) {
@@ -85,3 +85,4 @@ export class TermsConditionsComponent implements OnInit {
     });
   }
 }
+

@@ -16,7 +16,7 @@ export class Soil implements OnInit {
   private metaSvc = inject(Meta);
 
   ngOnInit() {
-    this.titleSvc.setTitle('Our Soil — 6 Years of ICBN Restoration | ANAAD Foods');
+    this.titleSvc.setTitle('Our Soil — 3 Years of ICBN Restoration | ANAAD Foods');
     this.metaSvc.updateTag({
       name: 'description',
       content: '28 acres of Sonipat farmland restored from chemical exhaustion to biological life using Indigenous Cow-Based Natural farming. Zero pesticide residue since Year 2. The full story, method, and calendar.'

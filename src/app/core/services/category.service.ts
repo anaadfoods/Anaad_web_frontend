@@ -5,7 +5,7 @@
 
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { catchError, Observable, of, shareReplay } from 'rxjs';
+import { catchError, map, Observable, of, shareReplay } from 'rxjs';
 import { API } from '../constants/api-endpoints';
 import { ProductCategory } from '../models/product.model';
 
@@ -21,6 +21,26 @@ export class CategoryService {
       this.categories$ = this.http
         .get<ProductCategory[]>(API.PRODUCTS.CATEGORIES)
         .pipe(
+          map(cats => {
+            const mapped = cats.map(c => {
+              if (c.name === 'cold pressed flour') {
+                return { ...c, name: 'Wheat Flour' };
+              }
+              return c;
+            }).filter(c => c.name !== 'Vegetables');
+
+            // Inject Millets category dynamically
+            mapped.push({
+              id: 99,
+              name: 'Millets',
+              description: 'Heirloom millets',
+              image: '',
+              is_active: true,
+              products_count: 1
+            });
+
+            return mapped;
+          }),
           catchError(() => of([])),
           shareReplay({ bufferSize: 1, refCount: true })
         );

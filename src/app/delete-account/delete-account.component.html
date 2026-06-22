@@ -8,6 +8,17 @@
         <p>This action is permanent and cannot be undone. All your data, order history, and subscription records will be removed.</p>
       </div>
 
+      <div class="deactivation-consequences">
+        <h4>What happens when you delete your account:</h4>
+        <ul>
+          <li>Your personal profile, contact information, and saved addresses will be permanently deleted.</li>
+          <li>Any active Community Barn Agreement subscriptions will be immediately cancelled.</li>
+          <li>You will lose lifetime access to your order history, receipts, and invoice records.</li>
+          <li>Any accrued referral rewards, benefits, or active waitlist points will be permanently forfeited.</li>
+          <li>You will be logged out instantly and will not be able to log back in using these credentials.</li>
+        </ul>
+      </div>
+
       <div class="da-error" *ngIf="error()">{{ error() }}</div>
 
       <form [formGroup]="passwordForm" (ngSubmit)="submitPassword()" novalidate>

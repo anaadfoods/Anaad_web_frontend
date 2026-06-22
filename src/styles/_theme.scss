@@ -51,11 +51,11 @@ $space-16: 64px;
 
 // CSS custom properties (runtime)
 :root {
-  --color-primary: #{$color-primary};
-  --color-primary-600: #{$color-primary-600};
+  --color-primary: var(--green-mid);
+  --color-primary-600: #2f4634;
   --color-secondary: #{$color-secondary};
   --color-accent: #{$color-accent};
-  --color-bg: #{$color-bg};
+  --color-bg: var(--bg-parchment);
   --color-surface: #{$color-surface};
   --color-text: #{$color-text};
   --color-text-muted: #{$color-text-muted};
@@ -74,6 +74,11 @@ $space-16: 64px;
   --border-subtle:    #{$border-subtle};
   --text-faded:       #{$text-faded};
   --text-ghost:       #{$text-ghost};
+
+  /* Section Spacing Tiers */
+  --section-pad-xl: clamp(4rem, 8vw, 8rem);
+  --section-pad-lg: clamp(3rem, 6vw, 6rem);
+  --section-pad-md: clamp(2rem, 4vw, 4rem);
 
   /* Typography families (Google alternatives for now) */
   --font-sans: 'DM Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
@@ -107,6 +112,7 @@ body { color: var(--color-text); background: var(--color-bg); font-family: var(-
 .container {
   width: min(1200px, 100% - 32px);
   margin-inline: auto;
+  padding-inline: clamp(1.25rem, 5vw, 4rem);
 }
 
 .btn {
@@ -164,3 +170,13 @@ body { color: var(--color-text); background: var(--color-bg); font-family: var(-
   transition: top 0.2s ease;
 }
 .skip-link:focus { top: 8px; outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, #fff 60%, transparent); }
+
+/* ───────────────────────────────────────
+   DOCUMENTED SITE-WIDE Z-INDEX SCALE:
+   - 100: Sticky headers / navigation bars
+   - 200: Tooltips and inline popovers
+   - 300: Standard dropdowns
+   - 400: Modals / overlays
+   - 500: Toasts / top-level alerts
+   ─────────────────────────────────────── */
+

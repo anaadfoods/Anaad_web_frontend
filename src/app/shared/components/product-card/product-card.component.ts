@@ -15,14 +15,18 @@ import { AuthState } from '../../../core/state/auth.state';
   standalone: true,
   imports: [CommonModule, RouterLink, CurrencyInrPipe, TruncatePipe, SafeImageDirective],
   template: `
-    <div class="product-card">
-      <a [routerLink]="['/products', variant.id]" class="product-image-wrap">
+    <div class="product-card" [class.blurred]="!hasStock() || !isActive()" [attr.aria-disabled]="!hasStock() || !isActive()" [routerLink]="hasStock() && isActive() ? ['/products', variant.id] : null" [style.cursor]="hasStock() && isActive() ? 'pointer' : 'default'">
+      <div class="product-image-wrap">
         <img
           [src]="variant.images[0]?.image || ''" appSafeImage
           [alt]="variant.product_name"
         />
+        
+        <div class="coming-soon-overlay" *ngIf="!isActive()">Coming Soon</div>
+        <div class="out-of-stock-overlay" *ngIf="isActive() && !hasStock()">Out of Stock</div>
+
         <!-- Optional Discount Badge -->
-        <div class="badge-discount" *ngIf="hasDiscount()">
+        <div class="badge-discount" *ngIf="hasDiscount() && isActive() && hasStock()">
           -{{ discountPercent() }}%
         </div>
         
@@ -35,14 +39,20 @@ import { AuthState } from '../../../core/state/auth.state';
                   stroke-width="2"/>
           </svg>
         </button>
-      </a>
+      </div>
       
       <div class="product-body">
         <div class="product-tagline">{{ variant.category?.name || 'Heirloom Staple' }}</div>
         
-        <a [routerLink]="['/products', variant.id]" class="product-title-link">
+        <div class="product-title-link">
           <h3>{{ variant.product_name }}</h3>
-        </a>
+        </div>
+
+        <div class="product-micro-badges">
+          <span>✓ ICBN Grown</span>
+          <span>✓ SGS Verified</span>
+          <span>✓ Batch Traceable</span>
+        </div>
         
         <p class="product-desc">{{ variant.product_description | truncate: 120 }}</p>
         
@@ -59,16 +69,16 @@ import { AuthState } from '../../../core/state/auth.state';
           <button
             type="button"
             class="btn-product"
-            (click)="onAddToCart()"
-            [disabled]="!hasStock()">
-            {{ hasStock() ? 'Add to Cart' : 'Out of Stock' }}
+            (click)="$event.stopPropagation(); onAddToCart()"
+            [disabled]="!hasStock() || !isActive()">
+            {{ !isActive() ? 'Coming Soon' : (!hasStock() ? 'Out of Stock' : 'Add to Cart') }}
           </button>
           <button
             type="button"
             class="btn-product secondary"
-            (click)="onSubscribeNow()"
-            [disabled]="!hasStock()">
-            Subscribe Now
+            (click)="$event.stopPropagation(); onSubscribeNow()"
+            [disabled]="!hasStock() || !isActive()">
+            Commit & Buy
           </button>
         </div>
         <button type="button" class="btn-save-row" [class.active]="isFavorite()" (click)="toggleFavorite($event)">
@@ -89,14 +99,20 @@ import { AuthState } from '../../../core/state/auth.state';
       height: 100%;
     }
 
-    .product-card:hover {
+    .product-card:hover:not(.blurred) {
       transform: translateY(-8px);
       box-shadow: 0 20px 40px rgba(44, 74, 30, 0.08);
     }
 
+    .product-card.blurred {
+      opacity: 0.6;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
     .product-image-wrap {
       position: relative;
-      aspect-ratio: 1 / 1;
+      aspect-ratio: 4 / 3;
       overflow: hidden;
       display: block;
       background: var(--bg-parchment, #F5F0E8);
@@ -105,12 +121,50 @@ import { AuthState } from '../../../core/state/auth.state';
     .product-image-wrap img {
       width: 100%;
       height: 100%;
+      aspect-ratio: 4 / 3;
       object-fit: cover;
+      object-position: center;
       transition: transform 0.6s ease;
+      transform: scale(1.35);
+      transform-origin: center center;
     }
 
     .product-card:hover .product-image-wrap img {
-      transform: scale(1.05);
+      transform: scale(1.42);
+    }
+
+    .out-of-stock-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: rgba(255, 255, 255, 0.45);
+      backdrop-filter: blur(4px);
+      color: var(--charcoal, #1A1A1A);
+      font-family: var(--font-sans, 'DM Sans', sans-serif);
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      z-index: 10;
+    }
+
+    .coming-soon-overlay {
+      position: absolute;
+      inset: auto 0 0 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: var(--amber-harvest, #E09E3E);
+      color: #fff;
+      font-family: var(--font-sans, 'DM Sans', sans-serif);
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      z-index: 10;
+      padding: 12px;
     }
 
     .badge-discount {
@@ -157,7 +211,7 @@ import { AuthState } from '../../../core/state/auth.state';
     }
 
     .product-body {
-      padding: 24px;
+      padding: 20px;
       display: flex;
       flex-direction: column;
       flex-grow: 1;
@@ -182,7 +236,7 @@ import { AuthState } from '../../../core/state/auth.state';
       font-size: 24px;
       font-weight: 600;
       color: var(--green-deep, #2C4A1E);
-      margin-bottom: 12px;
+      margin-bottom: 8px;
       line-height: 1.2;
     }
 
@@ -191,7 +245,7 @@ import { AuthState } from '../../../core/state/auth.state';
       font-size: 14px;
       color: rgba(26, 26, 26, 0.7);
       line-height: 1.5;
-      margin-bottom: 24px;
+      margin-bottom: 16px;
       flex-grow: 1;
     }
 
@@ -200,9 +254,9 @@ import { AuthState } from '../../../core/state/auth.state';
       flex-direction: row;
       align-items: flex-end;
       justify-content: space-between;
-      margin-bottom: 24px;
+      margin-bottom: 16px;
       border-top: 1px solid rgba(26, 26, 26, 0.08);
-      padding-top: 16px;
+      padding-top: 12px;
     }
 
     .product-format {
@@ -290,6 +344,23 @@ import { AuthState } from '../../../core/state/auth.state';
       color: var(--green-deep, #2C4A1E);
       font-weight: 600;
     }
+
+    .product-micro-badges {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+    .product-micro-badges span {
+      font-family: var(--font-sans, 'DM Sans', sans-serif);
+      font-size: 10px;
+      font-weight: 500;
+      color: var(--green-deep, #2C4A1E);
+      background-color: rgba(44, 74, 30, 0.06);
+      padding: 2px 6px;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
   `]
 })
 export class ProductCardComponent {
@@ -339,6 +410,11 @@ export class ProductCardComponent {
       return stockQty > 0;
     }
     return this.variant.is_in_stock !== false;
+  }
+
+  isActive(): boolean {
+    if (!this.variant) return false;
+    return this.variant.is_active !== false;
   }
 
   onAddToCart() {

@@ -65,16 +65,22 @@ export class PlansService {
       return fallback && fallback.toLowerCase() !== 'null' ? fallback : '';
     };
 
+    let subtitle = fix(p.tagline) || 'Essential Staples';
+    let description = fix(p.description) || '';
+    
+    // Default perks if none are provided
+    let perks = [
+      p.duration_months === 1 ? '1 Month supply' : p.duration_months === 3 ? '3 Months supply' : p.duration_months === 6 ? '6 Months supply' : '12 Months supply',
+      "Pay in full upfront",
+      `${Math.round(p.total_discount_percentage)}% Total Discount`
+    ];
+
     return {
       id: String(p.id),
       title: fix(p.name),
-      description: fix(pickDesc(p.description, p.tagline)),
-      subtitle: fix(p.tagline) || 'Essential Staples',
-      perks: [
-        'Pure Sona Moti & Kathiya Wheat',
-        p.allows_installments ? `Pay in installments every ${p.installment_frequency_months} month(s)` : 'Full Payment Upfront',
-        `${Math.round(p.total_discount_percentage)}% Total Discount`
-      ],
+      description: description,
+      subtitle,
+      perks,
       durationLabel,
       allowsInstallments,
       allowanceLabel,

@@ -1,6 +1,6 @@
 // ============================================
 // Blog & Research Paper Models
-// Mapped from: /api/blogs/*, /api/research-papers/*
+// Mapped from: /api/blogs/*, /api/blog/research-papers/*
 // ============================================
 
 /** GET /api/blogs/ */
@@ -21,19 +21,14 @@ export interface Blog {
   read_time?: number;
 }
 
-/** GET /api/research-papers/ */
+/** GET /api/blog/research-papers/ */
 export interface ResearchPaper {
   id: number;
   title: string;
-  abstract: string;
-  authors: string;
-  publication: string;
-  published_date: string;
-  file_url: string;
-  cover_image?: string;
-  category: string;
-  tags: string[];
-  created_at: string;
+  subtitle: string;
+  description: string;
+  publication_date: string;
+  external_link: string | null;
 }
 
 /** GET /api/user-queries/ & POST /api/user-queries/ */

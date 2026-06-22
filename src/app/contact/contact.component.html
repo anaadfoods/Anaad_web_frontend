@@ -92,7 +92,67 @@
           <label for="rfpCheck" style="margin:0; font-weight:normal; cursor:pointer;">This is related to the Remote Farming Program (RFP)</label>
         </div>
 
-        <button type="submit" class="submit-btn" [disabled]="isSubmitting()">
+        <!-- OTP VERIFICATION SECTION -->
+        <div class="otp-verification-section">
+          <ng-container *ngIf="otpStep() === 'idle'">
+            <button type="button" class="otp-trigger-btn" (click)="startOtpVerification()" [disabled]="f.phone.invalid && f.email.invalid">
+              🔐 Verify Your Identity (Required)
+            </button>
+            <p class="otp-hint">You must verify via OTP before submitting the form.</p>
+          </ng-container>
+
+          <ng-container *ngIf="otpStep() === 'choosing'">
+            <div class="otp-method-chooser">
+              <p class="otp-label">Choose verification method:</p>
+              <div class="otp-method-btns">
+                <button type="button" class="otp-method-btn" (click)="sendOtp('phone')" [disabled]="f.phone.invalid || otpSending()">
+                  📱 Verify via Phone
+                </button>
+                <button type="button" class="otp-method-btn" (click)="sendOtp('email')" [disabled]="f.email.invalid || otpSending()">
+                  📧 Verify via Email
+                </button>
+              </div>
+              <p class="otp-sending" *ngIf="otpSending()">Sending OTP...</p>
+            </div>
+          </ng-container>
+
+          <ng-container *ngIf="otpStep() === 'sent'">
+            <div class="otp-input-section">
+              <p class="otp-label">Enter the OTP sent to your {{ otpMethod() === 'phone' ? 'phone' : 'email' }}:</p>
+              <p class="otp-success-msg" *ngIf="otpSuccessMsg()">{{ otpSuccessMsg() }}</p>
+              <div class="otp-input-row">
+                <input
+                  type="text"
+                  class="otp-input"
+                  placeholder="Enter OTP"
+                  maxlength="8"
+                  [value]="otpValue()"
+                  (input)="onOtpInput($event)"
+                />
+                <button type="button" class="otp-verify-btn" (click)="verifyOtp()" [disabled]="otpVerifying() || !otpValue()">
+                  {{ otpVerifying() ? 'Verifying...' : 'Verify' }}
+                </button>
+              </div>
+              <div class="otp-actions-row">
+                <button type="button" class="otp-resend-btn" (click)="resendOtp()" [disabled]="otpResendTimer() > 0">
+                  {{ otpResendTimer() > 0 ? 'Resend in ' + otpResendTimer() + 's' : 'Resend OTP' }}
+                </button>
+                <button type="button" class="otp-change-btn" (click)="resetOtp()">Change Method</button>
+              </div>
+            </div>
+          </ng-container>
+
+          <ng-container *ngIf="otpStep() === 'verified'">
+            <div class="otp-verified-badge">
+              <span class="verified-icon">✓</span>
+              <span>Identity verified successfully via {{ otpMethod() === 'phone' ? 'Phone' : 'Email' }}</span>
+            </div>
+          </ng-container>
+
+          <p class="otp-error-msg" *ngIf="otpError()">{{ otpError() }}</p>
+        </div>
+
+        <button type="submit" class="submit-btn" [disabled]="isSubmitting() || otpStep() !== 'verified'">
           {{ isSubmitting() ? 'SENDING...' : 'Send Message &#8594;' }}
         </button>
         <p class="privacy-note">By submitting, you agree to our <a routerLink="/privacy-policy">Privacy Policy</a>. We will never share your information with third parties.</p>
@@ -152,6 +212,27 @@
           Sonipat, Haryana – 131101<br>
           India
         </p>
+      </div>
+
+      <div class="info-card">
+        <p class="info-card-title">Stay Connected</p>
+        <p style="font-size:14px; color:#555; margin-bottom:12px; line-height:1.5;">Join our WhatsApp group for <strong>CHEMICAL-FREE PRODUCT AVAILABILITY</strong> updates:</p>
+        <a href="https://chat.whatsapp.com/CDASt7cWzVR1AjPcdQBbWK" target="_blank" style="display:inline-flex; align-items:center; gap:8px; font-size:14px; color:var(--deep-green); text-decoration:none; padding:10px 14px; background:var(--light-green); border-radius:6px; font-weight:500; margin-bottom: 20px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+          Join WhatsApp Group
+        </a>
+        <p style="font-size:14px; color:#555; margin-bottom:12px; font-weight:600;">Follow our journey:</p>
+        <div style="display:flex; flex-wrap:wrap; gap:10px;">
+          <a href="https://www.instagram.com/anaadfoods" target="_blank" style="font-size:14px; color:var(--charcoal); text-decoration:underline;">Instagram</a>
+          <span style="color:#ccc;">|</span>
+          <a href="https://www.facebook.com/anaadfoods1" target="_blank" style="font-size:14px; color:var(--charcoal); text-decoration:underline;">Facebook</a>
+          <span style="color:#ccc;">|</span>
+          <a href="https://youtube.com/@anaadfoods" target="_blank" style="font-size:14px; color:var(--charcoal); text-decoration:underline;">YouTube</a>
+          <span style="color:#ccc;">|</span>
+          <a href="https://www.linkedin.com/company/anaad-anhad-naad-foods/" target="_blank" style="font-size:14px; color:var(--charcoal); text-decoration:underline;">LinkedIn</a>
+          <span style="color:#ccc;">|</span>
+          <a href="https://x.com/AnaadFoods" target="_blank" style="font-size:14px; color:var(--charcoal); text-decoration:underline;">Twitter</a>
+        </div>
       </div>
 
       <div class="info-card">

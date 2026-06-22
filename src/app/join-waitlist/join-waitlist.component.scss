@@ -5,6 +5,12 @@
   // font-family: 'Inter', sans-serif; // Assuming you have Inter or similar
 }
 
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
 /* Utility: Mobile-only elements */
 .mobile-only {
   display: none;
@@ -124,7 +130,7 @@
 
 .waitlist-form-section__badge {
   width: 100%;
-  height: 180px;
+  aspect-ratio: 1.28;
   flex-shrink: 0;
   border-radius: 14px;
   background: linear-gradient(145deg, #fdfdfd 0%, #f3f0e5 55%, #e2dcc9 100%);
@@ -650,6 +656,235 @@
   }
 }
 
+/* ========= OTP Verification Section ========= */
+.otp-verification-section {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px dashed rgba(255, 255, 255, 0.25);
+  border-radius: 16px;
+  padding: 1.2rem;
+  margin-top: 0.5rem;
+  position: relative;
+  z-index: 1;
+  animation: fadeSlideUp 0.3s ease-out;
+}
+
+.otp-trigger-btn {
+  width: 100%;
+  padding: 0.85rem 1.2rem;
+  background: linear-gradient(135deg, rgba(198, 156, 92, 0.25) 0%, rgba(198, 156, 92, 0.15) 100%);
+  color: #fdf4e5;
+  border: 1px solid rgba(198, 156, 92, 0.4);
+  border-radius: 50px;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(5px);
+
+  &:hover:not(:disabled) {
+    background: rgba(198, 156, 92, 0.35);
+    border-color: rgba(198, 156, 92, 0.6);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(198, 156, 92, 0.2);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+.otp-hint {
+  text-align: center;
+  font-size: 0.75rem;
+  color: rgba(253, 244, 229, 0.5);
+  margin-top: 0.5rem;
+  margin-bottom: 0;
+}
+
+.otp-label {
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: #fdf4e5;
+  margin-bottom: 0.75rem;
+}
+
+.otp-method-chooser {
+  .otp-method-btns {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+}
+
+.otp-method-btn {
+  flex: 1;
+  min-width: 130px;
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  font-family: inherit;
+  font-weight: 500;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #fdf4e5;
+  backdrop-filter: blur(5px);
+
+  &:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.18);
+    border-color: #C69C5C;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+.otp-sending {
+  font-size: 0.82rem;
+  color: #C69C5C;
+  margin-top: 0.5rem;
+  font-weight: 500;
+}
+
+.otp-input-row {
+  display: flex;
+  gap: 0.75rem;
+  align-items: stretch;
+  margin-bottom: 0.75rem;
+}
+
+.otp-input {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 1.1rem;
+  letter-spacing: 0.15em;
+  color: #fff;
+  text-align: center;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(5px);
+
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+    letter-spacing: 0.05em;
+    font-size: 0.9rem;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: #C69C5C;
+    background: rgba(255, 255, 255, 0.18);
+    box-shadow: 0 0 0 3px rgba(198, 156, 92, 0.2);
+  }
+}
+
+.otp-verify-btn {
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #C69C5C 0%, #a8833e 100%);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+
+  &:hover:not(:disabled) {
+    background: linear-gradient(135deg, #d4a962 0%, #b89148 100%);
+    box-shadow: 0 4px 12px rgba(198, 156, 92, 0.3);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+.otp-actions-row {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.otp-resend-btn,
+.otp-change-btn {
+  background: none;
+  border: none;
+  font-family: inherit;
+  font-size: 0.78rem;
+  cursor: pointer;
+  color: #C69C5C;
+  font-weight: 500;
+  padding: 0;
+  transition: color 0.2s ease;
+
+  &:hover:not(:disabled) {
+    color: #fdf4e5;
+    text-decoration: underline;
+  }
+
+  &:disabled {
+    color: rgba(253, 244, 229, 0.35);
+    cursor: not-allowed;
+  }
+}
+
+.otp-success-msg {
+  font-size: 0.78rem;
+  color: #C69C5C;
+  margin-bottom: 0.75rem;
+  font-weight: 500;
+}
+
+.otp-error-msg {
+  font-size: 0.78rem;
+  color: #ffb3b3;
+  margin-top: 0.5rem;
+  font-weight: 500;
+}
+
+.otp-verified-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: rgba(63, 160, 70, 0.15);
+  border: 1px solid rgba(63, 160, 70, 0.35);
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  color: #a8e6a3;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 0.85rem;
+  animation: fadeSlideUp 0.3s ease-out;
+
+  .verified-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    background: rgba(63, 160, 70, 0.5);
+    color: white;
+    border-radius: 50%;
+    font-size: 0.75rem;
+    font-weight: bold;
+    flex-shrink: 0;
+  }
+}
+
 /* ========= 3. Ecosystem Section ========= */
 .ecosystem-section {
   background-color: #F5EFE0;
@@ -669,17 +904,20 @@
 
   &__frame {
     background: #fff;
-    padding: 1rem;
+    padding: 0;
     border-radius: 20px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
     border: 1px solid #eee;
+    overflow: hidden;
+    width: 100%;
+    aspect-ratio: 1.0;
   }
 
   &__image {
     width: 100%;
-    height: auto;
-    display: block;
-    border-radius: 16px;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 20px;
   }
 }
 
@@ -704,7 +942,7 @@
 .comparison-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  grid-template-rows: 120px 120px;
+  grid-template-rows: 180px 180px;
   gap: 1rem;
 }
 
@@ -749,6 +987,17 @@
   }
 }
 
+.comparison-grid {
+  .info-card:nth-child(1) .card-image {
+    transform: scale(4.02);
+    transform-origin: center center;
+  }
+  .info-card:nth-child(4) .card-image {
+    transform: scale(1.67);
+    transform-origin: center center;
+  }
+}
+
 .card-gray {
   background: #7D8582;
   color: #fff;
@@ -766,6 +1015,8 @@
   margin-left: calc(-50vw + 50%);
   z-index: 1;
   margin-top: 0;
+  overflow: hidden;
+  height: clamp(320px, 45vh, 600px);
 
   // Blur overlay at the top
   &::before {
@@ -788,9 +1039,10 @@
 
   img {
     width: 100%;
-    height: auto;
-    display: block;
+    height: 100%;
     object-fit: cover;
+    transform: scale(1.92);
+    transform-origin: center center;
   }
 }
 
@@ -827,7 +1079,7 @@
   // Hide the empty gradient boxes on mobile to save space?
   // Or keep them as dividers. Let's keep them small.
   .card-brown-gradient {
-    height: 60px;
+    height: 180px;
     min-height: 0;
   }
 

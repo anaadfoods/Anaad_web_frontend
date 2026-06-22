@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, ChangeDetectionStrategy, PLATFORM_ID, NgZone } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, ChangeDetectionStrategy, PLATFORM_ID, NgZone, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -19,16 +19,17 @@ declare var AppleID: any;
   templateUrl: './login.html',
   styleUrls: ['./login.scss'],
 })
-export class Login implements OnInit {
+export class Login implements OnInit, OnDestroy {
   private readonly fb = inject(FormBuilder);
   private readonly authSvc = inject(AuthService);
   private readonly cartSvc = inject(CartApiService);
   private readonly favSvc = inject(FavoritesService);
   private readonly router = inject(Router);
-  private readonly route = inject(ActivatedRoute);
+  protected readonly route = inject(ActivatedRoute);
   readonly authState = inject(AuthState);
   private readonly ngZone = inject(NgZone);
   private readonly platformId = inject(PLATFORM_ID);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   loginForm = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
@@ -45,9 +46,12 @@ export class Login implements OnInit {
     // Synchronously grab returnUrl first
     const returnUrl = this.route.snapshot.queryParams['returnUrl'];
     if (returnUrl) this.returnUrl = returnUrl;
-    
+
     this.route.queryParams.subscribe(params => {
-      if (params['registered']) this.successMessage = 'Account created! Please sign in.';
+      if (params['registered']) {
+        this.successMessage = 'Account created! Please sign in.';
+        this.cdr.markForCheck();
+      }
     });
 
     // Already logged in - redirect
@@ -64,14 +68,15 @@ export class Login implements OnInit {
   private initGoogleSignIn() {
     const checkGoogle = setInterval(() => {
       if (typeof google !== 'undefined' && google.accounts?.id) {
-        clearInterval(checkGoogle);
-        google.accounts.id.initialize({
-          client_id: environment.googleClientId,
-          callback: (response: any) => this.handleGoogleCredentialResponse(response)
-        });
-        
         const btnContainer = document.getElementById('googleBtn');
         if (btnContainer) {
+          clearInterval(checkGoogle);
+
+          google.accounts.id.initialize({
+            client_id: environment.googleClientId,
+            callback: (response: any) => this.handleGoogleCredentialResponse(response)
+          });
+
           google.accounts.id.renderButton(btnContainer, {
             theme: 'outline',
             size: 'large',
@@ -89,6 +94,7 @@ export class Login implements OnInit {
       this.loading = true;
       this.error = '';
       this.successMessage = '';
+      this.cdr.markForCheck();
 
       this.authSvc.googleLogin(response.credential).subscribe({
         next: () => {
@@ -100,6 +106,30 @@ export class Login implements OnInit {
           this.loading = false;
           const detail = err.error?.detail || err.error?.non_field_errors?.[0];
           this.error = detail || 'Google sign in failed. Please try again.';
+          this.cdr.markForCheck();
+        }
+      });
+    });
+  }
+
+  private handleAppleLoginSuccess(idToken: string, name?: string) {
+    this.ngZone.run(() => {
+      this.loading = true;
+      this.error = '';
+      this.successMessage = '';
+      this.cdr.markForCheck();
+
+      this.authSvc.appleLogin(idToken, name).subscribe({
+        next: () => {
+          this.cartSvc.syncOnLogin();
+          this.favSvc.syncOnLogin();
+          this.router.navigateByUrl(this.returnUrl);
+        },
+        error: (err) => {
+          this.loading = false;
+          const detail = err.error?.detail || err.error?.non_field_errors?.[0];
+          this.error = detail || 'Apple sign in failed. Please try again.';
+          this.cdr.markForCheck();
         }
       });
     });
@@ -110,6 +140,7 @@ export class Login implements OnInit {
 
     if (typeof AppleID === 'undefined') {
       this.error = 'Apple Sign-In is temporarily unavailable. Please try again.';
+      this.cdr.markForCheck();
       return;
     }
 
@@ -117,44 +148,60 @@ export class Login implements OnInit {
       this.loading = true;
       this.error = '';
       this.successMessage = '';
+      this.cdr.markForCheck();
 
       AppleID.auth.init({
         clientId: environment.appleClientId,
         scope: 'name email',
-        redirectURI: `${window.location.origin}/login`,
+        redirectURI: environment.appleRedirectUri,
         usePopup: true
       });
 
-      const res = await AppleID.auth.signIn();
-      const idToken = res.authorization.id_token;
-      const name = res.user ? `${res.user.name.firstName} ${res.user.name.lastName}` : undefined;
+      // ✅ Capture response directly from signIn()
+      const response = await AppleID.auth.signIn();
 
-      this.ngZone.run(() => {
-        this.authSvc.appleLogin(idToken, name).subscribe({
-          next: () => {
-            this.cartSvc.syncOnLogin();
-            this.favSvc.syncOnLogin();
-            this.router.navigateByUrl(this.returnUrl);
-          },
-          error: (err) => {
-            this.loading = false;
-            const detail = err.error?.detail || err.error?.non_field_errors?.[0];
-            this.error = detail || 'Apple sign in failed. Please try again.';
-          }
+      console.log('Apple signIn response:', response);
+
+      if (response?.authorization?.id_token) {
+        let name: string | undefined;
+        if (response.user) {
+          name = [
+            response.user.name?.firstName,
+            response.user.name?.lastName
+          ].filter(Boolean).join(' ');
+        }
+        this.handleAppleLoginSuccess(response.authorization.id_token, name);
+      } else {
+        this.ngZone.run(() => {
+          this.loading = false;
+          this.error = 'Apple Sign-In failed. No token received.';
+          this.cdr.markForCheck();
         });
-      });
-    } catch (err) {
+      }
+
+    } catch (err: any) {
+      console.log('Apple SDK signIn error/cancellation:', err);
       this.ngZone.run(() => {
         this.loading = false;
-        console.error('Apple login error:', err);
+        if (err?.error !== 'user_cancelled') {
+          this.error = 'Apple Sign-In failed or was cancelled.';
+        }
+        this.cdr.markForCheck();
       });
     }
+  }
+
+  ngOnDestroy() {
+    // Nothing to clean up anymore
   }
 
   get emailCtrl() { return this.loginForm.get('email')!; }
   get passwordCtrl() { return this.loginForm.get('password')!; }
 
-  togglePassword() { this.showPassword = !this.showPassword; }
+  togglePassword() {
+    this.showPassword = !this.showPassword;
+    this.cdr.markForCheck();
+  }
 
   onSubmit() {
     if (this.loginForm.invalid) {
@@ -165,6 +212,7 @@ export class Login implements OnInit {
     this.loading = true;
     this.error = '';
     this.successMessage = '';
+    this.cdr.markForCheck();
 
     const val = this.loginForm.value;
 
@@ -178,6 +226,7 @@ export class Login implements OnInit {
         this.loading = false;
         const detail = err.error?.detail || err.error?.non_field_errors?.[0];
         this.error = detail || 'Invalid credentials. Please try again.';
+        this.cdr.markForCheck();
       }
     });
   }

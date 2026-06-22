@@ -3,44 +3,56 @@
   <div class="shop-hero">
     <div class="shop-hero-text">
       <div class="section-label">Heirloom Pantry</div>
-      <h1>What grain was,<br>before we <em>broke it.</em></h1>
-      <p>Cold stone-milled within 14 days of harvest. Dispatched within 72 hours of milling. No warehouse. No middlemen. No compromises.</p>
+      <h1>Here is what our farmers are growing for your kitchen.</h1>
+      <p>Explore wheat flours made from carefully grown traditional varieties, handled with attention to nutrition,
+        freshness, and traceability. Each product is part of a farming system built to keep the crop connected
+        to its source.</p>
     </div>
-    <div class="shop-hero-promises">
-      <div class="shop-promise-row"><div class="promise-text">✓ Cold stone-milled on our own farm unit</div></div>
-      <div class="shop-promise-row"><div class="promise-text">✓ Zero residue — verified by SGS India every batch</div></div>
-      <div class="shop-promise-row"><div class="promise-text">✓ Nitrogen-flushed packaging, 9-month shelf stability</div></div>
-      <div class="shop-promise-row"><div class="promise-text">✓ Batch ID on every bag — traceable to the field</div></div>
-      <div class="shop-promise-row"><div class="promise-text">✓ Pan-India dispatch within 72 hours of milling</div></div>
+    <div class="shop-hero-promises-grouped">
+      <div class="promise-cluster">
+        <div class="cluster-label">Quality</div>
+        <div class="promise-text">✓ Nutrient retention</div>
+        <div class="promise-text">✓ Living soil</div>
+        <div class="promise-text">✓ Freshly milled</div>
+      </div>
+      <div class="promise-cluster">
+        <div class="cluster-label">Delivery</div>
+        <div class="promise-text">✓ Vacuum packed</div>
+        <div class="promise-text">✓ Traceable batches</div>
+        <div class="promise-text">✓ Subscription based</div>
+      </div>
     </div>
   </div>
 
   <!-- SEARCH BAR -->
   <div class="search-bar-wrap">
     <div class="search-input-wrap">
-      <span class="search-icon">&#128269;</span>
-      <input
-        type="text"
-        class="search-input"
-        placeholder="Search products..."
-        [value]="searchQuery()"
-        (input)="onSearch($any($event.target).value)"
-      />
+      <span class="search-icon">
+        <svg width="16" height="16" viewBox="0 0 16 16">
+          <circle cx="6.5" cy="6.5" r="4.5" stroke="currentColor" stroke-width="1.5" fill="none" />
+          <path d="M10.5 10.5L14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+        </svg>
+      </span>
+      <input type="text" class="search-input" placeholder="Search by grain, flour, or variety..."
+        [value]="searchQuery()" (input)="onSearch($any($event.target).value)" />
       <button type="button" class="search-clear" *ngIf="searchQuery()" (click)="clearSearch()">&#215;</button>
     </div>
   </div>
 
+  <!-- CATEGORY HEADER -->
+  <div class="category-header-wrap" *ngIf="categories().length > 0">
+    <h2 class="category-header-title">{{ activeCategoryName() }}</h2>
+  </div>
+
   <!-- FILTER BAR -->
   <div class="filter-bar" *ngIf="categories().length > 0">
-    <div class="filter-tab"
-         [class.active]="activeCategoryId() === 'all'"
-         (click)="filterByCategory('all')">
+    <div class="filter-tab" tabindex="0" [class.active]="activeCategoryId() === 'all'" (click)="filterByCategory('all')"
+      (keydown.enter)="filterByCategory('all')">
       All <span class="filter-count">{{ getCategoryCount('all') }}</span>
     </div>
     @for (cat of categories(); track cat.id) {
-    <div class="filter-tab"
-         [class.active]="activeCategoryId() === cat.id.toString()"
-         (click)="filterByCategory(cat.id.toString())">
+    <div class="filter-tab" tabindex="0" [class.active]="activeCategoryId() === cat.id.toString()"
+      (click)="filterByCategory(cat.id.toString())" (keydown.enter)="filterByCategory(cat.id.toString())">
       {{ cat.name }} <span class="filter-count">{{ getCategoryCount(cat.id) }}</span>
     </div>
     }
@@ -54,7 +66,7 @@
     </div>
 
     <div class="product-grid" *ngIf="loading()">
-      @for (i of [1,2,3,4,5,6]; track i) {
+      @for (i of [1,2,3,4,5]; track i) {
       <div style="display: flex; flex-direction: column; gap: 12px;">
         <app-skeleton-loader height="320px" width="100%" borderRadius="0"></app-skeleton-loader>
         <app-skeleton-loader height="16px" width="40%" borderRadius="2px"></app-skeleton-loader>
@@ -66,14 +78,13 @@
 
     <div class="product-grid" *ngIf="!loading()">
       @for (variant of filteredProducts(); track variant.id) {
-      <app-product-card
-        [variant]="variant"
-        (addToCart)="onAddToCart($event)">
+      <app-product-card [variant]="variant" (addToCart)="onAddToCart($event)">
       </app-product-card>
       }
 
       <div class="empty-state" *ngIf="filteredProducts().length === 0">
-        <p *ngIf="searchQuery()">No products found for "{{ searchQuery() }}". <button type="button" (click)="clearSearch()">Clear search</button></p>
+        <p *ngIf="searchQuery()">No products found for "{{ searchQuery() }}". <button type="button"
+            (click)="clearSearch()">Clear search</button></p>
         <p *ngIf="!searchQuery()">No products found in this category.</p>
       </div>
     </div>
@@ -85,43 +96,53 @@
       <img src="assets/images-new/6.png" alt="Cold stone milling process" />
     </div>
     <div class="process-content">
-      <div class="section-label">Processing Method</div>
+      <div class="section-label">How We Mill</div>
       <div class="divider-rule"></div>
-      <h2>What happens between harvest and your kitchen.</h2>
+      <h2>How your flour is prepared</h2>
       <div class="process-steps">
         <div class="process-step">
           <div class="process-step-num">01</div>
           <div class="process-step-body">
-            <h4>Harvest at Optimum Moisture</h4>
-            <p>Grain is cut at 12–14% moisture content to prevent post-harvest degradation. Threshed within 24 hours to preserve enzymatic activity in the germ.</p>
+            <h4>Harvested in season</h4>
+            <p>The wheat is harvested during the crop season and brought in carefully once it is ready.</p>
           </div>
         </div>
         <div class="process-step">
           <div class="process-step-num">02</div>
           <div class="process-step-body">
-            <h4>Natural Sun Drying</h4>
-            <p>Grain is dried on raised bamboo platforms for 3–5 days. No mechanical dryers — no heat exposure before milling that would pre-oxidise grain oils and denature enzymes.</p>
+            <h4>Stored with care</h4>
+            <p>After harvest, the grain is stored properly so its quality remains protected over time.</p>
           </div>
         </div>
         <div class="process-step">
           <div class="process-step-num">03</div>
           <div class="process-step-body">
-            <h4>Cold Stone Milling</h4>
-            <p>Our on-farm granite stone mill operates below 40°C throughout the milling process. Modern roller mills run at temperatures that destroy wheat germ oil, B vitamins, and heat-sensitive micronutrients. We do not use them.</p>
+            <h4>Orders are received</h4>
+            <p>When an order comes in, it is added to the upcoming milling schedule.</p>
           </div>
         </div>
         <div class="process-step">
           <div class="process-step-num">04</div>
           <div class="process-step-body">
-            <h4>Nitrogen Flush Packaging</h4>
-            <p>Flour is immediately packed into food-grade kraft bags with a nitrogen flush, displacing oxygen before sealing. This prevents oxidation and rancidity — giving our flour a stable 9-month shelf life without any preservatives.</p>
+            <h4>Milled as scheduled</h4>
+            <p>The wheat is milled into flour according to planned milling slots so it can be prepared in an organized
+              and efficient way.</p>
           </div>
         </div>
         <div class="process-step">
           <div class="process-step-num">05</div>
           <div class="process-step-body">
-            <h4>72-Hour Dispatch</h4>
-            <p>Every bag is dispatched within 72 hours of milling. We do not stock finished flour. We do not mill in advance. What you receive is genuinely fresh.</p>
+            <h4>Vacuum packed</h4>
+            <p>Once milled, the flour is packed in vacuum packaging to support a natural shelf life and protect product
+              quality.</p>
+          </div>
+        </div>
+        <div class="process-step">
+          <div class="process-step-num">06</div>
+          <div class="process-step-body">
+            <h4>Dispatched to you</h4>
+            <p>After packing, the order is dispatched. Subscriptions make this process easier to plan, helping
+              ANAAD mill flour more smoothly against expected demand.</p>
           </div>
         </div>
       </div>
@@ -131,12 +152,16 @@
   <!-- SUBSCRIBE NUDGE -->
   <div class="subscribe-nudge">
     <div class="nudge-text">
-      <h3>Buy less, more often. Or subscribe and stop thinking about it.</h3>
-      <p>A Commitment subscription guarantees your allocation before each harvest, locks your price for the full season, and ships automatically every month. For households that take nutrition seriously, it is simply the better way to source.</p>
+      <h3>Subscribe for flour that is planned better and prepared fresher.</h3>
+      <div style="display: flex; flex-direction: column; gap: 12px;">
+        <p>A subscription is the easiest way to stay stocked with ANAAD flour while helping the farm plan milling and
+          dispatch more smoothly. It gives you a simpler, more dependable way to receive flour that stays
+          closely connected to the farm and the schedule behind it.</p>
+      </div>
     </div>
     <div class="nudge-action">
-      <a routerLink="/commitment" class="btn-primary-light">View Commitment Tiers &rarr;</a>
-      <div class="nudge-note">Starting from ₹680/month &nbsp;·&nbsp; Cancel anytime &nbsp;·&nbsp; First batch within 30 days</div>
+      <a routerLink="/commitment" class="btn-primary-light">Choose Your Commitment &rarr;</a>
+      <div class="nudge-note">Cancel anytime &nbsp;·&nbsp; First batch within 30 days</div>
     </div>
   </div>
 </div>

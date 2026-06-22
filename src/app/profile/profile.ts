@@ -4,7 +4,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../core/services/auth.service';
 import { ProfileService } from '../core/services/profile.service';
 import { OrderService } from '../core/services/order.service';
-import { Router, RouterLink } from '@angular/router';
+import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { CurrencyInrPipe } from '../shared/pipes/currency-inr.pipe';
 import { SubscriptionService } from '../core/services/subscription.service';
 import { FavoritesService } from '../core/services/favorites.service';
@@ -19,12 +19,14 @@ import { forkJoin, of } from 'rxjs';
 import { catchError, finalize, switchMap, map } from 'rxjs/operators';
 import { PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
+import { ToastService } from '../core/services/toast.service';
+import { SkeletonLoaderComponent } from '../shared/components/skeleton-loader/skeleton-loader.component';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, CurrencyInrPipe, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, CurrencyInrPipe, ReactiveFormsModule, RouterLink, SkeletonLoaderComponent],
   templateUrl: './profile.html',
   styleUrls: ['./profile.scss'],
 })
@@ -38,8 +40,10 @@ export class Profile implements OnInit {
   private readonly userSummarySvc = inject(UserSummaryService);
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly platformId = inject(PLATFORM_ID);
   private readonly rfpSvc = inject(RfpService);
+  private readonly toastSvc = inject(ToastService);
 
   profileData = signal<UserProfile | null>(null);
   ordersData = signal<Order[]>([]);
@@ -56,12 +60,17 @@ export class Profile implements OnInit {
   savingAddress = signal<boolean>(false);
   uploadingPicture = signal<boolean>(false);
   actionMessage = signal<string>('');
+  animatedOrders = signal<number>(0);
+  animatedSubscriptions = signal<number>(0);
+  animatedFavorites = signal<number>(0);
+  tabLoading = signal<boolean>(false);
   deactivateStep = signal<'idle' | 'confirm' | 'otp'>('idle');
   deactivating = signal<boolean>(false);
   deactivateError = signal<string>('');
   editAddressMode = signal<boolean>(false);
   isSidebarOpen = signal<boolean>(false);
-  activeSubTab = signal<string>('ACTIVE');
+  activeSubTab = signal<string>('ALL');
+  shareReferralText = signal<string>('Share Code');
   filteredSubscriptions = computed(() => {
     const all = this.subscriptionsData();
     const tab = this.activeSubTab();
@@ -95,6 +104,12 @@ export class Profile implements OnInit {
   readonly favoriteCount = computed(() => this.favoritesData().length);
 
   ngOnInit() {
+    this.route.queryParamMap.subscribe(params => {
+      const tab = params.get('tab');
+      if (tab) {
+        this.activeTab.set(tab);
+      }
+    });
     this.loadAccountData();
   }
 
@@ -152,15 +167,45 @@ export class Profile implements OnInit {
         }
         this.referralRewardCount.set(rewards);
 
+        this.animateValue('orders', orders.length);
+        this.animateValue('subscriptions', subscriptions.length);
+        this.animateValue('favorites', favorites.length);
+
         if (!profile) this.error.set('We could not load your profile details right now.');
       }
     });
   }
 
+  private animateValue(key: 'orders' | 'subscriptions' | 'favorites', target: number) {
+    let current = 0;
+    const duration = 800; // ms
+    const stepTime = Math.max(Math.floor(duration / (target || 1)), 15);
+    const signalToUpdate = key === 'orders' ? this.animatedOrders : key === 'subscriptions' ? this.animatedSubscriptions : this.animatedFavorites;
+    
+    if (target === 0) {
+      signalToUpdate.set(0);
+      return;
+    }
+
+    const timer = setInterval(() => {
+      current += Math.max(Math.ceil(target / 15), 1);
+      if (current >= target) {
+        signalToUpdate.set(target);
+        clearInterval(timer);
+      } else {
+        signalToUpdate.set(current);
+      }
+    }, stepTime);
+  }
+
   setTab(tabId: string) {
+    this.tabLoading.set(true);
     this.activeTab.set(tabId);
     this.actionMessage.set('');
     this.error.set('');
+    setTimeout(() => {
+      this.tabLoading.set(false);
+    }, 300);
   }
 
   logout() {
@@ -197,8 +242,12 @@ export class Profile implements OnInit {
         this.profileData.set(profile);
         this.patchForms(profile);
         this.actionMessage.set('Profile updated successfully.');
+        this.toastSvc.show('Profile updated successfully.', 'success');
       },
-      error: err => this.error.set(err.error?.message || 'Could not update profile.'),
+      error: err => {
+        this.error.set(err.error?.message || 'Could not update profile.');
+        this.toastSvc.show('Could not update profile.', 'error');
+      },
     });
   }
 
@@ -232,8 +281,12 @@ export class Profile implements OnInit {
         this.profileData.set(profile);
         this.patchForms(profile);
         this.actionMessage.set('Address saved successfully.');
+        this.toastSvc.show('Address saved successfully.', 'success');
       },
-      error: err => this.error.set(err.error?.message || 'Could not save address.'),
+      error: err => {
+        this.error.set(err.error?.message || 'Could not save address.');
+        this.toastSvc.show('Could not save address.', 'error');
+      },
     });
   }
 
@@ -248,6 +301,7 @@ export class Profile implements OnInit {
     ).subscribe({
       next: () => {
         this.actionMessage.set('Profile picture updated.');
+        this.toastSvc.show('Profile picture updated.', 'success');
         // Refresh profile to get new picture URL
         this.profileSvc.getProfile().subscribe({
           next: profile => {
@@ -255,14 +309,23 @@ export class Profile implements OnInit {
           }
         });
       },
-      error: () => this.error.set('Could not upload profile picture.'),
+      error: () => {
+        this.error.set('Could not upload profile picture.');
+        this.toastSvc.show('Could not upload profile picture.', 'error');
+      },
     });
   }
 
   addFavoriteToCart(variant: ProductVariant) {
-    this.cartSvc.addItem(variant.id, 1).subscribe({
+    this.cartSvc.addItem(variant.id, 1, variant).subscribe({
       next: () => this.actionMessage.set('Added to cart.'),
-      error: err => this.error.set(err.error?.message || 'Could not add to cart.'),
+      error: err => {
+        if (err.message === 'Limit reached') {
+          this.error.set('Limit reached: You can only add up to 5 units of any product.');
+        } else {
+          this.error.set(err.error?.message || 'Could not add to cart.');
+        }
+      },
     });
   }
 
@@ -330,6 +393,42 @@ export class Profile implements OnInit {
   shopProducts() { this.router.navigate(['/products']); }
   browseSubscriptions() { this.router.navigate(['/registry']); }
 
+  shareViaWhatsApp() {
+    const code = this.profileData()?.referral_code || 'ANAADREF';
+    const text = encodeURIComponent(`Join ANAAD Foods using my referral code ${code} and get 10% off your first order! ${window.location.origin}/register?ref=${code}`);
+    window.open(`https://wa.me/?text=${text}`, '_blank');
+  }
+
+  shareReferralCode() {
+    const code = this.profileData()?.referral_code || 'ANAADREF';
+    const text = `Join ANAAD Foods using my referral code ${code} and get 10% off your first order!`;
+    const url = `${window.location.origin}/register?ref=${code}`;
+    
+    if (navigator.share) {
+      navigator.share({
+        title: 'Join ANAAD Foods',
+        text: text,
+        url: url
+      }).catch(err => {
+        // Fallback to clipboard if user cancels or it fails
+        this.copyToClipboard(code, url);
+      });
+    } else {
+      this.copyToClipboard(code, url);
+    }
+  }
+
+  private copyToClipboard(code: string, url: string) {
+    const textToCopy = `Join ANAAD Foods using my referral code ${code}: ${url}`;
+    navigator.clipboard.writeText(textToCopy).then(() => {
+      this.shareReferralText.set('Copied!');
+      this.toastSvc.show('Referral info copied to clipboard.', 'success');
+      setTimeout(() => this.shareReferralText.set('Share Code'), 3000);
+    }).catch(() => {
+      this.toastSvc.show('Failed to copy referral code.', 'error');
+    });
+  }
+
   getInitials(): string {
     const p = this.profileData();
     if (!p) return 'U';
@@ -345,17 +444,19 @@ export class Profile implements OnInit {
 
   parseOrderDate(dateStr: string | undefined | null): any {
     if (!dateStr) return '';
-    // If it's already ISO format or standard date format
-    if (dateStr.includes('T') || dateStr.includes('/') || !isNaN(Date.parse(dateStr))) {
-      return dateStr;
-    }
-    // If it's in DD-MM-YYYY format
+    
+    // First, explicitly check for DD-MM-YYYY format to prevent JS Date.parse from incorrectly assuming MM-DD-YYYY
     const match = dateStr.match(/^(\d{2})-(\d{2})-(\d{4})(?:\s+(\d{2}):(\d{2}))?/);
     if (match) {
       const [_, day, month, year, hour = '00', minute = '00'] = match;
-      // Convert to standard YYYY-MM-DDTHH:mm:00
       return `${year}-${month}-${day}T${hour}:${minute}:00`;
     }
+
+    // Fallback for standard ISO formats
+    if (dateStr.includes('T') || dateStr.includes('/') || !isNaN(Date.parse(dateStr))) {
+      return dateStr;
+    }
+    
     return dateStr;
   }
 

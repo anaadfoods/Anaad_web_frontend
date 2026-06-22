@@ -1,98 +1,231 @@
-import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
 import { Title, Meta } from '@angular/platform-browser';
-import { SubscriptionService } from '../core/services/subscription.service';
-import { SubscriptionPlan } from '../core/models/subscription.model';
+import { HttpClient } from '@angular/common/http';
 import { AuthState } from '../core/state/auth.state';
+import { SubscriptionPlansComponent } from '../shared/components/subscription-plans/subscription-plans.component';
+
+export interface CropReport {
+  title: string;
+  photos: string[];
+}
+
+export interface CropItem {
+  crop_id: string;
+  crop_name: string;
+  harvest_date: string | null;
+  reports: CropReport[];
+}
+
+export interface CropListResponse {
+  success: boolean;
+  count: number;
+  data: CropItem[];
+}
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-registry',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, SubscriptionPlansComponent],
   templateUrl: './registry.html',
   styleUrls: ['./registry.scss'],
 })
 export class Registry implements OnInit {
-  private readonly subscriptionSvc = inject(SubscriptionService);
   readonly authState = inject(AuthState);
   private titleSvc = inject(Title);
   private metaSvc = inject(Meta);
+  private http = inject(HttpClient);
 
-  plans = signal<SubscriptionPlan[]>([]);
-  loading = signal(true);
-  error = signal('');
+  // Signals
+  crops = signal<CropItem[]>([]);
+  isLoading = signal<boolean>(true);
+  error = signal<string | null>(null);
+  filter = signal<string>('All');
 
-  // Static batch registry data (not from API)
-  filter = 'All';
-  batches = [
-    { id: 'SM-2406-382', date: '12 Jun 2024', variety: 'Sona Moti Whole Wheat', result: 'Zero Residue', pass: true },
-    { id: 'CK-2405-110', date: '28 May 2024', variety: 'Chawal Kathiya Red Rice', result: 'Zero Residue', pass: true },
-    { id: 'BS-2404-092', date: '14 Apr 2024', variety: 'Black Sesame Seeds', result: 'Zero Residue', pass: true },
-    { id: 'BM-2403-118', date: '02 Mar 2024', variety: 'Bansi Wheat', result: 'Zero Residue', pass: true },
-    { id: 'SM-2311-304', date: '18 Nov 2023', variety: 'Sona Moti Whole Wheat', result: 'Zero Residue', pass: true },
-  ];
-
-  getPlanCustomName(months: number): string {
-    if (months === 1) return 'AARAMBH (The Beginning)';
-    if (months === 3) return 'PATHIK (The Seeker)';
-    if (months === 6) return 'TAPASVI (The Disciplined)';
-    if (months === 12) return 'SIDDH (The Master)';
-    return 'ANAAD Commitment';
-  }
-
-  getPlanCustomHeadline(months: number): string {
-    if (months === 1) return 'Start here. No obligation. Full transparency.';
-    if (months === 3) return 'Three months of unbroken nutrition.';
-    if (months === 6) return 'Half a year. Two seasons of clarity.';
-    if (months === 12) return 'A full year. A field that is yours by name.';
-    return 'Commitment-Based Agriculture';
-  }
-
-  getPlanCustomSub(months: number): string {
-    if (months === 1) return 'Your first experience of genuinely traced, tested grain. Cancel before next billing — no questions asked.';
-    if (months === 3) return "You're starting to understand the difference. Three months gives you one full milling cycle and a season of batch reports.";
-    if (months === 6) return 'The plan for households that have decided. You receive priority harvest allocation, seasonal variety previews, and farm visit eligibility.';
-    if (months === 12) return 'Named plot stewardship. GPS coordinates. Quarterly soil reports. Your flour comes from a specific piece of land you can point to on a map.';
-    return 'Secure your year-round supply of natural heirloom grain directly from the source.';
-  }
-
-  filteredBatches() {
-    if (this.filter === 'All') return this.batches;
-    if (this.filter === 'Pulses') {
-      return this.batches.filter(b => b.variety.toLowerCase().includes('sesame') || b.variety.toLowerCase().includes('pulse'));
+  // Computed filtered list
+  filteredCrops = computed(() => {
+    const list = this.crops();
+    const currentFilter = this.filter();
+    if (currentFilter === 'All') return list;
+    
+    if (currentFilter === 'Pulses') {
+      return list.filter(c => 
+        c.crop_name.toLowerCase().includes('sesame') || 
+        c.crop_name.toLowerCase().includes('pulse') || 
+        c.crop_name.toLowerCase().includes('mustard')
+      );
     }
-    return this.batches.filter(b => b.variety.toLowerCase().includes(this.filter.toLowerCase()));
-  }
+    return list.filter(c => c.crop_name.toLowerCase().includes(currentFilter.toLowerCase()));
+  });
 
   ngOnInit() {
-    this.titleSvc.setTitle('The Batch Ledger — Every Harvest, Independently Tested | ANAAD Foods');
+    this.titleSvc.setTitle('The Batch Ledger — Trace Your Food from Field to Shelf | ANAAD Foods');
     this.metaSvc.updateTag({
       name: 'description',
-      content: 'Open-access archive of 47 harvests, each verified by SGS India. Zero selective disclosure. Filter by crop, download reports, and verify every batch ID printed on your bag.'
+      content: 'Open-access batch ledger for every product we offer. Access field details, handling steps, and downloadable records for transparent tracing.'
     });
+    this.loadCrops();
+  }
 
-    this.subscriptionSvc.getPlans().subscribe({
-      next: plans => {
-        this.plans.set(plans.filter(p => p.is_available || p.is_active));
-        this.loading.set(false);
+  loadCrops() {
+    this.isLoading.set(true);
+    this.error.set(null);
+    
+    this.http.get<CropListResponse>('https://nwmimvqcoxxdulpmdqvp.supabase.co/functions/v1/crop-list')
+      .subscribe({
+        next: (response) => {
+          if (response && response.success) {
+            this.crops.set(response.data);
+          } else {
+            this.error.set('Failed to retrieve crops registry.');
+          }
+          this.isLoading.set(false);
+        },
+        error: (err) => {
+          console.error('Error fetching crops registry:', err);
+          this.error.set('Failed to connect to the farm registry server.');
+          this.isLoading.set(false);
+        }
+      });
+  }
+
+  setFilter(f: string) {
+    this.filter.set(f);
+  }
+
+  // Data mapping helpers
+  getHarvestDate(crop: CropItem): string {
+    if (!crop.harvest_date) return 'Growing';
+    try {
+      return this.formatDate(new Date(crop.harvest_date));
+    } catch {
+      return crop.harvest_date;
+    }
+  }
+
+  getProcessingDate(crop: CropItem): string {
+    if (!crop.harvest_date) return 'Pending';
+    try {
+      const d = new Date(crop.harvest_date);
+      d.setDate(d.getDate() + 3);
+      return this.formatDate(d);
+    } catch {
+      return 'Pending';
+    }
+  }
+
+  getLocation(crop: CropItem): string {
+    const name = crop.crop_name.toLowerCase();
+    if (name.includes('rice')) {
+      return 'Sonipat Farm, Plot 2';
+    } else if (name.includes('wheat')) {
+      return 'Sonipat Farm, Plot 5';
+    } else if (name.includes('mango')) {
+      return 'Ratnagiri Orchard';
+    } else if (name.includes('mustard')) {
+      return 'Partner Farm, MP';
+    } else if (name.includes('sugarcane')) {
+      return 'Sonipat Farm, Plot 1';
+    }
+    return 'Sonipat Farm, Plot 3';
+  }
+
+  getPackaging(crop: CropItem): string {
+    const name = crop.crop_name.toLowerCase();
+    if (name.includes('flour') || name.includes('wheat')) {
+      return 'Vacuum Pouch';
+    } else if (name.includes('rice')) {
+      return 'Cotton Bag';
+    } else if (name.includes('juice')) {
+      return 'Glass Bottle';
+    } else if (name.includes('mango')) {
+      return 'Corrugated Box';
+    }
+    return 'Eco-friendly Bag';
+  }
+
+  getStatus(crop: CropItem): string {
+    if (this.hasPhotos(crop)) {
+      return 'Verified';
+    }
+    return crop.harvest_date ? 'Available' : 'In Progress';
+  }
+
+  hasPhotos(crop: CropItem): boolean {
+    return !!(crop.reports && crop.reports.length > 0 && crop.reports[0].photos && crop.reports[0].photos.length > 0);
+  }
+
+  getFilename(url: string, defaultFilename: string): string {
+    try {
+      const urlObj = new URL(url);
+      const pathParts = urlObj.pathname.split('/');
+      const lastPart = pathParts[pathParts.length - 1];
+      if (lastPart && lastPart.includes('.')) {
+        return decodeURIComponent(lastPart);
+      }
+    } catch (e) {
+      // Ignore URL parsing errors
+    }
+    return defaultFilename;
+  }
+
+  downloadFile(url: string, defaultFilename: string) {
+    this.http.get(url, { observe: 'response', responseType: 'blob' }).subscribe({
+      next: (response) => {
+        let filename = '';
+        
+        // 1. Try to get filename from Content-Disposition header
+        const contentDisposition = response.headers.get('Content-Disposition');
+        if (contentDisposition) {
+          const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+          const matches = filenameRegex.exec(contentDisposition);
+          if (matches != null && matches[1]) { 
+            filename = matches[1].replace(/['"]/g, '');
+          }
+        }
+        
+        // 2. If not found in Content-Disposition, try to extract from URL path
+        if (!filename) {
+          try {
+            const urlObj = new URL(url);
+            const pathParts = urlObj.pathname.split('/');
+            const lastPart = pathParts[pathParts.length - 1];
+            if (lastPart && lastPart.includes('.')) {
+              filename = decodeURIComponent(lastPart);
+            }
+          } catch (e) {
+            // Ignore URL parsing errors
+          }
+        }
+        
+        // 3. Fallback to defaultFilename
+        if (!filename) {
+          filename = defaultFilename;
+        }
+
+        const blob = response.body;
+        if (blob) {
+          const blobUrl = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = blobUrl;
+          a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          window.URL.revokeObjectURL(blobUrl);
+        }
       },
-      error: () => {
-        this.error.set('Could not load subscription plans.');
-        this.loading.set(false);
+      error: (err) => {
+        console.warn('Direct blob download failed, falling back to window.open due to CORS:', err);
+        window.open(url, '_blank');
       }
     });
   }
 
-  setFilter(f: string) { this.filter = f; }
-
-  getDurationLabel(months: number): string {
-    return months === 1 ? '1 Month' : `${months} Months`;
-  }
-
-  getDiscountLabel(plan: SubscriptionPlan): string {
-    const pct = plan.total_discount_percentage || parseFloat(plan.discount_percentage || '0');
-    return pct > 0 ? `${pct}% off` : '';
+  private formatDate(date: Date): string {
+    if (isNaN(date.getTime())) return '-';
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
   }
 }

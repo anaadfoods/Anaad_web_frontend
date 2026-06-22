@@ -25,12 +25,27 @@ export interface ProductVariant {
   product_images: ProductImage[];
 }
 
+export interface SiddhDiscountPrice {
+  variant_id: number;
+  name: string;
+  weight: string;
+  mrp: number;
+  discount_percentage: number;
+  discounted_price: number;
+}
+
 export interface ProductCard {
   id: number;
   name: string;
   pricePerKg: string;
   image: string;
   altText: string;
+  category: string;
+  weight: string;
+  weightUnit: string;
+  isInStock: boolean;
+  isActive: boolean;
+  description: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -39,7 +54,13 @@ export class ProductsService {
   private endpoint = '/api/products/variants/';
 
   getProducts(): Observable<ProductVariant[]> {
-    return this.http.get<ProductVariant[]>(this.endpoint);
+    return this.http.get<ProductVariant[]>(this.endpoint).pipe(
+      map(products => products.map(p => this.normalizeProduct(p)))
+    );
+  }
+
+  getSiddhDiscountedPrices(): Observable<SiddhDiscountPrice[]> {
+    return this.http.get<SiddhDiscountPrice[]>('/api/core/siddh-discounted-price/');
   }
 
   getFirstFourProducts(): Observable<ProductCard[]> {
@@ -80,7 +101,13 @@ export class ProductsService {
       name: product.product_name,
       pricePerKg,
       image: imageUrl,
-      altText
+      altText,
+      category: product.product_category,
+      weight: product.weight,
+      weightUnit: product.weight_unit,
+      isInStock: product.is_in_stock,
+      isActive: product.is_active !== false,
+      description: product.product_description
     };
   }
 
@@ -95,5 +122,9 @@ export class ProductsService {
       return s.slice(1, -1);
     }
     return s;
+  }
+
+  private normalizeProduct(product: ProductVariant): ProductVariant {
+    return { ...product };
   }
 }

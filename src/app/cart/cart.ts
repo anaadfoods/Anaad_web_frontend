@@ -28,6 +28,7 @@ export class Cart implements OnInit {
   private readonly cdr = inject(ChangeDetectorRef);
 
   clearingCart = false;
+  showClearConfirm = false;
 
   ngOnInit() {
     // Reload cart from server on page load if authenticated
@@ -56,8 +57,14 @@ export class Cart implements OnInit {
   clearCart() {
     this.clearingCart = true;
     this.cartSvc.clearCart().subscribe({
-      next: () => { this.clearingCart = false; },
-      error: () => { this.clearingCart = false; }
+      next: () => { 
+        this.clearingCart = false; 
+        this.showClearConfirm = false;
+      },
+      error: () => { 
+        this.clearingCart = false; 
+        this.showClearConfirm = false;
+      }
     });
   }
 }

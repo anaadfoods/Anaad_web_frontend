@@ -52,10 +52,12 @@
           <div class="order-items">
             @for (item of orderData()?.items; track item.id) {
             <div class="order-item">
-              <img class="order-item-img"
-                   [src]="getItemImage(item)"
-                   [alt]="getItemName(item)"
-                   appSafeImage />
+              <div class="order-item-img-wrap">
+                <img class="order-item-img"
+                     [src]="getItemImage(item)"
+                     [alt]="getItemName(item)"
+                     appSafeImage />
+              </div>
               <div class="order-item-info">
                 <span class="order-item-tag" *ngIf="getItemVariant(item)">{{ getItemVariant(item) }}</span>
                 <span class="order-item-name">{{ getItemName(item) }}</span>

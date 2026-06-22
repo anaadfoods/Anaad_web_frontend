@@ -1,5 +1,5 @@
 import { Component, OnInit, PLATFORM_ID, inject, signal, computed, effect, untracked, ChangeDetectionStrategy, ChangeDetectorRef, DestroyRef } from '@angular/core';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { CommonModule, isPlatformBrowser, Location } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { toSignal, takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -42,6 +42,7 @@ export class Checkout implements OnInit {
   private readonly errorSvc = inject(ErrorHandlerService);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly location = inject(Location);
 
   constructor() {
     effect(() => {
@@ -254,6 +255,11 @@ export class Checkout implements OnInit {
   showAddressModal = signal<boolean>(false);
   savingAddressModal = signal<boolean>(false);
 
+  closeAddressModal() {
+    this.showAddressModal.set(false);
+    this.location.back();
+  }
+
   addressModalForm = this.fb.group({
     address: ['', [Validators.required, Validators.minLength(5)]],
     city: ['', Validators.required],
@@ -399,7 +405,7 @@ export class Checkout implements OnInit {
     this.isSubmitting.set(true);
     const val = this.checkoutForm.value;
 
-    const paymentMethod = val.paymentMethod === 'cod' ? 'COD' : 'JUSPAY';
+    const paymentMethod: 'COD' | 'UPI' = val.paymentMethod === 'cod' ? 'COD' : 'UPI';
     const deliveryAddress = val.address! + (val.landmark ? `, ${val.landmark}` : '');
 
     let items: Array<{ product_variant_id: number; quantity: number }> = [];
@@ -426,7 +432,7 @@ export class Checkout implements OnInit {
         delivery_phone: val.phone!,
         email: val.email!,
         payment_type: 'PAID_FULL',
-        payment_method: 'COD',
+        payment_method: paymentMethod,
         notes: val.notes || undefined,
         delivery_fee: this.getDeliveryCharge(),
         expected_delivery_date: this.expectedDeliveryDate(),
@@ -440,7 +446,7 @@ export class Checkout implements OnInit {
     } else {
       // Create standard Order
       this.orderSvc.createOrder({
-        payment_method: 'COD',
+        payment_method: paymentMethod,
         delivery_address: deliveryAddress,
         delivery_city: val.city!,
         delivery_state: val.state!,
@@ -472,7 +478,7 @@ export class Checkout implements OnInit {
     }
 
     const paymentUrl = res?.payment_links?.web;
-    const isSub = !!res?.subscription_id || !!res?.subscription?.id || !!res?.subscription?.subscription_number;
+    const isSub = !!this.directPlanId() || !!res?.subscription_id || !!res?.subscription?.id || !!res?.subscription?.subscription_number || (res?.id && res?.subscription_number);
     const orderIdToSave = res?.order?.id || res?.order_id || res?.subscription_id || res?.subscription?.id || res?.id;
     const orderNumberToSave = res?.order?.order_number || res?.order_number || res?.subscription_number || res?.subscription?.subscription_number || res?.id || 'new';
 

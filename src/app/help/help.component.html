@@ -2,14 +2,23 @@
   <!-- HERO / HEADER -->
   <section class="help-hero">
     <div class="hero-inner">
+      @if (isPdfRequest()) {
+      <span class="hero-eyebrow">Article Download</span>
+      <h1 class="hero-title">Request PDF Version</h1>
+      <p class="hero-subtitle">
+        Please fill in your details below to receive a beautifully formatted PDF version of the article.
+      </p>
+      } @else {
       <span class="hero-eyebrow">Support Center</span>
       <h1 class="hero-title">How can we help you today?</h1>
       <p class="hero-subtitle">
-        Find answers to frequently asked questions about our heirloom grains, farm traceability, and community subscriptions, or get in touch with our team.
+        Find answers to frequently asked questions about our heirloom grains, farm traceability, and community
+        subscriptions, or get in touch with our team.
       </p>
+      }
 
       <!-- SEARCH BAR -->
-      <div class="search-container">
+      <!-- <div class="search-container">
         <span class="search-icon">🔍</span>
         <input 
           type="text" 
@@ -21,65 +30,65 @@
         @if (searchQuery()) {
           <button class="search-clear-btn" (click)="searchQuery.set(''); activeQuestionIndex.set(null)" aria-label="Clear search">✕</button>
         }
-      </div>
+      </div> -->
     </div>
   </section>
 
   <!-- MAIN PAGE CONTENT -->
   <div class="container help-body-grid">
-    
+
     <!-- FAQ ACCORDION SECTION -->
     <section class="faq-section">
       <h2 class="section-title">Frequently Asked Questions</h2>
-      
+
       <!-- CATEGORY PILLS -->
       <div class="category-filters">
         <button [class.active]="selectedCategory() === 'all'" (click)="setCategory('all')">All FAQs</button>
-        <button [class.active]="selectedCategory() === 'general'" (click)="setCategory('general')">General Inquiry</button>
-        <button [class.active]="selectedCategory() === 'orders'" (click)="setCategory('orders')">Orders & Shipping</button>
-        <button [class.active]="selectedCategory() === 'subscriptions'" (click)="setCategory('subscriptions')">Subscriptions</button>
+        <button [class.active]="selectedCategory() === 'general'" (click)="setCategory('general')">General
+          Inquiry</button>
+        <button [class.active]="selectedCategory() === 'orders'" (click)="setCategory('orders')">Orders &
+          Shipping</button>
+        <button [class.active]="selectedCategory() === 'subscriptions'"
+          (click)="setCategory('subscriptions')">Subscriptions</button>
         <button [class.active]="selectedCategory() === 'rfp'" (click)="setCategory('rfp')">Remote Farming</button>
       </div>
 
       <!-- FAQ ACCORDION LIST -->
       <div class="faq-accordion-list">
         @if (filteredFaqs().length === 0) {
-          <div class="no-results-card">
-            <span class="no-results-icon">🍃</span>
-            <p>No questions found matching "{{ searchQuery() }}"</p>
-            <span>Try searching for other keywords, or submit your query using the form below.</span>
-          </div>
+        <div class="no-results-card">
+          <span class="no-results-icon">🍃</span>
+          <p>No questions found matching "{{ searchQuery() }}"</p>
+          <span>Try searching for other keywords, or submit your query using the form below.</span>
+        </div>
         } @else {
-          @for (faq of filteredFaqs(); track faq.question; let idx = $index) {
-            <div class="accordion-item" [class.open]="activeQuestionIndex() === idx">
-              <button 
-                class="accordion-header" 
-                (click)="toggleAccordion(idx)"
-                [attr.aria-expanded]="activeQuestionIndex() === idx"
-              >
-                <span class="accordion-q">{{ faq.question }}</span>
-                <span class="accordion-chevron"></span>
-              </button>
-              <div class="accordion-panel" [style.max-height]="activeQuestionIndex() === idx ? '500px' : '0'">
-                <div class="accordion-panel-inner">
-                  <p class="accordion-a">{{ faq.answer }}</p>
-                </div>
-              </div>
+        @for (faq of filteredFaqs(); track faq.question; let idx = $index) {
+        <div class="accordion-item" [class.open]="activeQuestionIndex() === idx">
+          <button class="accordion-header" (click)="toggleAccordion(idx)"
+            [attr.aria-expanded]="activeQuestionIndex() === idx">
+            <span class="accordion-q">{{ faq.question }}</span>
+            <span class="accordion-chevron"></span>
+          </button>
+          <div class="accordion-panel" [style.max-height]="activeQuestionIndex() === idx ? '500px' : '0'">
+            <div class="accordion-panel-inner">
+              <p class="accordion-a">{{ faq.answer }}</p>
             </div>
-          }
+          </div>
+        </div>
+        }
         }
       </div>
     </section>
 
     <!-- SUPPORT FORM & CONTACT CARDS SECTION -->
     <div class="support-contact-layout">
-      
+
       <!-- CONTACT INFO SIDEBAR -->
       <aside class="contact-info-column">
         <div class="info-card quick-connect">
           <h3>Quick Support</h3>
           <p>Prefer direct messaging? Reach out through our primary support channel.</p>
-          
+
           <a href="https://wa.me/919996166186" target="_blank" rel="noopener noreferrer" class="whatsapp-btn">
             <span class="wa-icon">💬</span> Chat on WhatsApp
           </a>
@@ -88,7 +97,7 @@
 
         <div class="info-card contact-details">
           <h3>Contact Channels</h3>
-          
+
           <div class="contact-item">
             <span class="item-icon">📧</span>
             <div class="item-text">
@@ -130,80 +139,137 @@
             Sonipat, Haryana – 131101, India
           </p>
         </div>
+
+        <div class="info-card social-card" style="margin-top: 16px;">
+          <h3>Stay Connected</h3>
+          <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px; line-height: 1.5;">Join our WhatsApp
+            group for <strong>CHEMICAL-FREE PRODUCT AVAILABILITY</strong> updates:</p>
+          <a href="https://whatsapp.com/channel/0029VasadQsGOj9oOSG3o71v" target="_blank"
+            style="display:inline-flex; align-items:center; gap:8px; font-size:14px; color:var(--green-deep); text-decoration:none; padding:10px 14px; background:rgba(42, 92, 67, 0.1); border-radius:6px; font-weight:500; margin-bottom: 16px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path
+                d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z">
+              </path>
+            </svg>
+            Join WhatsApp Group
+          </a>
+          <div class="social-links" style="display: flex; gap: 12px; flex-wrap: wrap;">
+            <a href="https://www.instagram.com/anaadfoods" target="_blank" style="color: var(--charcoal); opacity: 0.7;"
+              aria-label="Instagram">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+              </svg>
+            </a>
+            <a href="https://www.facebook.com/anaadfoods1" target="_blank" style="color: var(--charcoal); opacity: 0.7;"
+              aria-label="Facebook">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+              </svg>
+            </a>
+            <a href="https://youtube.com/@anaadfoods" target="_blank" style="color: var(--charcoal); opacity: 0.7;"
+              aria-label="YouTube">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path
+                  d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33 2.78 2.78 0 0 0 1.94 2c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.33 29 29 0 0 0-.46-5.33z">
+                </path>
+                <polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"></polygon>
+              </svg>
+            </a>
+            <a href="https://www.linkedin.com/company/anaad-anhad-naad-foods/" target="_blank"
+              style="color: var(--charcoal); opacity: 0.7;" aria-label="LinkedIn">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
+                <rect x="2" y="9" width="4" height="12"></rect>
+                <circle cx="4" cy="4" r="2"></circle>
+              </svg>
+            </a>
+            <a href="https://x.com/AnaadFoods" target="_blank" style="color: var(--charcoal); opacity: 0.7;"
+              aria-label="Twitter">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path
+                  d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z">
+                </path>
+              </svg>
+            </a>
+          </div>
+        </div>
       </aside>
 
       <!-- HELP SUBMISSION FORM -->
       <section class="form-section">
         <div class="form-header">
-          <h2>Send Us a Message</h2>
+          @if (isPdfRequest()) {
+          <h2>PDF Request Form</h2>
+          <p>Provide your contact details below, and we'll send the PDF directly to your email.</p>
+          } @else {
+          <h2>Send Enquiry</h2>
           <p>Fill out the details below, and our support team will get back to you within 24 hours.</p>
+          }
         </div>
 
         <!-- Form status alerts -->
         @if (success()) {
-          <div class="alert alert-success">
-            <span class="alert-icon">✓</span>
-            <div class="alert-content">
-              <h4>Message Sent Successfully</h4>
-              <p>Thank you for reaching out. We have logged your query and will contact you shortly.</p>
-            </div>
+        <div class="alert alert-success">
+          <span class="alert-icon">✓</span>
+          <div class="alert-content">
+            @if (isPdfRequest()) {
+            <h4>PDF Request Submitted</h4>
+            <p>Thank you. Your request for the PDF has been successfully logged. We will email it to you shortly.</p>
+            } @else {
+            <h4>Message Sent Successfully</h4>
+            <p>Thank you for reaching out. We have logged your query and will contact you shortly.</p>
+            }
           </div>
+        </div>
         }
 
         @if (errorMessage()) {
-          <div class="alert alert-danger">
-            <span class="alert-icon">⚠</span>
-            <div class="alert-content">
-              <h4>Submission Failed</h4>
-              <p>{{ errorMessage() }}</p>
-            </div>
+        <div class="alert alert-danger">
+          <span class="alert-icon">⚠</span>
+          <div class="alert-content">
+            <h4>Submission Failed</h4>
+            <p>{{ errorMessage() }}</p>
           </div>
+        </div>
         }
 
         <form [formGroup]="form" (ngSubmit)="onSubmit()" class="support-form" novalidate>
           <div class="form-group">
             <label for="fullName">Full Name</label>
-            <input 
-              id="fullName" 
-              type="text" 
-              formControlName="fullName" 
-              placeholder="E.g., Arjun Sharma"
-              [class.invalid]="f.fullName.invalid && (f.fullName.touched || f.fullName.dirty)"
-            />
+            <input id="fullName" type="text" formControlName="fullName" placeholder="E.g., John Doe"
+              [class.invalid]="f.fullName.invalid && (f.fullName.touched || f.fullName.dirty)" />
             @if (f.fullName.invalid && (f.fullName.touched || f.fullName.dirty)) {
-              <span class="error-msg">Full name is required (min 2 characters).</span>
+            <span class="error-msg">Full name is required (min 2 characters).</span>
             }
           </div>
 
           <div class="form-row">
             <div class="form-group">
               <label for="email">Email Address</label>
-              <input 
-                id="email" 
-                type="email" 
-                formControlName="email" 
-                placeholder="arjun@example.com"
-                [class.invalid]="f.email.invalid && (f.email.touched || f.email.dirty)"
-              />
+              <input id="email" type="email" formControlName="email" placeholder="john@example.com"
+                [class.invalid]="f.email.invalid && (f.email.touched || f.email.dirty)" />
               @if (f.email.invalid && (f.email.touched || f.email.dirty)) {
-                <span class="error-msg">Please enter a valid email address.</span>
+              <span class="error-msg">Please enter a valid email address.</span>
               }
             </div>
 
             <div class="form-group">
-              <label for="phoneNumber">WhatsApp Number (10 digits)</label>
+              <label for="phoneNumber">WhatsApp Number</label>
               <div class="phone-input-wrapper">
                 <span class="prefix">+91</span>
-                <input 
-                  id="phoneNumber" 
-                  type="tel" 
-                  formControlName="phoneNumber" 
-                  placeholder="9876543210"
-                  [class.invalid]="f.phoneNumber.invalid && (f.phoneNumber.touched || f.phoneNumber.dirty)"
-                />
+                <input id="phoneNumber" type="tel" formControlName="phoneNumber" placeholder="9876543210"
+                  [class.invalid]="f.phoneNumber.invalid && (f.phoneNumber.touched || f.phoneNumber.dirty)" />
               </div>
               @if (f.phoneNumber.invalid && (f.phoneNumber.touched || f.phoneNumber.dirty)) {
-                <span class="error-msg">Please enter a valid 10-digit number.</span>
+              <span class="error-msg">Please enter a valid 10-digit number.</span>
               }
             </div>
           </div>
@@ -220,48 +286,105 @@
 
             <div class="form-group">
               <label for="businessOrFamilyName">
-                Family / Business Name 
+                Family / Business Name
                 @if (f.requirementType.value === 'FAMILY' || f.requirementType.value === 'BUSINESS') {
-                  <span class="required">*</span>
+                <span class="required">*</span>
                 }
               </label>
-              <input 
-                id="businessOrFamilyName" 
-                type="text" 
-                formControlName="businessOrFamilyName" 
-                placeholder="E.g., Sharma Family / Gourmet Bakery"
-                [class.invalid]="f.businessOrFamilyName.invalid && (f.businessOrFamilyName.touched || f.businessOrFamilyName.dirty)"
-              />
+              <input id="businessOrFamilyName" type="text" formControlName="businessOrFamilyName"
+                placeholder="E.g., Doe Family / Parker's Bakery"
+                [class.invalid]="f.businessOrFamilyName.invalid && (f.businessOrFamilyName.touched || f.businessOrFamilyName.dirty)" />
               @if (f.businessOrFamilyName.invalid && (f.businessOrFamilyName.touched || f.businessOrFamilyName.dirty)) {
-                <span class="error-msg">This field is required for families or businesses.</span>
+              <span class="error-msg">This field is required for families or businesses.</span>
               }
             </div>
           </div>
 
           <div class="form-group">
             <label for="message">Your Message</label>
-            <textarea 
-              id="message" 
-              formControlName="message" 
-              rows="5"
+            <textarea id="message" formControlName="message" rows="5"
               placeholder="Describe your query in detail. If related to an order, please include the order ID..."
-              [class.invalid]="f.message.invalid && (f.message.touched || f.message.dirty)"
-            ></textarea>
+              [class.invalid]="f.message.invalid && (f.message.touched || f.message.dirty)"></textarea>
             @if (f.message.invalid && (f.message.touched || f.message.dirty)) {
-              <span class="error-msg">Please enter your message (min 10 characters).</span>
+            <span class="error-msg">Please enter your message (min 10 characters).</span>
             }
           </div>
 
           <div class="form-group checkbox-group">
             <input id="isFromRfp" type="checkbox" formControlName="isFromRfp" />
-            <label for="isFromRfp">This inquiry is related to the Remote Farming Program (RFP)</label>
+            <label for="isFromRfp">This enquiry is related to the Remote Farming Program (RFP)</label>
           </div>
 
-          <button type="submit" class="submit-btn" [disabled]="form.invalid || submitting()">
+          <!-- OTP VERIFICATION SECTION -->
+          <div class="otp-verification-section">
+            @if (otpStep() === 'idle') {
+            <button type="button" class="otp-trigger-btn" (click)="startOtpVerification()"
+              [disabled]="f.phoneNumber.invalid && f.email.invalid">
+              🔐 Verify Your Identity (Required)
+            </button>
+            <p class="otp-hint">You must verify via OTP before submitting the form.</p>
+            }
+
+            @if (otpStep() === 'choosing') {
+            <div class="otp-method-chooser">
+              <p class="otp-label">Choose verification method:</p>
+              <div class="otp-method-btns">
+                <button type="button" class="otp-method-btn" (click)="sendOtp('phone')"
+                  [disabled]="f.phoneNumber.invalid || otpSending()">
+                  📱 Verify via Phone
+                </button>
+                <button type="button" class="otp-method-btn" (click)="sendOtp('email')"
+                  [disabled]="f.email.invalid || otpSending()">
+                  📧 Verify via Email
+                </button>
+              </div>
+              @if (otpSending()) {
+              <p class="otp-sending">Sending OTP...</p>
+              }
+            </div>
+            }
+
+            @if (otpStep() === 'sent') {
+            <div class="otp-input-section">
+              <p class="otp-label">Enter the OTP sent to your {{ otpMethod() === 'phone' ? 'phone' : 'email' }}:</p>
+              @if (otpSuccessMsg()) {
+              <p class="otp-success-msg">{{ otpSuccessMsg() }}</p>
+              }
+              <div class="otp-input-row">
+                <input type="text" class="otp-input" placeholder="Enter OTP" maxlength="8" [value]="otpValue()"
+                  (input)="onOtpInput($event)" />
+                <button type="button" class="otp-verify-btn" (click)="verifyOtp()"
+                  [disabled]="otpVerifying() || !otpValue()">
+                  {{ otpVerifying() ? 'Verifying...' : 'Verify' }}
+                </button>
+              </div>
+              <div class="otp-actions-row">
+                <button type="button" class="otp-resend-btn" (click)="resendOtp()" [disabled]="otpResendTimer() > 0">
+                  {{ otpResendTimer() > 0 ? 'Resend in ' + otpResendTimer() + 's' : 'Resend OTP' }}
+                </button>
+                <button type="button" class="otp-change-btn" (click)="resetOtp()">Change Method</button>
+              </div>
+            </div>
+            }
+
+            @if (otpStep() === 'verified') {
+            <div class="otp-verified-badge">
+              <span class="verified-icon">✓</span>
+              <span>Identity verified successfully via {{ otpMethod() === 'phone' ? 'Phone' : 'Email' }}</span>
+            </div>
+            }
+
+            @if (otpError()) {
+            <p class="otp-error-msg">{{ otpError() }}</p>
+            }
+          </div>
+
+          <button type="submit" class="submit-btn"
+            [disabled]="form.invalid || submitting() || otpStep() !== 'verified'">
             @if (submitting()) {
-              <span class="spinner"></span> Submitting...
+            <span class="spinner"></span> Submitting...
             } @else {
-              Send Support Ticket
+            {{ isPdfRequest() ? 'Submit PDF Request' : 'Send Support Ticket' }}
             }
           </button>
         </form>

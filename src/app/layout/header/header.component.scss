@@ -39,7 +39,7 @@ header.site-header {
   background-color: var(--bg-parchment);
   border-bottom: 1px solid rgba(26, 26, 26, 0.10);
   position: sticky;
-  top: 34px;
+  top: var(--banner-h, 34px);
   z-index: 100;
   backdrop-filter: blur(8px);
 }
@@ -109,9 +109,15 @@ nav.nav-links a {
   position: relative;
 }
 
-nav.nav-links a:hover,
+nav.nav-links a:hover {
+  color: var(--green-deep);
+  opacity: 1;
+}
+
 nav.nav-links a.active {
   color: var(--green-deep);
+  border-bottom: 2px solid var(--amber-harvest);
+  padding-bottom: 2px;
 }
 
 .nav-actions {
@@ -139,11 +145,38 @@ nav.nav-links a.active {
 }
 
 .nav-check { display: none; }
-.nav-hamburger { display: none; font-size: 24px; line-height: 1; cursor: pointer; color: var(--charcoal); padding: 2px 6px; user-select: none; }
+.nav-hamburger {
+  display: none;
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--charcoal);
+  padding: 2px 6px;
+  user-select: none;
+  outline: none;
+}
 
 @media (max-width: 1024px) {
-  header.site-header { padding: 16px 20px; position: relative; }
+  header.site-header { padding: 16px 20px; position: relative; top: 0; }
   .nav-hamburger { display: block; margin-left: 8px; }
+  
+  @media (max-width: 480px) {
+    header.site-header {
+      padding: 12px 14px;
+    }
+    .nav-logo img {
+      height: 36px;
+    }
+    .nav-actions {
+      gap: 8px;
+    }
+    .nav-hamburger {
+      margin-left: 4px;
+      padding: 2px 4px;
+    }
+  }
   
   nav.nav-links {
     position: absolute; top: 100%; left: 0; right: 0; z-index: 200;
@@ -202,6 +235,15 @@ nav.nav-links a.active {
   min-width: 16px; height: 16px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
   padding: 0 4px;
+  
+  &.pop {
+    animation: badge-pop 0.3s ease-out;
+  }
+}
+
+@keyframes badge-pop {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.4); }
 }
 .nav-account {
   width: 32px; height: 32px; border-radius: 50%;
@@ -295,7 +337,7 @@ nav.nav-links a.active {
   border: 1px solid var(--border-subtle, rgba(26, 26, 26, 0.1));
   border-radius: var(--radius-md, 14px);
   box-shadow: var(--shadow-lg, 0 20px 60px rgba(0,0,0,0.1));
-  z-index: 1000;
+  z-index: 500;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -524,10 +566,10 @@ nav.nav-links a.active {
   35% { transform: rotate(0); }
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1024px) {
   .notifications-dropdown {
     position: fixed;
-    top: 65px;
+    top: 70px;
     left: 16px;
     right: 16px;
     width: auto;

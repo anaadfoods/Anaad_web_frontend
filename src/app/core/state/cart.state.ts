@@ -21,12 +21,12 @@ export class CartState {
   readonly loading = this._loading.asReadonly();
   readonly toastMessage = this._toastMessage.asReadonly();
   readonly items = computed(() => this._cart().items);
-  readonly itemCount = computed(() => this._cart().total_items);
+  readonly itemCount = computed(() => this._cart().items.reduce((sum, i) => sum + i.quantity, 0));
   readonly totalPrice = computed(() => parseFloat(this._cart().total_price));
   readonly estimatedTax = computed(() => +(this.totalPrice() * 0.05).toFixed(2));
   readonly deliveryCharge = computed(() => this.totalPrice() > 1200 || this.isEmpty() ? 0 : 150);
   readonly grandTotal = computed(() => +(this.totalPrice() + this.estimatedTax() + this.deliveryCharge()).toFixed(2));
-  readonly isEmpty = computed(() => this._cart().total_items === 0);
+  readonly isEmpty = computed(() => this.itemCount() === 0);
 
   constructor() {
     // Hydrate cached cart from localStorage (optimistic display)
@@ -62,16 +62,21 @@ export class CartState {
     let updatedItems: CartItem[];
     if (existingIndex >= 0) {
       updatedItems = [...current.items];
+      const newQty = Math.min(5, updatedItems[existingIndex].quantity + item.quantity);
+      const unitPrice = parseFloat(updatedItems[existingIndex].price);
       updatedItems[existingIndex] = {
         ...updatedItems[existingIndex],
-        quantity: updatedItems[existingIndex].quantity + item.quantity,
-        total_price: (
-          parseFloat(updatedItems[existingIndex].total_price) +
-          parseFloat(item.total_price)
-        ).toFixed(2),
+        quantity: newQty,
+        total_price: (unitPrice * newQty).toFixed(2),
       };
     } else {
-      updatedItems = [...current.items, item];
+      const newQty = Math.min(5, item.quantity);
+      const unitPrice = parseFloat(item.price);
+      updatedItems = [...current.items, {
+        ...item,
+        quantity: newQty,
+        total_price: (unitPrice * newQty).toFixed(2),
+      }];
     }
 
     const newTotal = updatedItems.reduce(
@@ -106,13 +111,14 @@ export class CartState {
   /** Optimistic quantity update */
   optimisticUpdateQuantity(productVariantId: number, quantity: number): void {
     const current = this._cart();
+    const finalQty = Math.min(5, quantity);
     const updatedItems = current.items.map(item => {
       if (item.product_variant !== productVariantId) return item;
       const unitPrice = parseFloat(item.price);
       return {
         ...item,
-        quantity,
-        total_price: (unitPrice * quantity).toFixed(2),
+        quantity: finalQty,
+        total_price: (unitPrice * finalQty).toFixed(2),
       };
     });
     const newTotal = updatedItems.reduce(
