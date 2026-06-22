@@ -54,7 +54,7 @@
 
   <!-- HERO IMAGE -->
   <img class="article-hero-img"
-    [src]="getImageUrl(article?.cover_image, 'https://images.unsplash.com/photo-1586348943529-beaae6c28db9?auto=format&fit=crop&w=1600&q=80')"
+    [src]="getImageUrl(article?.cover_image)"
     alt="Blog Cover" />
 
   <!-- ARTICLE LAYOUT -->
@@ -242,7 +242,7 @@
     <div class="related-grid" *ngIf="relatedArticles.length > 0">
       <a *ngFor="let rel of relatedArticles" [routerLink]="['/blogs', rel.id]" class="related-card">
         <img class="related-img"
-          [src]="getImageUrl(rel.cover_image, 'https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=600&q=80')"
+          [src]="getImageUrl(rel.cover_image)"
           alt="Related Post" />
         <div class="related-body">
           <span class="related-cat">{{ displayCategory(rel.category) }}</span>

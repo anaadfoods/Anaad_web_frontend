@@ -30,7 +30,7 @@ export class BlogsComponent implements OnInit, OnDestroy {
   featuredError = false;
 
   activeCategory = 'All Posts';
-  categories = ['All Posts', 'Food Safety', 'Farming', 'Nutrition', 'Economy', 'Culture'];
+  categories: string[] = ['All Posts'];
 
   // Newsletter bindings & state
   newsletterEmail = '';
@@ -38,6 +38,13 @@ export class BlogsComponent implements OnInit, OnDestroy {
   newsletterErrorMsg = '';
 
   ngOnInit(): void {
+    this.blogsService.getTags().pipe(takeUntil(this.destroy$)).subscribe({
+      next: (tags) => {
+        this.categories = ['All Posts', ...tags];
+        this.cdr.markForCheck();
+      },
+      error: (err) => console.error('Failed to load tags:', err)
+    });
     this.blogsService.getArticles()
       .pipe(
         takeUntil(this.destroy$),
@@ -167,8 +174,8 @@ export class BlogsComponent implements OnInit, OnDestroy {
     return `${minutes} min read`;
   }
 
-  getImageUrl(url: string | null | undefined, fallback: string): string {
-    if (!url) return fallback;
+  getImageUrl(url: string | null | undefined): string {
+    if (!url) return 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
     if (url.startsWith('http')) return url;
     return `${environment.apiBaseUrl}${url.startsWith('/') ? '' : '/'}${url}`;
   }

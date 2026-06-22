@@ -30,7 +30,7 @@
     <ng-container *ngIf="!featuredLoading && featuredArticles.length > 0">
       <a [routerLink]="['/blogs', featuredArticles[0].id]" class="featured-card">
         <div class="featured-img-wrap">
-          <img class="featured-img" [class.has-fallback-image]="!featuredArticles[0]?.cover_image" [src]="getImageUrl(featuredArticles[0].cover_image, 'assets/images-new/25.png')"
+          <img class="featured-img" [class.has-fallback-image]="!featuredArticles[0]?.cover_image" [src]="getImageUrl(featuredArticles[0].cover_image)"
             [alt]="featuredArticles[0].title || 'Featured Image'" />
         </div>
         <div class="featured-body">
@@ -98,7 +98,7 @@
         *ngFor="let article of filteredArticles">
         <div class="blog-card-img">
           <img
-            [src]="getImageUrl(article.cover_image, 'https://images.unsplash.com/photo-1586348943529-beaae6c28db9?auto=format&fit=crop&w=600&q=80')"
+            [src]="getImageUrl(article.cover_image)"
             [alt]="article.title || 'Blog Image'" />
         </div>
         <div class="blog-card-body">

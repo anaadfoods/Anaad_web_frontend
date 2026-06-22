@@ -4,6 +4,7 @@ import { Title, Meta } from '@angular/platform-browser';
 import { HttpClient } from '@angular/common/http';
 import { AuthState } from '../core/state/auth.state';
 import { SubscriptionPlansComponent } from '../shared/components/subscription-plans/subscription-plans.component';
+import { RouterLink } from '@angular/router';
 
 export interface CropReport {
   title: string;
@@ -27,7 +28,7 @@ export interface CropListResponse {
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-registry',
   standalone: true,
-  imports: [CommonModule, SubscriptionPlansComponent],
+  imports: [CommonModule, SubscriptionPlansComponent, RouterLink],
   templateUrl: './registry.html',
   styleUrls: ['./registry.scss'],
 })

@@ -46,6 +46,7 @@ export interface ProductVariant {
   is_subscription_eligible?: boolean;
   is_featured?: boolean;
   is_bestseller?: boolean;
+  crop_cycle_id?: string | null;
   images: ProductImage[];
   product_images?: ProductImage[];
   product_category?: string;

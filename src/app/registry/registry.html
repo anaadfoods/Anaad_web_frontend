@@ -82,7 +82,8 @@
             </div>
 
             @for (c of filteredCrops(); track c.crop_id) {
-              <div class="batch-row" style="grid-template-columns: 1.3fr 100px 1.3fr 110px 110px 115px 90px 150px;">
+              <div class="batch-row" style="grid-template-columns: 1.3fr 100px 1.3fr 110px 110px 115px 90px 150px; cursor: pointer;"
+                   [routerLink]="['/traceability-journey']" [queryParams]="{crop_id: c.crop_id}">
                 <span class="batch-variety">{{ c.crop_name }}</span>
                 <span class="batch-id">{{ c.crop_id }}</span>
                 <span class="batch-variety secondary-text">{{ getLocation(c) }}</span>
@@ -95,16 +96,16 @@
                     <div class="report-links-container">
                       @for (report of c.reports; track report.title) {
                         @for (photo of report.photos; track photo; let idx = $index) {
-                          <button class="download-btn-small" (click)="downloadFile(photo, c.crop_id + '_doc_' + (idx + 1) + '.jpg')" [title]="getFilename(photo, c.crop_id + '_doc_' + (idx + 1) + '.jpg')">
+                          <button class="download-btn-small" (click)="$event.stopPropagation(); downloadFile(photo, c.crop_id + '_doc_' + (idx + 1) + '.jpg')" [title]="getFilename(photo, c.crop_id + '_doc_' + (idx + 1) + '.jpg')">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="12" height="12" fill="currentColor">
-                              <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/>
+                              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM13 9V3.5L18.5 9H13z"/>
                             </svg>
                           </button>
                         }
                       }
                     </div>
                   } @else {
-                    <a href="mailto:farm@anaadfoods.com?subject=Request for Batch Record - {{ c.crop_id }}" class="report-email-link" title="Request records for this batch">Request</a>
+                    <a href="mailto:farm@anaadfoods.com?subject=Request for Batch Record - {{ c.crop_id }}" class="report-email-link" (click)="$event.stopPropagation()" title="Request records for this batch">-</a>
                   }
                 </span>
               </div>
@@ -115,7 +116,7 @@
         <!-- Mobile Layout (Visible on screens < 768px) -->
         <div class="batch-cards-mobile">
           @for (c of filteredCrops(); track c.crop_id) {
-            <div class="batch-card-mobile">
+            <div class="batch-card-mobile" style="cursor: pointer;" [routerLink]="['/traceability-journey']" [queryParams]="{crop_id: c.crop_id}">
               <div class="card-header">
                 <span class="crop-name">{{ c.crop_name }}</span>
                 <span class="status-badge" [class.pass]="getStatus(c) === 'Verified' || getStatus(c) === 'Available'">{{ getStatus(c) }}</span>
@@ -151,16 +152,16 @@
                     <div class="report-links-container">
                       @for (report of c.reports; track report.title) {
                         @for (photo of report.photos; track photo; let idx = $index) {
-                          <button class="download-btn-small" (click)="downloadFile(photo, c.crop_id + '_doc_' + (idx + 1) + '.jpg')" [title]="getFilename(photo, c.crop_id + '_doc_' + (idx + 1) + '.jpg')">
+                          <button class="download-btn-small" (click)="$event.stopPropagation(); downloadFile(photo, c.crop_id + '_doc_' + (idx + 1) + '.jpg')" [title]="getFilename(photo, c.crop_id + '_doc_' + (idx + 1) + '.jpg')">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="11" height="11" fill="currentColor">
-                              <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/>
+                              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM13 9V3.5L18.5 9H13z"/>
                             </svg>
                           </button>
                         }
                       }
                     </div>
                   } @else {
-                    <a href="mailto:farm@anaadfoods.com?subject=Request for Batch Record - {{ c.crop_id }}" class="report-email-link" title="Request records for this batch">Request via Email</a>
+                    <a href="mailto:farm@anaadfoods.com?subject=Request for Batch Record - {{ c.crop_id }}" class="report-email-link" (click)="$event.stopPropagation()" title="Request records for this batch">Request via Email</a>
                   }
                 </div>
               </div>

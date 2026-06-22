@@ -66,12 +66,12 @@ export class Login implements OnInit, OnDestroy {
         window.location.hostname === 'localhost' ||
         window.location.hostname === '127.0.0.1';
 
-      if (isLocalhost && environment.externalLoginUrl) {
+      if (isLocalhost && (environment as any).externalLoginUrl) {
         const fullReturn = this.returnUrl.startsWith('http')
           ? this.returnUrl
           : `${window.location.origin}${this.returnUrl.startsWith('/') ? '' : '/'}${this.returnUrl}`;
         window.location.href =
-          `${environment.externalLoginUrl}?returnUrl=${encodeURIComponent(fullReturn)}`;
+          `${(environment as any).externalLoginUrl}?returnUrl=${encodeURIComponent(fullReturn)}`;
         return;
       }
 
@@ -173,6 +173,9 @@ export class Login implements OnInit, OnDestroy {
 
       // ✅ Capture response directly from signIn()
       const response = await AppleID.auth.signIn();
+      const idToken = response.authorization.id_token;
+      const nameObj = response.user?.name;
+      const name = nameObj ? `${nameObj.firstName || ''} ${nameObj.lastName || ''}`.trim() : undefined;
 
       this.ngZone.run(() => {
         this.authSvc.appleLogin(idToken, name).subscribe({
@@ -187,7 +190,7 @@ export class Login implements OnInit, OnDestroy {
             this.error = detail || 'Apple sign in failed. Please try again.';
           }
         });
-      }
+      });
 
     } catch (err: any) {
       console.log('Apple SDK signIn error/cancellation:', err);

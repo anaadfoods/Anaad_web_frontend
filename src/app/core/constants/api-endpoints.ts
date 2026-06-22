@@ -69,8 +69,10 @@ export const API = {
   },
 
   BLOGS: {
-    LIST: '/api/blogs/',
-    DETAIL: '/api/blogs/',
+    LIST: '/api/blog/articles/',
+    DETAIL: '/api/blog/articles/',
+    FILTER: '/api/blog/articles/filter/',
+    TAGS: '/api/blog/tags/',
   },
 
   RESEARCH_PAPERS: {

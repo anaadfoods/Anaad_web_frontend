@@ -105,7 +105,7 @@ export class BlogDetailComponent implements OnInit, OnDestroy {
           const arr: Article[] = Array.isArray(data) ? data : (data.results || []);
           const filtered = arr.filter(a => a.id !== this.currentArticleId).slice(0, 3);
           if (filtered.length === 0) return of([]);
-          const detailRequests = filtered.map(art => 
+          const detailRequests = filtered.map(art =>
             this.blogsService.getArticleById(art.id).pipe(
               catchError(err => {
                 console.error(`Failed to fetch detail for related article ${art.id}`, err);
@@ -155,7 +155,7 @@ export class BlogDetailComponent implements OnInit, OnDestroy {
   generateTocAndInjectIds(content: string): string {
     this.tocItems = [];
     if (!content) return '';
-    
+
     let index = 0;
     return content.replace(/<(h2|h3)([^>]*)>([\s\S]*?)<\/\1>/gi, (match, tag, attrs, text) => {
       const id = `heading-${index++}`;
@@ -165,7 +165,7 @@ export class BlogDetailComponent implements OnInit, OnDestroy {
         text: cleanText,
         level: tag.toLowerCase() === 'h2' ? 2 : 3
       });
-      
+
       if (/id=/i.test(attrs)) {
         return match;
       }
@@ -216,16 +216,16 @@ export class BlogDetailComponent implements OnInit, OnDestroy {
     if (article.read_time) return article.read_time;
     const textToCount = (article as any).content || article.subtitle || article.title || '';
     if (!textToCount) return '5 min read';
-    
+
     const cleanText = textToCount.replace(/<[^>]*>/g, ' ');
     const wordCount = cleanText.trim().split(/\s+/).filter((w: string) => w.length > 0).length;
-    
+
     const minutes = 5 + Math.floor(wordCount / 200);
     return `${minutes} min read`;
   }
 
-  getImageUrl(url: string | null | undefined, fallback: string): string {
-    if (!url) return fallback;
+  getImageUrl(url: string | null | undefined): string {
+    if (!url) return 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
     if (url.startsWith('http')) return url;
     return `${environment.apiBaseUrl}${url.startsWith('/') ? '' : '/'}${url}`;
   }

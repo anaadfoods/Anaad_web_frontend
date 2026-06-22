@@ -2,6 +2,8 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
+import { API } from '../constants/api-endpoints';
+
 export interface Article {
   id: number;
   title: string;
@@ -14,13 +16,14 @@ export interface Article {
   cover_image: string | null;
   created_at: string;
   updated_at: string;
+  pdf_file?: string | null;
 }
 
 @Injectable({ providedIn: 'root' })
 export class BlogsService {
   private http = inject(HttpClient);
-  private blogEndpoint = '/api/blog/articles/?category=BLOG';
-  private featuredEndpoint = '/api/blog/articles/?category=FEATURED';
+  private blogEndpoint = `${API.BLOGS.LIST}?category=BLOG`;
+  private featuredEndpoint = `${API.BLOGS.LIST}?category=FEATURED`;
 
   /**
    * Fetch all blog articles (category=BLOG)
@@ -36,10 +39,11 @@ export class BlogsService {
     return this.http.get<Article[]>(this.featuredEndpoint);
   }
 
-  /**
-   * Fetch a single blog article by ID
-   */
   getArticleById(id: number): Observable<Article> {
-    return this.http.get<Article>(`/api/blog/articles/${id}/`);
+    return this.http.get<Article>(`${API.BLOGS.DETAIL}${id}/`);
+  }
+
+  getTags(): Observable<string[]> {
+    return this.http.get<string[]>(API.BLOGS.TAGS);
   }
 }

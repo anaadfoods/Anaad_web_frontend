@@ -59,9 +59,12 @@ import { AuthState } from '../../../core/state/auth.state';
         <div class="product-meta">
           <span class="product-format">{{ variant.weight }}{{ variant.unit }}</span>
           
-          <div class="price-block">
+          <div class="price-block" *ngIf="isActive()">
             <span class="price-mrp" *ngIf="hasDiscount()">{{ variant.compare_at_price | currencyInr }}</span>
             <span class="product-price">{{ variant.price | currencyInr }}</span>
+          </div>
+          <div class="price-block" *ngIf="!isActive()">
+            <span class="product-price">-</span>
           </div>
         </div>
         

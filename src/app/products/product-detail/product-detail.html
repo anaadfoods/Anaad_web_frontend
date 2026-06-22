@@ -72,7 +72,7 @@
 
         <!-- Rating hidden as reviews are not currently implemented in data model -->
 
-        <div class="price-block">
+        <div class="price-block" *ngIf="isActive()">
           <span class="price-main">{{ (purchaseType() === 'subscription' && selectedPlanId() ? discountedSubscriptionPrice : variant()?.price) | currencyInr }}</span>
           <span class="price-per">per {{ variant()?.weight }}{{ variant()?.unit }} &nbsp;&middot;&nbsp; incl. taxes</span>
           <span class="price-savings" *ngIf="purchaseType() === 'single' && variant()?.compare_at_price && savingsPercentage > 0">
@@ -81,6 +81,10 @@
           <span class="price-savings" *ngIf="purchaseType() === 'subscription' && selectedPlanId()">
             &#10003; Subscription Discount Applied
           </span>
+        </div>
+        <div class="price-block" *ngIf="!isActive()">
+          <span class="price-main">-</span>
+          <span class="price-per">per {{ variant()?.weight }}{{ variant()?.unit }}</span>
         </div>
 
         <!-- Purchase Type Options from Angular -->
@@ -172,6 +176,13 @@
           </ng-container>
 
           <button class="btn-wishlist" [class.active]="isFavorite()" (click)="toggleFavorite()" [disabled]="togglingFavorite()">{{ isFavorite() ? '♥' : '♡' }}</button>
+        </div>
+
+        <div class="trace-row" *ngIf="variant()?.crop_cycle_id" style="margin-top: 16px;">
+          <a [routerLink]="['/traceability-journey']" [queryParams]="{crop_id: variant()?.crop_cycle_id}" 
+             style="display: block; text-align: center; width: 100%; text-decoration: none; padding: 14px 24px; background-color: var(--earth-raw, #6B4226); color: #fff; font-family: var(--font-sans); font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; border-radius: 8px; transition: background-color 0.2s;">
+            Trace this Batch &#8594;
+          </a>
         </div>
 
         <div *ngIf="!isActive()" style="color: var(--amber-harvest, #E09E3E); font-family: var(--font-sans); padding: 12px 0; font-weight: 600;">
