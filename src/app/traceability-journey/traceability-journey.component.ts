@@ -14,7 +14,7 @@
   inject,
   signal
 } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
+import { isPlatformBrowser, NgTemplateOutlet } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { TraceabilityService } from '../core/services/traceability.service';
@@ -78,6 +78,11 @@ interface Stage {
   imagePosition?: 'top' | 'center';
 }
 
+interface StageBadge {
+  label: string;
+  tone: 'green' | 'gold' | 'neutral';
+}
+
 interface VineLeaf {
   x: number;
   y: number;
@@ -121,7 +126,7 @@ interface CanvasSeed {
 @Component({
   selector: 'app-traceability-journey',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, NgTemplateOutlet],
   templateUrl: './traceability-journey.component.html',
   styleUrl: './traceability-journey.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -212,6 +217,8 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
   protected readonly windTilt = signal(0);
   protected readonly flippedCard = signal<number | null>(null);
   protected readonly parallaxOffset = signal(0);
+  protected readonly heroParallax = signal(0);
+  protected readonly flipStampStage = signal<number | null>(null);
 
   // Liquid Glass Cursor & Holographic 3D Tilt (with Zoom)
   private realMouseX = 0;
@@ -237,6 +244,7 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
   private canvasLoopActive = false;
   private lastScrollTop = 0;
   private scrollSpeed = 0;
+  private flipStampTimer: ReturnType<typeof setTimeout> | null = null;
 
   // Next-Gen Feature 4: Canvas physics seeds
   private seedsList: CanvasSeed[] = [];
@@ -259,12 +267,12 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
   protected readonly stages: Stage[] = [
     {
       id: 1,
-      title: 'Know Your Seed',
-      summary: 'Pure seeds. Pure intention. The journey begins.',
-      detail:
-        'Every grain starts with a seed ΓÇö traceably sourced, naturally stored, and ready to meet living soil.',
+      title: 'Land preparation',
+      summary:
+        'Every journey begins with the ground itself. Before the seed is sown, the field is prepared with prepped cow dung and natural soil treatment, helping restore the living strength of the land and creating a healthier beginning for what will grow next.',
+      detail: 'Date of land preparation: Pending',
       image: 'assets/traceability/stage-1.png',
-      alt: 'A farmer scattering seeds over red living soil at sunrise.',
+      alt: 'A field being prepared with natural soil treatment before sowing.',
       effect: 'seeds',
       align: 'right',
       artShiftX: 50,
@@ -276,10 +284,10 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
     },
     {
       id: 2,
-      title: 'Know Your Farmer',
-      summary: 'Meet the hands that nurture your food from seed to soil.',
-      detail:
-        'Every crop has a farmer behind it ΓÇö with years of natural farming experience and deep respect for the land.',
+      title: 'Know your farmer',
+      summary:
+        'Behind every harvest is someone who reads the land. This is the grower who carried this crop through the season — not as a transaction, but as a living relationship with soil, weather, and time.',
+      detail: 'Cultivated by: Pending',
       image: 'assets/traceability/stage-2.png',
       alt: 'A farmer standing proudly in a green field.',
       effect: 'motes',
@@ -294,10 +302,10 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
     },
     {
       id: 3,
-      title: 'Crop Cycle',
-      summary: 'Season, soil and science ΓÇö the crop cycle tells the full growing story.',
-      detail:
-        'From sowing to harvest, every milestone is recorded with precision ΓÇö season, patch, technique and grade.',
+      title: 'The crop cycle',
+      summary:
+        'A crop is more than grain waiting to be cut. It is a rhythm — sowing, tending, waiting — and every milestone of that rhythm is recorded here, so the field stays present long after the harvest.',
+      detail: 'Crop cycle: Pending',
       image: 'assets/traceability/stage-3.png',
       alt: 'Young crop rows rising from a fertile field under warm light.',
       effect: 'crop',
@@ -311,10 +319,10 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
     },
     {
       id: 4,
-      title: 'Farming Activities',
-      summary: 'Every task on the farm ΓÇö ploughing, sowing, fertilizing ΓÇö logged and traceable.',
-      detail:
-        'The detailed field log captures every action taken on the land, from soil preparation to the final harvest.',
+      title: 'Field work',
+      summary:
+        'Trust grows in the details. Every ploughing, feeding, weeding, and watering is logged as it happens — because how food is cared for matters as much as what it becomes.',
+      detail: 'Field activities: Pending',
       image: 'assets/traceability/stage-4.png',
       alt: 'A farmer working in the field with traditional tools.',
       effect: 'chaff',
@@ -329,17 +337,17 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
     {
       id: 5,
       title: 'Harvest',
-      summary: 'Harvested at the right time to preserve nature\'s true goodness.',
-      detail:
-        'The field is cut when grain, moisture and maturity align ΓÇö protecting quality before processing begins.',
+      summary:
+        'Harvest is the field speaking back. After months of care, the crop is cut at the right time, and the season\'s effort becomes something real, visible, and ready for the next step in its journey.',
+      detail: 'Date of harvest: Pending',
       image: 'assets/traceability/stage-5.png',
-      alt: 'A traditional stone grinding room with firelight and tools.',
+      alt: 'A farmer cutting wheat, with full wheat fields behind him and bundles of wheat straw beside him.',
       effect: 'fire',
       align: 'right',
-      artShiftX: 62,
-      artShiftY: -16,
-      copyShiftX: -28,
-      copyShiftY: 24,
+      artShiftX: 48,
+      artShiftY: -8,
+      copyShiftX: -20,
+      copyShiftY: 12,
       frameTilt: 5,
       artWidth: 'min(100%, 21rem)',
       imageFit: 'cover',
@@ -348,12 +356,12 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
     },
     {
       id: 6,
-      title: 'Raw Material Inventory',
-      summary: 'Stored in natural conditions. Every day in the silo is tracked.',
-      detail:
-        'The harvested grain rests in breathable storage, with temperature and humidity monitored until it moves to processing.',
-      image: 'assets/traceability/stage-6.png',
-      alt: 'Sacks of grain stored carefully in a traditional interior.',
+      title: 'Raw material inventory',
+      summary:
+        'After harvest, the grain does not rush forward. It rests in breathable storage — watched over and held with care until the field\'s patience becomes the mill\'s readiness.',
+      detail: 'Storage: Pending',
+      image: 'assets/traceability/stage-5.png',
+      alt: 'A farmer cutting wheat, with full wheat fields behind him and bundles of wheat straw beside him.',
       effect: 'dust',
       align: 'left',
       artShiftX: -54,
@@ -366,11 +374,11 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
     {
       id: 7,
       title: 'Processing',
-      summary: 'Slow traditional processing retains natural nutrition and aroma.',
-      detail:
-        'Instead of industrial heat and speed, the grain meets a slower, grounded process that respects texture, flavor and life force.',
-      image: 'assets/traceability/stage-7.png',
-      alt: 'Anaad products being processed with traditional methods.',
+      summary:
+        'Here, speed is refused in favour of integrity. The grain moves through slower, gentler methods that preserve what the field worked hard to grow — texture, aroma, and life.',
+      detail: 'Processing: Pending',
+      image: 'assets/traceability/stage-6.png',
+      alt: 'Sacks of grain stored carefully in a traditional interior.',
       effect: 'package',
       align: 'right',
       artShiftX: 84,
@@ -383,9 +391,9 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
     {
       id: 8,
       title: 'Packaging',
-      summary: 'Packed hygienically with care, clarity and traceable discipline.',
-      detail:
-        'The product is portioned, weighed and packed ΓÇö every packet carries its own unique traceable identity.',
+      summary:
+        'Each packet is more than a container. It is the moment this batch receives its own identity — weighed, sealed, and made ready to carry its story beyond the farm.',
+      detail: 'Packaging: Pending',
       image: 'assets/traceability/stage-8.png',
       alt: 'Anaad products being packed on a work table with sacks and tools.',
       effect: 'wheel',
@@ -399,12 +407,12 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
     },
     {
       id: 9,
-      title: 'Finished Goods Inventory',
-      summary: 'Warehouse-tracked. Every packet accounted for before dispatch.',
-      detail:
-        'Finished products are logged into the central warehouse with precise entry and exit timestamps.',
-      image: 'assets/traceability/stage-9.png',
-      alt: 'A warehouse with neatly stacked product boxes ready for dispatch.',
+      title: 'Finished goods inventory',
+      summary:
+        'Before any product travels, it is accounted for. Every unit enters the warehouse with a timestamp and leaves with one — so nothing moves in silence.',
+      detail: 'Warehouse: Pending',
+      image: 'assets/traceability/stage-7.png',
+      alt: 'Anaad products being processed with traditional methods.',
       effect: 'route',
       align: 'right',
       artShiftX: 76,
@@ -416,10 +424,10 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
     },
     {
       id: 10,
-      title: 'Transportation',
-      summary: 'Delivered with care through ethical and sustainable transport.',
-      detail:
-        'Movement begins ΓÇö the carrier, vehicle and route become part of the same living traceability thread.',
+      title: 'Transit',
+      summary:
+        'Once the batch leaves the warehouse, the journey continues in motion. Carrier, route, and handover become part of the same traceable thread — never lost between origin and arrival.',
+      detail: 'Transit: Pending',
       image: 'assets/traceability/stage-10.png',
       alt: 'A delivery vehicle transporting produce.',
       effect: 'steam',
@@ -433,12 +441,12 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
     },
     {
       id: 11,
-      title: 'Delivery Across India',
-      summary: 'Traceable nourishment travelling across the country with visible intent.',
-      detail:
-        'The route glows outward from source, making nationwide delivery transparent rather than abstract.',
-      image: 'assets/traceability/stage-11.png',
-      alt: 'A final branded traceability illustration closing the journey.',
+      title: 'Delivery',
+      summary:
+        'This is where traceability meets the table. The route ends not in abstraction, but at a door — with each milestone recorded as the batch moves closer to you.',
+      detail: 'Delivery: Pending',
+      image: 'assets/traceability/stage-9.png',
+      alt: 'A warehouse with neatly stacked product boxes ready for dispatch.',
       effect: 'halo',
       align: 'right',
       artShiftX: 40,
@@ -451,10 +459,10 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
     },
     {
       id: 12,
-      title: 'Trust Complete',
-      summary: 'Purity verified. Traceability complete. From soil to soul.',
-      detail:
-        'The journey closes with confidence ΓÇö the brand seals its promise after all previous proof.',
+      title: 'Trust complete',
+      summary:
+        'When every step has been visible, trust does not need to be argued for. It simply stands — verified, scanned, and complete from soil to soul.',
+      detail: 'Verification: Pending',
       image: 'assets/traceability/stage-11.png',
       alt: 'A final branded traceability illustration closing the journey.',
       effect: 'halo',
@@ -781,50 +789,38 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
     const orderTk = this.orderTracking();
     const subTk = this.subTracking();
 
-    // Stage 10 — Transportation
     if (orderTk) {
       const events = orderTk.tracking_events ?? [];
       const latest = events[events.length - 1];
       const isFallback = this.trackingFromFallback();
-      this.stages[9].summary = isFallback
-        ? `Order ${orderTk.status} — awaiting shipment`
-        : `${orderTk.status}${latest ? ' — ' + latest.location : ''}`;
-      this.stages[9].detail = isFallback
-        ? `Order ${orderTk.order_number} · Est. ${orderTk.estimated_delivery ?? 'TBD'}`
-        : `AWB: ${orderTk.awb_number ?? 'N/A'} | ${events.length} tracking event(s) | Order: ${orderTk.order_number}`;
-    } else if (subTk && subTk.length > 0) {
-      const latest = subTk[subTk.length - 1];
-      this.stages[9].summary = `${latest.status} — ${subTk.length} shipment(s)`;
-      this.stages[9].detail = `Latest AWB: ${latest.awb_number ?? 'N/A'} | Subscription tracking active`;
-    }
-
-    // Stage 11 — Delivery Across India
-    if (orderTk) {
-      const delivered = orderTk.tracking_events?.find(e => e.status === 'DELIVERED');
       const isDelivered = orderTk.status === 'DELIVERED';
-      const isFallback = this.trackingFromFallback();
-      this.stages[10].summary = isDelivered
-        ? 'Delivered ✓ — Product reached you'
-        : isFallback
-          ? `Order ${orderTk.status} — Est. ${orderTk.estimated_delivery ?? 'TBD'}`
-          : `In Transit — Est. ${orderTk.estimated_delivery ?? 'TBD'}`;
-      this.stages[10].detail = delivered
-        ? `Delivered at ${delivered.location} on ${delivered.timestamp}`
-        : isFallback
-          ? `Delivery to your address once the order ships from our warehouse`
-          : `${orderTk.tracking_events.length} milestone(s) tracked | Est: ${orderTk.estimated_delivery ?? 'TBD'}`;
-    } else if (subTk && subTk.length > 0) {
-      const deliveredCount = subTk.filter(s => s.status === 'DELIVERED').length;
-      this.stages[10].summary = `${deliveredCount} of ${subTk.length} deliveries completed`;
-      this.stages[10].detail = `Subscription active — Next delivery scheduled`;
-    }
+      const delivered = events.find((event) => event.status === 'DELIVERED');
 
-    // Stage 12 — Trust Complete
-    const isFullyDelivered = (orderTk?.status === 'DELIVERED') ||
-      (subTk?.some(s => s.status === 'DELIVERED') ?? false);
-    if (isFullyDelivered) {
-      this.stages[11].summary = 'Delivery Confirmed — From Soil to Soul, complete.';
-      this.stages[11].detail = 'Your product was grown, processed, packed and delivered with full traceability.';
+      this.stages[9].detail = isFallback
+        ? `Order ${orderTk.order_number} · ${orderTk.status} · Est. ${orderTk.estimated_delivery ?? 'to be confirmed'}`
+        : latest
+          ? `In transit · ${latest.location} · AWB ${orderTk.awb_number ?? 'pending'}`
+          : `Order ${orderTk.order_number} · ${orderTk.status}`;
+
+      this.stages[10].detail = isDelivered && delivered
+        ? `Delivered to you · ${delivered.location} · ${delivered.timestamp}`
+        : isFallback
+          ? `Awaiting shipment · Est. delivery ${orderTk.estimated_delivery ?? 'to be confirmed'}`
+          : `On the way to you · Est. ${orderTk.estimated_delivery ?? 'to be confirmed'}`;
+
+      if (isDelivered) {
+        this.stages[11].detail = `Journey complete · Order ${orderTk.order_number} delivered with full traceability`;
+      }
+    } else if (subTk && subTk.length > 0) {
+      const deliveredCount = subTk.filter((shipment) => shipment.status === 'DELIVERED').length;
+      const latest = subTk[subTk.length - 1];
+
+      this.stages[9].detail = `Subscription tracking · ${subTk.length} shipment${subTk.length === 1 ? '' : 's'} · Latest AWB ${latest.awb_number ?? 'pending'}`;
+      this.stages[10].detail = `${deliveredCount} of ${subTk.length} subscription deliveries completed`;
+
+      if (deliveredCount > 0) {
+        this.stages[11].detail = 'Journey complete · Your subscription delivery arrived with full traceability';
+      }
     }
   }
 
@@ -1106,158 +1102,149 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
     }, 600);
   }
 
-  /** Update stage titles and summaries with live API data */
+  /** Update live data lines on front cards; narrative copy stays in the stages array */
   private updateStagesFromApi(journey: TraceabilityJourney): void {
-    const seed = journey.seed;
     const crop = journey.cropCycle;
     const farmland = journey.farmland;
     const harvest = journey.harvest;
     const processing = journey.processing;
     const packaging = journey.packaging;
     const logistics = journey.logistics;
-    const product = journey.product;
-    const qc = journey.qualityChecks;
     const auth = journey.authenticity;
+    const activities = journey.farmingActivities ?? [];
+    const workEntries = farmland?.workEntries ?? [];
 
-    // Stage 1 ΓÇö Know Your Seed
-    if (seed) {
-      this.stages[0].summary = `${seed.cropName}${seed.variety ? ' (' + seed.variety + ')' : ''} ΓÇö ${seed.isOrganic ? 'Organic Γ£à' : 'Conventional'}`;
-      this.stages[0].detail = `Sourced from ${seed.source}.${seed.purchaseDate ? ' Purchased on ' + this.formatDate(seed.purchaseDate) + '.' : ''} Seed Code: ${seed.seedCode}.`;
-    } else if (crop?.seedCode) {
-      this.stages[0].summary = `${crop.cropName}${crop.scientificName ? ' (' + crop.scientificName + ')' : ''}`;
-      this.stages[0].detail = `Seed: ${crop.seedCode}.${crop.sourceOfSeed ? ' Source: ' + crop.sourceOfSeed + '.' : ''}`;
-    }
+    const landPrepDate = this.findLandPreparationDate(journey);
+    this.stages[0].detail = landPrepDate
+      ? `Date of land preparation: ${this.formatDate(landPrepDate)}`
+      : 'Date of land preparation: Pending';
 
-    // Stage 2 — Know Your Farmer
-    if (crop?.farmer) {
-      const f = crop.farmer;
-      const photo = this.resolveFarmerPhoto(f);
-      this.stages[1].summary = `${f.name}${f.place ? ' — ' + f.place : ''}`;
-      this.stages[1].detail = `${f.experience ? 'Experience: ' + f.experience + (typeof f.experience === 'number' ? ' years' : '') + '. ' : ''}${f.age ? 'Age: ' + f.age + '.' : ''}`;
+    const farmer = crop?.farmer;
+    if (farmer) {
+      const place = farmer.place ? `, ${farmer.place}` : '';
+      const experience = farmer.experience
+        ? ` · ${farmer.experience}${typeof farmer.experience === 'number' ? ' years on the land' : ''}`
+        : '';
+      this.stages[1].detail = `Cultivated by: ${farmer.name}${place}${experience}`;
+
+      const photo = this.resolveFarmerPhoto(farmer);
       if (photo) {
         this.stages[1].image = photo;
-        this.stages[1].alt = `${f.name}${f.place ? ', ' + f.place : ''} — Anaad farmer`;
+        this.stages[1].alt = `${farmer.name}${farmer.place ? ', ' + farmer.place : ''} — Anaad farmer`;
         this.stages[1].imageFit = 'cover';
         this.stages[1].imagePosition = 'center';
       }
+    } else {
+      this.stages[1].detail = 'Cultivated by: To be recorded for this batch';
     }
 
-    // Stage 3 ΓÇö Crop Cycle
     if (crop) {
-      this.stages[2].summary = `${crop.cropName}${crop.season ? ' ΓÇö ' + crop.season : ''} ${crop.sowingDate ? new Date(crop.sowingDate + 'T00:00:00').getFullYear() : ''}`;
-      const details: string[] = [];
-      if (crop.sowingDate) details.push('Sown: ' + this.formatDate(crop.sowingDate));
-      if (crop.expectedHarvestDate) details.push('Expected Harvest: ' + this.formatDate(crop.expectedHarvestDate));
-      if (crop.naturalFarmingTechniques) details.push('Techniques: ' + crop.naturalFarmingTechniques);
-      if (crop.cropGrade) details.push('Grade: ' + crop.cropGrade);
-      if (farmland?.block?.name) details.push('Block: ' + farmland.block.name);
-      if (farmland?.patch?.name) details.push('Patch: ' + farmland.patch.name);
-      details.push('Cycle: ' + crop.cycleCode);
-      this.stages[2].detail = details.join(' | ');
+      const parts = [crop.cropName];
+      if (crop.season) parts.push(crop.season);
+      if (crop.sowingDate) parts.push(`Sown ${this.formatDate(crop.sowingDate)}`);
+      if (farmland?.patch?.name) parts.push(farmland.patch.name);
+      this.stages[2].detail = parts.join(' · ');
+    } else {
+      this.stages[2].detail = 'Crop cycle: Pending';
     }
 
-    // Stage 4 ΓÇö Farming Activities & Work Entries
-    const workEntries = farmland?.workEntries ?? [];
-    const activities = journey.farmingActivities ?? [];
     const totalTasks = workEntries.length + activities.length;
     if (totalTasks > 0) {
-      this.stages[3].summary = `${totalTasks} farming task(s) logged for this crop cycle.`;
-      const taskDescs: string[] = [];
-      workEntries.forEach(w => taskDescs.push(`${w.tag}${w.task ? ' (' + w.task + ')' : ''}: ${w.status}`));
-      activities.forEach(a => taskDescs.push(`${a.activityType.replace(/_/g, ' ')}${a.date ? ' on ' + this.formatDate(a.date) : ''}`));
-      this.stages[3].detail = taskDescs.slice(0, 6).join(' | ') + (totalTasks > 6 ? ` + ${totalTasks - 6} moreΓÇª` : '');
+      const latestActivity = [...activities]
+        .filter((activity) => activity.date)
+        .sort((a, b) => (b.date ?? '').localeCompare(a.date ?? ''))[0];
+      const latestWork = [...workEntries]
+        .filter((entry) => entry.startDate)
+        .sort((a, b) => (b.startDate ?? '').localeCompare(a.startDate ?? ''))[0];
+
+      if (latestActivity?.date) {
+        const label = latestActivity.activityType.replace(/_/g, ' ').toLowerCase();
+        this.stages[3].detail = `${totalTasks} field activit${totalTasks === 1 ? 'y' : 'ies'} recorded · Latest: ${label} on ${this.formatDate(latestActivity.date)}`;
+      } else if (latestWork?.startDate) {
+        this.stages[3].detail = `${totalTasks} field activit${totalTasks === 1 ? 'y' : 'ies'} recorded · Latest: ${latestWork.tag} on ${this.formatDate(latestWork.startDate)}`;
+      } else {
+        this.stages[3].detail = `${totalTasks} field activit${totalTasks === 1 ? 'y' : 'ies'} recorded for this batch`;
+      }
     } else {
-      this.stages[3].summary = 'Farming tasks will appear as field work progresses.';
-      this.stages[3].detail = 'No farming activities or work entries recorded yet for this cycle.';
+      this.stages[3].detail = 'Field activities: Pending';
     }
 
-    // Stage 5 ΓÇö Harvest
-    if (harvest) {
-      this.stages[4].summary = `${harvest.cropName} ΓÇö ${harvest.rawQuantity ?? 'N/A'}${harvest.qualityGrade ? ' | Grade: ' + harvest.qualityGrade : ''}`;
-      this.stages[4].detail = `Harvested on ${harvest.harvestDate ? this.formatDate(harvest.harvestDate) : 'N/A'}.${harvest.harvestType ? ' Method: ' + harvest.harvestType + '.' : ''}${harvest.moistureLevel !== null ? ' Moisture: ' + harvest.moistureLevel + '%.' : ''} Batch: ${harvest.batchCode}.`;
-    } else if (crop?.actualHarvestDate) {
-      this.stages[4].summary = `${crop.cropName} ΓÇö Harvest Completed`;
-      this.stages[4].detail = `Harvested from ${crop.blockName || 'fields'}${crop.patchName ? ' (' + crop.patchName + ')' : ''} on ${this.formatDate(crop.actualHarvestDate)}.`;
-    } else {
-      this.stages[4].summary = 'Harvest Pending';
-      this.stages[4].detail = 'The crop is still growing. Harvest details will appear after the crop is harvested.';
-    }
+    const harvestDate = this.findHarvestDate(journey);
+    this.stages[4].detail = harvestDate
+      ? `Date of harvest: ${this.formatDate(harvestDate)}`
+      : 'Date of harvest: Pending';
 
-    // Stage 6 ΓÇö Raw Material Inventory
     if (harvest?.storedAt) {
-      this.stages[5].summary = `Stored at ${harvest.storageFacilityName ?? 'farm silo'}${harvest.curingDurationDays !== null ? ' ΓÇö ' + harvest.curingDurationDays + ' days' : ''}`;
-      const invDetails: string[] = [];
-      invDetails.push('Received: ' + this.formatDateTime(harvest.storedAt));
-      if (harvest.curedUntil) invDetails.push('Released: ' + this.formatDateTime(harvest.curedUntil));
-      if (harvest.storageCondition) invDetails.push('Conditions: ' + harvest.storageCondition);
-      this.stages[5].detail = invDetails.join(' | ');
+      const facility = harvest.storageFacilityName ?? 'farm storage';
+      this.stages[5].detail = `Stored at ${facility} since ${this.formatDateTime(harvest.storedAt)}`;
     } else if (harvest) {
-      this.stages[5].summary = 'Storage Pending';
-      this.stages[5].detail = 'Harvest completed. Awaiting transfer to raw material storage.';
+      this.stages[5].detail = 'Awaiting entry into raw material storage';
     } else {
-      this.stages[5].summary = 'Awaiting Harvest';
-      this.stages[5].detail = 'Raw material inventory tracking will begin after the harvest is stored.';
+      this.stages[5].detail = 'Storage will be recorded after harvest';
     }
 
-    // Stage 7 ΓÇö Processing
-    if (processing && processing.length > 0) {
-      this.stages[6].summary = `${processing.length} processing stage(s): ${processing.map(p => p.processType.replace(/_/g, ' ')).join(', ')}.`;
-      this.stages[6].detail = processing.map(p => `${p.processType}: ${p.status}${p.completedAt ? ' (completed ' + this.formatDateTime(p.completedAt) + ')' : ''}`).join(' | ');
+    if (processing?.length) {
+      const primary = processing.find((item) => item.status === 'COMPLETED') ?? processing[0];
+      const label = primary.processType.replace(/_/g, ' ').toLowerCase();
+      const when = primary.completedAt
+        ? ` on ${this.formatDateTime(primary.completedAt)}`
+        : primary.startedAt
+          ? ` · started ${this.formatDateTime(primary.startedAt)}`
+          : '';
+      this.stages[6].detail = `${this.capitalizeWords(label)} · ${primary.status.toLowerCase()}${when}`;
     } else {
-      this.stages[6].summary = 'Processing Pending';
-      this.stages[6].detail = 'Processing will be scheduled after the raw material inventory phase.';
+      this.stages[6].detail = 'Processing: Pending';
     }
 
-    // Stage 8 ΓÇö Packaging
     if (packaging) {
-      this.stages[7].summary = `${packaging.totalUnits} packets of ${packaging.unitSize ?? product?.unitSize ?? 'N/A'} ΓÇö ${packaging.status}`;
-      this.stages[7].detail = `Packed on ${packaging.packagingDate ? this.formatDate(packaging.packagingDate) : 'N/A'}. Mfg: ${packaging.manufacturingDate ? this.formatDate(packaging.manufacturingDate) : 'N/A'} | Exp: ${packaging.expiryDate ? this.formatDate(packaging.expiryDate) : 'N/A'}. Code: ${packaging.packagingCode}.`;
+      const packedOn = packaging.packagingDate ? this.formatDate(packaging.packagingDate) : null;
+      const units = packaging.totalUnits ? `${packaging.totalUnits} units` : 'Batch packed';
+      this.stages[7].detail = packedOn
+        ? `${units} · Packed ${packedOn} · ${packaging.packagingCode}`
+        : `${units} · ${packaging.packagingCode}`;
     } else {
-      this.stages[7].summary = 'Packaging Pending';
-      this.stages[7].detail = 'Packaging will begin after processing is complete.';
+      this.stages[7].detail = 'Packaging: Pending';
     }
 
-    // Stage 9 ΓÇö Finished Goods Inventory
     if (packaging?.warehouseReceivedAt) {
-      this.stages[8].summary = `${packaging.warehouseName ?? 'Warehouse'}${packaging.warehouseDurationDays !== null ? ' ΓÇö ' + packaging.warehouseDurationDays + ' days' : ''}`;
-      const whDetails: string[] = [];
-      whDetails.push('Received: ' + this.formatDateTime(packaging.warehouseReceivedAt));
-      if (packaging.warehouseDispatchedAt) whDetails.push('Dispatched: ' + this.formatDateTime(packaging.warehouseDispatchedAt));
-      this.stages[8].detail = whDetails.join(' | ');
+      const warehouse = packaging.warehouseName ?? 'Central warehouse';
+      this.stages[8].detail = `At ${warehouse} since ${this.formatDateTime(packaging.warehouseReceivedAt)}`;
     } else {
-      this.stages[8].summary = 'Warehouse Pending';
-      this.stages[8].detail = 'Finished goods will be tracked after packaging is complete.';
+      this.stages[8].detail = 'Warehouse entry: Pending';
     }
 
-    // Stage 10 ΓÇö Transportation
     if (logistics) {
-      this.stages[9].summary = `${logistics.carrier ?? 'Carrier N/A'}${logistics.status ? ' ΓÇö ' + logistics.status : ''}`;
-      const transDetails: string[] = [];
-      if (logistics.origin) transDetails.push('From: ' + logistics.origin);
-      if (logistics.vehicleNumber) transDetails.push('Vehicle: ' + logistics.vehicleNumber);
-      this.stages[9].detail = transDetails.join(' | ') || 'Transit details pending.';
+      const parts: string[] = [];
+      if (logistics.carrier) parts.push(logistics.carrier);
+      if (logistics.origin) parts.push(`From ${logistics.origin}`);
+      if (logistics.vehicleNumber) parts.push(`Vehicle ${logistics.vehicleNumber}`);
+      this.stages[9].detail = parts.length ? parts.join(' · ') : 'Transit details: Pending';
     } else {
-      this.stages[9].summary = 'Transportation Pending';
-      this.stages[9].detail = 'Logistics tracking will begin after warehouse dispatch.';
+      this.stages[9].detail = 'Transit: Pending';
     }
 
-    // Stage 11 ΓÇö Delivery Across India
     if (logistics?.destination) {
-      this.stages[10].summary = `${logistics.destination}${logistics.deliveredAt ? ' ΓÇö Delivered Γ£à' : ' ΓÇö In Transit'}`;
-      const delDetails: string[] = [];
-      if (logistics.deliveredAt) delDetails.push('Delivered: ' + this.formatDateTime(logistics.deliveredAt));
-      if (logistics.steps?.length) delDetails.push(logistics.steps.length + ' milestone(s) tracked');
-      this.stages[10].detail = delDetails.join(' | ') || 'Delivery details pending.';
+      this.stages[10].detail = logistics.deliveredAt
+        ? `Delivered to ${logistics.destination} · ${this.formatDateTime(logistics.deliveredAt)}`
+        : `En route to ${logistics.destination}`;
     } else {
-      this.stages[10].summary = 'Delivery Pending';
-      this.stages[10].detail = 'Delivery tracking will appear once the shipment is in transit.';
+      this.stages[10].detail = 'Delivery: Pending';
     }
 
-    // Stage 12 ΓÇö Trust Complete
     if (auth) {
-      this.stages[11].summary = `${auth.message}`;
-      this.stages[11].detail = `Scan #${auth.scanCount}${auth.verifiedAt ? ' | Verified: ' + this.formatDateTime(auth.verifiedAt) : ''}${auth.qrCode ? ' | QR: ' + auth.qrCode : ''}`;
+      const verified = auth.verifiedAt ? ` · Verified ${this.formatDateTime(auth.verifiedAt)}` : '';
+      this.stages[11].detail = `Scan #${auth.scanCount}${verified}`;
+    } else {
+      this.stages[11].detail = 'Verification: Pending';
     }
+
+    if (this.isUnlocked() && (this.orderTracking() || this.subTracking()?.length)) {
+      this.updateStagesFromDelivery();
+    }
+  }
+
+  private capitalizeWords(value: string): string {
+    return value.replace(/\b\w/g, (char) => char.toUpperCase());
   }
 
   /** Resolve farmer photo from API (supports camelCase and snake_case keys) */
@@ -1266,6 +1253,27 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
     const raw = farmer as TraceFarmer & { photo_url?: string | null; photo?: string | null; image_url?: string | null };
     const url = farmer.photoUrl ?? raw.photo_url ?? raw.photo ?? raw.image_url ?? null;
     return url && url.trim().length > 0 ? url.trim() : null;
+  }
+
+  /** Resolve land preparation date from farming activities or field work entries */
+  private findLandPreparationDate(journey: TraceabilityJourney): string | null {
+    const soilPrepActivity = (journey.farmingActivities ?? []).find((activity) =>
+      activity.activityType === 'SOIL_PREPARATION' ||
+      /land|soil|prep|plough/i.test(activity.activityType)
+    );
+    if (soilPrepActivity?.date) {
+      return soilPrepActivity.date;
+    }
+
+    const landWork = (journey.farmland?.workEntries ?? []).find((entry) =>
+      /plough|land|soil|prep/i.test(entry.tag) || /plough|land|soil|prep/i.test(entry.task ?? '')
+    );
+    return landWork?.startDate ?? landWork?.endDate ?? null;
+  }
+
+  /** Resolve harvest date from harvest record or crop cycle */
+  private findHarvestDate(journey: TraceabilityJourney): string | null {
+    return journey.harvest?.harvestDate ?? journey.cropCycle?.actualHarvestDate ?? null;
   }
 
   /** Format YYYY-MM-DD to human readable (e.g., "15 Mar 2026") */
@@ -1439,6 +1447,9 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
 
   ngOnDestroy(): void {
     this.stageObserver?.disconnect();
+    if (this.flipStampTimer) {
+      clearTimeout(this.flipStampTimer);
+    }
     if (this.rafId !== null) cancelAnimationFrame(this.rafId);
     if (this.canvasRafId !== null) cancelAnimationFrame(this.canvasRafId);
     if (this.cursorRafId !== null) cancelAnimationFrame(this.cursorRafId);
@@ -1504,6 +1515,11 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
     const prevParallax = this.parallaxOffset();
     if (Math.abs(scrollTop - prevParallax) > 0.5) {
       this.parallaxOffset.set(scrollTop);
+    }
+
+    const heroShift = Math.min(scrollTop, vh * 0.92);
+    if (Math.abs(heroShift - this.heroParallax()) > 0.5) {
+      this.heroParallax.set(heroShift);
     }
 
     // Calculate scroll speed for wind-sway leaf animation and liquid warp
@@ -1635,11 +1651,108 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
     event.stopPropagation();
     if (stageId === null) {
       this.flippedCard.set(null);
+      this.flipStampStage.set(null);
     } else if (this.flippedCard() === stageId) {
       this.flippedCard.set(null);
+      this.flipStampStage.set(null);
     } else {
       this.flippedCard.set(stageId);
+      this.triggerFlipStamp(stageId);
     }
+  }
+
+  private triggerFlipStamp(stageId: number): void {
+    if (this.flipStampTimer) {
+      clearTimeout(this.flipStampTimer);
+    }
+    this.flipStampStage.set(stageId);
+    this.flipStampTimer = setTimeout(() => {
+      this.flipStampStage.set(null);
+      this.flipStampTimer = null;
+    }, 900);
+  }
+
+  protected getStageDataLabel(stageId: number): string {
+    if (stageId >= 12) {
+      return 'Verified';
+    }
+    if (stageId >= 10 && (this.orderTracking() || (this.subTracking()?.length ?? 0) > 0)) {
+      return 'Live';
+    }
+    return 'Recorded';
+  }
+
+  protected isLongStageTitle(title: string): boolean {
+    return title.length > 16;
+  }
+
+  protected getStageBadges(stageId: number): StageBadge[] {
+    const badges: StageBadge[] = [];
+    const seed = this.traceSeed();
+    const crop = this.traceCropCycle();
+    const harvest = this.traceHarvest();
+    const packaging = this.tracePackaging();
+    const logistics = this.traceLogistics();
+    const auth = this.traceAuthenticity();
+    const orderTk = this.orderTracking();
+    const subTk = this.subTracking();
+
+    switch (stageId) {
+      case 1:
+        if (seed?.isOrganic) {
+          badges.push({ label: 'Organic', tone: 'green' });
+        }
+        break;
+      case 3:
+        if (crop?.cropGrade) {
+          badges.push({ label: `Grade ${crop.cropGrade}`, tone: 'gold' });
+        }
+        if (crop?.season) {
+          badges.push({ label: crop.season, tone: 'neutral' });
+        }
+        break;
+      case 5:
+        if (harvest?.qualityGrade) {
+          badges.push({ label: harvest.qualityGrade, tone: 'gold' });
+        }
+        if (harvest?.rawQuantity) {
+          badges.push({ label: harvest.rawQuantity, tone: 'neutral' });
+        }
+        break;
+      case 8:
+        if (packaging?.status) {
+          badges.push({ label: packaging.status, tone: 'neutral' });
+        }
+        if (packaging?.totalUnits) {
+          badges.push({ label: `${packaging.totalUnits} units`, tone: 'gold' });
+        }
+        break;
+      case 10:
+        if (orderTk?.status === 'DELIVERED' || subTk?.some((s) => s.status === 'DELIVERED')) {
+          badges.push({ label: 'Delivered', tone: 'green' });
+        } else if (orderTk?.status) {
+          badges.push({ label: orderTk.status, tone: 'gold' });
+        } else if (logistics?.status) {
+          badges.push({ label: logistics.status, tone: 'gold' });
+        }
+        break;
+      case 11:
+        if (orderTk?.status === 'DELIVERED') {
+          badges.push({ label: 'Delivered', tone: 'green' });
+        } else if (orderTk?.estimated_delivery) {
+          badges.push({ label: `Est. ${orderTk.estimated_delivery}`, tone: 'gold' });
+        } else if (logistics?.destination) {
+          badges.push({ label: logistics.destination, tone: 'neutral' });
+        }
+        break;
+      case 12:
+        if (auth) {
+          badges.push({ label: `Scan #${auth.scanCount}`, tone: 'green' });
+        }
+        break;
+    }
+
+    return badges;
   }
 
   /* ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
