@@ -272,7 +272,7 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
       id: 1,
       title: 'Know your seed',
       summary:
-        'Every journey begins with two quiet choices — the seed that carries life forward, and the land that receives it. Before a single grain is sown, the field is readied with prepped cow dung and natural soil care, so the seed meets living soil, not exhausted ground. At ANAAD, we trace both: where the seed came from, and how the land was prepared to welcome it.',
+        'Great food begins with a deliberate choice: the right seed and the right soil. We record where each seed comes from and how the land was prepared, so every grain starts life in living, nourished ground — not depleted earth. That trace is your guarantee of origin and care.',
       detail: 'Seed & land preparation: Pending',
       image: 'assets/traceability/stage-1.png',
       alt: 'Seed and prepared field — the first steps of a traceable harvest.',
@@ -289,7 +289,7 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
       id: 2,
       title: 'Know your farmer',
       summary:
-        'Behind every harvest is someone who reads the land. This is the grower who carried this crop through the season — not as a transaction, but as a living relationship with soil, weather, and time.',
+        'Behind every crop is a steward of the land. We record who tended this field, their methods, and their relationship with the soil — so you know the hands and the intent behind your food.',
       detail: 'Cultivated by: Pending',
       image: 'assets/traceability/stage-2.png',
       alt: 'A farmer standing proudly in a green field.',
@@ -307,7 +307,7 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
       id: 3,
       title: 'The crop cycle',
       summary:
-        'A crop is more than grain waiting to be cut. It is a rhythm — sowing, tending, waiting — and every milestone of that rhythm is recorded here, so the field stays present long after the harvest.',
+        'A crop follows a deliberate rhythm. We capture every milestone — sowing, growth stages, and expected harvest — so the field\'s story is recorded from first furrow to final cut.',
       detail: 'Crop cycle: Pending',
       image: 'assets/traceability/stage-3.png',
       alt: 'Young crop rows rising from a fertile field under warm light.',
@@ -324,7 +324,7 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
       id: 4,
       title: 'Field work',
       summary:
-        'Trust grows in the details. Every ploughing, feeding, weeding, and watering is logged as it happens — because how food is cared for matters as much as what it becomes.',
+        'Trust is built in everyday care. Every plough, feed, weed, and water event is logged in real time so you can see how the crop was tended — not just that it was tended.',
       detail: 'Field activities: Pending',
       image: 'assets/traceability/stage-4.png',
       alt: 'A farmer working in the field with traditional tools.',
@@ -341,10 +341,10 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
       id: 5,
       title: 'Harvest',
       summary:
-        'Harvest is the field speaking back. After months of care, the crop is cut at the right time, and the season\'s effort becomes something real, visible, and ready for the next step in its journey.',
+        'Harvest is the field made tangible. We record the exact harvest date and method so you know the crop was gathered at peak readiness, not rushed or left behind.',
       detail: 'Date of harvest: Pending',
       image: 'assets/traceability/stage-5.png',
-      alt: 'A farmer cutting wheat, with full wheat fields behind him and bundles of wheat straw beside him.',
+      alt: 'Harvest in the field — crop gathered at peak readiness.',
       effect: 'fire',
       align: 'right',
       artShiftX: 48,
@@ -352,19 +352,18 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
       copyShiftX: -20,
       copyShiftY: 12,
       frameTilt: 5,
-      artWidth: 'min(100%, 21rem)',
+      artWidth: 'min(100%, 62rem)',
       imageFit: 'cover',
-      imageAspect: '3 / 5',
       imagePosition: 'center'
     },
     {
       id: 6,
       title: 'Raw material inventory',
       summary:
-        'After harvest, the grain does not rush forward. It rests in breathable storage — watched over and held with care until the field\'s patience becomes the mill\'s readiness.',
+        'Harvested material rests under careful watch. Each lot is logged into breathable storage and tracked until processing — so the field\'s patience is honored, not lost.',
       detail: 'Storage: Pending',
-      image: 'assets/traceability/stage-5.png',
-      alt: 'A farmer cutting wheat, with full wheat fields behind him and bundles of wheat straw beside him.',
+      image: 'assets/traceability/stage-6.png',
+      alt: 'Harvested crop resting in breathable storage before processing.',
       effect: 'dust',
       align: 'left',
       artShiftX: -54,
@@ -378,10 +377,10 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
       id: 7,
       title: 'Processing',
       summary:
-        'Here, speed is refused in favour of integrity. The grain moves through slower, gentler methods that preserve what the field worked hard to grow — texture, aroma, and life.',
+        'We choose slower, gentler methods that preserve the crop\'s natural qualities. Every processing step is recorded so the care taken at the mill matches the care given in the field.',
       detail: 'Processing: Pending',
-      image: 'assets/traceability/stage-6.png',
-      alt: 'Sacks of grain stored carefully in a traditional interior.',
+      image: 'assets/traceability/stage-7.png',
+      alt: 'Crop being processed with slow, gentle methods at the mill.',
       effect: 'package',
       align: 'right',
       artShiftX: 84,
@@ -395,7 +394,7 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
       id: 8,
       title: 'Packaging',
       summary:
-        'Each packet is more than a container. It is the moment this batch receives its own identity — weighed, sealed, and made ready to carry its story beyond the farm.',
+        'Packaging is where the batch gains identity. Each unit is weighed, sealed, and labeled so the product that leaves our doors carries its origin and story intact.',
       detail: 'Packaging: Pending',
       image: 'assets/traceability/stage-8.png',
       alt: 'Anaad products being packed on a work table with sacks and tools.',
@@ -412,10 +411,10 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
       id: 9,
       title: 'Finished goods inventory',
       summary:
-        'Before any product travels, it is accounted for. Every unit enters the warehouse with a timestamp and leaves with one — so nothing moves in silence.',
+        'Every finished unit is counted and timestamped before it moves. That inventory trail ensures traceability remains continuous from warehouse to delivery.',
       detail: 'Warehouse: Pending',
-      image: 'assets/traceability/stage-7.png',
-      alt: 'Anaad products being processed with traditional methods.',
+      image: 'assets/traceability/stage-9.png',
+      alt: 'Finished goods counted and stored in the central warehouse.',
       effect: 'route',
       align: 'right',
       artShiftX: 76,
@@ -429,7 +428,7 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
       id: 10,
       title: 'Transit',
       summary:
-        'Once the batch leaves the warehouse, the journey continues in motion. Carrier, route, and handover become part of the same traceable thread — never lost between origin and arrival.',
+        'Once the batch departs, its journey is tracked in transit. Carrier, route, and handover are recorded so no moment between origin and arrival is unseen.',
       detail: 'Transit: Pending',
       image: 'assets/traceability/stage-10.png',
       alt: 'A delivery vehicle transporting produce.',
@@ -446,7 +445,7 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
       id: 11,
       title: 'Delivery',
       summary:
-        'This is where traceability meets the table. The route ends not in abstraction, but at a door — with each milestone recorded as the batch moves closer to you.',
+        'Delivery is the final handover. Each delivery milestone is recorded so the trace ends at your table — not in a log.',
       detail: 'Delivery: Pending',
       image: 'assets/traceability/stage-9.png',
       alt: 'A warehouse with neatly stacked product boxes ready for dispatch.',
@@ -464,7 +463,7 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
       id: 12,
       title: 'Trust complete',
       summary:
-        'When every step has been visible, trust does not need to be argued for. It simply stands — verified, scanned, and complete from soil to soul.',
+        'When every step is visible and verified, trust is no longer claimed — it\'s proven. The full chain from soil to shelf stands verified, ready for the scan.',
       detail: 'Verification: Pending',
       image: 'assets/traceability/stage-11.png',
       alt: 'A final branded traceability illustration closing the journey.',
@@ -1151,7 +1150,7 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
     if (farmer) {
       const place = farmer.place ? `, ${farmer.place}` : '';
       const experience = farmer.experience
-        ? ` · ${farmer.experience}${typeof farmer.experience === 'number' ? ' years on the land' : ''}`
+        ? ` - ${farmer.experience}${typeof farmer.experience === 'number' ? ' years on the land' : ''}`
         : '';
       this.stages[1].detail = `Cultivated by: ${farmer.name}${place}${experience}`;
 
@@ -1170,8 +1169,9 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
       const parts = [crop.cropName];
       if (crop.season) parts.push(crop.season);
       if (crop.sowingDate) parts.push(`Sown ${this.formatDate(crop.sowingDate)}`);
-      if (farmland?.patch?.name) parts.push(farmland.patch.name);
-      this.stages[2].detail = parts.join(' · ');
+      const patchName = farmland?.patch?.name ?? crop.patchName;
+      if (patchName) parts.push(patchName);
+      this.stages[2].detail = parts.join(' - ');
     } else {
       this.stages[2].detail = 'Crop cycle: Pending';
     }
@@ -1186,10 +1186,10 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
         .sort((a, b) => (b.startDate ?? '').localeCompare(a.startDate ?? ''))[0];
 
       if (latestActivity?.date) {
-        const label = latestActivity.activityType.replace(/_/g, ' ').toLowerCase();
-        this.stages[3].detail = `${totalTasks} field activit${totalTasks === 1 ? 'y' : 'ies'} recorded · Latest: ${label} on ${this.formatDate(latestActivity.date)}`;
+        const label = this.capitalizeWords(latestActivity.activityType.replace(/_/g, ' '));
+        this.stages[3].detail = `${totalTasks} field activit${totalTasks === 1 ? 'y' : 'ies'} recorded - Latest: ${label} on ${this.formatDate(latestActivity.date)}`;
       } else if (latestWork?.startDate) {
-        this.stages[3].detail = `${totalTasks} field activit${totalTasks === 1 ? 'y' : 'ies'} recorded · Latest: ${latestWork.tag} on ${this.formatDate(latestWork.startDate)}`;
+        this.stages[3].detail = `${totalTasks} field activit${totalTasks === 1 ? 'y' : 'ies'} recorded - Latest: ${latestWork.tag} on ${this.formatDate(latestWork.startDate)}`;
       } else {
         this.stages[3].detail = `${totalTasks} field activit${totalTasks === 1 ? 'y' : 'ies'} recorded for this batch`;
       }
@@ -1214,12 +1214,14 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
     if (processing?.length) {
       const primary = processing.find((item) => item.status === 'COMPLETED') ?? processing[0];
       const label = primary.processType.replace(/_/g, ' ').toLowerCase();
-      const when = primary.completedAt
-        ? ` on ${this.formatDateTime(primary.completedAt)}`
-        : primary.startedAt
-          ? ` · started ${this.formatDateTime(primary.startedAt)}`
-          : '';
-      this.stages[6].detail = `${this.capitalizeWords(label)} · ${primary.status.toLowerCase()}${when}`;
+      const when = primary.startedAt
+        ? this.formatDateTime(primary.startedAt)
+        : primary.completedAt
+          ? this.formatDateTime(primary.completedAt)
+          : null;
+      this.stages[6].detail = when
+        ? `${this.capitalizeWords(label)} - ${primary.status.toLowerCase()} - started ${when}`
+        : `${this.capitalizeWords(label)} - ${primary.status.toLowerCase()}`;
     } else {
       this.stages[6].detail = 'Processing: Pending';
     }
@@ -1228,8 +1230,8 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
       const packedOn = packaging.packagingDate ? this.formatDate(packaging.packagingDate) : null;
       const units = packaging.totalUnits ? `${packaging.totalUnits} units` : 'Batch packed';
       this.stages[7].detail = packedOn
-        ? `${units} · Packed ${packedOn} · ${packaging.packagingCode}`
-        : `${units} · ${packaging.packagingCode}`;
+        ? `${units} - Packed ${packedOn} - ${packaging.packagingCode}`
+        : `${units} - ${packaging.packagingCode}`;
     } else {
       this.stages[7].detail = 'Packaging: Pending';
     }
@@ -1260,7 +1262,7 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
     }
 
     if (auth) {
-      const verified = auth.verifiedAt ? ` · Verified ${this.formatDateTime(auth.verifiedAt)}` : '';
+      const verified = auth.verifiedAt ? ` - Verified ${this.formatDateTime(auth.verifiedAt)}` : '';
       this.stages[11].detail = `Scan #${auth.scanCount}${verified}`;
     } else {
       this.stages[11].detail = 'Verification: Pending';
@@ -1299,37 +1301,35 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
     return landWork?.startDate ?? landWork?.endDate ?? null;
   }
 
-  private buildStage1Detail(journey: TraceabilityJourney, landPrepDate: string | null): string {
+  private buildStage1Detail(journey: TraceabilityJourney, _landPrepDate: string | null): string {
     const seed = journey.seed;
     const crop = journey.cropCycle;
-    const parts: string[] = [];
 
     if (seed) {
-      parts.push(seed.cropName);
-      if (seed.variety) {
-        parts.push(seed.variety);
-      }
-      if (seed.isOrganic) {
-        parts.push('Organic');
+      const seedLabel = seed.seedCode || seed.variety;
+      let line = seed.cropName;
+      if (seedLabel) {
+        line += ` - Seed ${seedLabel}`;
       }
       if (seed.source) {
-        parts.push(`from ${seed.source}`);
+        line += ` - from ${seed.source}`;
       }
-    } else if (crop) {
-      parts.push(crop.cropName);
-      if (crop.seedCode) {
-        parts.push(`Seed ${crop.seedCode}`);
+      return line;
+    }
+
+    if (crop) {
+      const seedLabel = crop.seedCode;
+      let line = crop.cropName;
+      if (seedLabel) {
+        line += ` - Seed ${seedLabel}`;
       }
       if (crop.sourceOfSeed) {
-        parts.push(`from ${crop.sourceOfSeed}`);
+        line += ` - from ${crop.sourceOfSeed}`;
       }
+      return line;
     }
 
-    if (landPrepDate) {
-      parts.push(`Land prepared ${this.formatDate(landPrepDate)}`);
-    }
-
-    return parts.length ? parts.join(' · ') : 'Seed & land preparation: Pending';
+    return 'Seed & land preparation: Pending';
   }
 
   /** Resolve harvest date from harvest record or crop cycle */
@@ -1791,13 +1791,7 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
   }
 
   protected getStageDataLabel(stageId: number): string {
-    if (stageId >= 12) {
-      return 'Verified';
-    }
-    if (stageId >= 10 && (this.orderTracking() || (this.subTracking()?.length ?? 0) > 0)) {
-      return 'Live';
-    }
-    return 'Recorded';
+    return stageId >= 12 ? 'Verified' : 'Recorded';
   }
 
   protected isLongStageTitle(title: string): boolean {
