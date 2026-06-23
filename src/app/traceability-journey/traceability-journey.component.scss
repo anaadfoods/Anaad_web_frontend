@@ -1649,21 +1649,6 @@
   100% { opacity: 0; transform: translate(8px, 40px); }
 }
 
-// Cow tail swishing (Stage 2)
-.scene__anim-tail {
-  transform-origin: 265px 120px;
-  animation: anim-tail-swish 3s ease-in-out infinite;
-}
-.scene__anim-tail-tip {
-  animation: anim-tail-swish 3s ease-in-out infinite;
-  transform-origin: 265px 120px;
-}
-@keyframes anim-tail-swish {
-  0%, 100% { transform: rotate(0deg); }
-  25% { transform: rotate(8deg); }
-  75% { transform: rotate(-6deg); }
-}
-
 // Hoof dust puffs (Stage 2)
 .scene__anim-dust-puff {
   animation: anim-dust-puff 2.5s ease-out infinite;
@@ -1706,14 +1691,50 @@
   70% { transform: rotate(-1.5deg); }
 }
 
-// Birds flying (Stage 4)
+// Birds flying (Stages 4 & 5)
+.scene__overlay--birds {
+  pointer-events: none;
+}
+
+.scene__overlay--birds-harvest {
+  top: 0;
+  height: 55%;
+}
+
 .scene__anim-bird {
   animation: anim-bird-fly 6s ease-in-out infinite;
 }
+
+.scene__anim-bird-flight {
+  animation: anim-bird-fly 7s ease-in-out infinite;
+}
+
+.scene__anim-bird-flight--reverse {
+  animation-name: anim-bird-fly-reverse;
+  animation-duration: 8s;
+}
+
+.scene__anim-bird-wing {
+  animation: anim-bird-wing 0.55s ease-in-out infinite;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+
 @keyframes anim-bird-fly {
-  0% { transform: translate(0, 0); opacity: 0.25; }
-  50% { transform: translate(-30px, -8px); opacity: 0.2; }
-  100% { transform: translate(-60px, -5px); opacity: 0; }
+  0% { transform: translate(0, 0); opacity: 0.3; }
+  50% { transform: translate(-36px, -10px); opacity: 0.22; }
+  100% { transform: translate(-72px, -6px); opacity: 0; }
+}
+
+@keyframes anim-bird-fly-reverse {
+  0% { transform: translate(0, 0) scaleX(-1); opacity: 0.22; }
+  50% { transform: translate(32px, -8px) scaleX(-1); opacity: 0.18; }
+  100% { transform: translate(64px, -4px) scaleX(-1); opacity: 0; }
+}
+
+@keyframes anim-bird-wing {
+  0%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(0.5); }
 }
 
 // Grinding stone rotation (Stage 5)
@@ -3234,7 +3255,8 @@
 .scene__steam,
 .scene__overlay--wheat-sway,
 .scene__overlay--pour,
-.scene__overlay--hoof-dust {
+.scene__overlay--hoof-dust,
+.scene__overlay--birds {
   transform: rotate(var(--wind-tilt, 0deg));
   transform-origin: bottom center;
   transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);

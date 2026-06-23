@@ -173,22 +173,14 @@ export class Login implements OnInit, OnDestroy {
 
       // ✅ Capture response directly from signIn()
       const response = await AppleID.auth.signIn();
-
-      this.ngZone.run(() => {
-        this.authSvc.appleLogin(idToken, name).subscribe({
-          next: () => {
-            this.cartSvc.syncOnLogin();
-            this.favSvc.syncOnLogin();
-            this.redirectAfterLogin();
-          },
-          error: (err) => {
-            this.loading = false;
-            const detail = err.error?.detail || err.error?.non_field_errors?.[0];
-            this.error = detail || 'Apple sign in failed. Please try again.';
-          }
-        });
+      const idToken = response?.authorization?.id_token;
+      if (!idToken) {
+        throw new Error('Missing Apple ID token');
       }
-
+      const first = response?.user?.name?.firstName ?? '';
+      const last = response?.user?.name?.lastName ?? '';
+      const name = `${first} ${last}`.trim() || undefined;
+      this.handleAppleLoginSuccess(idToken, name);
     } catch (err: any) {
       console.log('Apple SDK signIn error/cancellation:', err);
       this.ngZone.run(() => {
