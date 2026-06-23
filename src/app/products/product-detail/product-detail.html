@@ -29,27 +29,21 @@
 
     <!-- PRODUCT HERO -->
     <div class="product-hero">
-      
+
       <!-- GALLERY -->
       <div class="gallery-col">
         <div class="gallery-main" [class.blurred]="!hasStock() || !isActive()">
-          <img 
-            [src]="variant()?.images?.[selectedImageIndex()]?.image || variant()?.images?.[0]?.image || ''" appSafeImage
-            [alt]="variant()?.product_name"
-            loading="lazy"
-          />
+          <img [src]="variant()?.images?.[selectedImageIndex()]?.image || variant()?.images?.[0]?.image || ''"
+            appSafeImage [alt]="variant()?.product_name" loading="lazy" />
           <span class="gallery-main-badge" *ngIf="variant()?.sku">Batch #{{ variant()?.sku }}</span>
-          
+
           <div class="coming-soon-overlay" *ngIf="!isActive()">Coming Soon</div>
           <div class="out-of-stock-overlay" *ngIf="isActive() && !hasStock()">Out of Stock</div>
         </div>
         <div class="gallery-thumbs" *ngIf="variant()?.images && variant()?.images!.length > 1">
-          <div class="gallery-thumb" *ngFor="let img of variant()?.images; let i = index" 
-               [class.active]="i === selectedImageIndex()"
-               (click)="selectImage(i)"
-               role="button"
-               tabindex="0"
-               (keydown.enter)="selectImage(i)">
+          <div class="gallery-thumb" *ngFor="let img of variant()?.images; let i = index"
+            [class.active]="i === selectedImageIndex()" (click)="selectImage(i)" role="button" tabindex="0"
+            (keydown.enter)="selectImage(i)">
             <img [src]="img.image" appSafeImage alt="" />
           </div>
         </div>
@@ -62,20 +56,26 @@
         <p class="info-subtitle">
           <ng-container *ngIf="showFullDescription(); else truncatedDesc">
             {{ variant()?.product_description }}
-            <button type="button" (click)="toggleDescription($event)" class="view-more-link" [attr.aria-expanded]="showFullDescription()">View less</button>
+            <button type="button" (click)="toggleDescription($event)" class="view-more-link"
+              [attr.aria-expanded]="showFullDescription()">View less</button>
           </ng-container>
           <ng-template #truncatedDesc>
             {{ variant()?.product_description | truncate: 100 }}
-            <button type="button" (click)="toggleDescription($event)" class="view-more-link" [attr.aria-expanded]="showFullDescription()" *ngIf="(variant()?.product_description?.length || 0) > 100">View more</button>
+            <button type="button" (click)="toggleDescription($event)" class="view-more-link"
+              [attr.aria-expanded]="showFullDescription()"
+              *ngIf="(variant()?.product_description?.length || 0) > 100">View more</button>
           </ng-template>
         </p>
 
         <!-- Rating hidden as reviews are not currently implemented in data model -->
 
         <div class="price-block" *ngIf="isActive()">
-          <span class="price-main">{{ (purchaseType() === 'subscription' && selectedPlanId() ? discountedSubscriptionPrice : variant()?.price) | currencyInr }}</span>
-          <span class="price-per">per {{ variant()?.weight }}{{ variant()?.unit }} &nbsp;&middot;&nbsp; incl. taxes</span>
-          <span class="price-savings" *ngIf="purchaseType() === 'single' && variant()?.compare_at_price && savingsPercentage > 0">
+          <span class="price-main">{{ (purchaseType() === 'subscription' && selectedPlanId() ?
+            discountedSubscriptionPrice : variant()?.price) | currencyInr }}</span>
+          <span class="price-per">per {{ variant()?.weight }}{{ variant()?.unit }} &nbsp;&middot;&nbsp; incl.
+            taxes</span>
+          <span class="price-savings"
+            *ngIf="purchaseType() === 'single' && variant()?.compare_at_price && savingsPercentage > 0">
             &#10003; Save {{ savingsPercentage }}% on MRP
           </span>
           <span class="price-savings" *ngIf="purchaseType() === 'subscription' && selectedPlanId()">
@@ -91,21 +91,21 @@
         <div class="selector-block" *ngIf="hasStock() && isActive() && eligiblePlanIds().length > 0">
           <span class="selector-label">Purchase Type</span>
           <div class="size-options">
-            <button class="size-btn" [class.active]="purchaseType() === 'single'" (click)="purchaseType.set('single')">One-time</button>
-            <button class="size-btn" [class.active]="purchaseType() === 'subscription'" (click)="purchaseType.set('subscription')">Subscribe & Save</button>
+            <button class="size-btn" [class.active]="purchaseType() === 'single'"
+              (click)="purchaseType.set('single')">One-time</button>
+            <button class="size-btn" [class.active]="purchaseType() === 'subscription'"
+              (click)="purchaseType.set('subscription')">Subscribe & Save</button>
           </div>
         </div>
 
         <div class="subscription-plans-list" *ngIf="purchaseType() === 'subscription' && eligiblePlanIds().length > 0">
-          <div class="plan-card" 
-               *ngFor="let plan of subscriptionPlans()" 
-               [class.selected]="selectedPlanId() === plan.id"
-               [class.disabled]="!eligiblePlanIds().includes(plan.id)"
-               (click)="eligiblePlanIds().includes(plan.id) && selectedPlanId.set(plan.id)"
-               [attr.title]="!eligiblePlanIds().includes(plan.id) ? 'Ineligible — minimum order required' : null">
+          <div class="plan-card" *ngFor="let plan of subscriptionPlans()"
+            [class.selected]="selectedPlanId() === plan.id" [class.disabled]="!eligiblePlanIds().includes(plan.id)"
+            (click)="eligiblePlanIds().includes(plan.id) && selectedPlanId.set(plan.id)"
+            [attr.title]="!eligiblePlanIds().includes(plan.id) ? 'Ineligible — minimum order required' : null">
             <div class="plan-info">
               <div class="plan-name">
-                <span [innerHTML]="plan.name"></span> 
+                <span [innerHTML]="plan.name"></span>
                 <span class="plan-discount" *ngIf="plan.discount_percentage">Save {{ plan.discount_percentage }}%</span>
               </div>
               <div class="plan-tagline" [innerHTML]="plan.tagline"></div>
@@ -113,44 +113,32 @@
             <div class="plan-price">{{ getPlanPrice(plan) | currencyInr }}</div>
           </div>
         </div>
-        <p class="plan-note" *ngIf="purchaseType() === 'subscription' && subscriptionPlans().length > 0 && eligiblePlanIds().length < subscriptionPlans().length">
+        <p class="plan-note"
+          *ngIf="purchaseType() === 'subscription' && subscriptionPlans().length > 0 && eligiblePlanIds().length < subscriptionPlans().length">
           *Some plans require a minimum order quantity.
         </p>
 
         <div class="add-row" *ngIf="hasStock() && isActive()">
           <!-- One-time purchase controls (when not already added to cart) -->
           <ng-container *ngIf="purchaseType() === 'single' && cartQuantity === 0">
-            <app-qty-selector 
-              [value]="quantity()" 
-              [max]="maxAllowedQuantity"
-              (valueChange)="onQuantityChange($event)"
-              class="qty-selector-custom"
-              style="border: 1px solid rgba(26,26,26,0.18);">
+            <app-qty-selector [value]="quantity()" [max]="maxAllowedQuantity" (valueChange)="onQuantityChange($event)"
+              class="qty-selector-custom" style="border: 1px solid rgba(26,26,26,0.18);">
             </app-qty-selector>
-            
-            <button 
-              class="btn-add-cart" 
-              (click)="addToCart()"
-              [disabled]="addingToCart()">
+
+            <button class="btn-add-cart" (click)="addToCart()" [disabled]="addingToCart()">
               {{ addingToCart() ? 'Adding...' : 'Add to Cart &#8594;' }}
             </button>
           </ng-container>
 
           <!-- One-time purchase controls (when already added to cart) -->
           <ng-container *ngIf="purchaseType() === 'single' && cartQuantity > 0">
-            <app-qty-selector 
-              [value]="cartQuantity" 
-              [max]="maxAllowedQuantity"
-              (valueChange)="updateCartQuantity($event)"
-              class="qty-selector-custom"
+            <app-qty-selector [value]="cartQuantity" [max]="maxAllowedQuantity"
+              (valueChange)="updateCartQuantity($event)" class="qty-selector-custom"
               style="border: 1px solid rgba(26,26,26,0.18);">
             </app-qty-selector>
 
-            <button
-              type="button"
-              class="btn-add-cart"
-              style="background-color: var(--amber-harvest); color: var(--charcoal);"
-              (click)="buyNow()"
+            <button type="button" class="btn-add-cart"
+              style="background-color: var(--amber-harvest); color: var(--charcoal);" (click)="buyNow()"
               [disabled]="addingToCart()">
               Buy Now
             </button>
@@ -158,34 +146,29 @@
 
           <!-- Subscription purchase controls (always buy directly via checkout) -->
           <ng-container *ngIf="purchaseType() === 'subscription'">
-            <app-qty-selector 
-              [value]="quantity()" 
-              [max]="maxAllowedQuantity"
-              (valueChange)="onQuantityChange($event)"
-              class="qty-selector-custom"
-              style="border: 1px solid rgba(26,26,26,0.18);">
+            <app-qty-selector [value]="quantity()" [max]="maxAllowedQuantity" (valueChange)="onQuantityChange($event)"
+              class="qty-selector-custom" style="border: 1px solid rgba(26,26,26,0.18);">
             </app-qty-selector>
 
-            <button
-              type="button"
-              class="btn-add-cart"
-              style="background-color: var(--green-deep); color: var(--bg-parchment);"
-              (click)="buyNow()">
+            <button type="button" class="btn-add-cart"
+              style="background-color: var(--green-deep); color: var(--bg-parchment);" (click)="buyNow()">
               Subscribe Now &#8594;
             </button>
           </ng-container>
 
-          <button class="btn-wishlist" [class.active]="isFavorite()" (click)="toggleFavorite()" [disabled]="togglingFavorite()">{{ isFavorite() ? '♥' : '♡' }}</button>
+          <button class="btn-wishlist" [class.active]="isFavorite()" (click)="toggleFavorite()"
+            [disabled]="togglingFavorite()">{{ isFavorite() ? '♥' : '♡' }}</button>
         </div>
 
         <div class="trace-row" *ngIf="variant()?.crop_cycle_id" style="margin-top: 16px;">
-          <a [routerLink]="['/traceability-journey']" [queryParams]="{crop_id: variant()?.crop_cycle_id}" 
-             style="display: block; text-align: center; width: 100%; text-decoration: none; padding: 14px 24px; background-color: var(--earth-raw, #6B4226); color: #fff; font-family: var(--font-sans); font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; border-radius: 8px; transition: background-color 0.2s;">
+          <a [routerLink]="['/traceability-journey']" [queryParams]="{crop_id: variant()?.crop_cycle_id}"
+            style="display: block; text-align: center; width: 100%; text-decoration: none; padding: 14px 24px; background-color: var(--earth-raw, #6B4226); color: #fff; font-family: var(--font-sans); font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; border-radius: 8px; transition: background-color 0.2s;">
             Trace this Batch &#8594;
           </a>
         </div>
 
-        <div *ngIf="!isActive()" style="color: var(--amber-harvest, #E09E3E); font-family: var(--font-sans); padding: 12px 0; font-weight: 600;">
+        <div *ngIf="!isActive()"
+          style="color: var(--amber-harvest, #E09E3E); font-family: var(--font-sans); padding: 12px 0; font-weight: 600;">
           Coming Soon
         </div>
         <div *ngIf="isActive() && !hasStock()" style="color: red; font-family: var(--font-sans); padding: 12px 0;">
@@ -194,16 +177,27 @@
 
         <div class="subscribe-nudge" *ngIf="purchaseType() === 'single' && eligiblePlanIds().length > 0">
           <span class="nudge-icon">&#9851;</span>
-          <p class="nudge-text">Get this every harvest, automatically. <strong>Subscribers save extra</strong> and get first-harvest priority.</p>
+          <p class="nudge-text">Get this every harvest, automatically. <strong>Subscribers save extra</strong> and get
+            first-harvest priority.</p>
           <a routerLink="/commitment" class="nudge-link">Learn More &#8594;</a>
         </div>
 
         <div class="trust-pills">
-          <div class="trust-pill"><div class="trust-pill-dot"></div><span class="trust-pill-label">SGS Lab Certified</span></div>
-          <div class="trust-pill"><div class="trust-pill-dot"></div><span class="trust-pill-label">ICBN Farmed</span></div>
-          <div class="trust-pill"><div class="trust-pill-dot"></div><span class="trust-pill-label">Nitrogen-flushed Pack</span></div>
-          <div class="trust-pill"><div class="trust-pill-dot"></div><span class="trust-pill-label">Zero Pesticides</span></div>
-          <div class="trust-pill"><div class="trust-pill-dot"></div><span class="trust-pill-label">Free Shipping</span></div>
+          <div class="trust-pill">
+            <div class="trust-pill-dot"></div><span class="trust-pill-label">SGS Lab Certified</span>
+          </div>
+          <div class="trust-pill">
+            <div class="trust-pill-dot"></div><span class="trust-pill-label">ICBN Farmed</span>
+          </div>
+          <div class="trust-pill">
+            <div class="trust-pill-dot"></div><span class="trust-pill-label">Nitrogen-flushed Pack</span>
+          </div>
+          <div class="trust-pill">
+            <div class="trust-pill-dot"></div><span class="trust-pill-label">Zero Pesticides</span>
+          </div>
+          <div class="trust-pill">
+            <div class="trust-pill-dot"></div><span class="trust-pill-label">Free Shipping</span>
+          </div>
         </div>
 
       </div>
@@ -213,19 +207,31 @@
     <div class="section-divider"></div>
 
     <div class="story-section">
-      <div class="story-img-col">
-        <img src="assets/images-new/9.png" alt="Wheat fields, Rajasthan" />
-      </div>
+
       <div class="story-text-col">
         <span class="story-tag">The grain's journey</span>
         <h2>Grown by <em>memory,</em><br />milled by hand.</h2>
         <p class="story-body">{{ variant()?.product_description }}</p>
         <div class="story-detail-list">
-          <div class="story-detail"><div class="story-detail-dot"></div><span class="story-detail-text">Sown in November in desi cow-prepared soil — no NPK, no urea</span></div>
-          <div class="story-detail"><div class="story-detail-dot"></div><span class="story-detail-text">Hand-harvested at full maturity using a scythe, not a combine</span></div>
-          <div class="story-detail"><div class="story-detail-dot"></div><span class="story-detail-text">Cold stone-ground at 18–22°C to preserve bran oils and germ</span></div>
-          <div class="story-detail"><div class="story-detail-dot"></div><span class="story-detail-text">Packed within 48 hours of milling in nitrogen-flushed pouches</span></div>
+          <div class="story-detail">
+            <div class="story-detail-dot"></div><span class="story-detail-text">Sown in November in desi cow-prepared
+              soil, desi cow prepared soil without using any chemical fertilizer</span>
+          </div>
+          <div class="story-detail">
+            <div class="story-detail-dot"></div><span class="story-detail-text">Hand-harvested at full maturity</span>
+          </div>
+          <div class="story-detail">
+            <div class="story-detail-dot"></div><span class="story-detail-text">Cold stone-ground at 18–22°C to preserve
+              bran oils and germ</span>
+          </div>
+          <div class="story-detail">
+            <div class="story-detail-dot"></div><span class="story-detail-text">Packed within 48 hours of milling in
+              vaccum pouches</span>
+          </div>
         </div>
+      </div>
+      <div class="story-img-col">
+        <img src="assets/images-new/9.png" alt="Wheat fields, Rajasthan" />
       </div>
     </div>
   </div>

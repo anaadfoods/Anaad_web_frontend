@@ -5,9 +5,14 @@
     <div class="hero-overlay"></div>
     <div class="hero-content">
       <div class="hero-eyebrow">ICBN Farming &nbsp;·&nbsp; Est. 2023</div>
-      <h1 class="heading-display heading-display--light">Traceable food from living soil,<br>grown beyond the market's <em>shortcuts.</em>
+      <h1 class="heading-display heading-display--light">Traceable food from living soil,<br>grown beyond the market's
+        <em>shortcuts.</em>
       </h1>
-      <p>ANAAD Foods is an Indigenous Cow Based Natural farming brand growing nutrient-dense grains with on-farm inputs, living soil practices, and full traceability from seed to kitchen shelf. Established in 2023, the work is rooted in transparent farming that protects crop integrity without toxic fertilizers or pesticides and is supported by a commitment-based growing model that is not driven by anonymous market cycles.</p>
+      <p>ANAAD Foods is an Indigenous Cow Based Natural farming brand growing traceable nutrient-dense food products
+        with on-farm inputs, living soil practices, and full documented journey from seed to kitchen shelf. Established
+        in 2023, the work is rooted in transparent farming that protects crop integrity without toxic fertilizers or
+        pesticides and is supported by a subscription-based partnership between the consumer and farmer that is not
+        driven by anonymous market cycles.</p>
       <div class="hero-actions">
         <a routerLink="/our-soil" class="btn-primary">How We Farm &rarr;</a>
         <a [routerLink]="['/registry']" fragment="ledger" class="btn-ghost-light">View Batch Records &rarr;</a>
@@ -20,27 +25,40 @@
     <div class="manifesto-left">
       <div class="section-label">Our Pledge</div>
       <div class="divider-rule"></div>
-      <h2 class="heading-1">Here is <em>why.</em></h2>
+
+      <h2 class="heading-1">We don't use the word 'organic.' Here is <em>why.</em></h2>
       <div style="display: flex; flex-direction: column; gap: 16px;">
-        <p>Organic certifications can tell you what has been left out, but they do not always tell you whether the soil beneath the crop is truly alive. For grain to be deeply nourishing, the soil must be active with life, because living soil helps the crop access minerals, build resilience, and develop fuller nutrition naturally.</p>
-        <p>ANAAD practices Indigenous Cow Based Natural farming by building fertility inside the soil with on-farm inputs. The goal is simple: support a thriving soil ecosystem so the crop can grow in the way nature intended.</p>
+        <p>Organic certifications can tell you what has been left out, but they do not always tell you whether the soil
+          beneath the crop is truly alive. For grain to be deeply nourishing, the soil must be active with life, because
+          living soil helps the crop access minerals, build resilience, and develop fuller nutrition naturally.</p>
+        <p>ANAAD practices Indigenous Cow Based Natural farming by building fertility inside the soil with on-farm
+          inputs. The goal is simple: support a thriving soil ecosystem so the crop can grow in the way nature intended.
+        </p>
       </div>
     </div>
     <div class="manifesto-right">
       <div class="manifesto-card">
         <div class="manifesto-card-number">01 — Seed Integrity</div>
         <h3 class="heading-3">Seed integrity, carried forward</h3>
-        <p>The farm grows carefully selected traditional grain varieties that are naturally suited to the local soil and climate. This helps preserve character, resilience, and nutrition while honoring a generational lineage of seeds that can be carried forward season after season.</p>
+        <p>The farm grows carefully selected traditional grain varieties that are naturally suited to the local soil and
+          climate. This helps preserve character, resilience, and nutrition while honoring a generational lineage of
+          seeds that can be carried forward season after season.</p>
       </div>
       <div class="manifesto-card">
         <div class="manifesto-card-number">02 — Soil Science</div>
         <h3 class="heading-3">Enriching the microbial population</h3>
-        <p>A healthy microbial population is essential because soil microbes help unlock nutrition for the crop in forms the plant can actually absorb. Nitrogen-fixing bacteria such as Rhizobium and Azotobacter, phosphate-solubilizing bacteria such as Bacillus megaterium and Pseudomonas fluorescens, and potassium-mobilizing bacteria such as Bacillus mucilaginosus help keep soil fertility active and balanced, making microbial abundance essential for reducing dependence on synthetic farm chemicals.</p>
+        <p>A healthy microbial population is essential because soil microbes help unlock nutrition for the crop in forms
+          the plant can actually absorb. Nitrogen-fixing bacteria such as Rhizobium and Azotobacter,
+          phosphate-solubilizing bacteria such as Bacillus megaterium and Pseudomonas fluorescens, and
+          potassium-mobilizing bacteria such as Bacillus mucilaginosus help keep soil fertility active and balanced,
+          making microbial abundance essential for reducing dependence on synthetic farm chemicals.</p>
       </div>
       <div class="manifesto-card">
         <div class="manifesto-card-number">03 — Post-Harvest</div>
         <h3 class="heading-3">Tradition, strengthened by technology</h3>
-        <p>ANAAD combines traditional wisdom with modern processing discipline to retain maximum nutrition while achieving the consistency and efficiency needed for contemporary food systems. The result is processing that respects the integrity of the crop without compromising the nutritional value cultivated in the field.</p>
+        <p>ANAAD combines traditional wisdom with modern processing discipline to retain maximum nutrition while
+          achieving the consistency and efficiency needed for contemporary food systems. The result is processing that
+          respects the integrity of the crop without compromising the nutritional value cultivated in the field.</p>
       </div>
     </div>
   </section>
@@ -161,9 +179,10 @@
   <!-- ═══ HEIRLOOM PANTRY STOREFRONT ═══ -->
   <section class="shop" revealOnScroll>
     <div class="shop-header">
-      <div class="section-label">Heirloom Pantry</div>
+      <div class="section-label">Farm Offerings</div>
       <h2 class="heading-2">Here's what our Farmers have to Offer</h2>
-      <p>Grains and flours grown on the farm, handled with care, and prepared with nutrition in mind. Freshly milled flour is made available every month so what reaches the pantry stays closely connected to the harvest.</p>
+      <p>Grains and flours grown on the farm, handled with care, and prepared with nutrition in mind. Freshly milled
+        flour is made available every month so what reaches the pantry stays closely connected to the harvest.</p>
     </div>
     <div class="products-grid">
       @if (loadingProducts()) {
@@ -238,10 +257,15 @@
     <div class="why-started-content">
       <div class="section-label">Our Story</div>
       <div class="divider-rule"></div>
-      <h2 class="heading-2">We took up farming because it was the only honest answer to the question in front of us.</h2>
+      <h2 class="heading-2">We took up farming because it was the only honest answer to the question in front of us.
+      </h2>
       <div class="why-started-body">
-        <p>Could untraceable food ever be good enough for the families closest to us? That question led ANAAD back to ancestral land, and it took three full growing cycles to begin building the kind of farm that could answer it with conviction.</p>
-        <p>ANAAD is built by farmers who chose to stay accountable to the food at every step, from the seed sown in the field to the day it lands on your kitchen shelf. The search for a truthful answer to that original question continues to guide every decision and will always keep the work fueled.</p>
+        <p>Could untraceable food ever be good enough for the families closest to us? That question led ANAAD back to
+          ancestral land, and it took three full growing cycles to begin building the kind of farm that could answer it
+          with conviction.</p>
+        <p>ANAAD is built by farmers who chose to stay accountable to the food at every step, from the seed sown in the
+          field to the day it lands on your kitchen shelf. The search for a truthful answer to that original question
+          continues to guide every decision and will always keep the work fueled.</p>
       </div>
     </div>
     <div class="why-started-image">
@@ -257,9 +281,14 @@
     <div class="subscription-header">
       <div class="section-label">Commitment-Based Agriculture</div>
       <h2 class="heading-2">Share the risk. Secure the harvest.</h2>
-      <p>In conventional industrial farming, growers often decide what to sow by predicting what the market might buy. When that prediction fails, prices fall, produce is devalued, and food goes to waste. ANAAD's subscribers commit before sowing, giving the farm the confidence to grow only what already has a home while staying uncompromising about how it is grown.</p>
+      <p>In conventional industrial farming, growers often decide what to sow by predicting what the market might buy.
+        When that prediction fails, prices fall, produce is devalued, and food goes to waste. ANAAD's subscribers commit
+        before sowing, giving the farmer the confidence to grow only what already has a home while adhering to the ICBN agricultural practices.
+        </p>
       <p class="subscription-note">
-        A subscription is not just a recurring order. It funds a part of the next sowing cycle in advance. In return, subscribers receive grain ahead of the wider market, at a price fixed before harvest, from a crop their commitment helped bring to life.
+        A subscription is not just a recurring order. It funds a part of the next sowing cycle in advance. In return, subscribers receive staples directly from the source (without going through 7-8 levels of middlmen),
+         at a price fixed before harvest, from a crop their
+        commitment helped bring to life.
       </p>
     </div>
     <app-subscription-plans [showAction]="true" actionLink="/commitment" actionText="Choose Your Commitment Tier &rarr;"

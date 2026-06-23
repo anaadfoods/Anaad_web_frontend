@@ -119,6 +119,7 @@ import { AuthState } from '../../../core/state/auth.state';
       overflow: hidden;
       display: block;
       background: var(--bg-parchment, #F5F0E8);
+      border-bottom: 1px solid rgba(26, 26, 26, 0.08);
     }
 
     .product-image-wrap img {
@@ -222,10 +223,15 @@ import { AuthState } from '../../../core/state/auth.state';
 
     .product-tagline {
       font-family: var(--font-sans, 'DM Sans', sans-serif);
-      font-size: 11px;
+      font-size: 10px;
+      font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.08em;
-      color: rgba(26, 26, 26, 0.5);
+      color: var(--green-deep, #2C4A1E);
+      background-color: rgba(44, 74, 30, 0.08);
+      padding: 4px 10px;
+      border-radius: 12px;
+      width: fit-content;
       margin-bottom: 8px;
     }
 

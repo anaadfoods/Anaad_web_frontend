@@ -10,19 +10,20 @@
     <div class="left-content">
       <span class="left-tagline">Welcome Back</span>
       <h2 class="left-headline">Return to<br /><em>the source</em><br />of nourishment.</h2>
-      <p class="left-body">Access your pantry, manage subscriptions, and view open lab ledgers for your recent deliveries.</p>
+      <p class="left-body">Access the farm offerings, manage subscriptions, and view open batch ledgers for all our
+        products.</p>
       <div class="left-badges">
         <div class="left-badge-row">
           <span class="badge-check">&#10003;</span>
-          <span class="badge-label">Every batch lab-certified by SGS India</span>
+          <span class="badge-label">Every batch is ICBN-certified</span>
         </div>
         <div class="left-badge-row">
           <span class="badge-check">&#10003;</span>
-          <span class="badge-label">ICBN farming — zero synthetic inputs</span>
+          <span class="badge-label">Zero synthetic inputs used</span>
         </div>
         <div class="left-badge-row">
           <span class="badge-check">&#10003;</span>
-          <span class="badge-label">Nitrogen-flushed for peak freshness</span>
+          <span class="badge-label">Vaccum packed for peak freshness</span>
         </div>
       </div>
     </div>
@@ -42,35 +43,38 @@
     <form class="signup-form" [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate>
       <div class="field-group">
         <label class="field-label" for="email">Email Address</label>
-        <input
-          type="email"
-          id="email"
-          class="field-input"
-          [class.field-error]="emailCtrl.invalid && emailCtrl.touched"
-          formControlName="email"
-          placeholder="hello@example.com"
-          autocomplete="email" />
-        <span class="field-hint error" *ngIf="emailCtrl.touched && emailCtrl.hasError('required')">Email is required.</span>
-        <span class="field-hint error" *ngIf="emailCtrl.touched && emailCtrl.hasError('email')">Please enter a valid email address.</span>
+        <input type="email" id="email" class="field-input" [class.field-error]="emailCtrl.invalid && emailCtrl.touched"
+          formControlName="email" placeholder="hello@example.com" autocomplete="email" />
+        <span class="field-hint error" *ngIf="emailCtrl.touched && emailCtrl.hasError('required')">Email is
+          required.</span>
+        <span class="field-hint error" *ngIf="emailCtrl.touched && emailCtrl.hasError('email')">Please enter a valid
+          email address.</span>
       </div>
 
       <div class="field-group">
         <label class="field-label" for="password">Password</label>
         <div class="password-wrap">
-          <input
-            [type]="showPassword ? 'text' : 'password'"
-            id="password"
-            class="field-input"
-            [class.field-error]="passwordCtrl.invalid && passwordCtrl.touched"
-            formControlName="password"
-            placeholder="Enter your password"
-            autocomplete="current-password" />
-          <button type="button" class="toggle-pw" (click)="togglePassword()" [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'">
-            <svg *ngIf="!showPassword" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-            <svg *ngIf="showPassword" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+          <input [type]="showPassword ? 'text' : 'password'" id="password" class="field-input"
+            [class.field-error]="passwordCtrl.invalid && passwordCtrl.touched" formControlName="password"
+            placeholder="Enter your password" autocomplete="current-password" />
+          <button type="button" class="toggle-pw" (click)="togglePassword()"
+            [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'">
+            <svg *ngIf="!showPassword" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2"
+              fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+            <svg *ngIf="showPassword" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2"
+              fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path
+                d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24">
+              </path>
+              <line x1="1" y1="1" x2="23" y2="23"></line>
+            </svg>
           </button>
         </div>
-        <span class="field-hint error" *ngIf="passwordCtrl.touched && passwordCtrl.hasError('required')">Password is required.</span>
+        <span class="field-hint error" *ngIf="passwordCtrl.touched && passwordCtrl.hasError('required')">Password is
+          required.</span>
       </div>
 
       <button type="submit" class="btn-create" [disabled]="loading">
@@ -85,7 +89,9 @@
         <div id="googleBtn" class="google-btn-wrapper"></div>
         <button type="button" class="btn-apple" (click)="loginWithApple()">
           <svg class="apple-icon" viewBox="0 0 16 16" width="16" height="16">
-            <path d="M12.152 6.896c-.029-2.222 1.83-3.3 1.91-3.35-1.043-1.503-2.658-1.713-3.238-1.74-1.376-.134-2.69.802-3.393.802-.7 0-1.776-.78-2.924-.76-1.517.02-2.915.87-3.693 2.21-1.572 2.686-.402 6.66 1.135 8.85.753 1.07 1.632 2.26 2.802 2.22 1.127-.04 1.56-.71 2.923-.71 1.35 0 1.76.71 2.94.69 1.22-.02 1.98-1.11 2.71-2.18.84-1.22 1.19-2.39 1.2-2.45-.03-.01-2.28-.86-2.37-3.58M9.68 4.256c.61-.73 1.02-1.75.91-2.76-1.01.04-2.09.68-2.72 1.41-.56.64-.99 1.69-.87 2.68 1.12.08 2.07-.59 2.68-1.33" fill="currentColor"/>
+            <path
+              d="M12.152 6.896c-.029-2.222 1.83-3.3 1.91-3.35-1.043-1.503-2.658-1.713-3.238-1.74-1.376-.134-2.69.802-3.393.802-.7 0-1.776-.78-2.924-.76-1.517.02-2.915.87-3.693 2.21-1.572 2.686-.402 6.66 1.135 8.85.753 1.07 1.632 2.26 2.802 2.22 1.127-.04 1.56-.71 2.923-.71 1.35 0 1.76.71 2.94.69 1.22-.02 1.98-1.11 2.71-2.18.84-1.22 1.19-2.39 1.2-2.45-.03-.01-2.28-.86-2.37-3.58M9.68 4.256c.61-.73 1.02-1.75.91-2.76-1.01.04-2.09.68-2.72 1.41-.56.64-.99 1.69-.87 2.68 1.12.08 2.07-.59 2.68-1.33"
+              fill="currentColor" />
           </svg>
           <span>Sign in with Apple</span>
         </button>
@@ -93,7 +99,8 @@
 
       <div class="signin-row">
         <span>Don't have an account?</span>
-        <a routerLink="/register" [queryParams]="{returnUrl: route.snapshot.queryParams['returnUrl'] || null}" class="signin-link">Create Account</a>
+        <a routerLink="/register" [queryParams]="{returnUrl: route.snapshot.queryParams['returnUrl'] || null}"
+          class="signin-link">Create Account</a>
       </div>
     </form>
   </div>

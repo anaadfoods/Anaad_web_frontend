@@ -217,6 +217,7 @@ export class Register {
   error = '';
   showPassword = false;
   showConfirm = false;
+  showReferralField = signal<boolean>(false);
 
   get f() { return this.registerForm.controls; }
   get passwordStrength(): 'weak' | 'medium' | 'strong' | 'none' {

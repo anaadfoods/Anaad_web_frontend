@@ -39,58 +39,93 @@ export class HelpComponent implements OnInit {
   readonly faqs: FaqItem[] = [
     {
       category: 'general',
-      question: 'What makes ANAAD grains different from organic grains?',
-      answer: "Unlike generic 'organic' food which often relies on industrial monoculture and chemical-lite substitutes, ANAAD grains are grown using Indian Cow-Based Natural (ICBN) farming. We focus on soil regeneration, crop diversity, and zero chemical inputs. Our heritage seeds are hand-harvested and stone-ground to preserve nutrients and ancient flavor profiles."
+      question: '1. What is ICBN?',
+      answer: 'ICBN stands for Indigenous Cow Based Natural farming. It is a farming approach rooted in natural inputs, living soil, and traditional agricultural knowledge, designed to grow food in a way that supports both human health and ecological balance.'
     },
     {
       category: 'general',
-      question: 'What is ICBN farming?',
-      answer: 'ICBN (Indian Cow-Based Natural) farming is a traditional, biodynamic agricultural methodology that uses formulations made from the dung and urine of indigenous cow breeds (like Gir and Sahiwal) along with local organic materials. This introduces rich microbial life back into the soil, naturalizing nutrients and eliminating any need for synthetic fertilizers or pesticides.'
+      question: '2. Why does ANAAD follow ICBN farming?',
+      answer: 'We follow ICBN farming because we believe food should begin with living soil, not chemical dependence. This approach allows us to grow staples with greater care for the land, the farmer, and the families who eat our food.'
+    },
+    {
+      category: 'subscriptions',
+      question: '3. Why are ANAAD products offered through subscriptions?',
+      answer: 'Subscriptions allow us to grow with clarity and responsibility. They help us plan before sowing, share risk with committed households, and deliver food in a way that stays closer to the field and farther from speculation.'
+    },
+    {
+      category: 'subscriptions',
+      question: '4. What does risk sharing mean in your model?',
+      answer: 'Risk sharing means that instead of placing the full uncertainty on the farmer, the household commits in advance and helps anchor the season. This gives us the confidence to plan better, grow more responsibly, and reduce waste across the food system.'
+    },
+    {
+      category: 'subscriptions',
+      question: '5. How do ANAAD Commitment Plans work?',
+      answer: 'When you choose a Commitment Plan, a portion of our harvest is reserved for your household. Your food is then handled in a planned cycle of harvesting, processing, packaging, and dispatch, so every batch remains connected to a clear origin and a defined purpose.'
     },
     {
       category: 'general',
-      question: 'How can I verify the purity of my grains?',
-      answer: 'Every batch of grains we harvest is individually tested by SGS India for residue status. We log these lab analysis reports in our Open Lab Ledger (The Registry). You can look up the batch number printed on your package to view its specific soil history, harvest date, milling details, and pesticide clearance cert.'
+      question: '6. Why is traceability important?',
+      answer: 'Traceability is what makes trust visible. It allows you to see where your food came from, how it was grown, and how it moved through each stage before reaching your kitchen.'
     },
     {
-      category: 'orders',
-      question: 'How long does it take for my order to arrive?',
-      answer: 'To ensure maximum freshness, we stone-grind our flours only after receiving your order. Dispatches occur within 48 to 72 hours of milling. Deliveries typically arrive within 2–5 business days depending on your location. You will receive real-time tracking links via SMS and email.'
+      category: 'general',
+      question: '7. How does ANAAD ensure transparency?',
+      answer: 'We share batch-level information, farm records, and process details so the journey of the food is not hidden from the household. Transparency, for us, is not a marketing claim — it is part of the product.'
     },
     {
-      category: 'orders',
-      question: 'Do you ship across India?',
-      answer: 'Yes, we ship to all major cities and serviceable pincodes across India through our premium courier partners. Delivery charges are calculated dynamically at checkout based on package weight and destination.'
+      category: 'general',
+      question: '8. Why does ANAAD avoid chemicals in farming?',
+      answer: 'We avoid chemicals because they may increase yield, but they often come at the cost of soil health, ecological stability, and long-term food quality. Our work is built on the belief that clean food must also come from clean growing practices.'
     },
     {
-      category: 'orders',
-      question: 'What is your return or replacement policy?',
-      answer: 'If you receive a damaged, incomplete, or incorrect package, please contact us within 48 hours of delivery with photos of the issue. We will arrange a free replacement or issue a full refund within 5 business days, with no questions asked.'
+      category: 'general',
+      question: '9. Why are desi seeds important?',
+      answer: 'Desi seeds are important because they are part of a living food heritage that is better adapted to local conditions. They help preserve biodiversity, support resilience in the field, and keep the character of the crop more intact.'
+    },
+    {
+      category: 'general',
+      question: '10. Why does ANAAD use desi cows?',
+      answer: 'Desi cows are central to our natural farming system because they support the preparation of farm-made inputs and reflect a more balanced agricultural ecology. They are part of a farming practice that values nourishment over extraction.'
+    },
+    {
+      category: 'general',
+      question: '11. Why do you use traditional processing methods?',
+      answer: 'We use traditional processing methods because we want to preserve the grain’s natural character. Slower, careful processing helps us protect taste, texture, and nutritional integrity without forcing the food through excessive heat or speed.'
+    },
+    {
+      category: 'general',
+      question: '12. How does ANAAD support farmer upliftment?',
+      answer: 'We work through a model that gives farmers more stability, clearer planning, and a stronger link to the people they grow for. When households commit early, farmers gain more certainty and can focus on growing with care rather than chasing unpredictable markets.'
+    },
+    {
+      category: 'general',
+      question: '13. How does this model help the environment?',
+      answer: 'Our model reduces unnecessary movement, unnecessary storage, and unnecessary waste in the food chain. By growing more deliberately and closer to the people who consume the food, we aim to support healthier soil, lower waste, and a more respectful ecological footprint.'
+    },
+    {
+      category: 'general',
+      question: '14. Why is ANAAD priced differently from regular store-bought food?',
+      answer: 'ANAAD is priced based on real farming practices, fresher handling, traceability, and the responsibility of growing food with care. It reflects the cost of doing things properly, not the cost of doing them cheaply.'
+    },
+    {
+      category: 'general',
+      question: '15. Why is ANAAD worth choosing?',
+      answer: 'Because it is not only food. It is a system of trust. When you choose ANAAD, you support cleaner farming, healthier soil, fairer farm economics, and food that stays visibly connected to the people and land behind it.'
+    },
+    {
+      category: 'general',
+      question: '16. How can I trust that no chemicals are used?',
+      answer: 'Trust comes from process, not just promises. That is why we document batches, share farm records, and keep the food journey visible so you can understand how each product was grown and handled.'
+    },
+    {
+      category: 'general',
+      question: '17. What makes ANAAD different from other natural food brands?',
+      answer: 'ANAAD is built around a complete chain of responsibility — from natural farming and traceable batches to commitment-based planning and direct household connection. We are not just selling staples; we are rebuilding the relationship between food, farmer, and family.'
     },
     {
       category: 'subscriptions',
-      question: 'How do ANAAD grain subscriptions work?',
-      answer: "Our CBA (Community Backed Agriculture) subscriptions allow you to lock in a dedicated harvest share of heritage grains. You choose your grain selection, quantity, and delivery frequency. This guarantees your family's grain supply for the season and helps our farmers plan their crop cycles with financial security."
-    },
-    {
-      category: 'subscriptions',
-      question: 'Can I pause, modify, or cancel my subscription?',
-      answer: "Yes. You have complete flexibility. You can pause dispatches, change grain quantities, skip a month, or cancel your subscription at any time directly from the 'Subscriptions' tab in your Profile page. There are no lock-in periods or cancellation fees."
-    },
-    {
-      category: 'subscriptions',
-      question: 'How is subscription billing handled?',
-      answer: "Subscription billing is automatic and runs securely through our payment gateway. You are billed at the beginning of each dispatch cycle. If a payment fails, we'll notify you and attempt a re-try before placing the dispatch on hold."
-    },
-    {
-      category: 'rfp',
-      question: 'What is the Remote Farming Program (RFP)?',
-      answer: 'The Remote Farming Program is an initiative that allows families and businesses to sponsor a dedicated mini-farm plot or partner in contract farming with ANAAD. You can select your heirloom crops, receive regular video updates from the field, and get the entire harvest delivered directly to your doorstep. It bridges the gap between urban homes and agricultural roots.'
-    },
-    {
-      category: 'rfp',
-      question: 'How do I sign up for RFP?',
-      answer: 'Visit the RFP page to view available farm tiers and plans. Submit an inquiry form, and our coordinator will contact you within 72 hours to walk you through crop selection, land allocation, and contract agreement details.'
+      question: '18. Can I start with one product before committing fully?',
+      answer: 'Yes. Many households begin with one product and then move into a Commitment Plan once they experience the difference. It is a simple way to understand the food, the process, and the value of consistency.'
     }
   ];
 

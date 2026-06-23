@@ -159,3 +159,175 @@ a {
   opacity: 1;
   transform: none;
 }
+
+/* ───────────────────────────────────────────────────────────
+   GLOBAL SECTION SPACING OVERRIDES (CAPPED AT 20PX OR LESS)
+   ─────────────────────────────────────────────────────────── */
+main:not(:has(app-traceability-journey)) {
+  
+  // Non-hero sections: override top/bottom padding to exactly 20px
+  section:not(.hero):not(.hero-section):not(.about-hero):not(.story-hero):not(.commit-hero):not(.community-hero):not(.soil-hero):not(.shop-hero):not(.cat-hero):not(.waitlist-hero):not(.confirm-hero):not(.sub-hero):not(.article-hero):not(.evidence-hero):not(.panchang-hero):not(.page-hero):not(.page-hero-dark),
+  .section,
+  .why-anaad-section,
+  .intro-section,
+  .bestsellers-section,
+  .offerings-section,
+  .testimonials-section,
+  .instagram-section,
+  .newsletter-section,
+  .blog-section,
+  .value-props-section,
+  .parallax-quote-section,
+  .media-section,
+  .impact-section,
+  .about-mission,
+  .about-pillars,
+  .about-founder,
+  .about-timeline,
+  .about-cta,
+  .story-opening,
+  .story-origin,
+  .story-philosophy,
+  .story-quote-section,
+  .story-milestones,
+  .story-team,
+  .story-cta,
+  .commit-intro,
+  .commit-pillars,
+  .commit-farming,
+  .commit-impact,
+  .commit-certs,
+  .commit-cta,
+  .community-intro,
+  .community-network,
+  .community-story,
+  .community-impact,
+  .community-testimonials,
+  .community-cta,
+  .soil-intro,
+  .soil-principles,
+  .soil-metrics,
+  .soil-biodiversity,
+  .soil-cta,
+  .shop-grid-section,
+  .shop-features,
+  .pd-related,
+  .cat-grid-section,
+  .cat-featured,
+  .next-steps,
+  .referral-nudge,
+  .plans,
+  .plans-section,
+  .plans-wrapper,
+  .ledger,
+  .faq-section,
+  .mission-band,
+  .blog-grid-section,
+  .evidence-band,
+  .newsletter-band,
+  .article-footer-cta,
+  .related-section,
+  .comparison-section,
+  .ecosystem-section,
+  .site-footer,
+  .footer-certification,
+  .what-section,
+  .pillars-band,
+  .tiers-section,
+  .how-section,
+  .inquiry-section,
+  .testi-section,
+  .panchang-page-wrap,
+  .guidance-block,
+  .studies-section,
+  .cta-band {
+    padding-top: 20px !important;
+    padding-bottom: 20px !important;
+    margin-top: 0px !important;
+    margin-bottom: 20px !important;
+  }
+
+  // Hero sections: override bottom padding/margin to 20px, keeping negative top margin and top padding intact for header alignment
+  .hero,
+  .hero-section,
+  .about-hero,
+  .story-hero,
+  .commit-hero,
+  .community-hero,
+  .soil-hero,
+  .shop-hero,
+  .cat-hero,
+  .waitlist-hero,
+  .confirm-hero,
+  .sub-hero,
+  .article-hero,
+  .evidence-hero,
+  .panchang-hero,
+  .page-hero,
+  .page-hero-dark {
+    padding-bottom: 20px !important;
+    margin-bottom: 20px !important;
+  }
+
+  // Cap large container/layout inner paddings and margins to 20px or less
+  .pd-main,
+  .pd-tabs-section,
+  .page-header,
+  .cart-items-col,
+  .cart-empty,
+  .cart-footer,
+  .order-summary-col,
+  .checkout-grid,
+  .form-col,
+  .summary-col,
+  .verification-spinner-card,
+  .loading-state,
+  .error-state,
+  .order-band,
+  .order-left,
+  .order-right,
+  .sub-hero-top,
+  .sub-stats-strip,
+  .sub-left,
+  .sub-right,
+  .left-panel,
+  .right-panel,
+  .profile-band,
+  .account-sidebar,
+  .account-content,
+  .legal-page-wrap,
+  .da-page-wrap,
+  .summary-left,
+  .page-body,
+  .featured-body,
+  .article-layout,
+  .split-content-wrapper,
+  .site-header,
+  .calendar-card,
+  .details-card {
+    padding-top: 20px !important;
+    padding-bottom: 20px !important;
+  }
+
+  // Specific components that have large margins: cap to 20px
+  .subscribe-nudge,
+  .checkout-header,
+  .final-cta,
+  .opp-head-pill,
+  .details-section-header,
+  .guidance-item,
+  .footer-top,
+  .footer-certification,
+  .dashboard-header,
+  .dashboard-batch-value,
+  .dashboard-footer-note,
+  .shop-actions,
+  .opp-grid,
+  .active-sub-body,
+  .sidebar-section-label,
+  .security-card p,
+  .referral-code-card {
+    margin-top: 20px !important;
+    margin-bottom: 20px !important;
+  }
+}
