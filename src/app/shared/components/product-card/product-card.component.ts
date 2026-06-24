@@ -48,11 +48,6 @@ import { AuthState } from '../../../core/state/auth.state';
           <h3>{{ variant.product_name }}</h3>
         </div>
 
-        <div class="product-micro-badges">
-          <span>✓ ICBN Grown</span>
-          <span>✓ SGS Verified</span>
-          <span>✓ Batch Traceable</span>
-        </div>
         
         <p class="product-desc">{{ variant.product_description | truncate: 120 }}</p>
         
@@ -374,7 +369,7 @@ import { AuthState } from '../../../core/state/auth.state';
 })
 export class ProductCardComponent {
   @Input({ required: true }) variant!: ProductVariant;
-  
+
   @Output() addToCart = new EventEmitter<ProductVariant>();
 
   private readonly wishlistState = inject(WishlistState);

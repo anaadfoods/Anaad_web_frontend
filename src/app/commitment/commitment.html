@@ -5,15 +5,15 @@
     <div class="hero-content">
       <br />
       <div class="section-label">Commitment-Based Agriculture</div>
-      <h1>You are not buying food.<br><em>You are funding a field.</em></h1>
+      <h1>You are not buying food.<br><em>You are supporting ICBN farming.</em></h1>
       <div style="display: flex; flex-direction: column; gap: 12px;">
         <p>Subscription based partnership between consumer and the farmer replaces one time transactions with long
           lasting relationship</p>
-        <p>Before we sow the first seed, you reserve a portion of our upcoming harvest. We grow exclusively for
+        <!-- <p>Before we sow the first seed, you reserve a portion of our upcoming harvest. We grow exclusively for
           committed households, not anonymous markets. Your subscription gives us certainty. Our responsibility is to
-          return it as food worthy of your family's table.</p>
+          return it as food worthy of your family's table.</p> -->
       </div>
-      <a [routerLink]="['/commitment']" fragment="tiers" class="btn-amber-hero">Choose Your Tier &rarr;</a>
+      <a [routerLink]="['/commitment']" fragment="tiers" class="btn-amber-hero">Choose Your Subscription &rarr;</a>
       <br />
     </div>
   </div>
@@ -40,23 +40,23 @@
     <div class="why-cba-content">
       <div class="section-label">Why It Matters</div>
       <div class="divider-rule"></div>
-      <h2>The moment you buy food off a supermarket shelf, <em>you have already lost.</em></h2>
+      <h2>The moment you buy food off a supermarket shelf, <em class="divide-rule-lost">you have already lost.</em></h2>
       <p>By the time conventional food reaches your kitchen, it has already passed through traders, warehouses,
-        processors, and months of storage. Every step in that chain rewards shelf-life and volume  not freshness,
-        nutrition, or accountability.</p>
+        processors, and months of storage.Every step rewards shelf life and volume, not on our planet, the farmer or
+        your health.</p>
       <p>Commitment-Based Agriculture reverses that journey. We begin with your household instead of ending there. Your
-        food is grown for you before it exists, not sold to you after it's forgotten.</p>
+        food is grown for you before it exists, not sold to you after it has reached the supermarket shelf.</p>
     </div>
 
     <!-- Conventional vs ANAAD Table -->
     <div class="vs-shelf-container">
-      <h3>Why not just buy off a shelf?</h3>
+      <h3>Why not just buy from a supermarket shelf?</h3>
       <div class="vs-shelf-table-wrap">
         <table class="vs-shelf-table">
           <thead>
             <tr>
               <th>Conventional Retail</th>
-              <th>ANAAD Commitment</th>
+              <th>ANAAD Subscription</th>
             </tr>
           </thead>
           <tbody>
@@ -69,20 +69,20 @@
               <td>Farmer known, field named</td>
             </tr>
             <tr>
-              <td>Food stored for months, nutrition fades</td>
-              <td>Freshly milled, nutrition stays alive</td>
+              <td>Food stored for months, preservative labels</td>
+              <td>Freshly processed, Vaccum packed</td>
             </tr>
             <tr>
               <td>Price set by commodity markets, unstable</td>
-              <td>Price locked for your full season, no surprises</td>
+              <td>Price locked for subscription period, better financial planning</td>
             </tr>
             <tr>
               <td>Anonymous supply chain, untraceable</td>
-              <td>Traceable to the specific field</td>
+              <td>Traceable from soil to shelf</td>
             </tr>
             <tr>
-              <td>Certificate on request</td>
-              <td>Batch ledger public, always</td>
+              <td>Uncertain certifications </td>
+              <td>Batch ledger: open to public</td>
             </tr>
           </tbody>
         </table>
@@ -127,10 +127,10 @@
       <div class="analyzer-text">
         <div class="section-label">Market Volatility Analyzer</div>
         <div class="divider-rule"></div>
-        <h2>Conventional Volatility vs.<br><em>ANAAD Price Lock</em></h2>
+        <h2>Conventional Price Volatility vs.<br><em>ANAAD Price Lock</em></h2>
         <p>Conventional supply chains move your money through up to six brokers, wholesalers, and warehouse managers.
           Prices rise when supply disruptions happen or when seasonal panic hits. With Commitment-Based Agriculture, we
-          bypass middlemen completely and lock in your price before sowing.</p>
+          bypass unethical middlemen completely and lock in your price for the subscription period.</p>
 
         <div class="analyzer-controls">
           <div class="control-group">
@@ -161,7 +161,7 @@
       </div>
 
       <div class="analyzer-results-card">
-        <div class="results-badge">Value Analyzer Intuitions</div>
+        <div class="results-badge">Value Analyzer</div>
 
         <div class="price-comparison">
           <div class="price-metric conventional">
@@ -173,7 +173,7 @@
           <div class="price-divider"></div>
 
           <div class="price-metric anaad">
-            <div class="metric-desc">Siddh Product Price</div>
+            <div class="metric-desc">Siddh Subscription Price</div>
             <div class="metric-price text-green">₹{{ getAnaadPrice() }}</div>
             <div class="metric-helper">Save {{ getDiscountPercentage() }}%</div>
           </div>
@@ -183,7 +183,7 @@
           style="display: flex; justify-content: center; background-color: transparent; border-top: none; padding-top: 0;">
           <button class="btn-amber" (click)="subscribeToSiddh()"
             style="width: 100%; border: none; padding: 18px 0; font-family: var(--font-sans); font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.15em; border-radius: 8px; cursor: pointer; transition: opacity 0.2s;">
-            Subscribe to Siddh Plan &rarr;
+            Explore Subscription Plans &rarr;
           </button>
         </div>
       </div>
@@ -202,28 +202,29 @@
     <div class="hiw-steps">
       <div class="hiw-step">
         <div class="hiw-step-num">01</div>
-        <h4>Choose Your Tier</h4>
-        <p>Select the commitment duration that fits your household. Every tier includes full batch ledger access and our
-          unconditional zero-residue guarantee.</p>
+        <h4>Choose Your Plan</h4>
+        <p>Select the Subscription duration that fits your household. Every plan includes full batch ledger access and
+          our
+          unconditional zero-residue guarantee based on industry leading EU standard.</p>
       </div>
       <div class="hiw-step">
         <div class="hiw-step-num">02</div>
         <h4>Your Allocation Is Reserved</h4>
         <p>When you subscribe, a portion of the harvest is reserved in your name for the duration of your subscription.
-          Your field is planned around committed households, and we adjust our sowing area based on total reservations.
+
         </p>
       </div>
       <div class="hiw-step">
         <div class="hiw-step-num">03</div>
         <h4>Harvest, Test, and Report</h4>
-        <p>Once your grain is harvested, regular batch testing is conducted. You receive the batch report via email
-          before your flour is dispatched. You see the data before the bag arrives.</p>
+        <p>Once your grain is harvested, regular batch testing is conducted. You can view the batch reports on our
+          website by scanning the QR code on the package.</p>
       </div>
       <div class="hiw-step">
         <div class="hiw-step-num">04</div>
         <h4>Milled and Dispatched to You</h4>
-        <p>The grain is milled into flour during scheduled milling cycles. Once milled, it is dispatched to your door.
-          Subscriptions auto-repeat every 30 days until you choose to stop.</p>
+        <p>The grain is milled into flour during scheduled milling cycles exclusively for our subscribers. Once milled,
+          it is dispatched to your door.</p>
       </div>
     </div>
   </section>
@@ -232,23 +233,23 @@
   <section class="commitment-includes">
     <div class="includes-container">
       <div class="section-label">Trust & Guarantees</div>
-      <h2>Every commitment includes</h2>
+      <h2>Every Subscription includes</h2>
       <div class="includes-grid">
         <div class="include-item">
           <span class="check-icon">✓</span>
-          <span><strong>Zero-residue testing</strong>  every single batch checked by SGS India</span>
+          <span><strong>Zero-residue testing </strong>based on industry leading EU standard </span>
         </div>
-        <div class="include-item">
+        <!-- <div class="include-item">
           <span class="check-icon">✓</span>
           <span><strong>Full batch ledger access</strong> via The Registry</span>
         </div>
         <div class="include-item">
           <span class="check-icon">✓</span>
           <span><strong>Harvest report</strong> delivered directly to you before dispatch</span>
-        </div>
+        </div> -->
         <div class="include-item">
           <span class="check-icon">✓</span>
-          <span><strong>Field-level traceability</strong> back to your specific field and batch ID</span>
+          <span><strong>Product-level traceability</strong> from soil to shelf</span>
         </div>
         <!-- <div class="include-item">
           <span class="check-icon">✓</span>
@@ -256,7 +257,7 @@
         </div> -->
         <div class="include-item">
           <span class="check-icon">✓</span>
-          <span><strong>Vaccum packaging </strong>for natural shelf stability</span>
+          <span><strong>Vaccum packaging </strong>for preservative free natural shelf life</span>
         </div>
         <!-- <div class="include-item">
           <span class="check-icon">✓</span>
@@ -272,10 +273,11 @@
 
   <section class="tiers" id="tiers">
     <div class="tiers-header">
-      <div class="section-label">Subscription Tiers</div>
-      <h2>Four levels of subscription.<br>One standard of quality.</h2>
-      <p>Every tier includes the same zero-residue produce, the same nutrition first processing and the same batch transparency. What
-        changes is subscription duration, savings, and depth of relationship.</p>
+      <div class="section-label">Subscription Plans</div>
+      <h2>Four subscription.<br>One standard of quality.</h2>
+      <p>Every plan includes icbn zero residue produce, the same nutrition first processing and the same product level
+        transparency. What changes is subscription duration, payment flexibility and subscription play/pause
+        availability</p>
     </div>
     <app-subscription-plans [isCoverflow]="true"></app-subscription-plans>
   </section>
@@ -374,10 +376,9 @@
   <!-- Social Proof Quote Section -->
   <section class="social-proof">
     <div class="quote-container">
-      <p class="quote-text">"Our family visited the farm in Sonipat last winter and saw the Indigenous cows and the fields
-        firsthand. The connection to the land is real, and you can honestly taste the freshness and vitality in the
-        Sona moti flour every single morning."</p>
-      <div class="quote-author">&mdash; The Sharma Family, Delhi &middot; Tapasvi subscribers since November 2024</div>
+      <p class="quote-text">"The connection between your food and the land is real, you can honestly taste the
+        vitality in every ICBN product."</p>
+      <div class="quote-author">&mdash; Trilok Sharma, Delhi &middot; Siddh subscriber</div>
     </div>
   </section>
 
@@ -459,14 +460,14 @@
 
   <div class="final-cta">
     <div class="section-label" style="color:var(--amber-harvest)">Begin Today</div>
-    <h2>Subscribe for food that is planned better and prepared fresher.</h2>
+    <h2>Want toxin‑free food? <br/> Subscribe to it, because it’s the clearest way to signal demand to your farmer</h2>
     <div style="display: flex; flex-direction: column; gap: 12px; align-items: center;">
-      <p>A subscription is the easiest way to stay stocked with ANAAD food while helping the farm plan milling and
+      <!-- <p>A subscription is the easiest way to stay stocked with ANAAD food while helping the farm plan milling and
         dispatch more smoothly. It gives you a simpler, more dependable way to receive food that stays closely connected
-        to the farm and the schedule behind it.</p>
+        to the farm and the schedule behind it.</p> -->
     </div>
     <div class="cta-actions">
-      <a [routerLink]="['/commitment']" fragment="tiers" class="btn-amber">Choose Your Tier &rarr;</a>
+      <a [routerLink]="['/commitment']" fragment="tiers" class="btn-amber">Choose Your Plan &rarr;</a>
       <a routerLink="/products" class="btn-ghost-light">Shop One-Time Instead &rarr;</a>
     </div>
   </div>

@@ -1,4 +1,4 @@
-﻿import { Routes } from '@angular/router';
+import { Routes } from '@angular/router';
 import { authGuard, guestGuard } from './core/guards/auth.guard';
 import { cartNotEmptyGuard } from './core/guards/cart-not-empty.guard';
 import { HomeComponent } from './home/home.component';
@@ -73,7 +73,7 @@ export const routes: Routes = [
   { path: 'privacy-policy', loadComponent: () => import('./privacy-policy/privacy-policy.component').then(m => m.PrivacyPolicyComponent), title: 'Privacy Policy â€¢ Anaad Foods' },
   { path: 'refund-policy', loadComponent: () => import('./terms-conditions/terms-conditions.component').then(m => m.TermsConditionsComponent), title: 'Refund Policy â€¢ Anaad Foods' },
   { path: 'shipping-policy', loadComponent: () => import('./terms-conditions/terms-conditions.component').then(m => m.TermsConditionsComponent), title: 'Shipping Policy â€¢ Anaad Foods' },
-  { path: 'delete-account', loadComponent: () => import('./delete-account/delete-account.component').then(m => m.DeleteAccountComponent), title: 'Delete Account â€¢ Anaad Foods' },
+  { path: 'delete-account', loadComponent: () => import('./delete-account/delete-account.component').then(m => m.DeleteAccountComponent), canActivate: [authGuard], title: 'Delete Account • Anaad Foods' },
 
   { path: '**', loadComponent: () => import('./error-page/error-page').then(m => m.ErrorPageComponent), title: '404 Page Not Found â€¢ Anaad Foods' },
 ];

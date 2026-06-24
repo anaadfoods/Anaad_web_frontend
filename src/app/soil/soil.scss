@@ -209,7 +209,7 @@ section.every-morning {
 /* THE COW SECTION */
 section.the-cow { padding: var(--section-pad-xl) clamp(1.25rem, 5vw, 4rem); display: flex; flex-direction: row; align-items: center; gap: 80px; background-color: #EDE8DF; }
 .cow-image { flex: 0 0 45%; height: 520px; overflow: hidden; border-radius: 20px; box-shadow: 0 12px 36px rgba(0,0,0,0.08); }
-.cow-image img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.68); transform-origin: center center; }
+.cow-image img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.25); transform-origin: center center; }
 .cow-content { flex: 1; display: flex; flex-direction: column; gap: 28px; }
 .cow-content h2 { font-family: var(--font-serif); font-weight: 700; font-size: 38px; line-height: 1.15; color: var(--green-deep); letter-spacing: -0.01em; margin: 0;}
 .cow-content h2 em { font-style: italic; }

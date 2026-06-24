@@ -4,6 +4,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../core/services/auth.service';
 import { AuthState } from '../core/state/auth.state';
+import { ToastService } from '../core/services/toast.service';
 import { finalize } from 'rxjs/operators';
 
 @Component({
@@ -19,6 +20,7 @@ export class DeleteAccountComponent {
   readonly authState = inject(AuthState);
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
+  private readonly toastSvc = inject(ToastService);
 
   step = signal<'password' | 'otp' | 'done'>('password');
   loading = signal(false);
@@ -55,7 +57,11 @@ export class DeleteAccountComponent {
     this.authSvc.deactivateConfirm(otp).pipe(finalize(() => this.loading.set(false))).subscribe({
       next: () => {
         this.step.set('done');
-        this.authSvc.logout();
+        this.authState.logout();
+        this.toastSvc.show('Your account has been permanently deactivated.', 'success');
+        setTimeout(() => {
+          this.router.navigate(['/']);
+        }, 3000);
       },
       error: (err) => this.error.set(err.error?.message || 'Invalid OTP. Please try again.'),
     });

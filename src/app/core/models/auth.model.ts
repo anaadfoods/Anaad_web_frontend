@@ -41,6 +41,7 @@ export interface TokenRefreshRequest {
 /** Response from /api/auth/token/refresh/ */
 export interface TokenRefreshResponse {
   access: string;
+  refresh?: string;  // Backend rotates refresh tokens — must store the new one
 }
 
 /** POST /api/auth/google/ */

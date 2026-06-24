@@ -61,20 +61,6 @@ export class Login implements OnInit, OnDestroy {
     }
 
     if (isPlatformBrowser(this.platformId)) {
-      // Localhost: Google OAuth does not work locally — use real dev login site
-      const isLocalhost =
-        window.location.hostname === 'localhost' ||
-        window.location.hostname === '127.0.0.1';
-
-      if (isLocalhost && (environment as any).externalLoginUrl) {
-        const fullReturn = this.returnUrl.startsWith('http')
-          ? this.returnUrl
-          : `${window.location.origin}${this.returnUrl.startsWith('/') ? '' : '/'}${this.returnUrl}`;
-        window.location.href =
-          `${(environment as any).externalLoginUrl}?returnUrl=${encodeURIComponent(fullReturn)}`;
-        return;
-      }
-
       this.initGoogleSignIn();
     }
   }

@@ -66,7 +66,7 @@
   font-weight: 500;
   letter-spacing: 0.20em;
   text-transform: uppercase;
-  color: var(--amber-harvest);
+  color: var(--bg-parchment);
 }
 
 .hero-content h1 {
@@ -613,8 +613,13 @@ section.shop {
    TRUST STRIP
    ======================================== */
 @keyframes trust-marquee-scroll {
-  0%   { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
 }
 
 .trust-strip {
@@ -752,7 +757,7 @@ section.subscription app-subscription-plans {
   .trust-strip {
     padding: 24px 0;
   }
-  
+
   .trust-marquee-track {
     gap: 40px;
   }
@@ -774,7 +779,7 @@ section.subscription app-subscription-plans {
   }
 
   .hero-overlay {
-    background: linear-gradient(to top, rgba(26,26,26,0.80) 0%, rgba(26,26,26,0.30) 60%, transparent 100%);
+    background: linear-gradient(to top, rgba(26, 26, 26, 0.80) 0%, rgba(26, 26, 26, 0.30) 60%, transparent 100%);
   }
 
   .hero-image {
@@ -783,6 +788,7 @@ section.subscription app-subscription-plans {
     justify-content: flex-end;
     align-items: center;
   }
+
   .hero-image-wrapper {
     border-radius: 12px;
     box-shadow: 0 12px 32px rgba(44, 74, 30, 0.08);
@@ -790,6 +796,7 @@ section.subscription app-subscription-plans {
     display: flex;
     max-width: 100%;
   }
+
   .hero-image img {
     max-width: 100%;
     height: auto;
@@ -1276,6 +1283,7 @@ section.why-started {
     grid-template-columns: 1fr;
     gap: 32px;
   }
+
   .why-started-image {
     height: 320px;
   }

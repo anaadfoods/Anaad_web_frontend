@@ -5,7 +5,7 @@
 
 import { inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, finalize, map, of, switchMap, tap } from 'rxjs';
+import { Observable, finalize, map, of, switchMap, tap, catchError } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
 import { API } from '../constants/api-endpoints';
@@ -86,12 +86,78 @@ export class AuthService {
     return this.http.post<TokenRefreshResponse>(API.AUTH.REFRESH, { refresh }).pipe(
       tap(res => {
         if (res.access) this.authState.setAccessToken(res.access);
+        // Store rotated refresh token if backend returns one
+        if (res.refresh) this.authState.setRefreshToken(res.refresh);
       })
     );
   }
 
   testToken(): Observable<unknown> {
     return this.http.get(API.AUTH.TEST_TOKEN);
+  }
+
+  // ── Session Initialization ─────────────────
+  // Called on app startup to validate the current session.
+  // If the access token is valid, fetches the profile.
+  // If expired, silently refreshes and then fetches the profile.
+  // If refresh also fails, logs the user out cleanly.
+
+  initSession(): Observable<boolean> {
+    if (!this.authState.accessToken()) {
+      // No access token but we might have a refresh token — try refreshing
+      if (this.authState.refreshToken()) {
+        return this.refreshToken().pipe(
+          switchMap(res => {
+            if (res.access) {
+              return this.fetchProfile().pipe(
+                map(() => true),
+                catchError(() => of(true)) // Token is valid even if profile fetch fails
+              );
+            }
+            this.authState.logout();
+            return of(false);
+          }),
+          catchError(() => {
+            this.authState.logout();
+            return of(false);
+          })
+        );
+      }
+      return of(false);
+    }
+
+    // We have an access token — validate it
+    return this.testToken().pipe(
+      switchMap(() => {
+        // Token is valid — fetch profile if not already loaded
+        if (!this.authState.user()) {
+          return this.fetchProfile().pipe(
+            map(() => true),
+            catchError(() => of(true)) // Token valid even if profile fetch has issues
+          );
+        }
+        return of(true);
+      }),
+      catchError(() => {
+        // Access token invalid — try silent refresh
+        return this.refreshToken().pipe(
+          switchMap(res => {
+            if (res.access) {
+              return this.fetchProfile().pipe(
+                map(() => true),
+                catchError(() => of(true))
+              );
+            }
+            this.authState.logout();
+            return of(false);
+          }),
+          catchError(() => {
+            this.authState.logout();
+            return of(false);
+          })
+        );
+      })
+    );
   }
 
   // ── OTP ───────────────────────────────────
@@ -170,10 +236,11 @@ export class AuthService {
 
   // ── Logout ────────────────────────────────
 
-  logout(): void {
+  logout(redirectUrl: string = '/login'): void {
     this.authState.logout();
     if (isPlatformBrowser(this.platformId)) {
-      this.router.navigate(['/login']);
+      this.router.navigate([redirectUrl]);
     }
   }
 }
+

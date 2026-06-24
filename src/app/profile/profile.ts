@@ -384,7 +384,8 @@ export class Profile implements OnInit {
       finalize(() => this.deactivating.set(false))
     ).subscribe({
       next: () => {
-        this.authSvc.logout();
+        this.toastSvc.show('Your account has been permanently deactivated.', 'success');
+        this.authSvc.logout('/');
       },
       error: err => this.deactivateError.set(err.error?.message || 'Invalid OTP.'),
     });
