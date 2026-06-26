@@ -9,10 +9,74 @@
     radial-gradient(ellipse 70% 30% at 84% 68%, rgba(201, 148, 58, 0.14), transparent 70%),
     repeating-linear-gradient(0deg, rgba(120, 90, 50, 0.022) 0 2px, transparent 2px 5px),
     repeating-linear-gradient(90deg, rgba(120, 90, 50, 0.018) 0 2px, transparent 2px 6px);
-  cursor: none;
+  cursor: auto;
 
   a, button, input, select, textarea, [role="button"], .journey-nav__dot, .scene__verify-btn {
-    cursor: none !important;
+    cursor: pointer;
+  }
+}
+
+.journey-page--smooth {
+  cursor: auto;
+
+  a,
+  button,
+  input,
+  select,
+  textarea,
+  [role="button"],
+  .journey-nav__dot,
+  .scene__verify-btn,
+  .journey-pills__pill,
+  .journey-next__cta-btn,
+  .ledger-map-link {
+    cursor: pointer !important;
+  }
+
+  .journey-pollen {
+    display: none !important;
+  }
+
+.scene__frame {
+    &:hover {
+      transform: none;
+      box-shadow:
+        0 8px 24px rgba(46, 36, 23, 0.08),
+        0 2px 6px rgba(46, 36, 23, 0.04);
+    }
+
+    img {
+      filter: none;
+      animation: none;
+      transform: none;
+      mix-blend-mode: normal;
+      will-change: auto;
+    }
+  }
+
+  .scene__copy {
+    &:hover {
+      transform: none;
+    }
+  }
+
+  .journey__crawler,
+  .journey__leaf,
+  .journey__blossom,
+  .journey__head-leaf,
+  .journey__head-tendril {
+    animation: none !important;
+  }
+}
+
+.journey-page--reduced-motion {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
 
@@ -256,16 +320,6 @@
 /* ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
    NEXT-GEN FEATURE 4: SEED SOWER GRAVITY CANVAS
    ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ */
-.journey__gravity-canvas {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 1;
-}
-
 /* ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
    NEXT-GEN FEATURE 3: 3D CAMERA DEPTH SCROLL FOREGROUND LEAVES
    ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ */
@@ -986,6 +1040,11 @@
 
 }
 
+.scene__frame-media {
+  display: block;
+  width: 100%;
+}
+
 @keyframes scene-breathe {
   0%,
   100% {
@@ -1374,54 +1433,6 @@
     }
   }
 
-  .scene__farmer-profile {
-    display: flex;
-    align-items: center;
-    gap: 0.85rem;
-    margin: 0.35rem 0 0.75rem;
-    padding: 0.65rem 0.75rem;
-    background: rgba(74, 107, 53, 0.07);
-    border: 1px solid rgba(74, 107, 53, 0.18);
-    border-radius: 0.85rem;
-  }
-
-  .scene__farmer-profile-photo {
-    width: 72px;
-    height: 72px;
-    border-radius: 50%;
-    overflow: hidden;
-    flex-shrink: 0;
-    border: 2px solid #a8762e;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
-    background: #fdfaf2;
-
-    img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-  }
-
-  .scene__farmer-profile-meta {
-    display: flex;
-    flex-direction: column;
-    gap: 0.15rem;
-    min-width: 0;
-  }
-
-  .scene__farmer-profile-name {
-    font-family: 'EB Garamond', serif;
-    font-size: 1.05rem;
-    font-weight: 600;
-    color: #2c4a1e;
-    line-height: 1.2;
-  }
-
-  .scene__farmer-profile-place {
-    font-size: 0.75rem;
-    color: #8c765c;
-  }
-
   .ledger-timeline-item {
     position: relative;
     padding-left: 1.2rem;
@@ -1628,222 +1639,7 @@
    ANIMATED SVG OVERLAYS ΓÇö bringing illustrations to life
    ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ */
 
-.scene__overlay {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 3;
-  overflow: visible;
-}
-
-// Seeds falling from farmer's hand (Stage 1)
-.scene__anim-seed {
-  animation: anim-seed-fall 2.4s ease-in infinite;
-}
-@keyframes anim-seed-fall {
-  0% { opacity: 0; transform: translate(0, -10px); }
-  20% { opacity: 0.7; }
-  80% { opacity: 0.4; }
-  100% { opacity: 0; transform: translate(8px, 40px); }
-}
-
-// Hoof dust puffs (Stage 2)
-.scene__anim-dust-puff {
-  animation: anim-dust-puff 2.5s ease-out infinite;
-}
-@keyframes anim-dust-puff {
-  0% { opacity: 0; transform: scale(0.5); }
-  30% { opacity: 0.15; transform: scale(1); }
-  100% { opacity: 0; transform: scale(2.2) translateY(-8px); }
-}
-
-// Pouring liquid stream (Stage 3)
-.scene__anim-pour {
-  stroke-dasharray: 80;
-  stroke-dashoffset: 80;
-  animation: anim-pour-flow 3s ease-in-out infinite;
-}
-.scene__anim-drip {
-  animation: anim-drip-fall 2s ease-in infinite;
-}
-@keyframes anim-pour-flow {
-  0% { stroke-dashoffset: 80; opacity: 0; }
-  30% { stroke-dashoffset: 0; opacity: 0.5; }
-  70% { stroke-dashoffset: 0; opacity: 0.5; }
-  100% { stroke-dashoffset: -80; opacity: 0; }
-}
-@keyframes anim-drip-fall {
-  0%, 60% { opacity: 0; transform: translateY(0); }
-  70% { opacity: 0.4; }
-  100% { opacity: 0; transform: translateY(20px); }
-}
-
-// Wheat stalks swaying (Stage 4)
-.scene__anim-wheat-group {
-  transform-origin: bottom center;
-  animation: anim-wheat-sway 4s ease-in-out infinite;
-}
-@keyframes anim-wheat-sway {
-  0%, 100% { transform: rotate(0deg); }
-  30% { transform: rotate(2deg); }
-  70% { transform: rotate(-1.5deg); }
-}
-
-// Birds flying (Stages 4 & 5)
-.scene__overlay--birds {
-  pointer-events: none;
-}
-
-.scene__overlay--birds-harvest {
-  top: 0;
-  height: 55%;
-}
-
-.scene__anim-bird {
-  animation: anim-bird-fly 6s ease-in-out infinite;
-}
-
-.scene__anim-bird-flight {
-  animation: anim-bird-fly 7s ease-in-out infinite;
-}
-
-.scene__anim-bird-flight--reverse {
-  animation-name: anim-bird-fly-reverse;
-  animation-duration: 8s;
-}
-
-.scene__anim-bird-wing {
-  animation: anim-bird-wing 0.55s ease-in-out infinite;
-  transform-origin: center;
-  transform-box: fill-box;
-}
-
-@keyframes anim-bird-fly {
-  0% { transform: translate(0, 0); opacity: 0.3; }
-  50% { transform: translate(-36px, -10px); opacity: 0.22; }
-  100% { transform: translate(-72px, -6px); opacity: 0; }
-}
-
-@keyframes anim-bird-fly-reverse {
-  0% { transform: translate(0, 0) scaleX(-1); opacity: 0.22; }
-  50% { transform: translate(32px, -8px) scaleX(-1); opacity: 0.18; }
-  100% { transform: translate(64px, -4px) scaleX(-1); opacity: 0; }
-}
-
-@keyframes anim-bird-wing {
-  0%, 100% { transform: scaleY(1); }
-  50% { transform: scaleY(0.5); }
-}
-
-// Grinding stone rotation (Stage 5)
-.scene__anim-grind-arc {
-  animation: anim-grind-rotate 8s linear infinite;
-  transform-origin: 200px 200px;
-}
-.scene__anim-grind-arc--inner {
-  animation-direction: reverse;
-  animation-duration: 6s;
-}
-@keyframes anim-grind-rotate {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-// Grain settling (Stage 6)
-.scene__anim-grain-settle {
-  animation: anim-grain-settle 3.5s ease-in infinite;
-}
-@keyframes anim-grain-settle {
-  0% { opacity: 0; transform: translateY(-15px); }
-  40% { opacity: 0.35; }
-  100% { opacity: 0; transform: translateY(10px); }
-}
-
-// Vine growing on shelf (Stage 7)
-.scene__anim-vine {
-  stroke-dasharray: 100;
-  stroke-dashoffset: 100;
-  animation: anim-vine-draw 5s ease-out infinite;
-}
-.scene__anim-vine-leaf {
-  opacity: 0;
-  animation: anim-leaf-appear 5s ease-out infinite;
-}
-@keyframes anim-vine-draw {
-  0% { stroke-dashoffset: 100; opacity: 0; }
-  30% { opacity: 0.3; }
-  60% { stroke-dashoffset: 0; opacity: 0.3; }
-  80% { opacity: 0.3; }
-  100% { stroke-dashoffset: 0; opacity: 0; }
-}
-@keyframes anim-leaf-appear {
-  0%, 40% { opacity: 0; transform: scale(0.5); }
-  60% { opacity: 0.25; transform: scale(1); }
-  80% { opacity: 0.25; }
-  100% { opacity: 0; }
-}
-
-// Cart wheel spinning (Stage 8)
-.scene__anim-wheel-spin {
-  animation: anim-wheel-rotate 10s linear infinite;
-  transform-origin: 295px 195px;
-}
-@keyframes anim-wheel-rotate {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-// Diya flame flicker (Stage 9)
-.scene__anim-flame {
-  animation: anim-flame-flicker 1.5s ease-in-out infinite;
-  transform-origin: center bottom;
-}
-.scene__anim-flame-inner {
-  animation: anim-flame-inner 1s ease-in-out infinite;
-  transform-origin: center bottom;
-}
-@keyframes anim-flame-flicker {
-  0%, 100% { transform: scaleY(1) scaleX(1); }
-  25% { transform: scaleY(1.15) scaleX(0.9); }
-  50% { transform: scaleY(0.9) scaleX(1.1); }
-  75% { transform: scaleY(1.1) scaleX(0.95); }
-}
-@keyframes anim-flame-inner {
-  0%, 100% { transform: scaleY(1); opacity: 0.5; }
-  50% { transform: scaleY(1.2); opacity: 0.65; }
-}
-
-// Steam wisps from food (Stage 10)
-.scene__anim-steam-wisp {
-  stroke-dasharray: 60;
-  animation: anim-steam-rise 4s ease-out infinite;
-}
-@keyframes anim-steam-rise {
-  0% { stroke-dashoffset: 60; opacity: 0; transform: translateY(5px); }
-  30% { stroke-dashoffset: 0; opacity: 0.2; }
-  70% { opacity: 0.12; }
-  100% { stroke-dashoffset: -60; opacity: 0; transform: translateY(-15px); }
-}
-
-// Sparkle bursts (Stage 11)
-.scene__anim-sparkle-star {
-  animation: anim-sparkle-pulse 2.5s ease-in-out infinite;
-}
-@keyframes anim-sparkle-pulse {
-  0%, 100% { opacity: 0; transform: scale(0.3); }
-  50% { opacity: 1; transform: scale(1.2); }
-}
-
-.scene__sunglow,
-.scene__sprout-glow,
-.scene__bell-glow,
-.scene__hearth-glow,
-.scene__package-glow,
-.scene__wheel-pulse,
-.scene__table-glow,
-.scene__final-halo {
+.scene__sunglow {
   position: absolute;
   border-radius: 50%;
   pointer-events: none;
@@ -1869,493 +1665,6 @@
 
   50% {
     opacity: 1;
-  }
-}
-
-.scene__seeds,
-.scene__motes,
-.scene__chaff,
-.scene__smoke,
-.scene__dust,
-.scene__package-lines,
-.scene__wheel-dust,
-.scene__steam,
-.scene__final-sparkles {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-
-.scene__seeds {
-  top: 16%;
-  height: 44%;
-}
-
-.scene__seeds i,
-.scene__motes i,
-.scene__dust i,
-.scene__wheel-dust i,
-.scene__final-sparkles i {
-  position: absolute;
-  border-radius: 999px;
-}
-
-.scene__seeds i {
-  top: 0;
-  background: #d8a64e;
-  box-shadow: 0 0 4px rgba(216, 166, 78, 0.8);
-  opacity: 0;
-  animation: seed-fall 3.2s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
-}
-
-@keyframes seed-fall {
-  0% {
-    opacity: 0;
-    transform: translate(0, 0) rotate(0deg);
-  }
-
-  12% {
-    opacity: 0.95;
-  }
-
-  82% {
-    opacity: 0.8;
-  }
-
-  100% {
-    opacity: 0;
-    transform: translate(var(--drift, 0px), 230px) rotate(160deg);
-  }
-}
-
-.scene__sprout-glow {
-  left: 56%;
-  bottom: 12%;
-  width: 22%;
-  aspect-ratio: 1;
-  background: radial-gradient(circle, rgba(167, 214, 110, 0.42), transparent 65%);
-  animation: pulse-glow 3.6s ease-in-out infinite;
-}
-
-.scene__motes {
-  bottom: 0;
-  height: 54%;
-}
-
-.scene__motes i,
-.scene__dust i,
-.scene__wheel-dust i {
-  bottom: 6%;
-  background: #f0d28a;
-  box-shadow: 0 0 6px rgba(240, 210, 138, 0.9);
-  opacity: 0;
-  animation: mote-rise 4.2s ease-in-out infinite;
-}
-
-@keyframes mote-rise {
-  0% {
-    opacity: 0;
-    transform: translate(0, 0) scale(0.7);
-  }
-
-  18% {
-    opacity: 0.9;
-  }
-
-  78% {
-    opacity: 0.5;
-  }
-
-  100% {
-    opacity: 0;
-    transform: translate(var(--drift, 0px), -190px) scale(1.15);
-  }
-}
-
-.scene__bell-glow {
-  left: 36%;
-  top: 38%;
-  width: 9%;
-  aspect-ratio: 1;
-  background: radial-gradient(circle, rgba(255, 226, 150, 0.55), transparent 65%);
-  animation: pulse-glow 2.8s 0.6s ease-in-out infinite;
-}
-
-.scene__crop-wave {
-  position: absolute;
-  left: 10%;
-  right: 8%;
-  bottom: 10%;
-  height: 30%;
-  pointer-events: none;
-}
-
-.scene__crop-wave i {
-  position: absolute;
-  bottom: 0;
-  width: 2px;
-  height: 56%;
-  border-radius: 999px;
-  background: linear-gradient(180deg, rgba(228, 190, 102, 0.2), rgba(133, 178, 76, 0.86));
-  transform-origin: bottom center;
-  animation: crop-sway 2.8s ease-in-out infinite;
-
-  &::before,
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: 34%;
-    width: 18px;
-    height: 10px;
-    border-radius: 18px 18px 0 18px;
-    background: rgba(113, 168, 68, 0.72);
-    transform-origin: bottom right;
-  }
-
-  &::before {
-    left: -15px;
-    transform: rotate(-28deg);
-  }
-
-  &::after {
-    left: -1px;
-    border-radius: 18px 18px 18px 0;
-    transform: rotate(26deg);
-  }
-}
-
-@keyframes crop-sway {
-  0%,
-  100% {
-    transform: rotate(-3deg);
-  }
-
-  50% {
-    transform: rotate(4deg);
-  }
-}
-
-.scene__chaff {
-  left: 8%;
-  right: 8%;
-  top: 14%;
-  height: 54%;
-}
-
-.scene__chaff i {
-  position: absolute;
-  top: 12%;
-  border-radius: 8px;
-  background: linear-gradient(90deg, rgba(232, 190, 102, 0.2), rgba(219, 176, 78, 0.9));
-  opacity: 0;
-  animation: chaff-drift 3.6s ease-in-out infinite;
-}
-
-@keyframes chaff-drift {
-  0% {
-    opacity: 0;
-    transform: translate(0, 0) rotate(0deg);
-  }
-
-  15% {
-    opacity: 0.9;
-  }
-
-  100% {
-    opacity: 0;
-    transform: translate(var(--drift, 0px), 180px) rotate(120deg);
-  }
-}
-
-.scene__hearth-glow {
-  left: 44%;
-  bottom: 16%;
-  width: 20%;
-  aspect-ratio: 1;
-  background: radial-gradient(circle, rgba(255, 172, 76, 0.54), transparent 65%);
-  animation: pulse-glow 2.8s ease-in-out infinite;
-}
-
-.scene__smoke {
-  left: 36%;
-  top: 18%;
-  width: 30%;
-  height: 40%;
-}
-
-.scene__smoke i {
-  position: absolute;
-  bottom: 0;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.28), rgba(109, 92, 77, 0.08));
-  opacity: 0;
-  filter: blur(2px);
-  animation: smoke-rise 5s ease-in-out infinite;
-}
-
-@keyframes smoke-rise {
-  0% {
-    opacity: 0;
-    transform: translate(0, 0) scale(0.55);
-  }
-
-  18% {
-    opacity: 0.6;
-  }
-
-  100% {
-    opacity: 0;
-    transform: translate(var(--drift, 0px), -160px) scale(1.25);
-  }
-}
-
-.scene__dust {
-  left: 8%;
-  right: 8%;
-  top: 10%;
-  height: 72%;
-}
-
-.scene__package-glow {
-  left: 38%;
-  bottom: 20%;
-  width: 26%;
-  aspect-ratio: 1;
-  background: radial-gradient(circle, rgba(255, 216, 134, 0.34), transparent 68%);
-  animation: pulse-glow 3.1s ease-in-out infinite;
-}
-
-.scene__package-lines {
-  left: 12%;
-  right: 12%;
-  top: 18%;
-  bottom: 18%;
-}
-
-.scene__package-lines i {
-  position: absolute;
-  top: 50%;
-  width: 38px;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, rgba(255, 236, 184, 0.8), transparent);
-  opacity: 0;
-  animation: shimmer-line 2.8s linear infinite;
-}
-
-@keyframes shimmer-line {
-  0% {
-    opacity: 0;
-    transform: translateX(-24px);
-  }
-
-  30% {
-    opacity: 1;
-  }
-
-  100% {
-    opacity: 0;
-    transform: translateX(30px);
-  }
-}
-
-.scene__wheel-pulse {
-  left: 36%;
-  bottom: 14%;
-  width: 18%;
-  aspect-ratio: 1;
-  border: 1px solid rgba(215, 164, 83, 0.24);
-  background: radial-gradient(circle, rgba(255, 214, 140, 0.2), transparent 68%);
-  animation: wheel-pulse 2.2s ease-in-out infinite;
-}
-
-@keyframes wheel-pulse {
-  0%,
-  100% {
-    transform: scale(0.88);
-    opacity: 0.45;
-  }
-
-  50% {
-    transform: scale(1.08);
-    opacity: 0.95;
-  }
-}
-
-.scene__wheel-dust {
-  left: 10%;
-  right: 10%;
-  bottom: 12%;
-  height: 24%;
-}
-
-.scene__route-net {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-
-.scene__route-line {
-  position: absolute;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, rgba(255, 218, 136, 0.9), transparent);
-  opacity: 0.85;
-  transform-origin: left center;
-  animation: route-flow 3.4s linear infinite;
-}
-
-.scene__route-line--a {
-  left: 24%;
-  top: 28%;
-  width: 34%;
-  transform: rotate(18deg);
-}
-
-.scene__route-line--b {
-  left: 36%;
-  top: 42%;
-  width: 26%;
-  transform: rotate(-14deg);
-  animation-delay: 0.8s;
-}
-
-.scene__route-line--c {
-  left: 28%;
-  top: 58%;
-  width: 30%;
-  transform: rotate(10deg);
-  animation-delay: 1.4s;
-}
-
-@keyframes route-flow {
-  0% {
-    opacity: 0;
-    filter: blur(1px);
-  }
-
-  30% {
-    opacity: 1;
-  }
-
-  100% {
-    opacity: 0.2;
-    filter: blur(0);
-  }
-}
-
-.scene__route-node {
-  position: absolute;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: radial-gradient(circle, #fff5d7, #d49a41 72%);
-  box-shadow: 0 0 0 8px rgba(212, 154, 65, 0.14), 0 0 20px rgba(212, 154, 65, 0.45);
-  animation: route-node-pulse 2.4s ease-in-out infinite;
-}
-
-@keyframes route-node-pulse {
-  0%,
-  100% {
-    transform: scale(0.9);
-    opacity: 0.75;
-  }
-
-  50% {
-    transform: scale(1.15);
-    opacity: 1;
-  }
-}
-
-.scene__table-glow {
-  left: 36%;
-  bottom: 16%;
-  width: 30%;
-  aspect-ratio: 1;
-  background: radial-gradient(circle, rgba(255, 207, 126, 0.38), transparent 68%);
-  animation: pulse-glow 3s ease-in-out infinite;
-}
-
-.scene__steam {
-  left: 30%;
-  right: 24%;
-  top: 12%;
-  bottom: 24%;
-}
-
-.scene__steam i {
-  position: absolute;
-  bottom: 10%;
-  width: 12px;
-  height: 90px;
-  border-radius: 999px;
-  border: 2px solid rgba(255, 255, 255, 0.22);
-  border-color: rgba(255, 255, 255, 0.22) transparent transparent transparent;
-  opacity: 0;
-  filter: blur(1px);
-  animation: steam-rise 4.4s ease-in-out infinite;
-}
-
-@keyframes steam-rise {
-  0% {
-    opacity: 0;
-    transform: translate(0, 16px) scale(0.78) rotate(-2deg);
-  }
-
-  20% {
-    opacity: 0.45;
-  }
-
-  100% {
-    opacity: 0;
-    transform: translate(var(--drift, 0px), -94px) scale(1.08) rotate(6deg);
-  }
-}
-
-.scene__final-halo {
-  left: 24%;
-  top: 16%;
-  width: 52%;
-  aspect-ratio: 1;
-  background: radial-gradient(circle, rgba(255, 226, 160, 0.5), transparent 68%);
-  animation: pulse-glow 3.8s ease-in-out infinite;
-}
-
-.scene__final-sparkles {
-  inset: 6% 10% 8% 10%;
-}
-
-.scene__final-sparkles i {
-  top: 50%;
-  background: radial-gradient(circle, rgba(255, 245, 216, 0.95), rgba(233, 185, 73, 0.15));
-  opacity: 0;
-  animation: sparkle-rise 3.8s ease-in-out infinite;
-}
-
-@keyframes sparkle-rise {
-  0% {
-    opacity: 0;
-    transform: translate(0, 0) scale(0.6);
-  }
-
-  25% {
-    opacity: 0.9;
-  }
-
-  100% {
-    opacity: 0;
-    transform: translate(var(--drift, 0px), -160px) scale(1.2);
-  }
-}
-
-@keyframes pulse-glow {
-  0%,
-  100% {
-    opacity: 0.38;
-    transform: scale(0.92);
-  }
-
-  50% {
-    opacity: 0.95;
-    transform: scale(1.08);
   }
 }
 
@@ -3115,19 +2424,6 @@
    FEATURE 9: MOUSE CURSOR TRAIL EFFECT (INTERACTIVE FRAME GLOW)
    ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ */
 
-.scene__frame-trail {
-  position: absolute;
-  width: 180px;
-  height: 180px;
-  pointer-events: none;
-  transform: translate(-50%, -50%);
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(201, 148, 58, 0.18) 0%, rgba(201, 148, 58, 0.04) 45%, transparent 70%);
-  z-index: 10;
-  transition: opacity 0.25s ease;
-  mix-blend-mode: color-burn;
-}
-
 /* ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
    FEATURE 10: STORYBOOK TYPOGRAPHY - DECORATIVE DROP CAPS
    ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ */
@@ -3245,23 +2541,6 @@
 .journey-page[data-active-stage="10"] { background-color: #ebd8c5; } // Candlelight dinner peach
 .journey-page[data-active-stage="11"] { background-color: #edd6c0; } // Dusk complete warm glow
 
-// Feature 14: Dynamic Wind & Sway Mouse Tilt
-.scene__overlay--seed-arc,
-.scene__motes,
-.scene__seeds,
-.scene__chaff,
-.scene__dust,
-.scene__smoke,
-.scene__steam,
-.scene__overlay--wheat-sway,
-.scene__overlay--pour,
-.scene__overlay--hoof-dust,
-.scene__overlay--birds {
-  transform: rotate(var(--wind-tilt, 0deg));
-  transform-origin: bottom center;
-  transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
-}
-
 /* ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
    DOT MORPH KEYFRAMES (INK DROPLET EFFECT)
    ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ */
@@ -3277,81 +2556,6 @@
   }
   100% {
     border-radius: 42% 58% 70% 30% / 45% 45% 55% 55%;
-  }
-}
-
-/* ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
-   LIQUID GLASS CURSOR STYLING
-   ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ */
-.glass-cursor {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 0;
-  height: 0;
-  pointer-events: none;
-  z-index: 999999;
-  mix-blend-mode: normal;
-  
-  // Hide on mobile touch devices
-  @media (max-width: 980px) {
-    display: none;
-  }
-
-  &__ring {
-    position: absolute;
-    width: 20px;
-    height: 20px;
-    border: 1.5px solid rgba(168, 118, 46, 0.45);
-    background: rgba(253, 250, 242, 0.12);
-    border-radius: 50%;
-    transform: translate(-50%, -50%);
-    box-shadow: 0 0 10px rgba(168, 118, 46, 0.08);
-    transition: 
-      width 0.4s cubic-bezier(0.25, 0.8, 0.25, 1),
-      height 0.4s cubic-bezier(0.25, 0.8, 0.25, 1),
-      border-color 0.3s ease,
-      background-color 0.3s ease,
-      box-shadow 0.3s ease;
-  }
-
-  &__dot {
-    position: absolute;
-    width: 4px;
-    height: 4px;
-    background: #a8762e;
-    border-radius: 50%;
-    transform: translate(-50%, -50%);
-    transition: 
-      width 0.3s cubic-bezier(0.25, 0.8, 0.25, 1),
-      height 0.3s cubic-bezier(0.25, 0.8, 0.25, 1),
-      background-color 0.3s ease;
-  }
-
-  &.is-hovering {
-    .glass-cursor__ring {
-      width: 56px;
-      height: 56px;
-      border-color: #2c4a1e;
-      background: rgba(74, 107, 53, 0.06);
-      box-shadow: 0 0 20px rgba(74, 107, 53, 0.25);
-    }
-
-    .glass-cursor__dot {
-      width: 6px;
-      height: 6px;
-      background: #2c4a1e;
-    }
-  }
-
-  &.is-hovering-card {
-    .glass-cursor__ring {
-      width: 38px;
-      height: 38px;
-      border-color: #c9943a;
-      background: rgba(201, 148, 58, 0.04);
-      box-shadow: 0 0 12px rgba(201, 148, 58, 0.15);
-    }
   }
 }
 
@@ -3726,7 +2930,6 @@
   }
 }
 
-
 /* ═══════════════════════════════════════════════════════════════════════════
    DELIVERY GATE — Stages 10–12 Unlock Flow
    ═══════════════════════════════════════════════════════════════════════════ */
@@ -3745,7 +2948,7 @@
   font-family: 'EB Garamond', serif;
   font-size: 0.85rem;
   letter-spacing: 0.02em;
-  cursor: none !important;
+  cursor: pointer;
   transition: background 0.25s, border-color 0.25s, color 0.25s, box-shadow 0.25s;
 
   svg {
@@ -3882,7 +3085,7 @@
   font-family: 'EB Garamond', serif;
   font-size: 1rem;
   letter-spacing: 0.02em;
-  cursor: none !important;
+  cursor: pointer;
   transition: box-shadow 0.25s, transform 0.18s;
   box-shadow: 0 4px 18px rgba(44, 74, 30, 0.3);
 
@@ -3940,7 +3143,7 @@
   color: #2e2417;
   outline: none;
   font-family: inherit;
-  cursor: none !important;
+  cursor: pointer;
 
   &::placeholder {
     color: #c4b8a8;
@@ -3957,7 +3160,7 @@
   font-family: 'EB Garamond', serif;
   font-size: 0.9rem;
   letter-spacing: 0.02em;
-  cursor: none !important;
+  cursor: pointer;
   transition: background 0.2s, box-shadow 0.2s;
   white-space: nowrap;
 
@@ -3986,7 +3189,7 @@
   border: 1.5px solid rgba(74, 107, 53, 0.25);
   border-radius: 1rem;
   color: #2c4a1e;
-  cursor: none !important;
+  cursor: pointer;
   transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
 
   svg {
@@ -4084,7 +3287,7 @@
   background: rgba(243, 234, 216, 0.5);
   border: 1.5px solid rgba(168, 118, 46, 0.2);
   border-radius: 0.85rem;
-  cursor: none !important;
+  cursor: pointer;
   transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
   text-align: left;
 
@@ -4240,7 +3443,7 @@
   color: #a8762e;
   font-size: 0.78rem;
   text-decoration: underline;
-  cursor: none !important;
+  cursor: pointer;
   padding: 0;
   margin-top: 0.25rem;
 
@@ -4255,7 +3458,7 @@
   color: #8c9e8a;
   font-size: 0.74rem;
   text-decoration: underline;
-  cursor: none !important;
+  cursor: pointer;
   padding: 0;
 
   &:hover {
@@ -4296,7 +3499,7 @@
   color: #4a6b35;
   font-size: inherit;
   text-decoration: underline;
-  cursor: none !important;
+  cursor: pointer;
 
   &:hover {
     color: #2c4a1e;
@@ -4315,7 +3518,7 @@
   background: rgba(255, 255, 255, 0.85);
   resize: vertical;
   outline: none;
-  cursor: none !important;
+  cursor: pointer;
 
   &:focus {
     border-color: #a8762e;
@@ -4353,7 +3556,7 @@
   color: #a8762e;
   font-family: 'EB Garamond', serif;
   font-size: 0.78rem;
-  cursor: none !important;
+  cursor: pointer;
   transition: background 0.2s, box-shadow 0.2s;
   margin-top: 0.25rem;
 
@@ -4529,7 +3732,7 @@
     0 8px 18px rgba(107, 66, 38, 0.08),
     inset 0 1px 0 rgba(255, 255, 255, 0.75);
   text-align: center;
-  cursor: none !important;
+  cursor: pointer;
   transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s ease, border-color 0.35s ease;
 
   &::before {
@@ -4640,7 +3843,7 @@
   border: none;
   background: transparent;
   text-align: left;
-  cursor: none !important;
+  cursor: pointer;
   justify-self: end;
 
   &:hover .delivery-tile__art img {
@@ -4832,7 +4035,7 @@
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  cursor: none !important;
+  cursor: pointer;
   transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
 
   svg {
@@ -4904,7 +4107,7 @@
   border: none;
   background: rgba(24, 18, 10, 0.52);
   backdrop-filter: blur(6px);
-  cursor: none !important;
+  cursor: pointer;
 }
 
 .registered-modal__panel {
@@ -4948,7 +4151,7 @@
   border-radius: 50%;
   background: rgba(253, 250, 242, 0.85);
   color: #6b4226;
-  cursor: none !important;
+  cursor: pointer;
   transition: background 0.2s ease, border-color 0.2s ease;
 
   svg {
@@ -5116,7 +4319,7 @@
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  cursor: none !important;
+  cursor: pointer;
   transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease, color 0.25s ease;
 
   &--primary {

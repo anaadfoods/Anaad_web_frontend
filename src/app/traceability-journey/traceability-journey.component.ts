@@ -43,21 +43,6 @@ import {
   ShiprocketSubShipment
 } from '../core/models/traceability.model';
 
-type StageEffect =
-  | 'seeds'
-  | 'motes'
-  | 'crop'
-  | 'chaff'
-  | 'fire'
-  | 'dust'
-  | 'package'
-  | 'silo'
-  | 'warehouse'
-  | 'wheel'
-  | 'route'
-  | 'steam'
-  | 'halo';
-
 interface Stage {
   id: number;
   title: string;
@@ -65,7 +50,6 @@ interface Stage {
   detail: string;
   image: string;
   alt: string;
-  effect: StageEffect;
   align: 'left' | 'right';
   artShiftX: number;
   artShiftY: number;
@@ -84,6 +68,9 @@ interface StageBadge {
   tone: 'green' | 'gold' | 'neutral';
 }
 
+/** Stable empty reference so template @if/@for don't see a new array each call. */
+const EMPTY_BADGES: readonly StageBadge[] = [];
+
 interface VineLeaf {
   x: number;
   y: number;
@@ -98,32 +85,6 @@ interface Blossom {
   t: number;
 }
 
-interface Particle {
-  left: number;
-  delay: number;
-  dur: number;
-  size: number;
-  drift: number;
-}
-
-interface RouteNode {
-  left: number;
-  top: number;
-  delay: number;
-}
-
-interface CanvasSeed {
-  x: number;
-  y: number;
-  vx: number;
-  vy: number;
-  radius: number;
-  alpha: number;
-  sprouted: boolean;
-  sproutProgress: number;
-  color: string;
-}
-
 @Component({
   selector: 'app-traceability-journey',
   standalone: true,
@@ -136,7 +97,6 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
   @ViewChild('journeyRoot') private journeyRoot?: ElementRef<HTMLElement>;
   @ViewChild('vinePath') private vinePath?: ElementRef<SVGPathElement>;
   @ViewChildren('scene') private sceneRefs?: QueryList<ElementRef<HTMLElement>>;
-  @ViewChild('gravityCanvas') private gravityCanvas?: ElementRef<HTMLCanvasElement>;
   private readonly platformId = inject(PLATFORM_ID);
   private readonly traceabilityService = inject(TraceabilityService);
   private readonly authService = inject(AuthService);
@@ -195,7 +155,10 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
     this.traceCropCycle()?.cycleCode ?? this.currentCropId() ?? this.DEFAULT_CROP_ID
   );
 
-  private pathLength = 0;
+  /** Disable premium visuals that hurt scroll/mouse performance. */
+  private smoothUi = true;
+  protected readonly prefersReducedMotion = signal(false);
+
   private rafId: number | null = null;
   private resizeObserver?: ResizeObserver;
   private stageObserver?: IntersectionObserver;
@@ -213,22 +176,12 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
   protected readonly leaves = signal<VineLeaf[]>([]);
   protected readonly blossoms = signal<Blossom[]>([]);
 
-  // Features 8 & 9: Side nav scrolling and cursor trail tracking
-  protected readonly trailX = signal(0);
-  protected readonly trailY = signal(0);
-  protected readonly activeTrailStage = signal<number | null>(null);
-  protected readonly windTilt = signal(0);
   protected readonly flippedCard = signal<number | null>(null);
   protected readonly parallaxOffset = signal(0);
   protected readonly heroParallax = signal(0);
   protected readonly flipStampStage = signal<number | null>(null);
 
-  // Liquid Glass Cursor & Holographic 3D Tilt (with Zoom)
-  private realMouseX = 0;
-  private realMouseY = 0;
-  private cursorRafId: number | null = null;
-  protected readonly cursorX = signal(0);
-  protected readonly cursorY = signal(0);
+  // Holographic 3D Tilt (with Zoom)
   protected readonly isHoveringInteractive = signal(false);
   protected readonly isHoveringCard = signal(false);
   protected readonly activeTiltCard = signal<number | null>(null);
@@ -243,19 +196,13 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
   private easedProgress = 0;
   private vineRafId: number | null = null;
   private cachedPoints: { x: number; y: number; angle: number }[] = [];
-  private cursorLoopActive = false;
-  private canvasLoopActive = false;
+  private pathLength = 0;
   private lastScrollTop = 0;
   private scrollSpeed = 0;
   private flipStampTimer: ReturnType<typeof setTimeout> | null = null;
 
-  // Next-Gen Feature 4: Canvas physics seeds
-  private seedsList: CanvasSeed[] = [];
-  private vineAnchors: { x: number; y: number }[] = [];
-  private canvasRafId: number | null = null;
-
-  // Feature 5: Ambient pollen particles
-  protected readonly pollenMotes = Array.from({ length: 20 }, (_, i) => ({
+  // Ambient pollen particles (kept low — hidden in smooth UI mode)
+  protected readonly pollenMotes = Array.from({ length: 6 }, (_, i) => ({
     left: (i * 37 + 11) % 96 + 2,
     size: 2 + (i % 3),
     dur: 18 + (i * 7) % 14,
@@ -265,7 +212,6 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
   }));
 
   protected readonly petalAngles = [0, 72, 144, 216, 288];
-  protected readonly stems = Array.from({ length: 7 }, (_, i) => 18 + i * 11);
 
   protected readonly stages: Stage[] = [
     {
@@ -276,7 +222,6 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
       detail: 'Seed & land preparation: Pending',
       image: 'assets/traceability/stage-1.png',
       alt: 'Seed and prepared field — the first steps of a traceable harvest.',
-      effect: 'seeds',
       align: 'right',
       artShiftX: 50,
       artShiftY: -22,
@@ -293,7 +238,6 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
       detail: 'Cultivated by: Pending',
       image: 'assets/traceability/stage-2.png',
       alt: 'A farmer standing proudly in a green field.',
-      effect: 'motes',
       align: 'left',
       artShiftX: -64,
       artShiftY: 18,
@@ -311,7 +255,6 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
       detail: 'Crop cycle: Pending',
       image: 'assets/traceability/stage-3.png',
       alt: 'Young crop rows rising from a fertile field under warm light.',
-      effect: 'crop',
       align: 'right',
       artShiftX: 70,
       artShiftY: -8,
@@ -328,7 +271,6 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
       detail: 'Field activities: Pending',
       image: 'assets/traceability/stage-4.png',
       alt: 'A farmer working in the field with traditional tools.',
-      effect: 'chaff',
       align: 'left',
       artShiftX: -78,
       artShiftY: 26,
@@ -345,7 +287,6 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
       detail: 'Date of harvest: Pending',
       image: 'assets/traceability/stage-5.png',
       alt: 'Harvest in the field — crop gathered at peak readiness.',
-      effect: 'fire',
       align: 'right',
       artShiftX: 48,
       artShiftY: -8,
@@ -364,7 +305,6 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
       detail: 'Storage: Pending',
       image: 'assets/traceability/stage-6.png',
       alt: 'Harvested crop resting in breathable storage before processing.',
-      effect: 'dust',
       align: 'left',
       artShiftX: -54,
       artShiftY: 14,
@@ -381,7 +321,6 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
       detail: 'Processing: Pending',
       image: 'assets/traceability/stage-7.png',
       alt: 'Crop being processed with slow, gentle methods at the mill.',
-      effect: 'package',
       align: 'right',
       artShiftX: 84,
       artShiftY: -12,
@@ -398,7 +337,6 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
       detail: 'Packaging: Pending',
       image: 'assets/traceability/stage-8.png',
       alt: 'Anaad products being packed on a work table with sacks and tools.',
-      effect: 'wheel',
       align: 'left',
       artShiftX: -70,
       artShiftY: 18,
@@ -415,7 +353,6 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
       detail: 'Warehouse: Pending',
       image: 'assets/traceability/stage-9.png',
       alt: 'Finished goods counted and stored in the central warehouse.',
-      effect: 'route',
       align: 'right',
       artShiftX: 76,
       artShiftY: -10,
@@ -432,7 +369,6 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
       detail: 'Transit: Pending',
       image: 'assets/traceability/stage-10.png',
       alt: 'A delivery vehicle transporting produce.',
-      effect: 'steam',
       align: 'left',
       artShiftX: -62,
       artShiftY: 20,
@@ -447,9 +383,8 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
       summary:
         'Delivery is the final handover. Each delivery milestone is recorded so the trace ends at your table — not in a log.',
       detail: 'Delivery: Pending',
-      image: 'assets/traceability/stage-9.png',
+      image: 'assets/traceability/stage-11.png',
       alt: 'A warehouse with neatly stacked product boxes ready for dispatch.',
-      effect: 'halo',
       align: 'right',
       artShiftX: 40,
       artShiftY: -8,
@@ -465,9 +400,8 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
       summary:
         'When every step is visible and verified, trust is no longer claimed — it\'s proven. The full chain from soil to shelf stands verified, ready for the scan.',
       detail: 'Verification: Pending',
-      image: 'assets/traceability/stage-11.png',
+      image: 'assets/traceability/stage-12.png',
       alt: 'A final branded traceability illustration closing the journey.',
-      effect: 'halo',
       align: 'left',
       artShiftX: -62,
       artShiftY: 20,
@@ -484,6 +418,14 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
   private readonly DEFAULT_CROP_ID = 'CC-000019';
 
   ngOnInit(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+      this.prefersReducedMotion.set(motionQuery.matches);
+      motionQuery.addEventListener('change', (event) => {
+        this.prefersReducedMotion.set(event.matches);
+      });
+    }
+
     this.route.queryParams.subscribe(params => {
       const qrParam = params['qr'];
       const cropIdParam = params['crop_id'];
@@ -1153,14 +1095,6 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
         ? ` - ${farmer.experience}${typeof farmer.experience === 'number' ? ' years on the land' : ''}`
         : '';
       this.stages[1].detail = `Cultivated by: ${farmer.name}${place}${experience}`;
-
-      const photo = this.resolveFarmerPhoto(farmer);
-      if (photo) {
-        this.stages[1].image = photo;
-        this.stages[1].alt = `${farmer.name}${farmer.place ? ', ' + farmer.place : ''} — Anaad farmer`;
-        this.stages[1].imageFit = 'cover';
-        this.stages[1].imagePosition = 'center';
-      }
     } else {
       this.stages[1].detail = 'Cultivated by: To be recorded for this batch';
     }
@@ -1413,28 +1347,7 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
     }
   }
 
-
-  protected readonly seeds = this.createParticles(18, 42, 23, 53, 26, 17, 14, 3, 7, 3, 31, 28, -14);
-  protected readonly motes = this.createParticles(14, 8, 84, 41, 38, 13, 30, 2, 5, 4, 23, 20, -10);
-  protected readonly chaff = this.createParticles(22, 28, 42, 27, 20, 19, 14, 2, 3, 4, 17, 34, -18);
-  protected readonly smoke = this.createParticles(8, 36, 18, 19, 18, 11, 22, 6, 3, 0, 13, 14, -7);
-  protected readonly dust = this.createParticles(20, 10, 80, 23, 32, 17, 28, 2, 5, 4, 19, 24, -12);
-  protected readonly packageSpark = this.createParticles(10, 30, 40, 29, 30, 13, 24, 3, 4, 3, 21, 16, -8);
-  protected readonly wheelDust = this.createParticles(18, 14, 68, 31, 22, 11, 20, 2, 4, 3, 17, 26, -10);
-  protected readonly steam = this.createParticles(8, 32, 24, 27, 20, 15, 32, 10, 3, 0, 11, 16, -8);
-  protected readonly haloSpark = this.createParticles(12, 20, 60, 17, 40, 14, 26, 2, 4, 4, 15, 18, -9);
-
-  protected readonly routeNodes: RouteNode[] = [
-    { left: 22, top: 22, delay: 0.2 },
-    { left: 46, top: 18, delay: 0.6 },
-    { left: 58, top: 34, delay: 0.9 },
-    { left: 38, top: 46, delay: 1.2 },
-    { left: 66, top: 52, delay: 1.5 },
-    { left: 54, top: 66, delay: 1.8 },
-    { left: 30, top: 72, delay: 2.1 }
-  ];
-
-  ngAfterViewInit(): void {
+ngAfterViewInit(): void {
     if (!isPlatformBrowser(this.platformId)) return;
 
     this.setupStageObserver();
@@ -1455,13 +1368,6 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
       });
       this.resizeObserver.observe(root);
     }
-
-    if (this.gravityCanvas) {
-      this.resizeCanvas();
-      this.startCanvasLoop();
-    }
-
-    this.startCursorTrailLoop();
   }
 
   /** Rebuilds the vine path so it spans the real page height, bending at every stage. */
@@ -1501,13 +1407,13 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
     path.style.strokeDashoffset = `${this.pathLength}`;
     path.classList.add('is-measured');
 
-    this.vineAnchors = anchors;
-
     this.decorateVine(path);
 
     // Pre-calculate points along the path to avoid layout thrashing during scroll/animation
     this.cachedPoints = [];
-    const steps = Math.min(Math.ceil(this.pathLength / 4), 1200); // point every 4px
+    const stepSize = this.smoothUi ? 12 : 4;
+    const maxSteps = this.smoothUi ? 450 : 1200;
+    const steps = Math.min(Math.ceil(this.pathLength / stepSize), maxSteps);
     for (let i = 0; i <= steps; i++) {
       const dist = (i / steps) * this.pathLength;
       const pt = path.getPointAtLength(dist);
@@ -1523,7 +1429,7 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
   private decorateVine(path: SVGPathElement): void {
     const leaves: VineLeaf[] = [];
     const blossoms: Blossom[] = [];
-    const leafCount = 24;
+    const leafCount = this.smoothUi ? 10 : 24;
     for (let i = 1; i <= leafCount; i++) {
       const t = i / (leafCount + 1);
       const pt = path.getPointAtLength(this.pathLength * t);
@@ -1537,7 +1443,7 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
         flip,
         t: t * 0.985
       });
-      if (i % 3 === 0) {
+      if (i % (this.smoothUi ? 4 : 3) === 0) {
         blossoms.push({ x: pt.x + (flip ? -16 : 16), y: pt.y - 6, t: t * 0.985 });
       }
     }
@@ -1560,7 +1466,6 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
   @HostListener('window:resize')
   onResize(): void {
     this.buildVine();
-    this.resizeCanvas();
   }
 
   ngOnDestroy(): void {
@@ -1569,8 +1474,6 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
       clearTimeout(this.flipStampTimer);
     }
     if (this.rafId !== null) cancelAnimationFrame(this.rafId);
-    if (this.canvasRafId !== null) cancelAnimationFrame(this.canvasRafId);
-    if (this.cursorRafId !== null) cancelAnimationFrame(this.cursorRafId);
     if (this.vineRafId !== null) cancelAnimationFrame(this.vineRafId);
     this.resizeObserver?.disconnect();
   }
@@ -1596,7 +1499,7 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
 
           // currentStage: the scene most centered in viewport
           if (entry.intersectionRatio > 0.1) {
-            const stageId = idx + 1;
+            const stageId = Number(el.dataset['stageId']) || idx + 1;
             if (stageId !== this.currentStage()) {
               this.currentStage.set(stageId);
             }
@@ -1670,8 +1573,10 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
       this.targetProgress = crawlerProgress;
     }
 
-    // Initialize easedProgress on first build/scroll to avoid jumping from 0
-    if (this.easedProgress === 0) {
+    if (this.smoothUi) {
+      this.easedProgress = crawlerProgress;
+      this.drawVineAtProgress(crawlerProgress);
+    } else if (this.easedProgress === 0) {
       this.easedProgress = crawlerProgress;
       this.drawVineAtProgress(this.easedProgress);
     } else {
@@ -1705,30 +1610,6 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
     return (interpolatedIdx / (this.cachedPoints.length - 1)) * this.pathLength;
   }
 
-  private createParticles(
-    count: number,
-    leftBase: number,
-    leftMod: number,
-    delayMul: number,
-    delayMod: number,
-    durMul: number,
-    durMod: number,
-    sizeBase: number,
-    sizeMul: number,
-    sizeMod: number,
-    driftMul: number,
-    driftMod: number,
-    driftBase: number
-  ): Particle[] {
-    return Array.from({ length: count }, (_, i) => ({
-      left: leftBase + ((i * delayMul) % leftMod),
-      delay: ((i * delayMul) % delayMod) / 10,
-      dur: 2.4 + ((i * durMul) % durMod) / 10,
-      size: sizeBase + ((i * sizeMul) % Math.max(sizeMod, 1)),
-      drift: driftBase + ((i * driftMul) % driftMod)
-    }));
-  }
-
   scrollToStage(id: number): void {
     const scenes = this.sceneRefs?.toArray() ?? [];
     const targetScene = scenes.find((_, idx) => idx + 1 === id);
@@ -1744,25 +1625,6 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
     } else {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-  }
-
-  onFrameMouseMove(event: MouseEvent, stageId: number): void {
-    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
-    this.trailX.set(x);
-    this.trailY.set(y);
-    this.activeTrailStage.set(stageId);
-
-    // Calculate normalized X (-1 to 1) relative to frame center
-    const normX = (x / rect.width) * 2 - 1;
-    // Map to tilt angle (-3 to +3 degrees)
-    this.windTilt.set(normX * 3);
-  }
-
-  onFrameMouseLeave(): void {
-    this.activeTrailStage.set(null);
-    this.windTilt.set(0);
   }
 
   toggleFlipCard(event: MouseEvent, stageId: number | null): void {
@@ -1798,8 +1660,9 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
     return title.length > 16;
   }
 
-  protected getStageBadges(stageId: number): StageBadge[] {
-    const badges: StageBadge[] = [];
+  /** PERF: badges recompute only when trace/tracking signals change, not every CD cycle. */
+  private readonly stageBadgesMap = computed<Map<number, StageBadge[]>>(() => {
+    const map = new Map<number, StageBadge[]>();
     const seed = this.traceSeed();
     const crop = this.traceCropCycle();
     const harvest = this.traceHarvest();
@@ -1809,264 +1672,49 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
     const orderTk = this.orderTracking();
     const subTk = this.subTracking();
 
-    switch (stageId) {
-      case 1:
-        if (seed?.isOrganic) {
-          badges.push({ label: 'Organic', tone: 'green' });
-        }
-        break;
-      case 3:
-        if (crop?.season) {
-          badges.push({ label: crop.season, tone: 'neutral' });
-        }
-        break;
-      case 5:
-        if (harvest?.rawQuantity) {
-          badges.push({ label: harvest.rawQuantity, tone: 'neutral' });
-        }
-        break;
-      case 8:
-        if (packaging?.status) {
-          badges.push({ label: packaging.status, tone: 'neutral' });
-        }
-        if (packaging?.totalUnits) {
-          badges.push({ label: `${packaging.totalUnits} units`, tone: 'gold' });
-        }
-        break;
-      case 10:
-        if (orderTk?.status === 'DELIVERED' || subTk?.some((s) => s.status === 'DELIVERED')) {
-          badges.push({ label: 'Delivered', tone: 'green' });
-        } else if (orderTk?.status) {
-          badges.push({ label: orderTk.status, tone: 'gold' });
-        } else if (logistics?.status) {
-          badges.push({ label: logistics.status, tone: 'gold' });
-        }
-        break;
-      case 11:
-        if (orderTk?.status === 'DELIVERED') {
-          badges.push({ label: 'Delivered', tone: 'green' });
-        } else if (orderTk?.estimated_delivery) {
-          badges.push({ label: `Est. ${orderTk.estimated_delivery}`, tone: 'gold' });
-        } else if (logistics?.destination) {
-          badges.push({ label: logistics.destination, tone: 'neutral' });
-        }
-        break;
-      case 12:
-        if (auth) {
-          badges.push({ label: `Scan #${auth.scanCount}`, tone: 'green' });
-        }
-        break;
+    if (seed?.isOrganic) {
+      map.set(1, [{ label: 'Organic', tone: 'green' }]);
+    }
+    if (crop?.season) {
+      map.set(3, [{ label: crop.season, tone: 'neutral' }]);
+    }
+    if (harvest?.rawQuantity) {
+      map.set(5, [{ label: harvest.rawQuantity, tone: 'neutral' }]);
+    }
+    {
+      const s8: StageBadge[] = [];
+      if (packaging?.status) s8.push({ label: packaging.status, tone: 'neutral' });
+      if (packaging?.totalUnits) s8.push({ label: `${packaging.totalUnits} units`, tone: 'gold' });
+      if (s8.length) map.set(8, s8);
+    }
+    if (orderTk?.status === 'DELIVERED' || subTk?.some((s) => s.status === 'DELIVERED')) {
+      map.set(10, [{ label: 'Delivered', tone: 'green' }]);
+    } else if (orderTk?.status) {
+      map.set(10, [{ label: orderTk.status, tone: 'gold' }]);
+    } else if (logistics?.status) {
+      map.set(10, [{ label: logistics.status, tone: 'gold' }]);
+    }
+    if (orderTk?.status === 'DELIVERED') {
+      map.set(11, [{ label: 'Delivered', tone: 'green' }]);
+    } else if (orderTk?.estimated_delivery) {
+      map.set(11, [{ label: `Est. ${orderTk.estimated_delivery}`, tone: 'gold' }]);
+    } else if (logistics?.destination) {
+      map.set(11, [{ label: logistics.destination, tone: 'neutral' }]);
+    }
+    if (auth) {
+      map.set(12, [{ label: `Scan #${auth.scanCount}`, tone: 'green' }]);
     }
 
-    return badges;
+    return map;
+  });
+
+  protected getStageBadges(stageId: number): readonly StageBadge[] {
+    return this.stageBadgesMap().get(stageId) ?? EMPTY_BADGES;
   }
 
-  /* ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
-     NEXT-GEN FEATURE 4: SEED SOWER CANVAS GRAVITY PHYSICS
-     ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ */
-  @HostListener('mousemove', ['$event'])
-  onWindowMouseMove(event: MouseEvent): void {
-    this.realMouseX = event.clientX;
-    this.realMouseY = event.clientY;
-    this.addSeedParticles(event, 'move');
+onCardMouseMove(event: MouseEvent, stageId: number, type: 'copy' | 'art'): void {
+    if (this.smoothUi) return;
 
-    if (!this.cursorLoopActive) {
-      this.startCursorTrailLoop();
-    }
-  }
-
-  @HostListener('click', ['$event'])
-  onWindowClick(event: MouseEvent): void {
-    this.addSeedParticles(event, 'click');
-  }
-
-  private resizeCanvas(): void {
-    const canvas = this.gravityCanvas?.nativeElement;
-    const root = this.journeyRoot?.nativeElement;
-    if (!canvas || !root) return;
-    canvas.width = root.clientWidth;
-    canvas.height = root.clientHeight;
-  }
-
-  private addSeedParticles(event: MouseEvent, type: 'move' | 'click'): void {
-    const canvas = this.gravityCanvas?.nativeElement;
-    if (!canvas) return;
-    const rect = canvas.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
-
-    if (x < 0 || x > canvas.width || y < 0 || y > canvas.height) return;
-
-    const count = type === 'click' ? 12 : (Math.random() < 0.15 ? 1 : 0);
-    for (let i = 0; i < count; i++) {
-      const angle = Math.random() * Math.PI * 2;
-      const speed = type === 'click' ? 1 + Math.random() * 4 : 0.5 + Math.random() * 1.5;
-      this.seedsList.push({
-        x,
-        y,
-        vx: Math.cos(angle) * speed,
-        vy: type === 'click' ? Math.sin(angle) * speed - 2.5 : Math.sin(angle) * speed,
-        radius: 2 + Math.random() * 3,
-        alpha: 1,
-        sprouted: false,
-        sproutProgress: 0,
-        color: i % 2 === 0 ? '#e9b949' : '#a8762e'
-      });
-    }
-
-    if (this.seedsList.length > 250) {
-      this.seedsList.shift();
-    }
-
-    if (this.seedsList.length > 0 && !this.canvasLoopActive) {
-      this.startCanvasLoop();
-    }
-  }
-
-  private getVineX(y: number, canvasWidth: number): number {
-    const canvas = this.gravityCanvas?.nativeElement;
-    if (this.vineAnchors.length === 0 || !canvas) return canvasWidth / 2;
-    const svgY = (y / canvas.clientHeight) * this.vbH;
-    
-    let i = 0;
-    while (i < this.vineAnchors.length - 1 && this.vineAnchors[i + 1].y < svgY) {
-      i++;
-    }
-    const p0 = this.vineAnchors[i];
-    const p1 = this.vineAnchors[i + 1];
-    if (!p1) return (p0.x / 240) * canvasWidth;
-    
-    const ratio = (svgY - p0.y) / (p1.y - p0.y);
-    const svgX = p0.x + (p1.x - p0.x) * ratio;
-    return (svgX / 240) * canvasWidth;
-  }
-
-  private startCanvasLoop(): void {
-    if (this.canvasLoopActive) return;
-    const canvas = this.gravityCanvas?.nativeElement;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    this.canvasLoopActive = true;
-
-    const animate = () => {
-      if (!isPlatformBrowser(this.platformId)) return;
-
-      if (this.seedsList.length === 0) {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        this.canvasLoopActive = false;
-        this.canvasRafId = null;
-        return;
-      }
-
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      const w = canvas.width;
-
-      for (let i = this.seedsList.length - 1; i >= 0; i--) {
-        const p = this.seedsList[i];
-        if (p.sprouted) {
-          p.sproutProgress += 0.04;
-          if (p.sproutProgress > 1) {
-            p.sproutProgress = 1;
-            p.alpha -= 0.004;
-            if (p.alpha <= 0) {
-              this.seedsList.splice(i, 1);
-              continue;
-            }
-          }
-          ctx.save();
-          ctx.translate(p.x, p.y);
-          ctx.globalAlpha = p.alpha;
-          
-          const size = p.sproutProgress * 6;
-          ctx.beginPath();
-          ctx.strokeStyle = '#4a6b35';
-          ctx.lineWidth = 1.2;
-          ctx.moveTo(0, 0);
-          ctx.quadraticCurveTo(-2, -size/2, -size/2, -size);
-          ctx.moveTo(0, 0);
-          ctx.quadraticCurveTo(2, -size/2, size/2, -size);
-          ctx.stroke();
-
-          ctx.fillStyle = '#fdfaf2';
-          ctx.beginPath();
-          ctx.arc(-size/2, -size, 1.8, 0, Math.PI * 2);
-          ctx.arc(size/2, -size, 1.8, 0, Math.PI * 2);
-          ctx.fill();
-          
-          ctx.fillStyle = '#e9b949';
-          ctx.beginPath();
-          ctx.arc(0, -size, 1.2, 0, Math.PI * 2);
-          ctx.fill();
-          
-          ctx.restore();
-        } else {
-          p.x += p.vx;
-          p.y += p.vy;
-          p.vy += 0.16; // Gravity
-          p.vx *= 0.98; // Friction
-
-          if (p.y > canvas.height) {
-            this.seedsList.splice(i, 1);
-            continue;
-          }
-
-          const vineX = this.getVineX(p.y, w);
-          const dx = p.x - vineX;
-          
-          if (Math.abs(dx) < 14) {
-            p.sprouted = true;
-            p.x = vineX;
-            p.vx = 0;
-            p.vy = 0;
-          } else {
-            ctx.beginPath();
-            ctx.fillStyle = p.color;
-            ctx.globalAlpha = p.alpha;
-            ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-            ctx.fill();
-          }
-        }
-      }
-
-      this.canvasRafId = requestAnimationFrame(animate);
-    };
-
-    this.canvasRafId = requestAnimationFrame(animate);
-  }
-
-  private startCursorTrailLoop(): void {
-    if (this.cursorLoopActive) return;
-    this.cursorLoopActive = true;
-
-    const ease = 0.14;
-    const animate = () => {
-      if (!isPlatformBrowser(this.platformId)) return;
-      const curX = this.cursorX();
-      const curY = this.cursorY();
-      const diffX = this.realMouseX - curX;
-      const diffY = this.realMouseY - curY;
-
-      // Stop loop if the trail has settled at the mouse coordinates
-      if (Math.abs(diffX) < 0.08 && Math.abs(diffY) < 0.08) {
-        this.cursorX.set(this.realMouseX);
-        this.cursorY.set(this.realMouseY);
-        this.cursorLoopActive = false;
-        this.cursorRafId = null;
-        return;
-      }
-
-      const nX = curX + diffX * ease;
-      const nY = curY + diffY * ease;
-      this.cursorX.set(nX);
-      this.cursorY.set(nY);
-      this.cursorRafId = requestAnimationFrame(animate);
-    };
-    this.cursorRafId = requestAnimationFrame(animate);
-  }
-
-  onCardMouseMove(event: MouseEvent, stageId: number, type: 'copy' | 'art'): void {
     this.activeTiltCard.set(stageId);
     this.tiltType.set(type);
     this.isHoveringCard.set(true);
@@ -2075,14 +1723,7 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
 
-    // Maintain existing mouse trail and wind-tilt triggers for overlays
     if (type === 'art') {
-      this.trailX.set(x);
-      this.trailY.set(y);
-      this.activeTrailStage.set(stageId);
-      const normX = (x / rect.width) * 2 - 1;
-      this.windTilt.set(normX * 3);
-
       // Interactive lens zoom origin (percentage coordinates)
       const px = Math.min(Math.max((x / rect.width) * 100, 0), 100);
       const py = Math.min(Math.max((y / rect.height) * 100, 0), 100);
@@ -2112,10 +1753,6 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
     this.cardTiltY.set(0);
     this.zoomX.set(50);
     this.zoomY.set(50);
-
-    // Reset mouse trail and wind tilt signals
-    this.activeTrailStage.set(null);
-    this.windTilt.set(0);
   }
 
   setInteractiveHover(state: boolean): void {
@@ -2161,22 +1798,38 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
 
     path.style.strokeDashoffset = `${this.pathLength * (1 - prog)}`;
 
-    // Look up point from cache to avoid layouts/getPointAtLength inside animation loop
-    const idx = Math.min(Math.max(Math.floor(prog * (this.cachedPoints.length - 1)), 0), this.cachedPoints.length - 1);
-    const cachedPt = this.cachedPoints[idx];
+    // Interpolate the head between the two nearest cached points so the creeper
+    // glides continuously instead of snapping from one pre-sampled point to the
+    // next. Still no getPointAtLength/layout cost inside the animation loop.
+    const maxIdx = this.cachedPoints.length - 1;
+    const exact = Math.min(Math.max(prog * maxIdx, 0), maxIdx);
+    const lo = Math.floor(exact);
+    const hi = Math.min(lo + 1, maxIdx);
+    const f = exact - lo;
+    const p0 = this.cachedPoints[lo];
+    const p1 = this.cachedPoints[hi];
 
-    // PERF: Only set orb signals if position changed by > 0.3px
-    if (Math.abs(cachedPt.x - this.lastSetOrbX) > 0.3) {
-      this.orbX.set(cachedPt.x);
-      this.lastSetOrbX = cachedPt.x;
+    const px = p0.x + (p1.x - p0.x) * f;
+    const py = p0.y + (p1.y - p0.y) * f;
+
+    // Shortest-path angle blend so the tip never spins at a 359°→0° wrap.
+    let da = p1.angle - p0.angle;
+    if (da > 180) da -= 360;
+    else if (da < -180) da += 360;
+    const pa = p0.angle + da * f;
+
+    // Tight thresholds: the interpolated values change smoothly each frame.
+    if (Math.abs(px - this.lastSetOrbX) > 0.05) {
+      this.orbX.set(px);
+      this.lastSetOrbX = px;
     }
-    if (Math.abs(cachedPt.y - this.lastSetOrbY) > 0.3) {
-      this.orbY.set(cachedPt.y);
-      this.lastSetOrbY = cachedPt.y;
+    if (Math.abs(py - this.lastSetOrbY) > 0.05) {
+      this.orbY.set(py);
+      this.lastSetOrbY = py;
     }
-    if (Math.abs(cachedPt.angle - this.lastSetOrbAngle) > 0.5) {
-      this.orbAngle.set(cachedPt.angle);
-      this.lastSetOrbAngle = cachedPt.angle;
+    if (Math.abs(pa - this.lastSetOrbAngle) > 0.1) {
+      this.orbAngle.set(pa);
+      this.lastSetOrbAngle = pa;
     }
   }
 }
