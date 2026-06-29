@@ -1,5 +1,6 @@
 export const environment = {
   production: true,
+  devBypassAuth: false,
   apiBaseUrl: 'https://bck.anaadfoods.com',
   googleClientId: '356514741847-1000gjfkvl9b1pmp9iqcc8do7vebo1ap.apps.googleusercontent.com',
   appleClientId: 'com.anaad.foods.ios.signin',

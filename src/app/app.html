@@ -1,8 +1,12 @@
-<app-header></app-header>
-<main id="main">
+@if (!immersiveLayout()) {
+  <app-header></app-header>
+}
+<main id="main" [class.main--immersive]="immersiveLayout()">
 	<router-outlet />
 </main>
-<app-footer></app-footer>
+@if (!immersiveLayout()) {
+  <app-footer></app-footer>
+}
 
 <!-- Global Toast -->
 <app-toast></app-toast>

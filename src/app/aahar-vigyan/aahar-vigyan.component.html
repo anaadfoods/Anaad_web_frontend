@@ -1,0 +1,31 @@
+<div class="av-root" [attr.data-dosha]="doshaAttr()">
+  @switch (step()) {
+    @case ('welcome') {
+      <app-aahar-vigyan-welcome (startQuiz)="onStartQuiz()" />
+    }
+    @case ('quiz') {
+      <app-aahar-vigyan-quiz
+        (completed)="onQuizComplete($event)"
+        (backToWelcome)="onBackToWelcome()"
+      />
+    }
+    @case ('prakriti') {
+      @if (pendingPrakriti(); as p) {
+        <app-aahar-vigyan-prakriti
+          [prakriti]="p"
+          (continueToMain)="onContinueToMain()"
+          (retakeQuiz)="onRetakeQuiz()"
+        />
+      } @else {
+        <div class="av-quiz-fallback">
+          <p>Loading your result…</p>
+          <button type="button" class="av-btn av-btn-primary av-btn-md" (click)="onRetakeQuiz()">Restart Quiz</button>
+        </div>
+      }
+    }
+    @case ('main') {
+      <app-aahar-vigyan-main />
+    }
+  }
+</div>
+<app-footer />

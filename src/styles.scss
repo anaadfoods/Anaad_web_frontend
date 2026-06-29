@@ -331,3 +331,8 @@ main:not(:has(app-traceability-journey)) {
     margin-bottom: 20px !important;
   }
 }
+
+/* Aahar Vigyan — keep fixed nav pinned; no rubber-band at scroll end */
+html:has(.av-main) {
+  overscroll-behavior-y: none;
+}

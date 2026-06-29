@@ -1,0 +1,59 @@
+<div class="quiz">
+  <div class="quiz-topbar">
+    <div class="quiz-topbar-row">
+      <button type="button" class="quiz-back" (click)="back()">← Back</button>
+      <span class="quiz-meta av-mono">{{ counter() }}</span>
+    </div>
+    <div class="quiz-prog-track">
+      <div class="quiz-prog-fill" [style.width.%]="progress()"></div>
+    </div>
+  </div>
+
+  <div class="quiz-body">
+    @if (current(); as q) {
+      <div class="q-wrap">
+        <span class="q-num">Question {{ step() + 1 }} of {{ questions.length }} · Body Type</span>
+        <h2 class="q-text av-sr">{{ q.question }}</h2>
+        <p class="q-hi av-dv">{{ q.hindi }}</p>
+        <p class="q-hint">{{ q.hint }}</p>
+        <div class="answers">
+          @for (opt of q.options; track opt.dosha + opt.title) {
+            <button
+              type="button"
+              class="answer-card"
+              [class.sel]="selected() === opt.dosha"
+              (click)="select(opt.dosha)"
+            >
+              <div class="ac-emoji">{{ opt.emoji }}</div>
+              <div class="ac-body">
+                <div class="ac-title">{{ opt.title }}</div>
+                <div class="ac-desc">{{ opt.subtitle }}</div>
+              </div>
+              <div class="ac-check">✓</div>
+            </button>
+          }
+        </div>
+      </div>
+    }
+  </div>
+
+  <div class="quiz-footer">
+    <div class="quiz-footer-inner">
+      <div class="qf-meta">
+        <span class="qf-clock">⏱</span>
+        <span>{{ timeLeft() }} remaining</span>
+      </div>
+      <button
+        type="button"
+        class="quiz-next-btn"
+        [class.quiz-next-btn--ready]="hasSelection()"
+        [class.quiz-next-btn--final]="isLast()"
+        [disabled]="!hasSelection()"
+        (click)="next()"
+      >
+        {{ isLast() ? 'See My Result' : 'Next' }}
+        <span class="quiz-next-arrow" aria-hidden="true">→</span>
+      </button>
+    </div>
+  </div>
+</div>

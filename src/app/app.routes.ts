@@ -23,6 +23,7 @@ export const routes: Routes = [
   // RFP & Panchang
   { path: 'rfp', loadComponent: () => import('./rfp/rfp').then(m => m.Rfp), canActivate: [authGuard], title: 'Contract Farming RFP â€¢ Anaad Foods' },
   { path: 'panchang', loadComponent: () => import('./panchang/panchang').then(m => m.Panchang), title: 'Vedic Panchang Calendar â€¢ Anaad Foods' },
+  { path: 'aahar-vigyan', loadComponent: () => import('./aahar-vigyan/aahar-vigyan.component').then(m => m.AaharVigyanComponent), canActivate: [authGuard], title: 'Aahar Vigyan • Anaad Foods' },
   { path: 'wholesale', redirectTo: 'rfp', pathMatch: 'full' },
 
   // Cart & Checkout

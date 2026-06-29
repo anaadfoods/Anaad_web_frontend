@@ -12,6 +12,7 @@ import { HttpClient } from '@angular/common/http';
 import { TokenRefreshResponse } from '../models/auth.model';
 import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
+import { DEV_BYPASS_ACCESS, DEV_BYPASS_REFRESH, isDevBypassToken } from '../utils/dev-auth.util';
 
 /** URL suffixes / fragments that are public — no auth needed */
 const PUBLIC_URL_FRAGMENTS = [
@@ -82,8 +83,12 @@ export const authInterceptor: HttpInterceptorFn = (
     );
   }
 
-  // Attach current access token
+  // Attach current access token (skip fake dev tokens — they cause 401 → forced logout)
   const token = authState.accessToken();
+  if (isDevBypassToken(token)) {
+    return next(req);
+  }
+
   let authReq = req;
   if (token) {
     authReq = req.clone({
@@ -94,6 +99,10 @@ export const authInterceptor: HttpInterceptorFn = (
   return next(authReq).pipe(
     catchError((error: HttpErrorResponse): Observable<HttpEvent<unknown>> => {
       if (error.status === 401 && !isPublicEndpoint(req.url)) {
+        // Dev bypass: never kick user to login from failed API calls
+        if (environment.devBypassAuth && isDevBypassToken(authState.accessToken())) {
+          return throwError(() => error) as Observable<HttpEvent<unknown>>;
+        }
         return handleTokenRefresh(req, next, authState, http, router);
       }
       return throwError(() => error) as Observable<HttpEvent<unknown>>;
@@ -135,9 +144,17 @@ function handleTokenRefresh(
   const refreshToken = authState.refreshToken();
   if (!refreshToken) {
     isRefreshing = false;
+    if (environment.devBypassAuth) {
+      return throwError(() => new Error('No refresh token available')) as Observable<HttpEvent<unknown>>;
+    }
     authState.logout();
     router.navigate(['/login']);
     return throwError(() => new Error('No refresh token available')) as Observable<HttpEvent<unknown>>;
+  }
+
+  if (environment.devBypassAuth && isDevBypassToken(refreshToken)) {
+    isRefreshing = false;
+    return throwError(() => new Error('Dev bypass session')) as Observable<HttpEvent<unknown>>;
   }
 
   return http.post<TokenRefreshResponse>(
@@ -165,8 +182,10 @@ function handleTokenRefresh(
     catchError((refreshError: unknown): Observable<HttpEvent<unknown>> => {
       isRefreshing = false;
       refreshTokenSubject.next(null);
-      authState.logout();
-      router.navigate(['/login']);
+      if (!environment.devBypassAuth) {
+        authState.logout();
+        router.navigate(['/login']);
+      }
       return throwError(() => refreshError) as Observable<HttpEvent<unknown>>;
     })
   );

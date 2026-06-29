@@ -1,0 +1,67 @@
+/* Shared section styles for lazy-loaded main blocks — mirrors main.component.scss subsets */
+
+.av-cap { font-size: 10px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--t3); display: block; margin-bottom: 8px; }
+.av-cap-jyotish { color: #8a7aaa; }
+.av-d2 { font-family: 'Cormorant Garamond', serif; font-size: clamp(1.6rem, 3vw, 2.2rem); font-weight: 400; line-height: 1.2; em { font-style: italic; } }
+.av-sec-lead { font-size: 1.125rem; color: var(--t2); line-height: 1.65; margin-top: 12px; max-width: 560px; }
+.av-center { text-align: center; margin-left: auto; margin-right: auto; }
+.av-lora { font-family: 'Lora', Georgia, serif; }
+.av-mono { font-family: 'IBM Plex Sans', monospace; }
+.av-sr { font-family: 'Cormorant Garamond', Georgia, serif; }
+
+.av-section { padding: 96px 24px; }
+.av-container { max-width: 1200px; margin: 0 auto; }
+
+.av-kund-sec { background: var(--jyotish-lt); }
+.av-kund-head { max-width: 640px; margin: 0 auto 64px; text-align: center; }
+.av-kund-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: start; }
+.av-planet-legend { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; justify-content: center; }
+.av-legend-item { display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--t2); }
+.av-legend-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.av-kund-title { font-size: 1.3rem; font-weight: 500; margin: 8px 0; line-height: 1.35; em { font-family: 'Cormorant Garamond', serif; font-style: italic; color: var(--t2); font-weight: 400; } }
+.av-kund-desc { font-size: 0.875rem; color: var(--t2); line-height: 1.6; margin-bottom: 24px; }
+.av-kund-planets { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
+.av-planet-card { background: rgba(255, 255, 255, 0.7); border-radius: var(--r-md); padding: 16px; border: 1px solid rgba(74, 74, 138, 0.12); cursor: pointer; transition: box-shadow 0.2s; &:hover { box-shadow: var(--sh-md); } }
+.av-pc-top { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.av-pc-dot { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #fff; flex-shrink: 0; }
+.av-pc-pname { font-size: 0.875rem; font-weight: 600; color: var(--jyotish); }
+.av-pc-house { font-size: 10px; color: var(--t3); margin-left: auto; }
+.av-pc-food { font-size: 11px; color: var(--t2); line-height: 1.55; strong { color: var(--t1); } }
+
+.av-season-sec { background: var(--cream); }
+.av-season-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }
+.av-season-principle { margin-top: 32px; background: #eef5e8; border-left: 3px solid var(--forest); border-radius: 0 var(--r-md) var(--r-md) 0; padding: 16px 20px; .av-sp-label { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--forest); margin-bottom: 6px; } p { font-size: 14px; color: var(--t1); line-height: 1.7; font-family: 'Lora', serif; font-style: italic; margin: 0; } }
+.av-season-badges { margin-top: 20px; display: flex; gap: 8px; flex-wrap: wrap; }
+.av-season-right { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.av-sc-icon { width: 44px; height: 44px; border-radius: var(--r-md); display: flex; align-items: center; justify-content: center; margin-bottom: 12px; font-size: 18px; }
+.av-sc-picks { background: #eef5e8; }
+.av-sc-avoid { background: #fde8e8; }
+.av-sc-herbs { background: var(--vata-bg); }
+.av-sc-title { font-family: 'Lora', serif; font-size: 1.1rem; font-weight: 500; margin-bottom: 8px; }
+.av-sc-body { font-size: 0.875rem; color: var(--t2); line-height: 1.65; margin: 0; }
+.av-season-ritual { background: var(--gold); border-color: var(--gold); }
+.av-sc-emoji { font-size: 24px; margin-bottom: 8px; }
+.av-sc-body-inv { color: rgba(255, 255, 255, 0.85); }
+.av-season-ritual .av-sc-title { color: #fff; }
+
+.av-cta-sec { background: var(--forest); padding: 96px 24px; text-align: center; }
+.av-cta-inner { max-width: 640px; margin: 0 auto; }
+.av-cta-icon { width: 56px; height: 56px; border-radius: 50%; background: rgba(196, 144, 15, 0.2); border: 1px solid rgba(196, 144, 15, 0.4); display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; font-size: 24px; color: var(--gold); }
+.av-cta-h1 { font-size: clamp(2.2rem, 4vw, 3.5rem); color: #fff; margin-bottom: 16px; em { color: rgba(196, 144, 15, 0.9); font-style: italic; } }
+.av-cta-sub { color: rgba(255, 255, 255, 0.55); font-size: 1.125rem; line-height: 1.65; margin-bottom: 40px; }
+.av-cta-actions { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+.av-cta-note { color: rgba(255, 255, 255, 0.25); font-size: 0.75rem; margin-top: 24px; }
+
+
+.av-reveal {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity 0.55s ease, transform 0.55s ease;
+}
+.av-reveal-visible {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .av-reveal { opacity: 1; transform: none; transition: none; }
+}

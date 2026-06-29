@@ -10,6 +10,8 @@ import { isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
 import { API } from '../constants/api-endpoints';
 import { AuthState } from '../state/auth.state';
+import { environment } from '../../../environments/environment';
+import { DEV_BYPASS_ACCESS, DEV_BYPASS_REFRESH, isDevBypassSession } from '../utils/dev-auth.util';
 import {
   RegisterRequest,
   LoginRequest,
@@ -60,21 +62,27 @@ export class AuthService {
 
   googleLogin(idToken: string): Observable<LoginResponse> {
     const body: GoogleLoginRequest = { id_token: idToken };
+    this.authState.setLoading(true);
     return this.http.post<LoginResponse>(API.AUTH.GOOGLE, body).pipe(
       tap(res => {
         this.authState.setTokens(res.access, res.refresh);
         if (res.user) this.authState.setUser(res.user);
-      })
+      }),
+      switchMap(res => res.user ? of(res) : this.fetchProfile().pipe(map(() => res))),
+      finalize(() => this.authState.setLoading(false))
     );
   }
 
   appleLogin(idToken: string, name?: string): Observable<LoginResponse> {
     const body: AppleLoginRequest = { id_token: idToken, name };
+    this.authState.setLoading(true);
     return this.http.post<LoginResponse>(API.AUTH.APPLE, body).pipe(
       tap(res => {
         this.authState.setTokens(res.access, res.refresh);
         if (res.user) this.authState.setUser(res.user);
-      })
+      }),
+      switchMap(res => res.user ? of(res) : this.fetchProfile().pipe(map(() => res))),
+      finalize(() => this.authState.setLoading(false))
     );
   }
 
@@ -103,6 +111,14 @@ export class AuthService {
   // If refresh also fails, logs the user out cleanly.
 
   initSession(): Observable<boolean> {
+    // Dev bypass tokens are local-only — never validate against backend
+    if (
+      environment.devBypassAuth &&
+      isDevBypassSession(this.authState.accessToken(), this.authState.refreshToken())
+    ) {
+      return of(true);
+    }
+
     if (!this.authState.accessToken()) {
       // No access token but we might have a refresh token — try refreshing
       if (this.authState.refreshToken()) {
@@ -232,6 +248,29 @@ export class AuthService {
 
   isAuthenticated(): boolean {
     return this.authState.isAuthenticated();
+  }
+
+  /** TEMP dev-only: fake session so protected routes work without backend login */
+  devBypassLogin(): void {
+    const user: UserProfile = {
+      id: 9999,
+      email: 'test@anaad.local',
+      username: 'testuser',
+      first_name: 'Test',
+      last_name: 'User',
+      phone_number: '',
+      gender: '',
+      address: null,
+      pincode: null,
+      city: null,
+      state: null,
+      profile_picture: null,
+      referral_code: null,
+      is_email_verified: true,
+      is_rfp: false,
+    };
+    this.authState.setTokens(DEV_BYPASS_ACCESS, DEV_BYPASS_REFRESH);
+    this.authState.setUser(user);
   }
 
   // ── Logout ────────────────────────────────

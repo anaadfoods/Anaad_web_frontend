@@ -1,0 +1,15 @@
+@use './styles/aahar-vigyan-shared';
+
+:host {
+  display: block;
+}
+
+.av-quiz-fallback {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  color: var(--t2, #4a5040);
+}

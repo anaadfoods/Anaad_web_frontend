@@ -1,0 +1,90 @@
+<div class="prakriti">
+  <div class="prak-hero" [style.background]="detail().color">
+    <span class="prak-eyebrow">YOUR PRAKRITI · प्रकृति</span>
+    <p class="prak-label av-lora">Your dominant constitution</p>
+    <div class="prak-name av-sr">{{ detail().name }}</div>
+    <p class="prak-tagline av-dv">{{ detail().hindi }}</p>
+    <div class="ring-wrap">
+      <svg width="200" height="200" viewBox="0 0 200 200" aria-label="Dosha balance ring">
+        <circle cx="100" cy="100" r="88" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="18"/>
+        <circle id="ring-k" cx="100" cy="100" r="88" fill="none" stroke="#547C42" stroke-width="18" stroke-linecap="round" stroke-dasharray="0 553" transform="rotate(-90 100 100)"/>
+        <circle cx="100" cy="100" r="66" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="14"/>
+        <circle id="ring-p" cx="100" cy="100" r="66" fill="none" stroke="#C75B2D" stroke-width="14" stroke-linecap="round" stroke-dasharray="0 415" transform="rotate(-90 100 100)"/>
+        <circle cx="100" cy="100" r="46" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="10"/>
+        <circle id="ring-v" cx="100" cy="100" r="46" fill="none" stroke="#5DA9D6" stroke-width="10" stroke-linecap="round" stroke-dasharray="0 289" transform="rotate(-90 100 100)"/>
+        <circle cx="100" cy="100" r="32" fill="rgba(255,255,255,0.12)"/>
+        <text x="100" y="97" text-anchor="middle" fill="white" font-size="18" font-family="IBM Plex Sans,monospace" font-weight="500">{{ dominantPct() }}%</text>
+        <text x="100" y="113" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="10" font-family="Lora,serif">{{ detail().name }}</text>
+      </svg>
+    </div>
+  </div>
+
+  <div class="prak-body">
+    <div class="prak-bars">
+      <div class="pb pb-v">
+        <div class="pb-head"><span>Vata</span><span class="av-mono">{{ prakriti().vata }}%</span></div>
+        <div class="pb-track"><div class="pb-fill" [style.width.%]="prakriti().vata"></div></div>
+        <div class="pb-hi av-dv">वात · Air + Ether</div>
+      </div>
+      <div class="pb pb-p">
+        <div class="pb-head"><span>Pitta</span><span class="av-mono">{{ prakriti().pitta }}%</span></div>
+        <div class="pb-track"><div class="pb-fill" [style.width.%]="prakriti().pitta"></div></div>
+        <div class="pb-hi av-dv">पित्त · Fire + Water</div>
+      </div>
+      <div class="pb pb-k">
+        <div class="pb-head"><span>Kapha</span><span class="av-mono">{{ prakriti().kapha }}%</span></div>
+        <div class="pb-track"><div class="pb-fill" [style.width.%]="prakriti().kapha"></div></div>
+        <div class="pb-hi av-dv">कफ · Earth + Water</div>
+      </div>
+    </div>
+
+    <div class="prak-grid">
+      <div>
+        <h3 class="prak-sec-title av-lora">Strengths</h3>
+        <div class="trait-chips">
+          @for (s of detail().strengths; track s) {
+            <span class="trait-chip str">✓ {{ s }}</span>
+          }
+        </div>
+        <h3 class="prak-sec-title av-lora">Watch-outs</h3>
+        <div class="trait-chips">
+          @for (w of detail().watchouts; track w) {
+            <span class="trait-chip warn">△ {{ w }}</span>
+          }
+        </div>
+      </div>
+      <div>
+        <h3 class="prak-sec-title av-lora">Eat These</h3>
+        <div class="food-row">
+          @for (f of detail().goodFoods; track f) {
+            <span class="av-food-chip fc-good">✓ {{ f }}</span>
+          }
+        </div>
+        <h3 class="prak-sec-title av-lora">Avoid</h3>
+        <div class="food-row">
+          @for (f of detail().avoidFoods; track f) {
+            <span class="av-food-chip fc-avoid">✗ {{ f }}</span>
+          }
+        </div>
+        <div class="prak-insight">
+          <p class="av-lora">{{ detail().insight }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="prak-ctas">
+      <button type="button" class="prak-btn prak-btn-retake" (click)="retakeQuiz.emit()">
+        <span class="prak-btn-icon" aria-hidden="true">↺</span>
+        <span class="prak-btn-text">Retake Quiz</span>
+      </button>
+      <button type="button" class="prak-btn prak-btn-panchang av-dv" (click)="continueToMain.emit()">
+        <span class="prak-btn-shine" aria-hidden="true"></span>
+        <span class="prak-btn-inner">
+          <span class="prak-btn-icon prak-btn-icon-gold" aria-hidden="true">☽</span>
+          <span class="prak-btn-text">See Today's Panchang</span>
+          <span class="prak-btn-arrow" aria-hidden="true">→</span>
+        </span>
+      </button>
+    </div>
+  </div>
+</div>
