@@ -1,4 +1,4 @@
-﻿<div class="journey-page journey-page--smooth" [class.journey-page--reduced-motion]="prefersReducedMotion()" [attr.data-active-stage]="currentStage()" [class.journey-complete]="journeyComplete()">
+<div class="journey-page journey-page--smooth" [class.journey-page--reduced-motion]="prefersReducedMotion()" [attr.data-active-stage]="currentStage()" [class.journey-complete]="journeyComplete()">
 
   <!-- SVG paper texture filter & gold gradient definition -->
   <svg style="position: absolute; width: 0; height: 0;" aria-hidden="true">
@@ -145,10 +145,12 @@
         }
       </div>
 
-      @if (traceAuthenticity()) {
+      @if (traceAuthenticity(); as auth) {
         <div class="trace-banner__auth">
-          <span class="trace-banner__scan-count">Scan #{{ traceAuthenticity()!.scanCount }}</span>
-          <span class="trace-banner__auth-msg">{{ traceAuthenticity()!.message }}</span>
+          @if (auth.scanCount > 0) {
+            <span class="trace-banner__scan-count">Scan #{{ auth.scanCount }}</span>
+          }
+          <span class="trace-banner__auth-msg">{{ auth.message }}</span>
         </div>
       }
     </div>
@@ -180,14 +182,6 @@
     
     <!-- Tier 1: Enhanced scroll-down indicator -->
     <div class="journey-intro__scroll-hint" [class.is-hidden]="progress() > 0.02" aria-hidden="true">
-      <div class="journey-intro__sprout">
-        <svg viewBox="0 0 40 40">
-          <path class="sprout__seed" d="M16 28 C16 24, 24 24, 24 28 C24 32, 16 32, 16 28 Z" fill="#a8762e" />
-          <path class="sprout__stem" d="M20 27 C20 20, 18 16, 20 10" fill="none" stroke="#4a6b35" stroke-width="2" stroke-linecap="round" />
-          <path class="sprout__leaf sprout__leaf--left" d="M20 12 C14 10, 10 14, 12 18 C16 18, 19 16, 20 12" fill="#4a6b35" />
-          <path class="sprout__leaf sprout__leaf--right" d="M20 12 C26 10, 30 14, 28 18 C24 18, 21 16, 20 12" fill="#6c8f52" />
-        </svg>
-      </div>
       <span class="journey-intro__hint-text">Scroll to trace the journey</span>
       <div class="journey-intro__chevron">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
@@ -365,7 +359,7 @@
       } <!-- end @else (non-locked stages) -->
 
       @if (stage.id === 9 && !isRegisteredUser()) {
-        <div class="journey-coming-soon">
+        <div class="journey-coming-soon" #vineWaypoint>
           <div class="journey-coming-soon__inner">
             <div class="journey-coming-soon__eyebrow" aria-hidden="true">
               <span class="journey-coming-soon__line"></span>
@@ -394,7 +388,7 @@
 
       <!-- ── Delivery Gate: shown between Stage 9 and Stage 10 (registered users) ── -->
       @if (stage.id === 9 && isRegisteredUser()) {
-        <div class="delivery-gate">
+        <div class="delivery-gate" #vineWaypoint>
           <div class="delivery-gate__inner">
             <div class="delivery-gate__eyebrow">
               <span class="delivery-gate__eyebrow-line"></span>
@@ -704,7 +698,7 @@
     }
 
     <footer class="journey-next">
-      <div class="journey-next__seedling" aria-hidden="true">
+      <div #journeyEnd class="journey-next__seedling" aria-hidden="true">
         <span class="journey-next__stem"></span>
         <span class="journey-next__leaf journey-next__leaf--l"></span>
         <span class="journey-next__leaf journey-next__leaf--r"></span>
@@ -1152,7 +1146,9 @@
                         @if (auth.qrCode) {
                           <div class="ledger-item"><strong>QR Code Hash</strong>: {{ auth.qrCode }}</div>
                         }
-                        <div class="ledger-item"><strong>Total Scan Count</strong>: {{ auth.scanCount }}</div>
+                        @if (auth.scanCount > 0) {
+                          <div class="ledger-item"><strong>Total Scan Count</strong>: {{ auth.scanCount }}</div>
+                        }
                         <div class="ledger-item"><strong>Verified Timestamp</strong>: {{ formatDateTime(auth.verifiedAt) }}</div>
                         <div class="ledger-item" style="display: flex; justify-content: center; margin-top: 0.5rem;">
                           <div style="padding: 0.5rem; background: #fff; border: 1.5px solid #a8762e; border-radius: 4px; display: inline-block; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">

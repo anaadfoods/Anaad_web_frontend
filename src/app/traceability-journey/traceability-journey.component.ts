@@ -1,4 +1,4 @@
-﻿import {
+import {
   AfterViewInit,
   ChangeDetectionStrategy,
   Component,
@@ -96,7 +96,9 @@ interface Blossom {
 export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('journeyRoot') private journeyRoot?: ElementRef<HTMLElement>;
   @ViewChild('vinePath') private vinePath?: ElementRef<SVGPathElement>;
+  @ViewChild('journeyEnd') private journeyEnd?: ElementRef<HTMLElement>;
   @ViewChildren('scene') private sceneRefs?: QueryList<ElementRef<HTMLElement>>;
+  @ViewChildren('vineWaypoint') private vineWaypointRefs?: QueryList<ElementRef<HTMLElement>>;
   private readonly platformId = inject(PLATFORM_ID);
   private readonly traceabilityService = inject(TraceabilityService);
   private readonly authService = inject(AuthService);
@@ -162,8 +164,13 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
   private rafId: number | null = null;
   private resizeObserver?: ResizeObserver;
   private stageObserver?: IntersectionObserver;
+  private sceneListSub?: { unsubscribe(): void };
+  private waypointListSub?: { unsubscribe(): void };
   private vineScale = 1;
   private vbH = 4700;
+  private vineEndY = 0;
+  /** Scroll probe offset (vine coords) where the creeper should reach 100%. */
+  private vineEndProbeY = 1;
 
   protected readonly progress = signal(0);
   protected readonly currentStage = signal(1);
@@ -809,6 +816,8 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
         this.journey.set(journey);
         this.updateStagesFromApi(journey);
         this.isLoading.set(false);
+        requestAnimationFrame(() => this.buildVine());
+        setTimeout(() => this.buildVine(), 400);
       },
       error: (err) => {
         this.traceError.set(err.message || 'Failed to load product journey.');
@@ -1070,6 +1079,8 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
       this.journey.set(mockJourney);
       this.updateStagesFromApi(mockJourney);
       this.isLoading.set(false);
+      requestAnimationFrame(() => this.buildVine());
+      setTimeout(() => this.buildVine(), 400);
     }, 600);
   }
 
@@ -1196,8 +1207,10 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
     }
 
     if (auth) {
-      const verified = auth.verifiedAt ? ` - Verified ${this.formatDateTime(auth.verifiedAt)}` : '';
-      this.stages[11].detail = `Scan #${auth.scanCount}${verified}`;
+      const verified = auth.verifiedAt ? `Verified ${this.formatDateTime(auth.verifiedAt)}` : '';
+      this.stages[11].detail = auth.scanCount > 0
+        ? `Scan #${auth.scanCount}${verified ? ` · ${verified}` : ''}`
+        : verified || 'Verification complete';
     } else {
       this.stages[11].detail = 'Verification: Pending';
     }
@@ -1352,6 +1365,13 @@ ngAfterViewInit(): void {
 
     this.setupStageObserver();
 
+    this.sceneListSub = this.sceneRefs?.changes.subscribe(() => {
+      requestAnimationFrame(() => this.buildVine());
+    });
+    this.waypointListSub = this.vineWaypointRefs?.changes.subscribe(() => {
+      requestAnimationFrame(() => this.buildVine());
+    });
+
     // Layout settles after images/fonts load; build then and again on full load.
     requestAnimationFrame(() => this.buildVine());
     window.addEventListener('load', () => this.buildVine(), { once: true });
@@ -1390,8 +1410,24 @@ ngAfterViewInit(): void {
       const y = (r.top - rootRect.top + r.height / 2) / this.vineScale;
       anchors.push({ x: i % 2 === 0 ? 178 : 58, y });
     });
-    anchors.push({ x: 120, y: this.vbH });
-    anchors.sort((a, b) => a.y - b.y);
+
+    const waypoints = this.vineWaypointRefs?.toArray() ?? [];
+    waypoints.forEach((wp, i) => {
+      const r = wp.nativeElement.getBoundingClientRect();
+      const y = (r.top - rootRect.top + r.height / 2) / this.vineScale;
+      anchors.push({ x: i % 2 === 0 ? 62 : 176, y });
+    });
+
+    const seedling = this.journeyEnd?.nativeElement;
+    if (seedling) {
+      const sr = seedling.getBoundingClientRect();
+      this.vineEndY = (sr.top - rootRect.top) / this.vineScale - 14;
+    } else {
+      this.vineEndY = this.vbH;
+    }
+    this.vineEndY = Math.min(Math.max(this.vineEndY, anchors[anchors.length - 1]?.y ?? 0), this.vbH);
+    this.vineEndProbeY = Math.max(this.vineEndY, 1);
+    anchors.push({ x: 120, y: this.vineEndY });
 
     let d = `M ${anchors[0].x} ${anchors[0].y}`;
     for (let i = 1; i < anchors.length; i++) {
@@ -1470,6 +1506,8 @@ ngAfterViewInit(): void {
 
   ngOnDestroy(): void {
     this.stageObserver?.disconnect();
+    this.sceneListSub?.unsubscribe();
+    this.waypointListSub?.unsubscribe();
     if (this.flipStampTimer) {
       clearTimeout(this.flipStampTimer);
     }
@@ -1563,10 +1601,10 @@ ngAfterViewInit(): void {
       }
     }
 
-    // Pin the creeper to the line 55% down the viewport, in vine coordinates.
-    const targetY = Math.min(Math.max((vh * 0.55 - rect.top) / this.vineScale, 0), this.vbH);
-    const length = this.lengthAtY(targetY);
-    const crawlerProgress = Math.min(Math.max(length / this.pathLength, 0), 1);
+    // Map scroll probe directly to 0–1 so the creeper reaches the footer even when
+    // stages 10–12 are hidden and the delivery/coming-soon blocks add extra scroll height.
+    const probeY = Math.max((vh * 0.55 - rect.top) / this.vineScale, 0);
+    const crawlerProgress = Math.min(probeY / this.vineEndProbeY, 1);
 
     // PERF: Only assign if delta > 0.0005 to avoid unnecessary vine RAF spawn
     if (Math.abs(crawlerProgress - this.targetProgress) > 0.0005) {
@@ -1582,32 +1620,6 @@ ngAfterViewInit(): void {
     } else {
       this.startVineGrowthLoop();
     }
-  }
-
-  /** Binary-search the pre-calculated cachedPoints array for the nearest y value, then interpolate. */
-  private lengthAtY(y: number): number {
-    if (this.cachedPoints.length === 0) return 0;
-
-    let lo = 0;
-    let hi = this.cachedPoints.length - 1;
-    while (lo < hi - 1) {
-      const mid = Math.floor((lo + hi) / 2);
-      if (this.cachedPoints[mid].y < y) {
-        lo = mid;
-      } else {
-        hi = mid;
-      }
-    }
-
-    const p0 = this.cachedPoints[lo];
-    const p1 = this.cachedPoints[hi];
-    if (Math.abs(p1.y - p0.y) < 0.01) {
-      return (lo / (this.cachedPoints.length - 1)) * this.pathLength;
-    }
-
-    const ratio = (y - p0.y) / (p1.y - p0.y);
-    const interpolatedIdx = lo + ratio;
-    return (interpolatedIdx / (this.cachedPoints.length - 1)) * this.pathLength;
   }
 
   scrollToStage(id: number): void {
@@ -1701,7 +1713,7 @@ ngAfterViewInit(): void {
     } else if (logistics?.destination) {
       map.set(11, [{ label: logistics.destination, tone: 'neutral' }]);
     }
-    if (auth) {
+    if (auth && auth.scanCount > 0) {
       map.set(12, [{ label: `Scan #${auth.scanCount}`, tone: 'green' }]);
     }
 
