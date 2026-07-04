@@ -192,6 +192,12 @@ export class Login implements OnInit, OnDestroy {
   }
 
   onSubmit() {
+    if (environment.devBypassAuth) {
+      this.authSvc.devBypassLogin();
+      this.redirectAfterLogin();
+      return;
+    }
+
     if (this.loginForm.invalid) {
       this.loginForm.markAllAsTouched();
       return;

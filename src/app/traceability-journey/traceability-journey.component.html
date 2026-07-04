@@ -803,6 +803,9 @@
                   <circle class="scene__rule-dot" cx="50" cy="7" r="1.8" fill="#a8762e" />
                 </svg>
                 <p class="scene__text">{{ stage.summary }}</p>
+                @if (stage.insight) {
+                  <p class="scene__insight">{{ stage.insight }}</p>
+                }
                 <ng-container *ngTemplateOutlet="stageDataLine; context: { stage: stage }" />
                 
                 <button class="scene__verify-btn" 

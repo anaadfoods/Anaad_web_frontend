@@ -47,6 +47,7 @@ interface Stage {
   id: number;
   title: string;
   summary: string;
+  insight: string;
   detail: string;
   image: string;
   alt: string;
@@ -225,7 +226,9 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
       id: 1,
       title: 'Know your seed',
       summary:
-        'Great food begins with a deliberate choice: the right seed and the right soil. We record where each seed comes from and how the land was prepared, so every grain starts life in living, nourished ground — not depleted earth. That trace is your guarantee of origin and care.',
+        'We document every native seed variety because it determines far more than the name of the crop. Native seeds have adapted to the soils, seasons, and ecological conditions of their regions over generations, making them the natural foundation of resilient cultivation.',
+      insight:
+        'Food begins accumulating its nutritional character long before it is harvested. Knowing the exact seed variety preserves the connection between the crop, the land where it evolved, and the nourishment it was naturally suited to provide.',
       detail: 'Seed & land preparation: Pending',
       image: 'assets/traceability/stage-1.png',
       alt: 'Seed and prepared field — the first steps of a traceable harvest.',
@@ -241,7 +244,9 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
       id: 2,
       title: 'Know your farmer',
       summary:
-        'Behind every crop is a steward of the land. We record who tended this field, their methods, and their relationship with the soil — so you know the hands and the intent behind your food.',
+        'Every harvest is linked to the farmer responsible for it, along with every Indigenous Cow-Based Natural (ICBN) Farming practice followed throughout the season. Skill, observation, and consistency cannot be standardised because they belong to the cultivator.',
+      insight:
+        'The biological quality of food is shaped by thousands of field decisions that never appear on a food label. Knowing who made those decisions provides context that packaged products rarely reveal.',
       detail: 'Cultivated by: Pending',
       image: 'assets/traceability/stage-2.png',
       alt: 'A farmer standing proudly in a green field.',
@@ -256,9 +261,11 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
     },
     {
       id: 3,
-      title: 'The crop cycle',
+      title: 'Crop cycle',
       summary:
-        'A crop follows a deliberate rhythm. We capture every milestone — sowing, growth stages, and expected harvest — so the field\'s story is recorded from first furrow to final cut.',
+        'Each crop is documented with its variety, growing season, sowing date, cultivation location, farm coordinates, field allocation, and the farming methodology followed. Recording these parameters creates a complete agronomic identity for every cultivation cycle rather than reducing it to a harvest date.',
+      insight:
+        'Nutrition begins with understanding the conditions in which a crop grows. When every cultivation cycle is recorded from the outset, the food it produces carries context that remains visible throughout its life.',
       detail: 'Crop cycle: Pending',
       image: 'assets/traceability/stage-3.png',
       alt: 'Young crop rows rising from a fertile field under warm light.',
@@ -274,7 +281,9 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
       id: 4,
       title: 'Field work',
       summary:
-        'Trust is built in everyday care. Every plough, feed, weed, and water event is logged in real time so you can see how the crop was tended — not just that it was tended.',
+        'Every major field operation, from sowing and natural fertigation to timely de-weeding under Indigenous Cow-Based Natural (ICBN) Farming, is documented as it happens. These are the practices that determine how the crop establishes itself, grows, and matures.',
+      insight:
+        'Healthy food is rarely the result of a single intervention. It is the cumulative outcome of hundreds of disciplined decisions made throughout cultivation, each contributing to the nutritional potential of the harvest.',
       detail: 'Field activities: Pending',
       image: 'assets/traceability/stage-4.png',
       alt: 'A farmer working in the field with traditional tools.',
@@ -290,7 +299,9 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
       id: 5,
       title: 'Harvest',
       summary:
-        'Harvest is the field made tangible. We record the exact harvest date and method so you know the crop was gathered at peak readiness, not rushed or left behind.',
+        'Harvesting at the right stage preserves the nutritional profile the plant has spent an entire season developing. Cutting this process short or delaying it unnecessarily can influence the quality of the final harvest, making timing one of the most significant agricultural decisions.',
+      insight:
+        'The nutritional and functional characteristics of food are influenced not only by how it is grown, but equally by when it is harvested.',
       detail: 'Date of harvest: Pending',
       image: 'assets/traceability/stage-5.png',
       alt: 'Harvest in the field — crop gathered at peak readiness.',
@@ -308,7 +319,9 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
       id: 6,
       title: 'Raw material inventory',
       summary:
-        'Harvested material rests under careful watch. Each lot is logged into breathable storage and tracked until processing — so the field\'s patience is honored, not lost.',
+        'Freshly harvested grains are stored under controlled conditions without the use of artificial preservatives or chemical additives. Every batch retains its identity while its storage conditions remain fully documented as part of the traceability record.',
+      insight:
+        'Nutrition is preserved not only through cultivation, but through careful handling after harvest. The way raw materials are stored determines how well the harvest carries its natural qualities into the next stage.',
       detail: 'Storage: Pending',
       image: 'assets/traceability/stage-6.png',
       alt: 'Harvested crop resting in breathable storage before processing.',
@@ -324,7 +337,9 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
       id: 7,
       title: 'Processing',
       summary:
-        'We choose slower, gentler methods that preserve the crop\'s natural qualities. Every processing step is recorded so the care taken at the mill matches the care given in the field.',
+        'Our grains are slowly stone-ground using low-RPM cold-pressed chakkis operating between 30–60 RPM, allowing naturally occurring stones to grind the grain with minimal heat generation. This modern engineering preserves the wisdom of an ancient milling process while making it consistent, scalable, and fully traceable.',
+      insight:
+        'Excessive heat can compromise naturally occurring nutrients within the grain. Slow stone grinding helps retain more of what the harvest developed in the field, allowing the flour to remain closer to its original nutritional composition.',
       detail: 'Processing: Pending',
       image: 'assets/traceability/stage-7.png',
       alt: 'Crop being processed with slow, gentle methods at the mill.',
@@ -340,7 +355,9 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
       id: 8,
       title: 'Packaging',
       summary:
-        'Packaging is where the batch gains identity. Each unit is weighed, sealed, and labeled so the product that leaves our doors carries its origin and story intact.',
+        'Every product is vacuum packed immediately after processing to protect it from unnecessary exposure to air and moisture, all without relying on artificial preservatives or additives. Every packaging event becomes part of the product\'s traceable history.',
+      insight:
+        'Protection begins the moment milling ends. Preserving freshness through process instead of preservatives allows the food to retain its natural character for longer.',
       detail: 'Packaging: Pending',
       image: 'assets/traceability/stage-8.png',
       alt: 'Anaad products being packed on a work table with sacks and tools.',
@@ -356,7 +373,9 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
       id: 9,
       title: 'Finished goods inventory',
       summary:
-        'Every finished unit is counted and timestamped before it moves. That inventory trail ensures traceability remains continuous from warehouse to delivery.',
+        'Our flour is milled in small monthly batches rather than stored for extended periods. Finished inventory is carefully managed to minimise storage duration while ensuring every batch remains fully traceable until dispatch.',
+      insight:
+        'The closer flour is consumed to the time it is milled, the better its natural freshness and nutritional value can be appreciated.',
       detail: 'Warehouse: Pending',
       image: 'assets/traceability/stage-9.png',
       alt: 'Finished goods counted and stored in the central warehouse.',
@@ -370,10 +389,12 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
     },
     {
       id: 10,
-      title: 'Transit',
+      title: 'Dispatched',
       summary:
-        'Once the batch departs, its journey is tracked in transit. Carrier, route, and handover are recorded so no moment between origin and arrival is unseen.',
-      detail: 'Transit: Pending',
+        'Every dispatch is logged against the exact batch, destination, and shipment details, ensuring the continuity of traceability remains intact beyond production.',
+      insight:
+        'Knowing precisely when and where your food began its journey preserves accountability until the very last mile.',
+      detail: 'Dispatch: Pending',
       image: 'assets/traceability/stage-10.png',
       alt: 'A delivery vehicle transporting produce.',
       align: 'left',
@@ -386,10 +407,12 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
     },
     {
       id: 11,
-      title: 'Delivery',
+      title: 'In transit',
       summary:
-        'Delivery is the final handover. Each delivery milestone is recorded so the trace ends at your table — not in a log.',
-      detail: 'Delivery: Pending',
+        'Movement between facilities and destinations is continuously documented so every product remains connected to its complete production history throughout transportation.',
+      insight:
+        'Visibility should not end at the warehouse. The continuity of information is just as important as the continuity of the product itself.',
+      detail: 'In transit: Pending',
       image: 'assets/traceability/stage-11.png',
       alt: 'A warehouse with neatly stacked product boxes ready for dispatch.',
       align: 'right',
@@ -403,10 +426,12 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
     },
     {
       id: 12,
-      title: 'Trust complete',
+      title: 'Delivered',
       summary:
-        'When every step is visible and verified, trust is no longer claimed — it\'s proven. The full chain from soil to shelf stands verified, ready for the scan.',
-      detail: 'Verification: Pending',
+        'By the time your order reaches your doorstep, every meaningful milestone, from native seed selection and ICBN cultivation to storage, milling, packaging, and logistics, has become part of one continuous, verifiable record.',
+      insight:
+        'Food should never ask you to rely on blind trust. It should arrive with the evidence of how it was grown, preserved, and delivered, allowing every meal to begin with knowledge rather than assumption.',
+      detail: 'Delivery: Pending',
       image: 'assets/traceability/stage-12.png',
       alt: 'A final branded traceability illustration closing the journey.',
       align: 'left',
@@ -1193,9 +1218,9 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
       if (logistics.carrier) parts.push(logistics.carrier);
       if (logistics.origin) parts.push(`From ${logistics.origin}`);
       if (logistics.vehicleNumber) parts.push(`Vehicle ${logistics.vehicleNumber}`);
-      this.stages[9].detail = parts.length ? parts.join(' · ') : 'Transit details: Pending';
+      this.stages[9].detail = parts.length ? parts.join(' · ') : 'Dispatch details: Pending';
     } else {
-      this.stages[9].detail = 'Transit: Pending';
+      this.stages[9].detail = 'Dispatch: Pending';
     }
 
     if (logistics?.destination) {
@@ -1203,16 +1228,16 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
         ? `Delivered to ${logistics.destination} · ${this.formatDateTime(logistics.deliveredAt)}`
         : `En route to ${logistics.destination}`;
     } else {
-      this.stages[10].detail = 'Delivery: Pending';
+      this.stages[10].detail = 'In transit: Pending';
     }
 
     if (auth) {
       const verified = auth.verifiedAt ? `Verified ${this.formatDateTime(auth.verifiedAt)}` : '';
       this.stages[11].detail = auth.scanCount > 0
         ? `Scan #${auth.scanCount}${verified ? ` · ${verified}` : ''}`
-        : verified || 'Verification complete';
+        : verified || 'Delivery complete';
     } else {
-      this.stages[11].detail = 'Verification: Pending';
+      this.stages[11].detail = 'Delivery: Pending';
     }
 
     if (this.isUnlocked() && (this.orderTracking() || this.subTracking()?.length)) {
@@ -1665,7 +1690,8 @@ ngAfterViewInit(): void {
   }
 
   protected getStageDataLabel(stageId: number): string {
-    return stageId >= 12 ? 'Verified' : 'Recorded';
+    if (stageId === 12) return 'Delivered';
+    return 'Recorded';
   }
 
   protected isLongStageTitle(title: string): boolean {

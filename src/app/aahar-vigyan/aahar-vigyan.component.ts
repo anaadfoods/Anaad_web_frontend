@@ -34,6 +34,10 @@ import { AaharVigyanStateService } from './services/aahar-vigyan-state.service';
 
 import { AaharVigyanStep, DoshaCode, PrakritiScores } from './models/aahar-vigyan.model';
 
+import { AuthService } from '../core/services/auth.service';
+
+import { AuthState } from '../core/state/auth.state';
+
 import { environment } from '../../environments/environment';
 
 
@@ -70,6 +74,10 @@ export class AaharVigyanComponent implements OnInit {
 
   private readonly avState = inject(AaharVigyanStateService);
 
+  private readonly authSvc = inject(AuthService);
+
+  private readonly authState = inject(AuthState);
+
   private readonly cdr = inject(ChangeDetectorRef);
 
   private readonly platformId = inject(PLATFORM_ID);
@@ -94,6 +102,8 @@ export class AaharVigyanComponent implements OnInit {
 
   ngOnInit(): void {
 
+    this.ensureDevSession();
+
     this.applyResetIfRequested();
 
     this.avState.loadForCurrentUser();
@@ -108,11 +118,23 @@ export class AaharVigyanComponent implements OnInit {
 
 
 
+  private ensureDevSession(): void {
+
+    if (environment.devBypassAuth && !this.authState.isAuthenticated()) {
+
+      this.authSvc.devBypassLogin();
+
+    }
+
+  }
+
+
+
   /** Local dev: /aahar-vigyan?reset clears quiz progress and returns to welcome */
 
   private applyResetIfRequested(): void {
 
-    if (environment.production || !isPlatformBrowser(this.platformId)) return;
+    if (!environment.devBypassAuth || !isPlatformBrowser(this.platformId)) return;
 
     const params = new URLSearchParams(window.location.search);
 
@@ -145,6 +167,8 @@ export class AaharVigyanComponent implements OnInit {
 
 
   onQuizComplete(answers: DoshaCode[]): void {
+
+    this.ensureDevSession();
 
     const prakriti = this.avState.savePrakriti(answers);
 

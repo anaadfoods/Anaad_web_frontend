@@ -25,6 +25,18 @@
   animation: fadeIn 0.4s ease-in-out;
 }
 
+// On mobile, keep the green banner as a slim decorative shade but hide the text.
+@media (max-width: 768px) {
+  .top-banner {
+    height: 10px;
+    padding: 0;
+  }
+
+  .banner-text {
+    display: none;
+  }
+}
+
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(2px); }
   to { opacity: 1; transform: translateY(0); }
