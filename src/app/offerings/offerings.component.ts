@@ -1,9 +1,10 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { RegistrationSourceService } from '../shared/services/registration-source.service';
+import { RegistrationSourceService } from '../core/services/registration-source.service';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-offerings',
   standalone: true,
   imports: [CommonModule],

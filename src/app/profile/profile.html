@@ -1,0 +1,990 @@
+<div class="profile-page-wrap">
+  <div class="loading-state" *ngIf="loading()">
+    <div class="loading-spinner"></div>
+    <span>Loading your account...</span>
+  </div>
+
+  <ng-container *ngIf="!loading()">
+    <!-- PROFILE BAND -->
+    <div class="profile-band">
+      <div class="profile-avatar-wrap">
+        <div class="profile-avatar">
+          <img *ngIf="profileData()?.profile_picture; else initialsTpl" [src]="profileData()?.profile_picture"
+            [alt]="profileData()?.first_name || 'Profile'" />
+          <ng-template #initialsTpl>
+            <span class="avatar-initials">{{ getInitials() }}</span>
+          </ng-template>
+        </div>
+        <div class="avatar-upload-overlay" *ngIf="uploadingPicture()">
+          <div class="avatar-spinner"></div>
+        </div>
+        <label class="avatar-upload-btn" title="Change photo" aria-label="Change profile photo">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+            style="width: 14px; height: 14px;">
+            <path
+              d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+          </svg>
+          <input type="file" accept="image/*" (change)="onProfilePictureChange($event)" style="display:none" />
+        </label>
+      </div>
+
+      <div class="profile-meta">
+        <span class="profile-greeting">Welcome back</span>
+        <span class="profile-name">
+          {{ profileData()?.first_name || profileData()?.username || 'Anaad Member' }}
+          {{ profileData()?.last_name || '' }}
+        </span>
+        <span class="profile-email">{{ profileData()?.email }}</span>
+        <span class="profile-tag" *ngIf="profileData()?.referral_code">
+          Referral: <strong>{{ profileData()?.referral_code }}</strong>
+        </span>
+        <span class="profile-verified" *ngIf="profileData()?.is_email_verified">&#10003; Email Verified</span>
+      </div>
+
+      <div class="profile-stats">
+        <div class="profile-stat" [class.cold-state]="orderCount() === 0">
+          <ng-container *ngIf="orderCount() > 0; else zeroOrders">
+            <span class="profile-stat-value">{{ animatedOrders() }}</span>
+            <span class="profile-stat-label">Orders</span>
+          </ng-container>
+          <ng-template #zeroOrders>
+            <a routerLink="/product" class="profile-stat-action">Start your first order &rarr;</a>
+          </ng-template>
+        </div>
+        <div class="profile-stat" [class.cold-state]="subscriptionCount() === 0">
+          <ng-container *ngIf="subscriptionCount() > 0; else zeroSubscriptions">
+            <span class="profile-stat-value">{{ animatedSubscriptions() }}</span>
+            <span class="profile-stat-label">Subscriptions</span>
+          </ng-container>
+          <ng-template #zeroSubscriptions>
+            <a routerLink="/registry" class="profile-stat-action">Explore subscriptions &rarr;</a>
+          </ng-template>
+        </div>
+        <div class="profile-stat" [class.cold-state]="favoriteCount() === 0">
+          <ng-container *ngIf="favoriteCount() > 0; else zeroFavorites">
+            <span class="profile-stat-value">{{ animatedFavorites() }}</span>
+            <span class="profile-stat-label">Favorites</span>
+          </ng-container>
+          <ng-template #zeroFavorites>
+            <a routerLink="/product" class="profile-stat-action">Find your favorites &rarr;</a>
+          </ng-template>
+        </div>
+      </div>
+    </div>
+
+    <!-- MESSAGES -->
+    <div class="inline-error" *ngIf="error()">{{ error() }}</div>
+    <div class="inline-success" *ngIf="actionMessage()">{{ actionMessage() }}</div>
+
+    <div class="account-layout">
+
+      <!-- SIDEBAR -->
+      <div class="account-sidebar" [class.mobile-open]="isSidebarOpen()">
+        <button class="mobile-sidebar-toggle" (click)="isSidebarOpen.set(!isSidebarOpen())">
+          <span class="sidebar-icon">&#9776;</span>
+          <span class="sidebar-text">Account Menu</span>
+          <span class="toggle-icon">{{ isSidebarOpen() ? '▲' : '▼' }}</span>
+        </button>
+
+        <div class="sidebar-menu-items">
+          <span class="sidebar-section-label">Account</span>
+          <button class="sidebar-nav-item" [class.active]="activeTab() === 'overview'"
+            (click)="setTab('overview'); isSidebarOpen.set(false)">
+            <span class="sidebar-icon">&#128100;</span>
+            <span class="sidebar-text">Overview</span>
+          </button>
+          <button class="sidebar-nav-item" [class.active]="activeTab() === 'orders'"
+            (click)="setTab('orders'); isSidebarOpen.set(false)">
+            <span class="sidebar-icon">&#128203;</span>
+            <span class="sidebar-text">Orders</span>
+            <span class="sidebar-badge" *ngIf="orderCount()">{{ orderCount() }}</span>
+          </button>
+          <button class="sidebar-nav-item" [class.active]="activeTab() === 'subscriptions'"
+            (click)="setTab('subscriptions'); isSidebarOpen.set(false)">
+            <span class="sidebar-icon">&#8635;</span>
+            <span class="sidebar-text">Subscriptions</span>
+            <span class="sidebar-badge" *ngIf="subscriptionCount()">{{ subscriptionCount() }}</span>
+          </button>
+          <button class="sidebar-nav-item" [class.active]="activeTab() === 'favorites'"
+            (click)="setTab('favorites'); isSidebarOpen.set(false)">
+            <span class="sidebar-icon">&#9825;</span>
+            <span class="sidebar-text">Favorites</span>
+            <span class="sidebar-badge" *ngIf="favoriteCount()">{{ favoriteCount() }}</span>
+          </button>
+          <button class="sidebar-nav-item" [class.active]="activeTab() === 'addresses'"
+            (click)="setTab('addresses'); isSidebarOpen.set(false)">
+            <span class="sidebar-icon">&#128205;</span>
+            <span class="sidebar-text">Addresses</span>
+          </button>
+          <button class="sidebar-nav-item" [class.active]="activeTab() === 'referrals'"
+            (click)="setTab('referrals'); isSidebarOpen.set(false)">
+            <span class="sidebar-icon">&#128101;</span>
+            <span class="sidebar-text">Referrals</span>
+            <span class="sidebar-badge" *ngIf="referralRewardCount()?.total_referred_users">{{
+              referralRewardCount()?.total_referred_users }}</span>
+          </button>
+          <button class="sidebar-nav-item" *ngIf="profileData()?.is_rfp"
+            [class.active]="activeTab() === 'farm-deliveries'"
+            (click)="setTab('farm-deliveries'); isSidebarOpen.set(false)">
+            <span class="sidebar-icon">&#128666;</span>
+            <span class="sidebar-text">Farm Deliveries</span>
+            <span class="sidebar-badge" *ngIf="rfpDeliveries()?.length">{{ rfpDeliveries().length }}</span>
+          </button>
+          <button class="sidebar-nav-item danger" [class.active]="activeTab() === 'security'"
+            (click)="setTab('security'); isSidebarOpen.set(false)">
+            <span class="sidebar-icon">&#9881;</span>
+            <span class="sidebar-text">Security</span>
+          </button>
+
+          <div class="sidebar-divider"></div>
+
+          <a routerLink="/product" class="sidebar-nav-item">
+            <span class="sidebar-icon">&#127858;</span>
+            <span class="sidebar-text">Shop Products</span>
+          </a>
+          <a routerLink="/registry" class="sidebar-nav-item">
+            <span class="sidebar-icon">&#128197;</span>
+            <span class="sidebar-text">Subscriptions</span>
+          </a>
+
+          <div class="sidebar-divider"></div>
+          <button class="sidebar-logout" (click)="logout()">
+            <span class="sidebar-icon">&#8594;</span>
+            <span class="sidebar-text">Sign Out</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- MAIN CONTENT -->
+      <div class="account-content">
+
+        <!-- MOBILE HORIZONTAL NAV -->
+        <div class="mobile-tab-nav">
+          <button class="mobile-tab-item" [class.active]="activeTab() === 'overview'" (click)="setTab('overview')">
+            <span class="tab-icon">&#128100;</span>
+            <span class="tab-text">Overview</span>
+          </button>
+          <button class="mobile-tab-item" [class.active]="activeTab() === 'orders'" (click)="setTab('orders')">
+            <span class="tab-icon">&#128203;</span>
+            <span class="tab-text">Orders</span>
+            <span class="tab-badge" *ngIf="orderCount()">{{ orderCount() }}</span>
+          </button>
+          <button class="mobile-tab-item" [class.active]="activeTab() === 'subscriptions'"
+            (click)="setTab('subscriptions')">
+            <span class="tab-icon">&#8635;</span>
+            <span class="tab-text">Subscriptions</span>
+            <span class="tab-badge" *ngIf="subscriptionCount()">{{ subscriptionCount() }}</span>
+          </button>
+          <button class="mobile-tab-item" [class.active]="activeTab() === 'favorites'" (click)="setTab('favorites')">
+            <span class="tab-icon">&#9825;</span>
+            <span class="tab-text">Favorites</span>
+            <span class="tab-badge" *ngIf="favoriteCount()">{{ favoriteCount() }}</span>
+          </button>
+          <button class="mobile-tab-item" [class.active]="activeTab() === 'addresses'" (click)="setTab('addresses')">
+            <span class="tab-icon">&#128205;</span>
+            <span class="tab-text">Addresses</span>
+          </button>
+          <button class="mobile-tab-item" [class.active]="activeTab() === 'referrals'" (click)="setTab('referrals')">
+            <span class="tab-icon">&#128101;</span>
+            <span class="tab-text">Referrals</span>
+            <span class="tab-badge" *ngIf="referralRewardCount()?.total_referred_users">{{
+              referralRewardCount()?.total_referred_users }}</span>
+          </button>
+          <button class="mobile-tab-item" *ngIf="profileData()?.is_rfp"
+            [class.active]="activeTab() === 'farm-deliveries'" (click)="setTab('farm-deliveries')">
+            <span class="tab-icon">&#128666;</span>
+            <span class="tab-text">Deliveries</span>
+            <span class="tab-badge" *ngIf="rfpDeliveries()?.length">{{ rfpDeliveries().length }}</span>
+          </button>
+          <button class="mobile-tab-item" [class.active]="activeTab() === 'security'" (click)="setTab('security')">
+            <span class="tab-icon">&#9881;</span>
+            <span class="tab-text">Security</span>
+          </button>
+          <button class="mobile-tab-item logout-tab" (click)="logout()">
+            <span class="tab-icon">&#8594;</span>
+            <span class="tab-text">Sign Out</span>
+          </button>
+        </div>
+
+        <!-- OVERVIEW TAB -->
+        <ng-container *ngIf="activeTab() === 'overview'">
+          <ng-container *ngIf="tabLoading(); else overviewContent">
+            <div class="overview-skeleton">
+              <div class="content-section-header">
+                <app-skeleton-loader width="120px" height="14px"
+                  style="margin-bottom: 8px; display: block;"></app-skeleton-loader>
+                <app-skeleton-loader width="200px" height="32px" style="display: block;"></app-skeleton-loader>
+              </div>
+              <div class="dashboard-stats-grid" style="margin-top: 24px;">
+                <div class="dash-stat-card" style="background: rgba(26,26,26,0.02);">
+                  <app-skeleton-loader width="80px" height="12px"
+                    style="margin-bottom: 8px; display: block;"></app-skeleton-loader>
+                  <app-skeleton-loader width="40px" height="28px" style="display: block;"></app-skeleton-loader>
+                </div>
+                <div class="dash-stat-card" style="background: rgba(26,26,26,0.02);">
+                  <app-skeleton-loader width="100px" height="12px"
+                    style="margin-bottom: 8px; display: block;"></app-skeleton-loader>
+                  <app-skeleton-loader width="40px" height="28px" style="display: block;"></app-skeleton-loader>
+                </div>
+                <div class="dash-stat-card" style="background: rgba(26,26,26,0.02);">
+                  <app-skeleton-loader width="90px" height="12px"
+                    style="margin-bottom: 8px; display: block;"></app-skeleton-loader>
+                  <app-skeleton-loader width="40px" height="28px" style="display: block;"></app-skeleton-loader>
+                </div>
+              </div>
+              <div class="form-grid" style="margin-top: 24px;">
+                <div class="form-field" *ngFor="let i of [1,2,3,4,5,6]">
+                  <app-skeleton-loader width="80px" height="12px"
+                    style="margin-bottom: 8px; display: block;"></app-skeleton-loader>
+                  <app-skeleton-loader width="100%" height="44px" style="display: block;"></app-skeleton-loader>
+                </div>
+              </div>
+            </div>
+          </ng-container>
+
+          <ng-template #overviewContent>
+            <div class="content-section-header">
+              <span class="section-label-tag">Account Summary</span>
+              <h2>Your Profile</h2>
+            </div>
+
+            <div class="notification-banner">
+              <span class="notification-icon">&#10024;</span>
+              <div class="notification-text">
+                <strong>Vedic Profile Settings</strong>
+                <p>Looking for your personalized Ayurvedic guidance settings? You can now manage your Vedic Profile
+                  directly from the Anaad mobile app.</p>
+              </div>
+            </div>
+
+            <!-- Dashboard Stats Grid -->
+            <div class="dashboard-stats-grid" *ngIf="userSummaryData()">
+              <div class="dash-stat-card">
+                <span class="dash-stat-label">Total Orders</span>
+                <strong class="dash-stat-val">{{ userSummaryData()?.orders?.total || 0 }}</strong>
+              </div>
+              <div class="dash-stat-card">
+                <span class="dash-stat-label">Active Subscriptions</span>
+                <strong class="dash-stat-val">{{ userSummaryData()?.subscriptions?.active_total || 0 }}</strong>
+              </div>
+              <div class="dash-stat-card">
+                <span class="dash-stat-label">Favorites List</span>
+                <strong class="dash-stat-val">{{ userSummaryData()?.favorites?.count || 0 }}</strong>
+              </div>
+            </div>
+
+            <form class="profile-form" [formGroup]="profileForm" (ngSubmit)="saveProfile()" novalidate>
+              <div class="form-grid">
+                <div class="form-field">
+                  <label>Username</label>
+                  <input type="text"
+                    [class.field-error]="profileForm.get('username')?.invalid && profileForm.get('username')?.touched"
+                    formControlName="username" placeholder="username" />
+                  <span class="field-error-msg"
+                    *ngIf="profileForm.get('username')?.touched && profileForm.get('username')?.invalid">Username is
+                    required.</span>
+                </div>
+                <div class="form-field">
+                  <label>Email</label>
+                  <input type="email"
+                    [class.field-error]="profileForm.get('email')?.invalid && profileForm.get('email')?.touched"
+                    formControlName="email" placeholder="email@example.com" />
+                  <span class="field-error-msg"
+                    *ngIf="profileForm.get('email')?.touched && profileForm.get('email')?.invalid">Valid email is
+                    required.</span>
+                </div>
+                <div class="form-field">
+                  <label>First Name</label>
+                  <input type="text"
+                    [class.field-error]="profileForm.get('first_name')?.invalid && profileForm.get('first_name')?.touched"
+                    formControlName="first_name" placeholder="First Name" />
+                  <span class="field-error-msg"
+                    *ngIf="profileForm.get('first_name')?.touched && profileForm.get('first_name')?.invalid">First name
+                    is required.</span>
+                </div>
+                <div class="form-field">
+                  <label>Last Name</label>
+                  <input type="text"
+                    [class.field-error]="profileForm.get('last_name')?.invalid && profileForm.get('last_name')?.touched"
+                    formControlName="last_name" placeholder="Last Name" />
+                  <span class="field-error-msg"
+                    *ngIf="profileForm.get('last_name')?.touched && profileForm.get('last_name')?.invalid">Last name is
+                    required.</span>
+                </div>
+                <div class="form-field">
+                  <label>Phone</label>
+                  <input type="tel"
+                    [class.field-error]="profileForm.get('phone_number')?.invalid && profileForm.get('phone_number')?.touched"
+                    formControlName="phone_number" placeholder="+91..." />
+                  <span class="field-error-msg"
+                    *ngIf="profileForm.get('phone_number')?.touched && profileForm.get('phone_number')?.invalid">Valid
+                    phone number is required.</span>
+                </div>
+                <div class="form-field">
+                  <label>Gender</label>
+                  <select [class.field-error]="profileForm.get('gender')?.invalid && profileForm.get('gender')?.touched"
+                    formControlName="gender">
+                    <option value="">Select</option>
+                    <option value="M">Male</option>
+                    <option value="F">Female</option>
+                    <option value="O">Other</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-actions">
+                <button type="submit" class="action-btn primary" [disabled]="savingProfile()">
+                  {{ savingProfile() ? 'Saving...' : 'Update Profile' }}
+                </button>
+              </div>
+            </form>
+          </ng-template>
+        </ng-container>
+
+        <!-- ORDERS TAB -->
+        <ng-container *ngIf="activeTab() === 'orders'">
+          <ng-container *ngIf="tabLoading(); else ordersContent">
+            <div class="orders-skeleton">
+              <div class="content-section-header">
+                <app-skeleton-loader width="100px" height="14px"
+                  style="margin-bottom: 8px; display: block;"></app-skeleton-loader>
+                <app-skeleton-loader width="180px" height="32px" style="display: block;"></app-skeleton-loader>
+              </div>
+              <div class="orders-table" style="margin-top: 24px; border: none;">
+                <div class="orders-head" style="grid-template-columns: 1.5fr 2fr 1fr 1fr 1fr 1fr;">
+                  <app-skeleton-loader width="60px" height="12px" style="display: block;"></app-skeleton-loader>
+                  <app-skeleton-loader width="85px" height="12px" style="display: block;"></app-skeleton-loader>
+                  <app-skeleton-loader width="40px" height="12px" style="display: block;"></app-skeleton-loader>
+                  <app-skeleton-loader width="40px" height="12px" style="display: block;"></app-skeleton-loader>
+                  <app-skeleton-loader width="50px" height="12px" style="display: block;"></app-skeleton-loader>
+                  <app-skeleton-loader width="60px" height="12px" style="display: block;"></app-skeleton-loader>
+                </div>
+                <div class="order-row" *ngFor="let i of [1,2,3]"
+                  style="grid-template-columns: 1.5fr 2fr 1fr 1fr 1fr 1fr; border-bottom: 1px solid rgba(26,26,26,0.05);">
+                  <app-skeleton-loader width="100px" height="16px" style="display: block;"></app-skeleton-loader>
+                  <app-skeleton-loader width="150px" height="16px" style="display: block;"></app-skeleton-loader>
+                  <app-skeleton-loader width="80px" height="16px" style="display: block;"></app-skeleton-loader>
+                  <app-skeleton-loader width="70px" height="16px" style="display: block;"></app-skeleton-loader>
+                  <app-skeleton-loader width="80px" height="24px" borderRadius="12px"
+                    style="display: block;"></app-skeleton-loader>
+                  <app-skeleton-loader width="60px" height="24px" style="display: block;"></app-skeleton-loader>
+                </div>
+              </div>
+            </div>
+          </ng-container>
+
+          <ng-template #ordersContent>
+            <div class="content-section-header">
+              <span class="section-label-tag">Order History</span>
+              <h2>My Orders</h2>
+              <p>All placed orders with payment and fulfillment status.</p>
+            </div>
+
+            <div class="orders-table">
+              <div class="orders-head">
+                <span>Order #</span>
+                <span>Items</span>
+                <span>Date</span>
+                <span>Total</span>
+                <span>Status</span>
+                <span>Actions</span>
+              </div>
+
+              @for (order of ordersData(); track order.id) {
+              <div class="order-row" [routerLink]="['/order', order.id]" style="cursor: pointer;">
+                <span class="order-id">
+                  <div class="order-id-link">
+                    {{ order.order_number || '#' + order.id }}
+                  </div>
+                </span>
+                <div class="order-items-list">
+                  @for (item of (order.items || []); track item.id || item.product_variant || $index) {
+                  <span>{{ getOrderItemName(item) }} ×{{ item.quantity }}</span>
+                  } @empty {
+                  <span class="muted">—</span>
+                  }
+                  <span class="payment-badge">{{ order.payment_method }}</span>
+                </div>
+                <span class="order-date">{{ parseOrderDate(order.created_at) | date:'dd MMM yyyy' }}</span>
+                <span class="order-total">{{ getOrderTotal(order) | currencyInr }}</span>
+                <span class="status-pill" [class]="getOrderStatusClass(order.status)">{{ order.status }}</span>
+                <div class="order-actions">
+                  <button type="button" class="micro-btn"
+                    *ngIf="order.status !== 'CANCELLED' && order.status !== 'DELIVERED'"
+                    (click)="$event.stopPropagation(); cancelOrder(order.id)">Cancel</button>
+                  <button type="button" class="micro-btn" *ngIf="order.status === 'DELIVERED'"
+                    (click)="$event.stopPropagation(); downloadInvoice(order.order_number)">Invoice</button>
+                </div>
+              </div>
+              } @empty {
+              <div class="empty-state">
+                <span>&#128203;</span>
+                <p>No orders yet.</p>
+                <button type="button" class="action-btn primary" (click)="shopProducts()">Browse Pantry</button>
+              </div>
+              }
+            </div>
+          </ng-template>
+        </ng-container>
+
+        <!-- SUBSCRIPTIONS TAB -->
+        <ng-container *ngIf="activeTab() === 'subscriptions'">
+          <ng-container *ngIf="tabLoading(); else subscriptionsContent">
+            <div class="subscriptions-skeleton">
+              <div class="content-section-header">
+                <app-skeleton-loader width="150px" height="14px"
+                  style="margin-bottom: 8px; display: block;"></app-skeleton-loader>
+                <app-skeleton-loader width="220px" height="32px" style="display: block;"></app-skeleton-loader>
+              </div>
+              <div class="sub-tabs-container" style="display: flex; gap: 8px; margin-bottom: 20px; margin-top: 24px;">
+                <app-skeleton-loader width="60px" height="28px" borderRadius="4px" *ngFor="let i of [1,2,3,4]"
+                  style="display: block;"></app-skeleton-loader>
+              </div>
+              <div class="card-list">
+                <div class="data-card" *ngFor="let i of [1,2]" style="background: rgba(26,26,26,0.02);">
+                  <div style="flex: 1; display: flex; flex-direction: column; gap: 8px;">
+                    <app-skeleton-loader width="120px" height="16px" style="display: block;"></app-skeleton-loader>
+                    <app-skeleton-loader width="200px" height="20px" style="display: block;"></app-skeleton-loader>
+                    <app-skeleton-loader width="150px" height="14px" style="display: block;"></app-skeleton-loader>
+                  </div>
+                  <div>
+                    <app-skeleton-loader width="80px" height="24px" borderRadius="12px"
+                      style="display: block;"></app-skeleton-loader>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </ng-container>
+
+          <ng-template #subscriptionsContent>
+            <div class="content-section-header">
+              <span class="section-label-tag">Recurring Deliveries</span>
+              <h2>Subscriptions</h2>
+              <p>Active, paused, cancelled, and pending subscription plans.</p>
+            </div>
+
+            <div class="sub-tabs-container" style="display: flex; gap: 8px; margin-bottom: 20px;">
+              <button class="micro-btn" [class.active]="activeSubTab() === 'ALL'"
+                (click)="activeSubTab.set('ALL')">All</button>
+
+              <button class="micro-btn" [class.active]="activeSubTab() === 'ACTIVE'"
+                (click)="activeSubTab.set('ACTIVE')">Active</button>
+              <button class="micro-btn" [class.active]="activeSubTab() === 'PAUSED'"
+                (click)="activeSubTab.set('PAUSED')">Paused</button>
+              <button class="micro-btn" [class.active]="activeSubTab() === 'CANCELLED'"
+                (click)="activeSubTab.set('CANCELLED')">Cancelled</button>
+            </div>
+
+            <div class="card-list">
+              @for (subscription of filteredSubscriptions(); track subscription.id) {
+              <div class="data-card" [routerLink]="['/subscription', subscription.id]" style="cursor: pointer;">
+                <div class="card-main">
+                  <span class="detail-label">
+                    <div class="subscription-id-link">
+                      {{ subscription.subscription_number || 'Subscription' }}
+                    </div>
+                  </span>
+                  <div class="subscription-id-link">
+                    <strong>{{ getSubscriptionPlanName(subscription) }}</strong>
+                  </div>
+                  <span class="muted" *ngIf="subscription.next_delivery_date">Next delivery: {{
+                    subscription.next_delivery_date }}</span>
+                  <span class="muted">{{ subscription.payment_method }} · {{ subscription.payment_type }}</span>
+                </div>
+                <div class="card-side">
+                  <span class="status-pill" [class]="getOrderStatusClass(subscription.status)">
+                    {{ subscription.status }}
+                  </span>
+                </div>
+              </div>
+              } @empty {
+              <div class="empty-state">
+                <span>&#8635;</span>
+                <p>No subscriptions found.</p>
+                <button type="button" class="action-btn primary" (click)="shopProducts()">Browse Pantry</button>
+              </div>
+              }
+            </div>
+          </ng-template>
+        </ng-container>
+
+        <!-- FAVORITES TAB -->
+        <ng-container *ngIf="activeTab() === 'favorites'">
+          <ng-container *ngIf="tabLoading(); else favoritesContent">
+            <div class="favorites-skeleton">
+              <div class="content-section-header">
+                <app-skeleton-loader width="80px" height="14px"
+                  style="margin-bottom: 8px; display: block;"></app-skeleton-loader>
+                <app-skeleton-loader width="160px" height="32px" style="display: block;"></app-skeleton-loader>
+              </div>
+              <div class="favorites-grid" style="margin-top: 24px;">
+                <div class="favorite-card" *ngFor="let i of [1,2,3]"
+                  style="background: rgba(26,26,26,0.02); min-height: 250px;">
+                  <app-skeleton-loader width="100%" height="160px" borderRadius="0"
+                    style="display: block;"></app-skeleton-loader>
+                  <div style="padding: 16px; display: flex; flex-direction: column; gap: 8px;">
+                    <app-skeleton-loader width="60px" height="12px" style="display: block;"></app-skeleton-loader>
+                    <app-skeleton-loader width="120px" height="16px" style="display: block;"></app-skeleton-loader>
+                    <app-skeleton-loader width="80px" height="18px" style="display: block;"></app-skeleton-loader>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </ng-container>
+
+          <ng-template #favoritesContent>
+            <div class="content-section-header">
+              <span class="section-label-tag">Wishlist</span>
+              <h2>Favorites</h2>
+              <p>Products you have saved for later.</p>
+            </div>
+
+            <div class="favorites-grid">
+              @for (variant of favoritesData(); track variant.id) {
+              <div class="favorite-card" [routerLink]="['/product', variant.id]" style="cursor: pointer;">
+                <div class="fav-img-wrap">
+                  <img [src]="getFavoriteImage(variant)" [alt]="variant.product_name" />
+                </div>
+                <div class="fav-body">
+                  <span class="fav-category">{{ variant.product_category || 'Heirloom' }}</span>
+                  <strong>{{ variant.product_name }}</strong>
+                  <span class="fav-weight">{{ variant.weight }}{{ variant.unit || variant.weight_unit }}</span>
+                  <span class="fav-price">{{ getFavoritePrice(variant) | currencyInr }}</span>
+                  <div class="fav-actions">
+                    <button type="button" class="fav-btn primary"
+                      (click)="$event.stopPropagation(); addFavoriteToCart(variant)">Add to Cart</button>
+                    <button type="button" class="fav-btn remove"
+                      (click)="$event.stopPropagation(); removeFavorite(variant)">Remove</button>
+                  </div>
+                </div>
+              </div>
+              } @empty {
+              <div class="empty-state">
+                <span>&#9825;</span>
+                <p>No favorites yet.</p>
+                <button type="button" class="action-btn primary" (click)="shopProducts()">Explore Products</button>
+              </div>
+              }
+            </div>
+          </ng-template>
+        </ng-container>
+
+        <!-- ADDRESSES TAB -->
+        <ng-container *ngIf="activeTab() === 'addresses'">
+          <ng-container *ngIf="tabLoading(); else addressesContent">
+            <div class="addresses-skeleton">
+              <div class="content-section-header">
+                <app-skeleton-loader width="90px" height="14px"
+                  style="margin-bottom: 8px; display: block;"></app-skeleton-loader>
+                <app-skeleton-loader width="210px" height="32px" style="display: block;"></app-skeleton-loader>
+              </div>
+              <div class="address-grid" style="margin-top: 24px;">
+                <div class="address-card" *ngFor="let i of [1,2]"
+                  style="background: rgba(26,26,26,0.02); min-height: 180px;">
+                  <div class="address-card-header">
+                    <app-skeleton-loader width="100px" height="14px" style="display: block;"></app-skeleton-loader>
+                    <app-skeleton-loader width="50px" height="24px" style="display: block;"></app-skeleton-loader>
+                  </div>
+                  <app-skeleton-loader width="140px" height="18px" style="display: block;"></app-skeleton-loader>
+                  <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 8px;">
+                    <app-skeleton-loader width="200px" height="14px" style="display: block;"></app-skeleton-loader>
+                    <app-skeleton-loader width="150px" height="14px" style="display: block;"></app-skeleton-loader>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </ng-container>
+
+          <ng-template #addressesContent>
+            <div class="content-section-header">
+              <span class="section-label-tag">Shipping</span>
+              <h2>Saved Address</h2>
+            </div>
+            <div class="address-grid">
+              <!-- Current Address -->
+              <div class="address-card default">
+                <div class="address-card-header">
+                  <span class="address-tag">Default Address</span>
+                  <button *ngIf="getProfileAddress().length" class="micro-btn"
+                    (click)="editAddressMode.set(!editAddressMode())">
+                    {{ editAddressMode() ? 'Cancel' : 'Edit' }}
+                  </button>
+                </div>
+                <span class="address-name">{{ profileData()?.first_name }} {{ profileData()?.last_name }}</span>
+                <div class="address-lines" *ngIf="getProfileAddress().length; else noAddress">
+                  @for (line of getProfileAddress(); track $index) {
+                  <span>{{ line }}</span>
+                  }
+                </div>
+                <ng-template #noAddress>
+                  <div class="address-lines muted">No address saved yet.</div>
+                </ng-template>
+              </div>
+
+              <!-- Edit Address Form -->
+              <form class="address-card address-form" [formGroup]="addressForm" (ngSubmit)="saveAddress()" novalidate
+                *ngIf="!getProfileAddress().length || editAddressMode()">
+                <div class="address-card-header">
+                  <span class="address-tag">{{ getProfileAddress().length ? 'Edit Shipping Address' : 'Add Shipping
+                    Address' }}</span>
+                </div>
+                <div class="form-field">
+                  <label>Street Address</label>
+                  <input type="text"
+                    [class.field-error]="addressForm.get('address')?.invalid && addressForm.get('address')?.touched"
+                    formControlName="address" placeholder="123 Main Street" />
+                  <span class="field-error-msg"
+                    *ngIf="addressForm.get('address')?.touched && addressForm.get('address')?.invalid">Street address is
+                    required.</span>
+                </div>
+                <div class="addr-row">
+                  <div class="form-field">
+                    <label>City</label>
+                    <input type="text"
+                      [class.field-error]="addressForm.get('city')?.invalid && addressForm.get('city')?.touched"
+                      formControlName="city" placeholder="City" />
+                    <span class="field-error-msg"
+                      *ngIf="addressForm.get('city')?.touched && addressForm.get('city')?.invalid">City is
+                      required.</span>
+                  </div>
+                  <div class="form-field">
+                    <label>State</label>
+                    <input type="text"
+                      [class.field-error]="addressForm.get('state')?.invalid && addressForm.get('state')?.touched"
+                      formControlName="state" placeholder="State" />
+                    <span class="field-error-msg"
+                      *ngIf="addressForm.get('state')?.touched && addressForm.get('state')?.invalid">State is
+                      required.</span>
+                  </div>
+                  <div class="form-field">
+                    <label>Pincode</label>
+                    <input type="text"
+                      [class.field-error]="addressForm.get('pincode')?.invalid && addressForm.get('pincode')?.touched"
+                      formControlName="pincode" placeholder="110001" maxlength="6" />
+                    <span class="field-error-msg"
+                      *ngIf="addressForm.get('pincode')?.touched && addressForm.get('pincode')?.invalid">Valid 6-digit
+                      Pincode required.</span>
+                  </div>
+                </div>
+                <button type="submit" class="action-btn primary" [disabled]="savingAddress()">
+                  {{ savingAddress() ? 'Saving...' : 'Save Address' }}
+                </button>
+              </form>
+            </div>
+          </ng-template>
+        </ng-container>
+
+        <!-- REFERRALS TAB -->
+        <ng-container *ngIf="activeTab() === 'referrals'">
+          <ng-container *ngIf="tabLoading(); else referralsContent">
+            <div class="referrals-skeleton">
+              <div class="content-section-header">
+                <app-skeleton-loader width="130px" height="14px"
+                  style="margin-bottom: 8px; display: block;"></app-skeleton-loader>
+                <app-skeleton-loader width="180px" height="32px" style="display: block;"></app-skeleton-loader>
+              </div>
+              <div class="referrals-dashboard" style="margin-top: 24px;">
+                <div class="referral-code-card" style="background: rgba(26,26,26,0.02);">
+                  <app-skeleton-loader width="160px" height="12px"
+                    style="margin-bottom: 12px; display: block;"></app-skeleton-loader>
+                  <app-skeleton-loader width="220px" height="44px" style="display: block;"></app-skeleton-loader>
+                  <app-skeleton-loader width="300px" height="14px"
+                    style="margin-top: 12px; display: block;"></app-skeleton-loader>
+                </div>
+              </div>
+            </div>
+          </ng-container>
+
+          <ng-template #referralsContent>
+            <div class="content-section-header" style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px;">
+              <div>
+                <span class="section-label-tag">Rewards Program</span>
+                <h2>Refer &amp; Nourish</h2>
+                <p>Share the gift of natural, zero-residue food with your friends and earn rewards.</p>
+              </div>
+              <a routerLink="/refer-earn" class="action-btn primary" style="display: inline-flex; align-items: center; gap: 8px; font-weight: 700; text-decoration: none; padding: 10px 20px; border-radius: 12px; background: var(--green-deep, #2C4A1E); color: #FFFFFF;">
+                <span>Open Full Dashboard</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </a>
+            </div>
+
+            <div class="referrals-dashboard">
+              <div class="referral-code-card">
+                <span class="card-eyebrow">Your Unique Referral Code</span>
+                <div class="code-box">
+                  <strong class="code-text">{{ profileData()?.referral_code || 'ANAADREF' }}</strong>
+                </div>
+                <div class="mini-actions" style="justify-content: center; margin-top: 4px; gap: 12px;">
+                  <button type="button" class="action-btn secondary" (click)="shareViaWhatsApp()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                      viewBox="0 0 16 16" style="margin-right: 6px; vertical-align: text-top; color: #25D366;">
+                      <path
+                        d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.6 2.326zM7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592m3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.73.73 0 0 0-.529.247c-.182.198-.691.677-.691 1.654s.71 1.916.81 2.049c.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232" />
+                    </svg>
+                    WhatsApp
+                  </button>
+                  <button type="button" class="action-btn secondary" (click)="shareReferralCode()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                      viewBox="0 0 16 16" style="margin-right: 6px; vertical-align: text-top;">
+                      <path
+                        d="M13.5 1a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3M11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.5 2.5 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5m-8.5 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3m11 5.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3" />
+                    </svg>
+                    {{ shareReferralText() }}
+                  </button>
+                </div>
+                <p class="share-desc" *ngIf="referralsSummary()?.rewards_info; else fallbackDesc">
+                  Give your friends <strong style="color: var(--green-deep, #2C4A1E);">{{ referralsSummary()?.rewards_info?.they_get }}</strong>, and you'll get <strong style="color: var(--green-deep, #2C4A1E);">{{ referralsSummary()?.rewards_info?.you_get }}</strong> once they buy!
+                </p>
+                <ng-template #fallbackDesc>
+                  <p class="share-desc">Give your friends 10% off their first order, and you'll get 10% off your next delivery once they buy.</p>
+                </ng-template>
+              </div>
+
+              <!-- Referral Stats Grid -->
+              <div class="referral-stats-grid">
+                <div class="ref-stat-card">
+                  <span class="ref-stat-label">Total Referred</span>
+                  <strong class="ref-stat-val">{{ referralsSummary()?.referrals_count || 0 }}</strong>
+                </div>
+                <div class="ref-stat-card">
+                  <span class="ref-stat-label">Orders Placed</span>
+                  <strong class="ref-stat-val">{{ referralsSummary()?.ordered_count || 0 }}</strong>
+                </div>
+                <div class="ref-stat-card">
+                  <span class="ref-stat-label">Pending Orders</span>
+                  <strong class="ref-stat-val">{{ referralsSummary()?.pending_count || 0 }}</strong>
+                </div>
+                <div class="ref-stat-card">
+                  <span class="ref-stat-label">Pending Rewards</span>
+                  <strong class="ref-stat-val">{{ referralsSummary()?.pending_reward_count || 0 }}</strong>
+                </div>
+              </div>
+
+              <!-- Referred Users List -->
+              <div class="referred-users-section">
+                <h3>Referred Friends</h3>
+                <div class="referred-users-table" *ngIf="referralsSummary()?.referred_users?.length; else noReferrals">
+                  <div class="ref-table-header">
+                    <span>Friend's Username</span>
+                    <span>Joined Date</span>
+                    <span>Your Reward</span>
+                    <span>Reward Status</span>
+                  </div>
+                  @for (ref of referralsSummary()?.referred_users; track $index) {
+                  <div class="ref-table-row">
+                    <span class="ref-username">{{ ref.username || ref.first_name || ref.email || 'Friend' }}</span>
+                    <span class="ref-date">{{ parseOrderDate(ref.date_joined) | date:'dd MMM yyyy' }}</span>
+                    <span class="ref-reward" style="color: var(--charcoal, #1A1A1A); font-weight: 500;">{{ ref.reward_you_get || '—' }}</span>
+                    <span class="ref-status status-pill" [class]="getReferralStatusClass(ref.status)">
+                      {{ ref.status_display || ref.status || 'Joined' }}
+                    </span>
+                  </div>
+                  }
+                </div>
+                <ng-template #noReferrals>
+                  <div class="empty-state mini">
+                    <p>No referrals registered yet. Share your code to get started!</p>
+                  </div>
+                </ng-template>
+              </div>
+            </div>
+          </ng-template>
+        </ng-container>
+
+        <!-- FARM DELIVERIES TAB -->
+        <ng-container *ngIf="activeTab() === 'farm-deliveries'">
+          <ng-container *ngIf="tabLoading(); else farmDeliveriesContent">
+            <div class="farm-deliveries-skeleton">
+              <div class="content-section-header">
+                <app-skeleton-loader width="140px" height="14px"
+                  style="margin-bottom: 8px; display: block;"></app-skeleton-loader>
+                <app-skeleton-loader width="250px" height="32px" style="display: block;"></app-skeleton-loader>
+              </div>
+              <div class="orders-table" style="margin-top: 24px; border: none;">
+                <div class="orders-head" style="grid-template-columns: 1.5fr 2fr 1fr 1fr 1fr 1fr;">
+                  <app-skeleton-loader width="50px" height="12px" style="display: block;"></app-skeleton-loader>
+                  <app-skeleton-loader width="80px" height="12px" style="display: block;"></app-skeleton-loader>
+                  <app-skeleton-loader width="60px" height="12px" style="display: block;"></app-skeleton-loader>
+                  <app-skeleton-loader width="80px" height="12px" style="display: block;"></app-skeleton-loader>
+                  <app-skeleton-loader width="60px" height="12px" style="display: block;"></app-skeleton-loader>
+                </div>
+                <div class="order-row" *ngFor="let i of [1,2]"
+                  style="grid-template-columns: 1.5fr 2fr 1fr 1fr 1fr 1fr; border-bottom: 1px solid rgba(26,26,26,0.05);">
+                  <app-skeleton-loader width="70px" height="16px" style="display: block;"></app-skeleton-loader>
+                  <app-skeleton-loader width="120px" height="16px" style="display: block;"></app-skeleton-loader>
+                  <app-skeleton-loader width="50px" height="16px" style="display: block;"></app-skeleton-loader>
+                  <app-skeleton-loader width="90px" height="16px" style="display: block;"></app-skeleton-loader>
+                  <app-skeleton-loader width="75px" height="24px" borderRadius="12px"
+                    style="display: block;"></app-skeleton-loader>
+                </div>
+              </div>
+            </div>
+          </ng-container>
+
+          <ng-template #farmDeliveriesContent>
+            <div class="content-section-header">
+              <span class="section-label-tag">Contract Farming</span>
+              <h2>Farm Delivery Milestones</h2>
+              <p>Track your fresh produce boxes straight from the farm to your doorstep.</p>
+            </div>
+
+            <div class="orders-table">
+              <div class="orders-head">
+                <span>Week</span>
+                <span>Crop Name</span>
+                <span>Total Weight</span>
+                <span>Estimated Delivery</span>
+                <span>Status</span>
+              </div>
+
+              @for (delivery of rfpDeliveries(); track delivery.id) {
+              <div class="order-row">
+                <span class="order-id">
+                  <strong>Week {{ delivery.delivery_seq_in_week }}</strong>
+                </span>
+                <div class="order-items-list">
+                  <span>{{ delivery.display_label || 'Mixed Produce' }}</span>
+                </div>
+                <span class="order-date">{{ delivery.items_count ? delivery.items_count + ' items' : 'TBD' }}</span>
+                <span class="order-date">{{ parseOrderDate(delivery.delivery_date) | date:'dd MMM yyyy' }}</span>
+                <span class="status-pill" [class]="getOrderStatusClass(delivery.status)">{{ delivery.status }}</span>
+              </div>
+              } @empty {
+              <div class="empty-state">
+                <span>&#128666;</span>
+                <p>No deliveries scheduled yet.</p>
+              </div>
+              }
+            </div>
+          </ng-template>
+        </ng-container>
+
+        <!-- SECURITY TAB -->
+        <ng-container *ngIf="activeTab() === 'security'">
+          <ng-container *ngIf="tabLoading(); else securityContent">
+            <div class="security-skeleton">
+              <div class="content-section-header">
+                <app-skeleton-loader width="120px" height="14px"
+                  style="margin-bottom: 8px; display: block;"></app-skeleton-loader>
+                <app-skeleton-loader width="160px" height="32px" style="display: block;"></app-skeleton-loader>
+              </div>
+              <div class="security-card" style="background: rgba(26,26,26,0.02); margin-top: 24px;">
+                <app-skeleton-loader width="180px" height="22px"
+                  style="margin-bottom: 12px; display: block;"></app-skeleton-loader>
+                <app-skeleton-loader width="280px" height="14px"
+                  style="margin-bottom: 24px; display: block;"></app-skeleton-loader>
+                <app-skeleton-loader width="150px" height="40px" style="display: block;"></app-skeleton-loader>
+              </div>
+            </div>
+          </ng-container>
+
+          <ng-template #securityContent>
+            <div class="content-section-header">
+              <span class="section-label-tag">Account Security</span>
+              <h2>Security Settings</h2>
+            </div>
+
+            <div class="security-card">
+              <h3>Delete Account</h3>
+              <p>Permanently Delete your Anaad Foods account. This action cannot be undone.</p>
+
+              <ng-container *ngIf="deactivateStep() === 'idle'">
+                <button type="button" class="action-btn danger" (click)="initiateDeactivate()">Delete Account</button>
+              </ng-container>
+
+              <ng-container *ngIf="deactivateStep() === 'confirm'">
+                <div class="deactivate-form">
+                  <p class="warning-text">&#9888; Please enter your password to confirm Delete.</p>
+                  <div class="deactivation-consequences" style="margin-bottom: 16px;">
+                    <h4>What happens when you delete your account:</h4>
+                    <ul>
+                      <li>Your personal profile, contact information, and saved addresses will be permanently deleted.
+                      </li>
+                      <li>Any active Community Barn Agreement subscriptions will be immediately cancelled.</li>
+                      <li>You will lose lifetime access to your order history, receipts, and invoice records.</li>
+                      <li>Any accrued referral rewards, benefits, or active waitlist points will be permanently
+                        forfeited.</li>
+                      <li>You will be logged out instantly and will not be able to log back in using these credentials.
+                      </li>
+                    </ul>
+                  </div>
+                  <div class="form-field">
+                    <label>Current Password</label>
+                    <input type="password" [formControl]="$any(deactivateForm.get('password'))"
+                      placeholder="Enter your password" />
+                  </div>
+                  <div class="deactivate-error" *ngIf="deactivateError()">{{ deactivateError() }}</div>
+                  <div class="form-actions">
+                    <button type="button" class="action-btn danger" [disabled]="deactivating()"
+                      (click)="confirmDeactivate()">
+                      {{ deactivating() ? 'Sending OTP...' : 'Send Deactivation OTP' }}
+                    </button>
+                    <button type="button" class="action-btn secondary" (click)="cancelDeactivate()">Cancel</button>
+                  </div>
+                </div>
+              </ng-container>
+
+              <ng-container *ngIf="deactivateStep() === 'otp'">
+                <div class="deactivate-form">
+                  <p class="warning-text">Enter the OTP sent to your registered contact to confirm Delete.</p>
+                  <div class="form-field">
+                    <label>OTP</label>
+                    <input type="text" [formControl]="$any(deactivateForm.get('otp'))" placeholder="Enter OTP"
+                      maxlength="8" />
+                  </div>
+                  <div class="deactivate-error" *ngIf="deactivateError()">{{ deactivateError() }}</div>
+                  <div class="form-actions">
+                    <button type="button" class="action-btn danger" [disabled]="deactivating()"
+                      (click)="submitDeactivateOtp()">
+                      {{ deactivating() ? 'Processing...' : 'Confirm Deactivation' }}
+                    </button>
+                    <button type="button" class="action-btn secondary" (click)="cancelDeactivate()">Cancel</button>
+                  </div>
+                </div>
+              </ng-container>
+            </div>
+          </ng-template>
+        </ng-container>
+      </div><!-- end account-content -->
+    </div><!-- end account-layout -->
+
+    <!-- Cancellation Modal for Orders -->
+    <div class="cancel-modal-overlay" [class.active]="showCancelModal()" (click)="showCancelModal.set(false)">
+      <div class="cancel-modal-card" (click)="$event.stopPropagation()">
+        <h3>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="#c0392b" style="display:inline-block; vertical-align:middle; margin-top:-3px; margin-right:8px;">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+          </svg>
+          Cancel Order
+        </h3>
+        <p class="consequence-lead">Are you sure you want to cancel this order? This action cannot be undone.</p>
+
+        <div class="cancellation-reason-section" style="margin-bottom: 24px; text-align: left;">
+          <p style="font-weight: 600; margin: 0 0 12px 0; font-family: var(--font-sans); font-size: 13.5px; color: var(--charcoal, #1A1A1A);">Why are you cancelling?</p>
+          <div class="reason-options" style="display: flex; flex-direction: column; gap: 8px;">
+            @for (reason of cancelReasons; track reason) {
+              <label style="display: flex; align-items: center; gap: 8px; font-family: var(--font-sans); font-size: 13px; color: rgba(26,26,26,0.8); cursor: pointer;">
+                <input type="radio" name="profileOrderCancelReason" [value]="reason" [checked]="selectedCancelReason() === reason" (change)="selectedCancelReason.set(reason)" />
+                {{ reason }}
+              </label>
+            }
+          </div>
+          
+          <div class="custom-reason-input" *ngIf="selectedCancelReason() === 'Other (Please specify)'" style="margin-top: 12px;">
+            <textarea style="width: 100%; height: 80px; padding: 10px; border: 1px solid rgba(26, 26, 26, 0.15); border-radius: 6px; font-family: var(--font-sans); font-size: 13px; box-sizing: border-box; resize: none;" 
+                      placeholder="Please write your reason here..." 
+                      [value]="customCancelReason()" 
+                      (input)="customCancelReason.set($any($event.target).value)"></textarea>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn-modal-action btn-modal-keep" (click)="showCancelModal.set(false)">Keep My Order</button>
+          <button class="btn-modal-action btn-modal-cancel" (click)="cancelOrderConfirmed()">Yes, Cancel Order</button>
+        </div>
+      </div>
+    </div>
+
+  </ng-container>
+</div>

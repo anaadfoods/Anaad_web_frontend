@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "Annad-Foods": {
+    "Anaad-Foods": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -40,6 +40,12 @@
           },
           "configurations": {
             "production": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.prod.ts"
+                }
+              ],
               "budgets": [
                 {
                   "type": "initial",
@@ -66,10 +72,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "Annad-Foods:build:production"
+              "buildTarget": "Anaad-Foods:build:production"
             },
             "development": {
-              "buildTarget": "Annad-Foods:build:development"
+              "buildTarget": "Anaad-Foods:build:development"
             }
           },
           "defaultConfiguration": "development"

@@ -1,17 +1,20 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { ResearchPapersService, ResearchPaper } from '../shared/services/research-papers.service';
+import { ResearchPapersService, ResearchPaper } from '../core/services/research-papers.service';
+import { SkeletonLoaderComponent } from '../shared/components/skeleton-loader/skeleton-loader.component';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-evidence-archive',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, SkeletonLoaderComponent],
   templateUrl: './evidence-archive.component.html',
   styleUrls: ['./evidence-archive.component.scss']
 })
 export class EvidenceArchiveComponent implements OnInit {
   private papersService = inject(ResearchPapersService);
+  private cdr = inject(ChangeDetectorRef);
 
   papers: ResearchPaper[] = [];
   selectedPaperId: number | null = null;
@@ -28,11 +31,13 @@ export class EvidenceArchiveComponent implements OnInit {
           this.selectedPaperId = this.papers[0].id;
         }
         this.loading = false;
+        this.cdr.markForCheck();
       },
       error: (err) => {
         console.error('Failed to load research papers:', err);
         this.error = 'Failed to load research papers.';
         this.loading = false;
+        this.cdr.markForCheck();
       }
     });
   }
@@ -53,12 +58,6 @@ export class EvidenceArchiveComponent implements OnInit {
     }
   }
 
-  downloadPdf(event: Event, url: string | null): void {
-    event.stopPropagation();
-    if (url) {
-      window.open(url, '_blank');
-    }
-  }
 
   formatDate(dateStr: string): string {
     if (!dateStr) return '';

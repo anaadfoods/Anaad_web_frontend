@@ -1,0 +1,40 @@
+<div class="welcome">
+  <div class="welcome-header">
+    <p class="welcome-eyebrow">{{ greeting() }}</p>
+    <h1 class="welcome-h1 av-sr">Welcome to<br><em>Aahar Vigyan.</em></h1>
+    <p class="welcome-sub">
+      Your personalised food intelligence — built from your body, your stars, and today's cosmic rhythm.
+    </p>
+  </div>
+  <div class="welcome-body">
+    <div class="welcome-cards">
+      <div class="wc" [class.vis]="cardsVisible()[0]">
+        <div class="wc-icon wc-icon-green">✿</div>
+        <p class="wc-step">Step 1</p>
+        <h3 class="wc-title">Ayurveda</h3>
+        <p class="wc-desc">A 15-question body type test reveals your Prakriti — your constitutional blueprint since birth.</p>
+      </div>
+      <div class="wc" [class.vis]="cardsVisible()[1]">
+        <div class="wc-icon wc-icon-gold">☽</div>
+        <p class="wc-step">Daily</p>
+        <h3 class="wc-title">Panchang</h3>
+        <p class="wc-desc">Every morning the five cosmic elements of today's Panchang shape what your body needs.</p>
+      </div>
+      <div class="wc" [class.vis]="cardsVisible()[2]">
+        <div class="wc-icon wc-icon-jyotish">★</div>
+        <p class="wc-step">In the app</p>
+        <h3 class="wc-title">Jyotish</h3>
+        <p class="wc-desc">Your birth chart reveals planetary food affinities — explore your full Kundali in the ANAAD app.</p>
+      </div>
+    </div>
+    <p class="welcome-meta">Takes about 10 minutes · Sign-in required</p>
+    <button type="button" class="welcome-cta" (click)="onStart()">
+      <span class="welcome-cta-shine" aria-hidden="true"></span>
+      <span class="welcome-cta-inner">
+        <span class="welcome-cta-icon" aria-hidden="true">☸</span>
+        <span class="welcome-cta-text av-dv">Start My Journey</span>
+        <span class="welcome-cta-arrow" aria-hidden="true">→</span>
+      </span>
+    </button>
+  </div>
+</div>

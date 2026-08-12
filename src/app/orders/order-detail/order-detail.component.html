@@ -1,0 +1,233 @@
+<div class="order-detail-page-wrap">
+  <!-- Payment Verification Overlay -->
+  <div class="payment-verification-overlay" *ngIf="isVerifyingPayment()">
+    <div class="verification-spinner-card">
+      <div class="loading-spinner-spinner"></div>
+      <h3>{{ verificationMessage() }}</h3>
+      <p>Confirming transaction details with the bank. Please do not close or refresh this page.</p>
+    </div>
+  </div>
+
+  <div class="loading-state" *ngIf="loading()">
+    <div class="loading-spinner"></div>
+    <span>Loading order details...</span>
+  </div>
+
+  <div class="error-state" *ngIf="error() && !loading()">
+    <span class="error-icon">⚠</span>
+    <span>{{ error() }}</span>
+    <a routerLink="/profile" class="btn-link">Back to Profile</a>
+  </div>
+
+  <ng-container *ngIf="orderData() && !loading()">
+    <!-- ORDER BAND -->
+    <div class="order-band">
+      <div class="order-band-left">
+        <a routerLink="/profile" class="order-back">&#8592; Back to My Orders</a>
+        <span class="order-id-label">Order Details</span>
+        <h1>#{{ orderData()?.order_number }}</h1>
+        <div class="order-meta-row">
+          <span class="order-meta-item">Placed {{ formatDate(orderData()?.created_at) }}</span>
+          <div class="order-meta-sep"></div>
+          <span class="order-meta-item">{{ orderData()?.items?.length }} items</span>
+          <div class="order-meta-sep"></div>
+          <span class="status-pill status-delivered" [style.backgroundColor]="getStatusColor(orderData()?.status || '')">
+            {{ orderData()?.status }}
+          </span>
+        </div>
+      </div>
+      <div class="order-band-right">
+        <span class="order-total-label">Order Total</span>
+        <span class="order-total-val">{{ orderData()?.total | currencyInr }}</span>
+      </div>
+    </div>
+
+    <div class="order-body">
+      <!-- LEFT -->
+      <div class="order-left">
+        <!-- ITEMS -->
+        <div>
+          <span class="section-tag">What you ordered</span>
+          <h2 class="section-title">Order Items</h2>
+          <div class="order-items">
+            @for (item of orderData()?.items; track item.id) {
+            <div class="order-item">
+              <div class="order-item-img-wrap">
+                <img class="order-item-img"
+                     [src]="getItemImage(item)"
+                     [alt]="getItemName(item)"
+                     appSafeImage />
+              </div>
+              <div class="order-item-info">
+                <span class="order-item-tag" *ngIf="getItemVariant(item)">{{ getItemVariant(item) }}</span>
+                <span class="order-item-name">{{ getItemName(item) }}</span>
+                <span class="order-item-meta">Qty: {{ item.quantity }}</span>
+              </div>
+              <span class="order-item-price">{{ getItemTotalPrice(item) | currencyInr }}</span>
+            </div>
+            }
+          </div>
+        </div>
+
+        <!-- TRACKING -->
+        <div *ngIf="trackingData()">
+          <span class="section-tag">Shipment status</span>
+          <h2 class="section-title">Delivery Tracking</h2>
+          <div class="tracking-steps">
+            <div class="tracking-step" *ngFor="let event of trackingData()?.tracking_events">
+              <div class="tracking-step-left">
+                <div class="step-dot"></div>
+                <div class="step-line"></div>
+              </div>
+              <div class="tracking-step-right">
+                <span class="step-name">{{ event.status }}</span>
+                <span class="step-date">{{ formatDate(event.timestamp) }}</span>
+                <span class="step-desc">{{ event.activity }} &mdash; {{ event.location }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT SIDEBAR -->
+      <div class="order-right">
+        <div class="order-summary-block">
+          <span class="sidebar-block-title">Order Summary</span>
+          <div class="summary-row" *ngFor="let item of orderData()?.items">
+            <span class="summary-label">{{ getItemName(item) }} &#215;{{ item.quantity }}</span>
+            <span class="summary-value">{{ getItemTotalPrice(item) | currencyInr }}</span>
+          </div>
+          <div class="summary-row" *ngIf="orderData()?.delivery_charges">
+            <span class="summary-label">Shipping</span>
+            <span class="summary-value" [style.color]="orderData()?.delivery_charges === '0' || orderData()?.delivery_charges === '0.00' ? '#3A7A2E' : 'inherit'">
+              {{ orderData()?.delivery_charges === '0' || orderData()?.delivery_charges === '0.00' ? 'Free' : (orderData()?.delivery_charges | currencyInr) }}
+            </span>
+          </div>
+          <div class="summary-row" *ngIf="orderData()?.tax">
+            <span class="summary-label">Tax</span>
+            <span class="summary-value">{{ orderData()?.tax | currencyInr }}</span>
+          </div>
+          <div class="summary-row" *ngIf="orderData()?.discount">
+            <span class="summary-label">Discount Included</span>
+            <span class="summary-value" style="color: #3A7A2E;">-{{ orderData()?.discount | currencyInr }}</span>
+          </div>
+          <div class="summary-divider"></div>
+          <div class="summary-total-row">
+            <span class="summary-total-label">Total</span>
+            <span class="summary-total-val">{{ orderData()?.total | currencyInr }}</span>
+          </div>
+        </div>
+
+        <div class="delivery-block">
+          <span class="sidebar-block-title">Delivered To</span>
+          <p class="delivery-address">
+            <strong>{{ orderData()?.recipient_name }}</strong>
+            {{ orderData()?.delivery_address }}<br />
+            {{ orderData()?.delivery_city }}, {{ orderData()?.delivery_state }} - {{ orderData()?.delivery_pincode }}<br />
+            {{ orderData()?.delivery_phone }}
+          </p>
+          <p class="delivery-address" style="margin-top: 8px;">
+            <strong>Expected Delivery:</strong> 
+            <ng-container *ngIf="showApiDeliveryDate; else staticDeliveryText">
+              {{ orderData()?.expected_delivery_date ? formatDate(orderData()?.expected_delivery_date) : '—' }}
+            </ng-container>
+            <ng-template #staticDeliveryText>
+              delivery will be start from Aug 2026 first week
+            </ng-template>
+          </p>
+        </div>
+
+        <div class="delivery-block">
+          <span class="sidebar-block-title">Payment</span>
+          <div class="payment-row">
+            <span class="card-chip">{{ orderData()?.payment_method === 'COD' ? 'COD' : 'ONLINE' }}</span>
+            <span class="card-last4">{{ orderData()?.payment_status }}</span>
+          </div>
+        </div>
+
+        <div>
+          <button class="btn-invoice" style="background-color: var(--green-deep, #2C4A1E); color: #F5F0E8; border-color: var(--green-deep, #2C4A1E); font-weight: 600;" *ngIf="canRetryPayment()" [disabled]="retryPaymentLoading()" (click)="retryPayment()">
+            {{ retryPaymentLoading() ? 'INITIATING PAYMENT...' : 'PAY NOW (ONLINE)' }}
+          </button>
+          <button class="btn-invoice" *ngIf="orderData()?.status === 'DELIVERED'" (click)="downloadInvoice()">Download Invoice (PDF)</button>
+          <button class="btn-invoice" style="border-color: #DC143C; color: #DC143C;" *ngIf="canCancelOrder()" (click)="cancelOrder()">Cancel Order</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cancellation Modal -->
+    <div class="cancel-modal-overlay" [class.active]="showCancelModal()" (click)="showCancelModal.set(false)">
+      <div class="cancel-modal-card" (click)="$event.stopPropagation()">
+        <h3>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="#c0392b" style="display:inline-block; vertical-align:middle; margin-top:-3px; margin-right:8px;">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+          </svg>
+          Cancel Order
+        </h3>
+        <p class="consequence-lead">Are you sure you want to cancel this order? This action cannot be undone.</p>
+
+        <div class="cancellation-reason-section" style="margin-bottom: 24px; text-align: left;">
+          <p style="font-weight: 600; margin: 0 0 12px 0; font-family: var(--font-sans); font-size: 13.5px; color: var(--charcoal, #1A1A1A);">Why are you cancelling?</p>
+          <div class="reason-options" style="display: flex; flex-direction: column; gap: 8px;">
+            @for (reason of cancelReasons; track reason) {
+              <label style="display: flex; align-items: center; gap: 8px; font-family: var(--font-sans); font-size: 13px; color: rgba(26,26,26,0.8); cursor: pointer;">
+                <input type="radio" name="orderCancelReason" [value]="reason" [checked]="selectedCancelReason() === reason" (change)="selectedCancelReason.set(reason)" />
+                {{ reason }}
+              </label>
+            }
+          </div>
+          
+          <div class="custom-reason-input" *ngIf="selectedCancelReason() === 'Other (Please specify)'" style="margin-top: 12px;">
+            <textarea style="width: 100%; height: 80px; padding: 10px; border: 1px solid rgba(26, 26, 26, 0.15); border-radius: 6px; font-family: var(--font-sans); font-size: 13px; box-sizing: border-box; resize: none;" 
+                      placeholder="Please write your reason here..." 
+                      [value]="customCancelReason()" 
+                      (input)="customCancelReason.set($any($event.target).value)"></textarea>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn-modal-action btn-modal-keep" (click)="showCancelModal.set(false)">Keep My Order</button>
+          <button class="btn-modal-action btn-modal-cancel" (click)="cancelOrderConfirmed()">Yes, Cancel Order</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cancellation Result Modal -->
+    <div class="cancel-result-overlay" [class.active]="showCancelResultModal()" (click)="closeCancelResultModal()">
+      <div class="cancel-result-card" (click)="$event.stopPropagation()">
+        <div class="result-icon-circle">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </div>
+        <h3 class="result-title">{{ cancelResultData()?.title || 'Order Cancelled' }}</h3>
+        
+        <div class="result-message-box">
+          <p>{{ cancelResultData()?.message }}</p>
+        </div>
+
+        <div class="order-number-tag" *ngIf="cancelResultData()?.orderNumber">
+          Order #{{ cancelResultData()?.orderNumber }}
+        </div>
+
+        <div class="refund-banner" *ngIf="cancelResultData()?.refundInitiated">
+          <div class="refund-icon-badge">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#B8860B" stroke-width="2">
+              <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+              <line x1="2" y1="10" x2="22" y2="10"></line>
+            </svg>
+          </div>
+          <div class="refund-info">
+            <div class="refund-title">Refund Initiated</div>
+            <div class="refund-subtitle">5–7 Working Days to original payment</div>
+          </div>
+        </div>
+
+        <div class="result-modal-actions">
+          <button class="btn-result-gotit" (click)="closeCancelResultModal()">Got It</button>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</div>
+

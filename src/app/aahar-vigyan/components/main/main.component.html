@@ -1,0 +1,272 @@
+<div class="av-main" [attr.data-dosha]="dominantDosha()">
+  <nav class="av-scroll-dots" aria-label="Page sections">
+    <span class="av-scroll-dot-rail" aria-hidden="true">
+      <span class="av-scroll-dot-pip" [style.transform]="'translateY(' + (activeSectionIndex() * 18) + 'px)'"></span>
+    </span>
+    @for (dot of scrollDotSections; track dot.id) {
+      <button
+        type="button"
+        class="av-scroll-dot"
+        [class.active]="activeSection() === dot.id"
+        [attr.aria-label]="dot.label"
+        (click)="scrollTo(dot.id)"
+      ></button>
+    }
+  </nav>
+  <!-- FOOD GUIDE -->
+  <section class="av-section av-food-sec av-grain" id="food" appScrollReveal [class.av-ekadashi-mode]="isEkadashi()">
+    <div class="av-container">
+      @if (isEkadashi()) {
+        <div class="av-ekadashi-banner">
+          <span class="av-ekadashi-icon">🌙</span>
+          <div>
+            <strong>Ekadashi · एकादशी</strong>
+            <p>Today calls for lighter, sattvic nourishment. Fasting foods and gentle meals support clarity and digestion.</p>
+          </div>
+        </div>
+      }
+
+      <div class="av-food-head">
+        <div>
+          <span class="av-cap">Today's Food Intelligence · आज का आहार मार्गदर्शन</span>
+          <h2 class="av-d2 av-sr">Personalised for your<br><em>{{ constitutionLabel() }}</em> constitution.</h2>
+          <p class="av-sec-lead">{{ foodLead() }}</p>
+          <p class="av-food-personal av-mono">{{ foodPersonalSummary() }}</p>
+        </div>
+        <div class="av-food-badges">
+          @for (b of foodBadges(); track b.label) {
+            <span class="av-badge" [class.av-badge-accent]="b.type === 'accent'" [class.av-badge-gold]="b.type === 'gold'" [class.av-badge-green]="b.type === 'green'">{{ b.label }}</span>
+          }
+        </div>
+      </div>
+
+      <div class="av-food-grid">
+        <div class="av-card av-card-cream">
+          <div class="av-food-card-label">
+            <div class="av-food-card-icon av-fci-eat">🌿</div>
+            <h3 class="av-food-title av-green">Eat Today</h3>
+            <span class="av-food-count av-count-eat">{{ eatFoods().length }} foods</span>
+          </div>
+          <div class="av-chips" [class.av-chips-ready]="chipsReady()">
+            @for (f of eatFoods(); track f.label; let i = $index) {
+              <span class="av-food-chip fc-good av-chip-in av-chip-tip" [style.--chip-i]="i" [attr.data-tip]="f.reason" tabindex="0">{{ f.label }}</span>
+            }
+          </div>
+        </div>
+        <div class="av-card av-card-cream">
+          <div class="av-food-card-label">
+            <div class="av-food-card-icon av-fci-avoid">✕</div>
+            <h3 class="av-food-title av-red">Avoid Today</h3>
+            <span class="av-food-count av-count-avoid">{{ avoidFoods().length }} foods</span>
+          </div>
+          <div class="av-chips" [class.av-chips-ready]="chipsReady()">
+            @for (f of avoidFoods(); track f.label; let i = $index) {
+              <span class="av-food-chip fc-avoid av-chip-in av-chip-tip" [style.--chip-i]="i" [attr.data-tip]="f.reason" tabindex="0">{{ f.label }}</span>
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="av-food-bottom-row">
+        @if (foodInfo(); as info) {
+          <div class="av-card av-finfo-card">
+            <div class="av-finfo-icon av-finfo-hydration">💧</div>
+            <div class="av-finfo-label">{{ info.hydration.label }}</div>
+            <div class="av-finfo-val av-lora">{{ info.hydration.value }}</div>
+            <div class="av-finfo-desc">{{ info.hydration.desc }}</div>
+          </div>
+          <div class="av-card av-finfo-card">
+            <div class="av-finfo-icon av-finfo-cooking">🍳</div>
+            <div class="av-finfo-label">{{ info.cooking.label }}</div>
+            <div class="av-finfo-val av-lora">{{ info.cooking.value }}</div>
+            <div class="av-finfo-desc">{{ info.cooking.desc }}</div>
+          </div>
+          <div class="av-card av-finfo-card">
+            <div class="av-finfo-icon av-finfo-timing">⏰</div>
+            <div class="av-finfo-label">{{ info.timing.label }}</div>
+            <div class="av-finfo-val av-lora">{{ info.timing.value }}</div>
+            <div class="av-finfo-desc">{{ info.timing.desc }}</div>
+          </div>
+        }
+      </div>
+
+      <div class="av-card av-neutral-card">
+        <div class="av-food-card-label av-neutral-label">
+          <div class="av-food-card-icon av-fci-neutral">ℹ</div>
+          <h3 class="av-neutral-title">Neutral (situational)</h3>
+        </div>
+        @if (neutralFoods().length) {
+          <div class="av-chips">
+            @for (f of neutralFoods(); track f.label) {
+              <span class="av-food-chip fc-neutral av-chip-tip" [attr.data-tip]="f.reason" tabindex="0">{{ f.label }}</span>
+            }
+          </div>
+        } @else {
+          <p class="av-neutral-empty">No situational neutrals today — your eat/avoid lists cover the key choices for your dosha balance.</p>
+        }
+      </div>
+
+      @if (mealArc(); as arc) {
+        <div class="av-meal-arc-wrap">
+          <div class="av-meal-arc-label">
+            <span class="av-cap">Meal Windows · भोजन समय</span>
+            <p class="av-meal-arc-sub">Sunrise-to-sunset rhythm mapped to today's ideal eating windows.</p>
+          </div>
+          <div class="av-meal-arc-chart">
+            <svg viewBox="0 0 100 100" class="av-meal-arc-svg" aria-hidden="true">
+              <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(26,32,16,0.08)" stroke-width="6"/>
+              @for (slot of arc.slots; track slot.id) {
+                <path
+                  [attr.d]="mealArcDash(slot)"
+                  fill="none"
+                  stroke-width="6"
+                  stroke-linecap="round"
+                  [class.av-meal-arc-active]="slot.active"
+                  [attr.stroke]="slot.active ? 'var(--forest)' : 'var(--ac)'"
+                  opacity="0.85"
+                />
+              }
+              <circle
+                [attr.cx]="mealArcNowPoint(arc.nowPct).x"
+                [attr.cy]="mealArcNowPoint(arc.nowPct).y"
+                r="3.5"
+                fill="var(--gold)"
+                stroke="#fff"
+                stroke-width="1.5"
+              />
+            </svg>
+            <div class="av-meal-arc-legend">
+              @for (slot of arc.slots; track slot.id) {
+                <span class="av-meal-arc-item" [class.active]="slot.active">
+                  <span class="av-meal-arc-dot"></span>{{ slot.label }}
+                </span>
+              }
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </section>
+
+  <!-- DOSHA -->
+  <section class="av-section av-dosha-sec" id="dosha" appScrollReveal [attr.data-view]="activeDoshaView()">
+    <div class="av-container">
+      <div class="av-dosha-header">
+        <div class="av-dosha-header-text">
+          <span class="av-cap">Today's Dosha Influence · दोष प्रभाव</span>
+          <h2 class="av-d2 av-sr">Balance your inner rhythm<br>through grounding meals.</h2>
+          <p class="av-sec-lead">{{ doshaLead() }}</p>
+          <div class="av-dosha-toggle">
+            @for (d of doshaOptions; track d) {
+              <button
+                type="button"
+                class="av-dt-btn"
+                [class.active]="activeDoshaView() === d"
+                [attr.data-d]="d"
+                (click)="setDoshaView(d)"
+              >{{ d | titlecase }}@if (todayDominantDosha() === d) { (dominant)}</button>
+            }
+          </div>
+        </div>
+        <div class="av-dosha-today-badge">
+          <div class="av-dtb-icon">
+            <span class="av-dtb-letter">{{ todayDominantDosha().charAt(0) | uppercase }}</span>
+          </div>
+          <div>
+            <div class="av-dtb-dosha">Today Dominant</div>
+            <div class="av-dtb-val">{{ prakritiDetails[todayDominantDosha()].name }}</div>
+            <div class="av-dtb-hi av-dv">{{ doshaInsights[todayDominantDosha()].nameHi }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="av-dosha-compare">
+        <div class="av-compare-col">
+          <span class="av-compare-title">Your Prakriti</span>
+          @for (d of doshaOptions; track d) {
+            <div class="av-compare-row">
+              <span class="av-compare-glyph">{{ doshaElements[d].glyph }}</span>
+              <span class="av-compare-name">{{ d | titlecase }}</span>
+              <div class="av-compare-track"><div class="av-compare-fill av-compare-prakriti" [attr.data-d]="d" [style.transform]="doshaBarScale(prakriti()[d])"></div></div>
+              <span class="av-compare-pct av-mono">{{ prakriti()[d] }}%</span>
+            </div>
+          }
+        </div>
+        <div class="av-compare-col">
+          <span class="av-compare-title">Today's Influence</span>
+          @for (d of doshaOptions; track d) {
+            <div class="av-compare-row">
+              <span class="av-compare-glyph">{{ doshaElements[d].glyph }}</span>
+              <span class="av-compare-name">{{ d | titlecase }}</span>
+              <div class="av-compare-track"><div class="av-compare-fill av-compare-today" [attr.data-d]="d" [style.transform]="doshaBarScale(todayDoshaBars()[d])"></div></div>
+              <span class="av-compare-pct av-mono">{{ todayDoshaBars()[d] }}%</span>
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="av-dosha-bars">
+        <div class="av-dbar av-dbar-v">
+          <div class="av-dbar-head">
+            <span class="av-dbar-name"><span class="av-dbar-glyph">{{ doshaElements.vata.glyph }}</span> Vata <span class="av-dv av-dbar-hi-inline">वात</span></span>
+            <span class="av-mono">{{ todayDoshaBars().vata }}%</span>
+          </div>
+          <div class="av-dbar-track"><div class="av-dbar-fill" [style.transform]="doshaBarScale(todayDoshaBars().vata)"></div></div>
+          <div class="av-dbar-hi av-dv">{{ doshaBarHint('vata', todayDoshaBars().vata) }}</div>
+        </div>
+        <div class="av-dbar av-dbar-p">
+          <div class="av-dbar-head">
+            <span class="av-dbar-name"><span class="av-dbar-glyph">{{ doshaElements.pitta.glyph }}</span> Pitta <span class="av-dv av-dbar-hi-inline">पित्त</span></span>
+            <span class="av-mono">{{ todayDoshaBars().pitta }}%</span>
+          </div>
+          <div class="av-dbar-track"><div class="av-dbar-fill" [style.transform]="doshaBarScale(todayDoshaBars().pitta)"></div></div>
+          <div class="av-dbar-hi av-dv">{{ doshaBarHint('pitta', todayDoshaBars().pitta) }}</div>
+        </div>
+        <div class="av-dbar av-dbar-k">
+          <div class="av-dbar-head">
+            <span class="av-dbar-name"><span class="av-dbar-glyph">{{ doshaElements.kapha.glyph }}</span> Kapha <span class="av-dv av-dbar-hi-inline">कफ</span></span>
+            <span class="av-mono">{{ todayDoshaBars().kapha }}%</span>
+          </div>
+          <div class="av-dbar-track"><div class="av-dbar-fill" [style.transform]="doshaBarScale(todayDoshaBars().kapha)"></div></div>
+          <div class="av-dbar-hi av-dv">{{ doshaBarHint('kapha', todayDoshaBars().kapha) }}</div>
+        </div>
+      </div>
+
+      <div class="av-dosha-insight" [attr.data-view]="activeDoshaView()">
+        <div class="av-di-label" [class]="'av-di-fade-' + doshaAnimTick()">{{ doshaInsight().label }}</div>
+        <p class="av-di-text" [class]="'av-di-fade-' + doshaAnimTick()">{{ doshaInsight().text }}</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- KUNDALI — deferred until near viewport -->
+  @defer (on viewport) {
+    <app-main-kundali-section (openApp)="openAppModal()" />
+  } @placeholder {
+    <section class="av-section av-kund-sec av-defer-placeholder" id="kundali">
+      <div class="av-container av-center">
+        <p class="av-cap av-cap-jyotish">Jyotish · ज्योतिष</p>
+        <div class="av-skeleton av-skeleton-chart"></div>
+      </div>
+    </section>
+  }
+
+  <!-- SEASON + CTA + FOOTER — deferred -->
+  @defer (on viewport) {
+    <app-main-tail-section
+      [season]="season()"
+      [ritu]="day()?.ritu"
+      (openApp)="openAppModal()"
+    />
+  } @placeholder {
+    <section class="av-section av-season-sec av-defer-placeholder" id="season">
+      <div class="av-container">
+        <div class="av-skeleton av-skeleton-block"></div>
+      </div>
+    </section>
+  }
+</div>
+
+@if (showAppModal()) {
+  <app-aahar-vigyan-app-download (closed)="closeAppModal()" />
+}

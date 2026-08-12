@@ -1,0 +1,488 @@
+import { Component, EventEmitter, Input, Output, inject, ChangeDetectionStrategy, OnInit, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Router, RouterLink } from '@angular/router';
+import { ProductVariant } from '../../../core/models/product.model';
+import { CurrencyInrPipe } from '../../pipes/currency-inr.pipe';
+import { TruncatePipe } from '../../pipes/truncate.pipe';
+import { SafeImageDirective } from '../../safe-image.directive';
+import { WishlistState } from '../../../core/state/wishlist.state';
+import { FavoritesService } from '../../../core/services/favorites.service';
+import { AuthState } from '../../../core/state/auth.state';
+import { SubscriptionService } from '../../../core/services/subscription.service';
+
+@Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  selector: 'app-product-card',
+  standalone: true,
+  imports: [CommonModule, RouterLink, CurrencyInrPipe, TruncatePipe, SafeImageDirective],
+  template: `
+    <div class="product-card" [class.blurred]="!hasStock() || !isActive()" [attr.aria-disabled]="!hasStock() || !isActive()" [routerLink]="hasStock() && isActive() ? ['/product', variant.id] : null" [style.cursor]="hasStock() && isActive() ? 'pointer' : 'default'">
+      <div class="product-image-wrap">
+        <img
+          [src]="variant.images[0]?.image || ''" appSafeImage
+          [alt]="variant.product_name"
+        />
+        
+        <div class="coming-soon-overlay" *ngIf="!isActive()">Coming Soon</div>
+        <div class="out-of-stock-overlay" *ngIf="isActive() && !hasStock()">Out of Stock</div>
+
+        <!-- Optional Discount Badge -->
+        <div class="badge-discount" *ngIf="hasDiscount() && isActive() && hasStock()">
+          -{{ discountPercent() }}%
+        </div>
+        
+        <!-- Favorite Button -->
+        <button type="button" class="btn-favorite" [class.active]="isFavorite()" (click)="toggleFavorite($event)" aria-label="Favorite">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" 
+                  [attr.fill]="isFavorite() ? 'var(--charcoal, #1A1A1A)' : 'none'" 
+                  [attr.stroke]="isFavorite() ? 'var(--charcoal, #1A1A1A)' : 'currentColor'" 
+                  stroke-width="2"/>
+          </svg>
+        </button>
+      </div>
+      
+      <div class="product-body">
+        <div class="product-taglines-row">
+          <div class="product-tagline">{{ variant.category?.name || 'Heirloom Staple' }}</div>
+          <div class="product-tagline" *ngIf="variant.crop_cycle_id">{{ variant.crop_cycle_id }}</div>
+        </div>
+        
+        <div class="product-title-link">
+          <h3>{{ variant.product_name }}</h3>
+        </div>
+
+        
+        <p class="product-desc">{{ variant.product_description | truncate: 120 }}</p>
+        
+        <div class="product-meta">
+          <span class="product-format">{{ variant.weight }}{{ variant.unit }}</span>
+          
+          <div class="price-block" *ngIf="isActive()">
+            <span class="price-mrp" *ngIf="hasDiscount()">{{ mrpToDisplay | currencyInr }}</span>
+            <span class="product-price">{{ priceToDisplay | currencyInr }}</span>
+          </div>
+          <div class="price-block" *ngIf="!isActive()">
+            <span class="product-price">-</span>
+          </div>
+        </div>
+        <div class="arambh-deal" *ngIf="arambhPrice()" style="margin-top: -8px; margin-bottom: 16px; text-align: right; color: var(--earth-raw, #6B4226); font-family: var(--font-sans); font-size: 12px; font-weight: 600;">
+          🔥 Hot deal: go with Aarambh plan for {{ arambhPrice() | currencyInr }}
+        </div>
+        
+        <div class="product-actions">
+          <button
+            type="button"
+            class="btn-product"
+            (click)="$event.stopPropagation(); onAddToCart()"
+            [disabled]="!hasStock() || !isActive()">
+            {{ !isActive() ? 'Coming Soon' : (!hasStock() ? 'Out of Stock' : 'Add to Cart') }}
+          </button>
+          <button
+            type="button"
+            class="btn-product secondary"
+            (click)="$event.stopPropagation(); onSubscribeNow()"
+            [disabled]="!hasStock() || !isActive()">
+            Commit & Buy
+          </button>
+        </div>
+        <button type="button" class="btn-save-row" [class.active]="isFavorite()" (click)="toggleFavorite($event)">
+          {{ isFavorite() ? 'Saved to favorites' : 'Add to favorites' }}
+        </button>
+      </div>
+    </div>
+  `,
+  styles: [`
+    :host {
+      display: block;
+      height: 100%;
+      width: 100%;
+    }
+
+    .product-card {
+      display: flex;
+      flex-direction: column;
+      border: 1px solid rgba(26, 26, 26, 0.07);
+      background-color: #fff;
+      border-radius: 16px;
+      overflow: hidden;
+      transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), box-shadow 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+      height: 100%;
+    }
+
+    .product-card:hover:not(.blurred) {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 40px rgba(44, 74, 30, 0.08);
+    }
+
+    .product-card.blurred {
+      opacity: 0.6;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    .product-image-wrap {
+      position: relative;
+      aspect-ratio: 4 / 3;
+      overflow: hidden;
+      display: block;
+      background: var(--bg-parchment, #F5F0E8);
+      border-bottom: 1px solid rgba(26, 26, 26, 0.08);
+      padding: 16px;
+    }
+
+    .product-image-wrap img {
+      width: 100%;
+      height: 100%;
+      aspect-ratio: 4 / 3;
+      object-fit: contain;
+      object-position: center;
+      transition: transform 0.6s ease;
+      transform: scale(1);
+      transform-origin: center center;
+    }
+
+    .product-card:hover .product-image-wrap img {
+      transform: scale(1.05);
+    }
+
+    .out-of-stock-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: rgba(255, 255, 255, 0.45);
+      backdrop-filter: blur(4px);
+      color: var(--charcoal, #1A1A1A);
+      font-family: var(--font-sans, 'DM Sans', sans-serif);
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      z-index: 10;
+    }
+
+    .coming-soon-overlay {
+      position: absolute;
+      inset: auto 0 0 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: var(--amber-harvest, #E09E3E);
+      color: #fff;
+      font-family: var(--font-sans, 'DM Sans', sans-serif);
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      z-index: 10;
+      padding: 12px;
+    }
+
+    .badge-discount {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      background: var(--earth-raw, #6B4226);
+      color: #fff;
+      font-family: var(--font-sans, 'DM Sans', sans-serif);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 8px;
+      border-radius: 2px;
+      letter-spacing: 0.05em;
+    }
+
+    .btn-favorite {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: #fff;
+      border: 1px solid rgba(26, 26, 26, 0.1);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: rgba(26, 26, 26, 0.4);
+      transition: all 0.2s ease;
+      z-index: 10;
+    }
+
+    .btn-favorite:hover {
+      transform: scale(1.1);
+      color: var(--charcoal, #1A1A1A);
+      border-color: rgba(26, 26, 26, 0.3);
+    }
+    
+    .btn-favorite.active {
+      color: var(--charcoal, #1A1A1A);
+      border-color: var(--charcoal, #1A1A1A);
+    }
+
+    .product-body {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+    }
+
+    .product-taglines-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+
+    .product-tagline {
+      font-family: var(--font-sans, 'DM Sans', sans-serif);
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--green-deep, #2C4A1E);
+      background-color: rgba(44, 74, 30, 0.08);
+      padding: 4px 10px;
+      border-radius: 12px;
+      width: fit-content;
+    }
+
+    .product-title-link {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .product-body h3 {
+      font-family: var(--font-serif, 'Cormorant Garamond', serif);
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--green-deep, #2C4A1E);
+      margin-bottom: 8px;
+      line-height: 1.2;
+    }
+
+    .product-desc {
+      font-family: var(--font-sans, 'DM Sans', sans-serif);
+      font-size: 14px;
+      color: rgba(26, 26, 26, 0.7);
+      line-height: 1.5;
+      margin-bottom: 16px;
+      flex-grow: 1;
+    }
+
+    .product-meta {
+      display: flex;
+      flex-direction: row;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      border-top: 1px solid rgba(26, 26, 26, 0.08);
+      padding-top: 12px;
+    }
+
+    .product-format {
+      font-family: var(--font-sans, 'DM Sans', sans-serif);
+      font-size: 13px;
+      font-weight: 500;
+      color: rgba(26, 26, 26, 0.6);
+    }
+    
+    .price-block {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 2px;
+    }
+
+    .price-mrp {
+      font-family: var(--font-sans, 'DM Sans', sans-serif);
+      font-size: 12px;
+      color: rgba(26, 26, 26, 0.4);
+      text-decoration: line-through;
+    }
+
+    .product-price {
+      font-family: var(--font-sans, 'DM Sans', sans-serif);
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--charcoal, #1A1A1A);
+    }
+
+    .btn-product {
+      display: block;
+      width: 100%;
+      padding: 14px 24px;
+      background-color: transparent;
+      border: 1px solid var(--green-deep, #2C4A1E);
+      color: var(--green-deep, #2C4A1E);
+      font-family: var(--font-sans, 'DM Sans', sans-serif);
+      font-size: 13px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      text-align: center;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .product-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .btn-product.secondary {
+      background-color: var(--green-deep, #2C4A1E);
+      color: var(--bg-parchment, #F5F0E8);
+    }
+
+    .btn-product:hover:not(:disabled) {
+      background-color: var(--green-deep, #2C4A1E);
+      color: var(--bg-parchment, #F5F0E8);
+    }
+
+    .btn-product:disabled {
+      border-color: rgba(26, 26, 26, 0.2);
+      color: rgba(26, 26, 26, 0.4);
+      cursor: not-allowed;
+      background: rgba(26, 26, 26, 0.03);
+    }
+
+    .btn-save-row {
+      margin-top: 10px;
+      border: 0;
+      background: transparent;
+      color: rgba(26, 26, 26, 0.58);
+      font-family: var(--font-sans, 'DM Sans', sans-serif);
+      font-size: 12px;
+      cursor: pointer;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .btn-save-row.active {
+      color: var(--green-deep, #2C4A1E);
+      font-weight: 600;
+    }
+
+    .product-micro-badges {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+    .product-micro-badges span {
+      font-family: var(--font-sans, 'DM Sans', sans-serif);
+      font-size: 10px;
+      font-weight: 500;
+      color: var(--green-deep, #2C4A1E);
+      background-color: rgba(44, 74, 30, 0.06);
+      padding: 2px 6px;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+  `]
+})
+export class ProductCardComponent implements OnInit {
+  @Input({ required: true }) variant!: ProductVariant;
+
+  @Output() addToCart = new EventEmitter<ProductVariant>();
+
+  private readonly wishlistState = inject(WishlistState);
+  private readonly favSvc = inject(FavoritesService);
+  private readonly authState = inject(AuthState);
+  private readonly router = inject(Router);
+  private readonly subscriptionSvc = inject(SubscriptionService);
+
+  arambhPrice = signal<number | null>(null);
+
+  ngOnInit(): void {
+    if (this.variant && this.variant.is_subscription_eligible !== false) {
+      this.subscriptionSvc.getPlanPricesByVariant(this.variant.id).subscribe({
+        next: (prices) => {
+          const arambh = prices.find(p => p.plan_name.toLowerCase().includes('arambh') || p.plan_name.toLowerCase().includes('aarambh'));
+          if (arambh) {
+            this.arambhPrice.set(arambh.discounted_price);
+          }
+        },
+        error: (err) => console.error('Failed to load plan prices for variant in card', this.variant.id, err)
+      });
+    }
+  }
+
+  isFavorite(): boolean {
+    return this.wishlistState.isFavorite(this.variant?.id);
+  }
+
+  toggleFavorite(event: Event) {
+    event.preventDefault();
+    event.stopPropagation();
+    if (this.variant) {
+      if (!this.authState.isAuthenticated()) {
+        this.router.navigate(['/login'], { queryParams: { returnUrl: '/product' } });
+        return;
+      }
+      this.favSvc.toggleFavorite(this.variant.id).subscribe();
+    }
+  }
+
+  get priceToDisplay(): number {
+    if (!this.variant) return 0;
+    const price = parseFloat(this.variant.price || '0');
+    const finalPrice = parseFloat(this.variant.final_price || '0');
+    if (finalPrice > 0) return finalPrice;
+    return price;
+  }
+
+  get mrpToDisplay(): number | null {
+    if (!this.variant) return null;
+    const price = parseFloat(this.variant.price || '0');
+    const finalPrice = parseFloat(this.variant.final_price || '0');
+    const compareAt = parseFloat(this.variant.compare_at_price || '0');
+    
+    if (compareAt > price) return compareAt;
+    if (finalPrice > 0 && finalPrice < price) return price;
+    return null;
+  }
+
+  hasDiscount(): boolean {
+    return this.mrpToDisplay !== null;
+  }
+
+  discountPercent(): number {
+    const mrp = this.mrpToDisplay;
+    const price = this.priceToDisplay;
+    if (!mrp || mrp <= price) return 0;
+    return Math.round(((mrp - price) / mrp) * 100);
+  }
+
+  hasStock(): boolean {
+    if (!this.variant) return false;
+    const stockQty = this.variant.stock ?? (this.variant as any).stock_quantity;
+    if (stockQty !== undefined) {
+      return stockQty > 0;
+    }
+    return this.variant.is_in_stock !== false;
+  }
+
+  isActive(): boolean {
+    if (!this.variant) return false;
+    return this.variant.is_active !== false;
+  }
+
+  onAddToCart() {
+    if (this.hasStock()) {
+      this.addToCart.emit(this.variant);
+    }
+  }
+
+  onSubscribeNow() {
+    if (this.hasStock()) {
+      this.router.navigate(['/product', this.variant.id], { queryParams: { subscribe: 'true' } });
+    }
+  }
+}

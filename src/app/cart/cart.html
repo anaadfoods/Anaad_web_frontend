@@ -1,0 +1,137 @@
+<div class="cart-page-wrap">
+
+  <div class="page-header">
+    <span class="page-header-meta">Review &amp; Confirm</span>
+    <h1>Your Cart</h1>
+    <p class="page-header-sub">{{ cartState.itemCount() }} item{{ cartState.itemCount() !== 1 ? 's' : '' }}</p>
+  </div>
+
+  <!-- AUTH NOTICE -->
+  <div class="auth-notice" *ngIf="!authState.isAuthenticated()">
+    <span>&#128274;</span>
+    <span>Please <a routerLink="/login" [queryParams]="{returnUrl: '/cart'}">sign in</a> to sync your cart and proceed
+      to checkout.</span>
+  </div>
+
+  <div class="cart-layout" *ngIf="cartState.itemCount() > 0">
+
+    <!-- ITEMS COLUMN -->
+    <div class="cart-items-col">
+      <div class="cart-col-label">
+        <span></span>
+        <span>Product</span>
+        <span>Quantity</span>
+        <span>Price</span>
+        <span></span>
+      </div>
+
+      @for (item of cartState.items(); track item.product_variant) {
+      <div class="cart-item">
+        <div class="cart-item-img-wrap">
+          <img class="cart-item-img" [src]="item.image || ''" appSafeImage [alt]="item.product_name" />
+        </div>
+
+        <div class="cart-item-info">
+          <span class="cart-item-tag">Heirloom Staple</span>
+          <span class="cart-item-name">{{ item.product_name }}</span>
+          <span class="cart-item-variant" *ngIf="item.weight">{{ item.weight }}{{ item.unit }}</span>
+        </div>
+
+        <div class="qty-selector-wrap">
+          <span class="mobile-inline-label">Quantity:</span>
+          <app-qty-selector [value]="item.quantity" [min]="1" [max]="5"
+            (valueChange)="updateQuantity(item.product_variant, $event)">
+          </app-qty-selector>
+        </div>
+
+        <span class="cart-item-price">
+          <span class="mobile-inline-label">Price:</span>
+          {{ item.total_price | currencyInr }}
+        </span>
+
+        <button type="button" class="cart-remove" (click)="removeItem(item.product_variant)"
+          title="Remove item">&#215;</button>
+      </div>
+      }
+
+      <!-- Cart Footer -->
+      <div class="cart-footer">
+        <a routerLink="/product" class="btn-continue">
+          <span>&#8592;</span> Continue Shopping
+        </a>
+        <div class="clear-cart-wrap">
+          <ng-container *ngIf="!showClearConfirm">
+            <button type="button" class="btn-clear" (click)="showClearConfirm = true">Clear Cart</button>
+          </ng-container>
+          <ng-container *ngIf="showClearConfirm">
+            <div class="clear-confirm-group">
+              <span class="confirm-text">Are you sure?</span>
+              <button type="button" class="btn-confirm-yes" (click)="clearCart()" [disabled]="clearingCart">
+                {{ clearingCart ? 'Clearing...' : '[Yes, clear]' }}
+              </button>
+              <button type="button" class="btn-confirm-no" (click)="showClearConfirm = false">[Keep cart]</button>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+    </div>
+
+    <!-- ORDER SUMMARY -->
+    <div class="order-summary-col">
+      <span class="summary-title">Order Summary</span>
+
+      <div class="summary-lines">
+        <div class="summary-row">
+          <span class="summary-label">Subtotal ({{ cartState.itemCount() }} item{{ cartState.itemCount() !== 1 ? 's' :
+            '' }})</span>
+          <span class="summary-value">{{ cartState.totalPrice() | currencyInr }}</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">Delivery Fee</span>
+          <span class="summary-value">
+            <span>Calculated at checkout</span>
+          </span>
+        </div>
+        <div class="summary-divider"></div>
+        <div class="summary-total-row">
+          <span class="summary-total-label">Total</span>
+          <span class="summary-total-value">{{ cartState.totalPrice() | currencyInr }} + delivery</span>
+        </div>
+      </div>
+
+      <a routerLink="/checkout" class="btn-checkout" [class.disabled]="!authState.isAuthenticated()">
+        {{ authState.isAuthenticated() ? 'Proceed to Checkout' : 'Sign In to Checkout' }}
+      </a>
+
+      <div class="secure-note">
+        <span class="secure-icon">&#128274;</span>
+        <span>Secure 256-bit Encrypted Checkout</span>
+      </div>
+
+      <div class="trust-badges">
+        <div class="trust-badge-row">
+          <div class="badge-dot"></div>
+          <span class="badge-text">100% Traceable to the Farm</span>
+        </div>
+        <div class="trust-badge-row">
+          <div class="badge-dot"></div>
+          <span class="badge-text">SGS Lab Verified Zero-Residue</span>
+        </div>
+        <div class="trust-badge-row">
+          <div class="badge-dot"></div>
+          <span class="badge-text">Free returns within 48 hours</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EMPTY STATE -->
+  <div class="cart-empty" *ngIf="cartState.itemCount() === 0">
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--amber-harvest); margin-bottom: 16px;">
+      <path d="M4 6h16l-2 14H6L4 6z"></path><path d="M8 11v4"></path><path d="M16 11v4"></path><path d="M12 11v4"></path><path d="M10 6V4a2 2 0 0 1 4 0v2"></path>
+    </svg>
+    <h3>Your pantry is empty</h3>
+    <p>Add some heirloom grain to get started.</p>
+    <a routerLink="/product" class="btn-shop-now">Browse the Pantry &#8594;</a>
+  </div>
+</div>

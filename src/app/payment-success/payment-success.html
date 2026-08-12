@@ -1,0 +1,137 @@
+<div class="payment-canvas">
+  <div class="glow-orb"></div>
+  
+  <!-- Main Modal Container -->
+  <div class="success-card-modal animate-fade-in">
+    
+    <!-- 1. VERIFYING STATE -->
+    <ng-container *ngIf="paymentSuccess === null">
+      <div class="status-section">
+        <div class="loading-ring-container">
+          <div class="loading-ring-outer"></div>
+          <div class="loading-ring-inner"></div>
+          <div class="loading-lock-icon">🔒</div>
+        </div>
+        <h2 class="status-heading verifying animate-pulse">{{ statusMessage }}</h2>
+        <p class="status-desc">Please do not refresh or close this browser window. We are securing your transaction confirmation.</p>
+      </div>
+    </ng-container>
+
+    <!-- 2. SUCCESS STATE -->
+    <ng-container *ngIf="paymentSuccess === true">
+      <div class="status-section">
+        <!-- Success Badge with Glow -->
+        <div class="badge-container success">
+          <div class="badge-ripple"></div>
+          <div class="badge-icon">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+        </div>
+        
+        <h2 class="status-heading success">Payment Successful!</h2>
+        <p class="status-desc success-accent">{{ statusMessage }}</p>
+
+        <!-- Receipt Details Card -->
+        <div class="receipt-card" *ngIf="receiptDetails">
+          <div class="receipt-row">
+            <div class="receipt-icon">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+            </div>
+            <div class="receipt-content">
+              <span class="receipt-label">{{ receiptDetails.type === 'subscription' ? 'Subscription Number' : 'Order Number' }}</span>
+              <span class="receipt-value">{{ receiptDetails.number }}</span>
+            </div>
+          </div>
+
+          <div class="receipt-divider"></div>
+
+          <div class="receipt-row" *ngIf="receiptDetails.transactionId && receiptDetails.transactionId !== '-'">
+            <div class="receipt-icon">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+              </svg>
+            </div>
+            <div class="receipt-content">
+              <span class="receipt-label">Transaction ID</span>
+              <span class="receipt-value monospace">{{ receiptDetails.transactionId }}</span>
+            </div>
+          </div>
+
+          <div class="receipt-divider" *ngIf="receiptDetails.transactionId && receiptDetails.transactionId !== '-'"></div>
+
+          <div class="receipt-row">
+            <div class="receipt-icon amount">
+              <span>₹</span>
+            </div>
+            <div class="receipt-content">
+              <span class="receipt-label">Amount Paid</span>
+              <span class="receipt-value amount-text">₹{{ receiptDetails.amount }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Redirect Indicator -->
+        <div class="redirect-indicator">
+          <span class="spinner-small"></span>
+          <span class="redirect-text">Redirecting to details in {{ countdown }}s...</span>
+        </div>
+
+        <!-- Manual Continue Button -->
+        <button class="btn btn-success btn-block" (click)="continueNavigation(receiptDetails!.id, receiptDetails!.type === 'subscription')">
+          Continue to Details
+        </button>
+      </div>
+    </ng-container>
+
+    <!-- 3. FAILURE / PENDING STATE -->
+    <ng-container *ngIf="paymentSuccess === false">
+      <div class="status-section">
+        <!-- Warning Badge -->
+        <div class="badge-container warning">
+          <div class="badge-icon">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          </div>
+        </div>
+        
+        <h2 class="status-heading warning">Verification Pending</h2>
+        <p class="status-desc text-danger">We are currently unable to confirm your payment status automatically. Please do not attempt to pay again.</p>
+
+        <!-- Receipt Details (if available) -->
+        <div class="receipt-card warning-theme" *ngIf="receiptDetails">
+          <div class="receipt-row">
+            <div class="receipt-icon">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+            </div>
+            <div class="receipt-content">
+              <span class="receipt-label">{{ receiptDetails.type === 'subscription' ? 'Subscription Number' : 'Order Number' }}</span>
+              <span class="receipt-value">{{ receiptDetails.number }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="info-alert">
+          <p><strong>Note:</strong> If money was debited from your bank account, your order status will be updated automatically within a few minutes. You can check the dashboard to monitor progress.</p>
+        </div>
+
+        <!-- Redirect Indicator -->
+        <div class="redirect-indicator" *ngIf="receiptDetails">
+          <span class="redirect-text">Redirecting to details in {{ countdown }}s...</span>
+        </div>
+
+        <!-- Continue Button -->
+        <button class="btn btn-warning btn-block" *ngIf="receiptDetails" (click)="continueNavigation(receiptDetails.id, receiptDetails.type === 'subscription')">
+          Go to Details
+        </button>
+      </div>
+    </ng-container>
+
+  </div>
+</div>

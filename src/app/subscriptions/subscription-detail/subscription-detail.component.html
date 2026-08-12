@@ -1,0 +1,351 @@
+<div class="subscription-detail-page-wrap">
+  <!-- Payment Verification Overlay -->
+  <div class="payment-verification-overlay" *ngIf="isVerifyingPayment()">
+    <div class="verification-spinner-card">
+      <div class="loading-spinner-spinner"></div>
+      <h3 class="heading-3">{{ verificationMessage() }}</h3>
+      <p>Confirming transaction details with the bank. Please do not close or refresh this page.</p>
+    </div>
+  </div>
+
+  <div class="loading-state" *ngIf="loading()">
+    <div class="loading-spinner"></div>
+    <span>Loading subscription details...</span>
+  </div>
+
+  <div class="error-state" *ngIf="error() && !loading()">
+    <span class="error-icon">⚠</span>
+    <span>{{ error() }}</span>
+    <a routerLink="/profile" class="btn-link">Back to Profile</a>
+  </div>
+
+  <ng-container *ngIf="subscriptionData() && !loading()">
+    <!-- SUB HERO -->
+    <div class="sub-hero">
+      <div class="sub-hero-top">
+        <div class="sub-hero-left">
+          <a routerLink="/profile" class="back-link">&#8592; Back to My Account</a>
+          <span class="sub-tag">Community Barn Agreement &mdash; {{ getPlanName() }}</span>
+          <h1 class="heading-display heading-display--light">{{ getPlanName() }}</h1>
+          <p class="sub-hero-desc">Annual commitment to the land. First-harvest priority, full household grain supply,
+            and a direct line to your farming family.</p>
+        </div>
+        <div class="sub-hero-right">
+          <span class="sub-status-badge" [style.color]="getStatusColor(subscriptionData()?.status || '')"
+            style="border-color: currentColor;">
+            {{ subscriptionData()?.status }}
+          </span>
+          <span class="sub-price-cadence">renews {{ formatDate(subscriptionData()?.end_date) }}</span>
+        </div>
+      </div>
+      <div class="sub-stats-strip">
+        <div class="sub-stat">
+          <span class="sub-stat-val">{{ formatDate(subscriptionData()?.start_date) }}</span>
+          <span class="sub-stat-label">Member Since</span>
+        </div>
+        <div class="sub-stat">
+          <span class="sub-stat-val">{{ subscriptionData()?.items?.length }}</span>
+          <span class="sub-stat-label">Items</span>
+        </div>
+        <div class="sub-stat">
+          <span class="sub-stat-val">{{ getSubscriptionDurationMonths() }} Month{{ getSubscriptionDurationMonths() > 1 ?
+            's' : '' }}</span>
+          <span class="sub-stat-label">Duration</span>
+        </div>
+        <div class="sub-stat">
+          <span class="sub-stat-val">{{ subscriptionData()?.completed_deliveries ?? 0 }}</span>
+          <span class="sub-stat-label">Completed Deliveries</span>
+        </div>
+        <div class="sub-stat">
+          <span class="sub-stat-val">{{ getPendingDeliveries() }}</span>
+          <span class="sub-stat-label">Pending Deliveries</span>
+        </div>
+        <div class="sub-stat" *ngIf="subscriptionData()?.pause_start_date">
+          <span class="sub-stat-val">Paused</span>
+          <span class="sub-stat-label">Until {{ formatDate(subscriptionData()?.pause_end_date) }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- MANAGE BAR -->
+    <div class="manage-bar">
+      <span class="manage-action" *ngIf="canResume()" (click)="resumeSubscription()">Resume Subscription</span>
+      <span class="manage-action" *ngIf="canPause()" (click)="showPauseForm.set(!showPauseForm())">Pause
+        Subscription</span>
+      <span class="manage-action danger" *ngIf="canPayInstallment()" (click)="payNextInstallment()"
+        style="font-weight: 600;">Pay Now</span>
+      <span class="manage-action danger" *ngIf="canCancel()" (click)="cancelSubscription()">Cancel</span>
+    </div>
+
+    <div class="sub-body">
+      <div class="sub-left">
+
+        <!-- PAUSE FORM -->
+        <div class="pause-form" *ngIf="showPauseForm()"
+          style="margin-bottom: 40px; padding: 24px; border: 1px solid var(--amber-harvest); background-color: #FDF9F1; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <h3 class="heading-3" style="margin: 0; color: var(--charcoal);">Pause Deliveries</h3>
+            <button (click)="showPauseForm.set(false)" style="background: none; border: none; font-size: 24px; cursor: pointer; color: rgba(26,26,26,0.4); line-height: 1; padding: 0;">&times;</button>
+          </div>
+          <p style="font-size: 14px; color: rgba(26,26,26,0.7); margin-top: 0; margin-bottom: 20px; line-height: 1.5;">Temporarily hold your deliveries. You can pause your subscription based on your plan's allowed pause limits.</p>
+          <div style="display:flex; gap:16px; align-items:flex-end; flex-wrap: wrap;">
+            <div class="form-group" style="flex:1; min-width: 140px;">
+              <label style="display:block; font-size:13px; font-weight: 500; margin-bottom:6px; font-family:var(--font-sans); color: var(--charcoal);">Pause From</label>
+              <input type="date" [(ngModel)]="pauseStartDate"
+                style="width:100%; padding:10px 12px; border:1px solid rgba(26,26,26,0.2); border-radius: 6px; font-size: 14px; background: white;" />
+            </div>
+            <div class="form-group" style="flex:1; min-width: 140px;">
+              <label style="display:block; font-size:13px; font-weight: 500; margin-bottom:6px; font-family:var(--font-sans); color: var(--charcoal);">Pause Until</label>
+              <input type="date" [(ngModel)]="pauseEndDate"
+                style="width:100%; padding:10px 12px; border:1px solid rgba(26,26,26,0.2); border-radius: 6px; font-size: 14px; background: white;" />
+            </div>
+            <button class="btn-customise" [disabled]="pauseLoading()" (click)="pauseSubscription()" style="padding: 11px 24px; height: 42px; border-radius: 6px;">
+              {{ pauseLoading() ? 'Pausing...' : 'Confirm Pause' }}
+            </button>
+          </div>
+        </div>
+
+        <!-- ITEMS -->
+        <div>
+          <span class="section-tag">Items</span>
+          <h2 class="section-title heading-2">Subscription Contents</h2>
+          <div class="next-box-card">
+            <div class="next-box-header">
+              <div style="display:flex; flex-direction:column; gap:4px;">
+                <span class="next-box-date-label">Next Delivery</span>
+                <span class="next-box-date heading-3">
+                  <ng-container *ngIf="showApiDeliveryDate; else staticDeliveryText">
+                    {{ subscriptionData()?.next_delivery_date ? formatDate(subscriptionData()?.next_delivery_date) : '—' }}
+                  </ng-container>
+                  <ng-template #staticDeliveryText>
+                    delivery will be start from Aug 2026 first week
+                  </ng-template>
+                </span>
+              </div>
+            </div>
+            <div class="next-box-items">
+              @for (item of subscriptionData()?.items; track item.id) {
+              <div class="box-item-row">
+                <div class="box-item-img-wrap">
+                  <img class="box-item-img"
+                    [src]="item.product_var_image || 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=112&q=80'"
+                    [alt]="getOrderItemName(item)" />
+                </div>
+                <div class="box-item-info" style="display: flex; flex-direction: column;">
+                  <span *ngIf="item.product_category" style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--amber-harvest);">{{ item.product_category }}</span>
+                  <span class="box-item-name" style="font-size: 16px; font-weight: 500; color: var(--charcoal); margin-bottom: 4px; margin-top: 2px;">{{ getOrderItemName(item) }}</span>
+                  <span style="font-size: 13px; color: rgba(26,26,26,0.7); margin-bottom: 4px;">
+                    Qty: {{ item.quantity }} <ng-container *ngIf="item.unit_weight">&times; {{ item.unit_weight }} {{ item.weight_unit }}</ng-container>
+                    <ng-container *ngIf="item.total_weight"> (Total: {{ item.total_weight }} {{ item.weight_unit }})</ng-container>
+                  </span>
+                  <span style="font-size: 14px; font-weight: 600; color: var(--charcoal);">
+                    {{ (item.discounted_price || item.price || 0) | currencyInr }}
+                    <span *ngIf="item.discounted_price && item.price && item.discounted_price !== item.price" style="text-decoration: line-through; font-size: 12px; color: rgba(26,26,26,0.5); font-weight: 400; margin-left: 6px;">
+                      {{ item.price | currencyInr }}
+                    </span>
+                  </span>
+                </div>
+                <span class="box-item-qty">{{ item.quantity }} qty</span>
+              </div>
+              }
+              <div *ngIf="!subscriptionData()?.items || subscriptionData()?.items?.length === 0"
+                style="padding: 24px; font-family:var(--font-sans); font-size:14px; color:rgba(26,26,26,0.6);">
+                No items in this subscription
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- INVOICES -->
+        <div style="margin-top: 56px;" *ngIf="subscriptionData()?.status === 'ACTIVE'">
+          <span class="section-tag">History</span>
+          <h2 class="section-title heading-2">Invoices</h2>
+          <div class="dispatch-table" *ngIf="invoices().length > 0; else noSubscriptionInvoices">
+            <div class="dispatch-head" style="grid-template-columns: 1fr 100px;">
+              <span>Invoice</span>
+              <span>Action</span>
+            </div>
+            @for (invoice of invoices(); track invoice.id) {
+            <div class="dispatch-row" style="grid-template-columns: 1fr 100px;">
+              <span class="dispatch-contents">{{ invoice.display_name }}</span>
+              <button class="btn-skip-box" (click)="downloadInvoice(invoice.s3_url)"
+                style="background:transparent; border:none; color:var(--green-deep); text-align:left;">Download</button>
+            </div>
+            }
+          </div>
+          <ng-template #noSubscriptionInvoices>
+            <div class="empty-state mini"
+              style="padding: 24px; text-align: center; border: 1px dashed rgba(26,26,26,0.15); border-radius: 8px;">
+              <p style="margin: 0; color: rgba(26,26,26,0.6); font-family: var(--font-sans); font-size: 14px;">No
+                invoices generated yet for this subscription.</p>
+            </div>
+          </ng-template>
+        </div>
+
+      </div>
+
+      <!-- RIGHT -->
+      <div class="sub-right">
+        <span class="sidebar-title heading-3">Delivery Info</span>
+        <div class="detail-rows">
+          <div class="detail-row">
+            <span class="detail-label">Recipient</span>
+            <span class="detail-value">{{ subscriptionData()?.recipient_name }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Address</span>
+            <span class="detail-value">
+              {{ subscriptionData()?.delivery_address }}<br />
+              {{ subscriptionData()?.delivery_city }}, {{ subscriptionData()?.delivery_state }} - {{
+              subscriptionData()?.delivery_pincode }}
+            </span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Phone</span>
+            <span class="detail-value">{{ subscriptionData()?.delivery_phone }}</span>
+          </div>
+        </div>
+        <div class="sidebar-divider"></div>
+
+        <span class="sidebar-title heading-3" style="margin-top:16px;">Payment Info</span>
+        <div class="detail-rows">
+          <div class="detail-row">
+            <span class="detail-label">Payment Type</span>
+            <span class="detail-value">{{ subscriptionData()?.payment_type }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Method</span>
+            <span class="detail-value">{{ subscriptionData()?.payment_method || 'N/A' }}</span>
+          </div>
+          <div class="detail-row" *ngIf="paymentStatus()">
+            <span class="detail-label">Status</span>
+            <span class="detail-value"
+              [style.color]="getPaymentStatusDisplay() === 'PAID' ? 'var(--green-deep)' : 'inherit'">{{
+              getPaymentStatusDisplay() }}</span>
+          </div>
+        </div>
+
+        <div class="sidebar-divider"></div>
+
+        <span class="sidebar-title heading-3" style="margin-top:16px;">Pricing Summary</span>
+        <div class="detail-rows">
+          <div class="detail-row">
+            <span class="detail-label">Monthly Item Cost (Discounted)</span>
+            <span class="detail-value">{{ getMonthlyItemCost() | currencyInr }}/mo</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Monthly Delivery Charges</span>
+            <span class="detail-value" [class.free]="getMonthlyDeliveryCharge() === 0">
+              {{ getMonthlyDeliveryCharge() === 0 ? 'Free' : (getMonthlyDeliveryCharge() | currencyInr) + '/mo' }}
+            </span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Subscription Duration</span>
+            <span class="detail-value">{{ getSubscriptionDurationMonths() }} Month{{ getSubscriptionDurationMonths() > 1
+              ? 's' : '' }}</span>
+          </div>
+          <div class="sidebar-divider"></div>
+          <div class="detail-row">
+            <span class="detail-label">Total Item Cost</span>
+            <span class="detail-value">{{ getTotalItemCost() | currencyInr }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Total Delivery Cost</span>
+            <span class="detail-value" [class.free]="getTotalDeliveryCost() === 0">
+              {{ getTotalDeliveryCost() === 0 ? 'Free' : (getTotalDeliveryCost() | currencyInr) }}
+            </span>
+          </div>
+          <div class="sidebar-divider"></div>
+          <div class="detail-row" style="font-weight: 600; font-size: 16px; color: var(--charcoal);">
+            <span class="detail-label">Total Amount</span>
+            <span class="detail-value" style="color: var(--amber-harvest);">{{ getTotalAmount() | currencyInr }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cancellation Modal -->
+    <div class="cancel-modal-overlay" [class.active]="showCancelModal()" (click)="showCancelModal.set(false)">
+      <div class="cancel-modal-card" (click)="$event.stopPropagation()">
+        <h3>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="#c0392b" style="display:inline-block; vertical-align:middle; margin-top:-3px; margin-right:8px;">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+          </svg>
+          Cancel Subscription
+        </h3>
+        <p class="consequence-lead">Are you sure you want to cancel your Community Barn Agreement?</p>
+        
+        <div class="consequences-list">
+          <p style="font-weight: 600; margin: 0 0 8px 0; font-family: var(--font-sans); font-size: 13.5px; color: #c0392b;">Please note the consequences of this action:</p>
+          <ul style="margin: 0; padding-left: 20px; list-style-type: disc;">
+            <li>Your **first-harvest priority** for heirloom crops will be permanently cancelled.</li>
+            <li>The **seasonal price lock** on your items will be removed, meaning future rates may increase.</li>
+            <li>Deliveries will stop immediately at the end of your current active billing cycle.</li>
+            <li>This action is irreversible and cannot be undone.</li>
+          </ul>
+        </div>
+
+        <div class="cancellation-reason-section" style="margin-bottom: 24px; text-align: left;">
+          <p style="font-weight: 600; margin: 0 0 12px 0; font-family: var(--font-sans); font-size: 13.5px; color: var(--charcoal);">Why are you cancelling?</p>
+          <div class="reason-options" style="display: flex; flex-direction: column; gap: 8px;">
+            @for (reason of cancelReasons; track reason) {
+              <label style="display: flex; align-items: center; gap: 8px; font-family: var(--font-sans); font-size: 13px; color: rgba(26,26,26,0.8); cursor: pointer;">
+                <input type="radio" name="subCancelReason" [value]="reason" [checked]="selectedCancelReason() === reason" (change)="selectedCancelReason.set(reason)" />
+                {{ reason }}
+              </label>
+            }
+          </div>
+          
+          <div class="custom-reason-input" *ngIf="selectedCancelReason() === 'Other (Please specify)'" style="margin-top: 12px;">
+            <textarea style="width: 100%; height: 80px; padding: 10px; border: 1px solid rgba(26, 26, 26, 0.15); border-radius: 6px; font-family: var(--font-sans); font-size: 13px; box-sizing: border-box; resize: none;" 
+                      placeholder="Please write your reason here..." 
+                      [value]="customCancelReason()" 
+                      (input)="customCancelReason.set($any($event.target).value)"></textarea>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn-modal-action btn-modal-keep" (click)="showCancelModal.set(false)">Keep My Subscription</button>
+          <button class="btn-modal-action btn-modal-cancel" (click)="cancelSubscriptionConfirmed()">Yes, Cancel Subscription</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cancellation Result Modal -->
+    <div class="cancel-result-overlay" [class.active]="showCancelResultModal()" (click)="closeCancelResultModal()">
+      <div class="cancel-result-card" (click)="$event.stopPropagation()">
+        <div class="result-icon-circle">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </div>
+        <h3 class="result-title">{{ cancelResultData()?.title || 'Subscription Cancelled' }}</h3>
+        
+        <div class="result-message-box">
+          <p>{{ cancelResultData()?.message }}</p>
+        </div>
+
+        <div class="subscription-number-tag" *ngIf="cancelResultData()?.subscriptionNumber">
+          Subscription #{{ cancelResultData()?.subscriptionNumber }}
+        </div>
+
+        <div class="refund-banner" *ngIf="cancelResultData()?.refundInitiated">
+          <div class="refund-icon-badge">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#B8860B" stroke-width="2">
+              <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+              <line x1="2" y1="10" x2="22" y2="10"></line>
+            </svg>
+          </div>
+          <div class="refund-info">
+            <div class="refund-title">Refund Initiated</div>
+            <div class="refund-subtitle">5–7 Working Days to original payment</div>
+          </div>
+        </div>
+
+        <div class="result-modal-actions">
+          <button class="btn-result-gotit" (click)="closeCancelResultModal()">Got It</button>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</div>

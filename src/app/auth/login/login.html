@@ -1,0 +1,110 @@
+<div class="page-wrap">
+  <div class="mobile-brand-header">
+    <div class="wordmark">ANAAD</div>
+    <div class="tagline">Heirloom grain. Zero compromise.</div>
+  </div>
+
+  <!-- LEFT DECORATIVE PANEL -->
+  <div class="left-panel">
+    <div class="left-overlay"></div>
+    <div class="left-content">
+      <span class="left-tagline">Welcome Back</span>
+      <h2 class="left-headline">Return to<br /><em>the source</em><br />of nourishment.</h2>
+      <p class="left-body">Access the farm offerings, manage subscriptions, and view open batch ledgers for all our
+        products.</p>
+      <div class="left-badges">
+        <div class="left-badge-row">
+          <span class="badge-check">&#10003;</span>
+          <span class="badge-label">Every batch is ICBN-certified</span>
+        </div>
+        <div class="left-badge-row">
+          <span class="badge-check">&#10003;</span>
+          <span class="badge-label">Zero synthetic inputs used</span>
+        </div>
+        <div class="left-badge-row">
+          <span class="badge-check">&#10003;</span>
+          <span class="badge-label">Vaccum packed for peak freshness</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT FORM PANEL -->
+  <div class="right-panel">
+    <div class="form-header">
+      <span class="form-header-tag">Existing Member</span>
+      <h1>Sign In</h1>
+      <p>Enter your details to access your account.</p>
+    </div>
+
+    <div class="form-success" *ngIf="successMessage">{{ successMessage }}</div>
+    <div class="form-error" *ngIf="error">{{ error }}</div>
+
+    <form class="signup-form" [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate>
+      <div class="field-group">
+        <label class="field-label" for="email">Email Address</label>
+        <input type="email" id="email" class="field-input" [class.field-error]="emailCtrl.invalid && emailCtrl.touched"
+          formControlName="email" placeholder="hello@example.com" autocomplete="email" />
+        <span class="field-hint error" *ngIf="emailCtrl.touched && emailCtrl.hasError('required')">Email is
+          required.</span>
+        <span class="field-hint error" *ngIf="emailCtrl.touched && emailCtrl.hasError('email')">Please enter a valid
+          email address.</span>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label" for="password">Password</label>
+        <div class="password-wrap">
+          <input [type]="showPassword ? 'text' : 'password'" id="password" class="field-input"
+            [class.field-error]="passwordCtrl.invalid && passwordCtrl.touched" formControlName="password"
+            placeholder="Enter your password" autocomplete="current-password" />
+          <button type="button" class="toggle-pw" (click)="togglePassword()"
+            [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'">
+            <svg *ngIf="!showPassword" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2"
+              fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+            <svg *ngIf="showPassword" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2"
+              fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path
+                d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24">
+              </path>
+              <line x1="1" y1="1" x2="23" y2="23"></line>
+            </svg>
+          </button>
+        </div>
+        <span class="field-hint error" *ngIf="passwordCtrl.touched && passwordCtrl.hasError('required')">Password is
+          required.</span>
+      </div>
+
+      <button type="submit" class="btn-create" [disabled]="loading">
+        {{ loading ? 'SIGNING IN...' : 'SIGN IN' }}
+      </button>
+
+      <!-- Social Authentication Section -->
+      <div class="social-divider">
+        <span>or sign in with</span>
+      </div>
+      <div class="social-actions">
+        <div id="googleBtn" class="google-btn-wrapper"></div>
+        <button type="button" class="btn-apple" (click)="signInWithApple()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
+            <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 
+            0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 
+            2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 
+            3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 
+            1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 
+            3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
+          </svg>
+          <span>Sign in with Apple</span>
+        </button>
+      </div>
+
+      <div class="signin-row">
+        <span>Don't have an account?</span>
+        <a routerLink="/register" [queryParams]="{returnUrl: route.snapshot.queryParams['returnUrl'] || null}"
+          class="signin-link">Create Account</a>
+      </div>
+    </form>
+  </div>
+</div>

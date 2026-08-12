@@ -1,90 +1,338 @@
-/* Global styles */
-@use './styles/theme' as *;
-@use './styles/animations' as *;
-@use './styles/utilities' as *;
+@use './styles/theme';
+@use './styles/animations';
+@use './styles/utilities';
 
-*,
-*::before,
-*::after {
+/* ───────────────────────────────────────
+   RESET & BASE
+─────────────────────────────────────── */
+*, *::before, *::after {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 html {
-  height: 100%;
+  font-size: 100%;
+}
+
+html, body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: clip;
+  max-width: 100%;
+}
+
+:focus-visible {
+  outline: 3px solid var(--amber-harvest);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+header :focus-visible {
+  outline-color: var(--bg-parchment);
 }
 
 body {
-  margin: 0;
-  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-  min-height: 100%;
-}
-
-/* Ensure app-root fills viewport */
-app-root {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  /* Fallback */
-  min-height: 100dvh;
+  background-color: #F5F0E8;
+  color: #1A1A1A;
+  font-family: 'DM Sans', sans-serif;
 }
 
 img {
-  max-width: 100%;
   display: block;
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
 }
 
 a {
-  color: inherit;
   text-decoration: none;
+  color: inherit;
 }
 
-button {
-  font: inherit;
+/* ───────────────────────────────────────
+   DESIGN TOKENS
+─────────────────────────────────────── */
+:root {
+  --bg-parchment:    #F5F0E8;
+  --green-deep:      #2C4A1E;
+  --amber-harvest:   #C9943A;
+  --earth-raw:       #6B4226;
+  --charcoal:        #1A1A1A;
+
+  --font-serif:      'Cormorant Garamond', Georgia, serif;
+  --font-sans:       'DM Sans', system-ui, sans-serif;
 }
 
-.reveal {
-  opacity: 0;
-  transform: translateY(20px) scale(0.98);
-  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+/* ───────────────────────────────────────
+   SHARED UTILITIES
+─────────────────────────────────────── */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: var(--charcoal);
+  color: var(--bg-parchment);
+  padding: 8px;
+  z-index: 9999;
+  transition: top 0.2s ease;
 }
-
-.reveal.is-visible {
-  opacity: 1;
-  transform: translateY(0) scale(1);
-}
-
-/* You can add global styles to this file, and also import other style files */
-@import 'styles/theme';
-
-/* Base styles */
-body {
-  margin: 0;
-  font-family: var(--font-sans);
-  background: var(--color-background);
-  color: var(--color-text);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 16px;
-}
-
-/* Base button styles - use utilities instead */
-.btn {
-  @extend .btn-base;
+.skip-link:focus {
+  top: 0;
 }
 
 .btn-primary {
-  @extend .btn-primary;
+  display: inline-block;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--bg-parchment);
+  background-color: var(--green-deep);
+  padding: 16px 32px;
+  border: 1px solid var(--green-deep);
+  cursor: pointer;
+  text-decoration: none;
+  border-radius: 8px;
+  transition: transform 0.2s cubic-bezier(0.165, 0.84, 0.44, 1), background-color 0.2s ease, opacity 0.2s ease, box-shadow 0.2s ease;
 }
 
-.btn-secondary {
-  @extend .btn-secondary;
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(44, 74, 30, 0.15);
+  opacity: 0.95;
 }
 
-.btn-surface {
-  @extend .btn-surface;
+.btn-ghost-light {
+  display: inline-block;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--bg-parchment);
+  background-color: transparent;
+  padding: 16px 32px;
+  border: 1px solid rgba(245, 240, 232, 0.45);
+  cursor: pointer;
+  text-decoration: none;
+  border-radius: 8px;
+  transition: transform 0.2s cubic-bezier(0.165, 0.84, 0.44, 1), border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.btn-ghost-light:hover {
+  transform: translateY(-2px);
+  border-color: rgba(245, 240, 232, 0.80);
+  background-color: rgba(245, 240, 232, 0.05);
+}
+
+.divider-rule {
+  width: 48px;
+  height: 2px;
+  background-color: var(--amber-harvest);
+}
+
+.section-label {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--amber-harvest);
+}
+
+@media (max-width: 768px) {
+  .btn-primary, .btn-ghost-light { text-align: center; padding: 16px 24px; }
+}
+
+/* ───────────────────────────────────────
+   GLOBAL ANIMATIONS & PREMIUM REVEAL
+   ─────────────────────────────────────── */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.8s cubic-bezier(0.165, 0.84, 0.44, 1), transform 0.8s cubic-bezier(0.165, 0.84, 0.44, 1);
+  will-change: opacity, transform;
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* ───────────────────────────────────────────────────────────
+   GLOBAL SECTION SPACING OVERRIDES (CAPPED AT 20PX OR LESS)
+   ─────────────────────────────────────────────────────────── */
+main:not(:has(app-traceability-journey)) {
+  
+  // Non-hero sections: override top/bottom padding to exactly 20px
+  section:not(.hero):not(.home-carousel-section):not(.hero-section):not(.about-hero):not(.story-hero):not(.commit-hero):not(.community-hero):not(.soil-hero):not(.shop-hero):not(.cat-hero):not(.waitlist-hero):not(.confirm-hero):not(.sub-hero):not(.article-hero):not(.evidence-hero):not(.panchang-hero):not(.page-hero):not(.page-hero-dark),
+  .section,
+  .why-anaad-section,
+  .intro-section,
+  .bestsellers-section,
+  .offerings-section,
+  .testimonials-section,
+  .instagram-section,
+  .newsletter-section,
+  .blog-section,
+  .value-props-section,
+  .parallax-quote-section,
+  .media-section,
+  .impact-section,
+  .about-mission,
+  .about-pillars,
+  .about-founder,
+  .about-timeline,
+  .about-cta,
+  .story-opening,
+  .story-origin,
+  .story-philosophy,
+  .story-quote-section,
+  .story-milestones,
+  .story-team,
+  .story-cta,
+  .commit-intro,
+  .commit-pillars,
+  .commit-farming,
+  .commit-impact,
+  .commit-certs,
+  .commit-cta,
+  .community-intro,
+  .community-network,
+  .community-story,
+  .community-impact,
+  .community-testimonials,
+  .community-cta,
+  .soil-intro,
+  .soil-principles,
+  .soil-metrics,
+  .soil-biodiversity,
+  .soil-cta,
+  .shop-grid-section,
+  .shop-features,
+  .pd-related,
+  .cat-grid-section,
+  .cat-featured,
+  .next-steps,
+  .referral-nudge,
+  .plans,
+  .plans-section,
+  .plans-wrapper,
+  .ledger,
+  .faq-section,
+  .mission-band,
+  .blog-grid-section,
+  .evidence-band,
+  .newsletter-band,
+  .article-footer-cta,
+  .related-section,
+  .comparison-section,
+  .ecosystem-section,
+  .site-footer,
+  .footer-certification,
+  .what-section,
+  .pillars-band,
+  .tiers-section,
+  .how-section,
+  .inquiry-section,
+  .testi-section,
+  .panchang-page-wrap,
+  .guidance-block,
+  .studies-section,
+  .cta-band {
+    padding-top: 20px !important;
+    padding-bottom: 20px !important;
+    margin-top: 0px !important;
+    margin-bottom: 20px !important;
+  }
+
+  // Hero sections: override bottom padding/margin to 20px, keeping negative top margin and top padding intact for header alignment
+  .hero,
+  .hero-section,
+  .about-hero,
+  .story-hero,
+  .commit-hero,
+  .community-hero,
+  .soil-hero,
+  .shop-hero,
+  .cat-hero,
+  .waitlist-hero,
+  .confirm-hero,
+  .sub-hero,
+  .article-hero,
+  .evidence-hero,
+  .panchang-hero,
+  .page-hero,
+  .page-hero-dark {
+    padding-bottom: 20px !important;
+    margin-bottom: 20px !important;
+  }
+
+  // Cap large container/layout inner paddings and margins to 20px or less
+  .pd-main,
+  .pd-tabs-section,
+  .page-header,
+  .cart-items-col,
+  .cart-empty,
+  .cart-footer,
+  .order-summary-col,
+  .checkout-grid,
+  .form-col,
+  .summary-col,
+  .verification-spinner-card,
+  .loading-state,
+  .error-state,
+  .order-band,
+  .order-left,
+  .order-right,
+  .sub-hero-top,
+  .sub-stats-strip,
+  .sub-left,
+  .sub-right,
+  .left-panel,
+  .right-panel,
+  .profile-band,
+  .account-sidebar,
+  .account-content,
+  .legal-page-wrap,
+  .da-page-wrap,
+  .summary-left,
+  .page-body,
+  .featured-body,
+  .article-layout,
+  .split-content-wrapper,
+  .site-header,
+  .calendar-card,
+  .details-card {
+    padding-top: 20px !important;
+    padding-bottom: 20px !important;
+  }
+
+  // Specific components that have large margins: cap to 20px
+  .subscribe-nudge,
+  .checkout-header,
+  .final-cta,
+  .opp-head-pill,
+  .details-section-header,
+  .guidance-item,
+  .footer-top,
+  .footer-certification,
+  .dashboard-header,
+  .dashboard-batch-value,
+  .dashboard-footer-note,
+  .shop-actions,
+  .opp-grid,
+  .active-sub-body,
+  .sidebar-section-label,
+  .security-card p,
+  .referral-code-card {
+    margin-top: 20px !important;
+    margin-bottom: 20px !important;
+  }
+}
+
+/* Aahar Vigyan — keep fixed nav pinned; no rubber-band at scroll end */
+html:has(.av-main) {
+  overscroll-behavior-y: none;
 }

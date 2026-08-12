@@ -1,0 +1,350 @@
+<div class="checkout-page-wrap">
+
+  <!-- CHECKOUT GRID -->
+  <div class="checkout-grid">
+
+    <!-- FORM COLUMN -->
+    <div class="form-col">
+
+      <div class="checkout-header">
+        <div class="checkout-stepper">
+          <div class="step completed">
+            <div class="step-circle">&#10003;</div>
+            <span class="step-label">Cart</span>
+          </div>
+          <div class="step-line completed"></div>
+          <div class="step active">
+            <div class="step-circle">2</div>
+            <span class="step-label">Checkout</span>
+          </div>
+          <div class="step-line"></div>
+          <div class="step">
+            <div class="step-circle">3</div>
+            <span class="step-label">Payment</span>
+          </div>
+        </div>
+      </div>
+
+      @if (submitError()) {
+        <div class="form-error">{{ submitError() }}</div>
+      }
+
+      <form [formGroup]="checkoutForm" (ngSubmit)="placeOrder()" novalidate>
+
+        <!-- PAYMENT METHOD -->
+        <div class="form-block">
+          <div class="form-block-header">
+            <h2 class="form-block-title">Payment Method</h2>
+          </div>
+          <div class="field-row">
+            <label class="radio-card" [class.selected]="f.paymentMethod.value === 'upi'">
+              <input type="radio" formControlName="paymentMethod" value="upi" class="hidden-radio" />
+              <div class="radio-dot-outer"><div class="radio-dot-inner"></div></div>
+              <div class="radio-card-info">
+                <span class="radio-card-name">Pay Online (UPI)</span>
+                <span class="radio-card-desc">Instant confirmation via UPI</span>
+              </div>
+            </label>
+            <label class="radio-card" [class.selected]="f.paymentMethod.value === 'cod'">
+              <input type="radio" formControlName="paymentMethod" value="cod" class="hidden-radio" />
+              <div class="radio-dot-outer"><div class="radio-dot-inner"></div></div>
+              <div class="radio-card-info">
+                <span class="radio-card-name">Cash on Delivery</span>
+                <span class="radio-card-desc">No upfront payment needed</span>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- SUBSCRIPTION PAYMENT OPTIONS -->
+        <div class="form-block" *ngIf="isSubscription() && selectedPlan()?.allows_installments">
+          <div class="form-block-header">
+            <h2 class="form-block-title">Subscription Payment Options</h2>
+          </div>
+          <div class="field-row">
+            <label class="radio-card" [class.selected]="selectedPaymentType() === 'PAID_FULL'">
+              <input type="radio" name="checkoutPaymentType" [checked]="selectedPaymentType() === 'PAID_FULL'" (change)="selectedPaymentType.set('PAID_FULL')" class="hidden-radio" />
+              <div class="radio-dot-outer"><div class="radio-dot-inner"></div></div>
+              <div class="radio-card-info">
+                <span class="radio-card-name">Pay in Full</span>
+                <span class="radio-card-desc">Pay for the entire subscription duration upfront</span>
+              </div>
+            </label>
+            <label class="radio-card" [class.selected]="selectedPaymentType() === 'INSTALLMENT'">
+              <input type="radio" name="checkoutPaymentType" [checked]="selectedPaymentType() === 'INSTALLMENT'" (change)="selectedPaymentType.set('INSTALLMENT')" class="hidden-radio" />
+              <div class="radio-dot-outer"><div class="radio-dot-inner"></div></div>
+              <div class="radio-card-info">
+                <span class="radio-card-name">Pay in Installments</span>
+                <span class="radio-card-desc">Pay monthly installments over the subscription duration</span>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- CONTACT -->
+        <div class="form-block">
+          <div class="form-block-header">
+            <h2 class="form-block-title">Contact Information</h2>
+          </div>
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field-label">First Name *</label>
+              <input class="field-input" [class.field-error]="f.firstName.invalid && f.firstName.touched" type="text"
+                formControlName="firstName" placeholder="Arjun" />
+              <span class="field-hint error" *ngIf="f.firstName.touched && f.firstName.invalid">Required.</span>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Last Name *</label>
+              <input class="field-input" [class.field-error]="f.lastName.invalid && f.lastName.touched" type="text"
+                formControlName="lastName" placeholder="Sharma" />
+              <span class="field-hint error" *ngIf="f.lastName.touched && f.lastName.invalid">Required.</span>
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field-label">Email Address *</label>
+              <input class="field-input" [class.field-error]="f.email.invalid && f.email.touched" type="email"
+                formControlName="email" placeholder="arjun@example.com" />
+              <span class="field-hint error" *ngIf="f.email.touched && f.email.invalid">Valid email required.</span>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Phone Number *</label>
+              <div class="phone-input-wrap">
+                <span class="phone-prefix">+91</span>
+                <input class="field-input phone-input" [class.field-error]="f.phone.invalid && f.phone.touched" type="tel"
+                  formControlName="phone" placeholder="98765 43210" />
+              </div>
+              <span class="field-hint error" *ngIf="f.phone.touched && f.phone.invalid">Valid phone required.</span>
+              <span class="field-hint" *ngIf="!(f.phone.touched && f.phone.invalid)">Enter 10-digit mobile number without country code.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- SHIPPING -->
+        <div class="form-block">
+          <div class="form-block-header">
+            <h2 class="form-block-title">Shipping Address</h2>
+          </div>
+          <div class="field-row full">
+            <div class="field-group">
+              <label class="field-label">Street Address / Flat, Building *</label>
+              <input class="field-input" [class.field-error]="f.address.invalid && f.address.touched" type="text"
+                formControlName="address" placeholder="42, Green Meadows Society, MG Road" />
+              <span class="field-hint error" *ngIf="f.address.touched && f.address.invalid">Address required.</span>
+            </div>
+          </div>
+          <div class="field-row full">
+            <div class="field-group">
+              <label class="field-label">Landmark (Optional)</label>
+              <input class="field-input" type="text" formControlName="landmark" placeholder="Near HDFC Bank" />
+            </div>
+          </div>
+          <div class="field-row thirds">
+            <div class="field-group">
+              <label class="field-label">City *</label>
+              <input class="field-input" [class.field-error]="f.city.invalid && f.city.touched" type="text"
+                formControlName="city" placeholder="New Delhi" />
+              <span class="field-hint error" *ngIf="f.city.touched && f.city.invalid">Required.</span>
+            </div>
+            <div class="field-group">
+              <label class="field-label">State *</label>
+              <select class="field-select" [class.field-error]="f.state.invalid && f.state.touched"
+                formControlName="state">
+                <option value="">Select state</option>
+                @for (s of states(); track s.name || $index) {
+                <option [value]="s.name">{{ s.name }}</option>
+                }
+                <!-- Fallback static options -->
+                <option value="Delhi">Delhi</option>
+                <option value="Haryana">Haryana</option>
+                <option value="Maharashtra">Maharashtra</option>
+                <option value="Karnataka">Karnataka</option>
+                <option value="Tamil Nadu">Tamil Nadu</option>
+                <option value="Uttar Pradesh">Uttar Pradesh</option>
+                <option value="Gujarat">Gujarat</option>
+                <option value="Rajasthan">Rajasthan</option>
+                <option value="West Bengal">West Bengal</option>
+                <option value="Punjab">Punjab</option>
+              </select>
+              <span class="field-hint error" *ngIf="f.state.touched && f.state.invalid">Required.</span>
+            </div>
+            <div class="field-group">
+              <label class="field-label">PIN Code *</label>
+              <input class="field-input" [class.field-error]="f.pin.invalid && f.pin.touched" type="text"
+                formControlName="pin" placeholder="110001" maxlength="6" />
+              <span class="field-hint error" *ngIf="f.pin.touched && f.pin.invalid">6-digit PIN required.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- NOTES -->
+        <div class="form-block">
+          <div class="field-group">
+            <label class="field-label">Order Notes (Optional)</label>
+            <textarea class="field-input" formControlName="notes" placeholder="Leave at gate, ring bell, etc."
+              rows="3"></textarea>
+          </div>
+        </div>
+
+      </form>
+    </div>
+
+    <!-- SUMMARY COLUMN -->
+    <div class="summary-col">
+      <span class="summary-title">Order Summary</span>
+
+      <div class="order-items">
+        @for (item of checkoutItems(); track item.product_variant || $index) {
+        <div class="order-item">
+          <div class="order-item-img-wrap">
+          <img class="order-item-img" [src]="item.image || ''" appSafeImage [alt]="item.product_name" />
+        </div>
+          <div class="order-item-info">
+            <span class="order-item-name">{{ item.product_name }}</span>
+            <span class="order-item-meta">{{ item.weight }}{{ item.unit }} × {{ item.quantity }}</span>
+          </div>
+          <span class="order-item-price">{{ item.total_price | currencyInr }}</span>
+        </div>
+        }
+      </div>
+
+      <div class="summary-lines">
+        @if (isSubscription()) {
+          <div class="summary-row">
+            <span class="summary-label">Monthly Item Cost (Discounted)</span>
+            <span class="summary-value">{{ discountedPricePerMonth() | currencyInr }}/mo</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-label">Monthly Delivery Charges</span>
+            <span class="summary-value" [class.free]="deliveryChargePerMonth() === 0">
+              {{ deliveryChargePerMonth() === 0 ? 'Free' : (deliveryChargePerMonth() | currencyInr) }}/mo
+            </span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-label">Subscription Duration</span>
+            <span class="summary-value">{{ planDurationMonths() }} Month{{ planDurationMonths() > 1 ? 's' : '' }}</span>
+          </div>
+          <div class="summary-row" *ngIf="selectedPlan()?.allows_installments">
+            <span class="summary-label">Payment Option</span>
+            <span class="summary-value">{{ selectedPaymentType() === 'INSTALLMENT' ? 'Installments (Pay Monthly)' : 'Pay in Full' }}</span>
+          </div>
+          <div class="summary-divider"></div>
+          <div class="summary-row">
+            <span class="summary-label">Total Subscription Value</span>
+            <span class="summary-value">{{ totalAmount() | currencyInr }}</span>
+          </div>
+          @if (selectedPaymentType() === 'INSTALLMENT') {
+            <div class="summary-row" style="color: var(--green-deep, #1C3B2B); font-weight: 500;">
+              <span class="summary-label">Subsequent Installments</span>
+              <span class="summary-value">{{ (discountedPricePerMonth() + deliveryChargePerMonth()) | currencyInr }}/month</span>
+            </div>
+            <div class="summary-divider"></div>
+            <div class="summary-total-row">
+              <span class="summary-total-label">First Installment Due Now</span>
+              <span class="summary-total-value">{{ getGrandTotal() | currencyInr }}</span>
+            </div>
+          } @else {
+            <div class="summary-divider"></div>
+            <div class="summary-total-row">
+              <span class="summary-total-label">Total Amount Due Now</span>
+              <span class="summary-total-value">{{ getGrandTotal() | currencyInr }}</span>
+            </div>
+          }
+        } @else {
+          <div class="summary-row">
+            <span class="summary-label">Subtotal</span>
+            <span class="summary-value">{{ getTotalPrice() | currencyInr }}</span>
+          </div>
+          <div class="summary-row" *ngIf="f.paymentMethod.value === 'cod'">
+            <span class="summary-label">COD Charges</span>
+            <span class="summary-value" [class.free]="getDeliveryCharge() === 0">
+              {{ getDeliveryCharge() === 0 ? 'Free' : (getDeliveryCharge() | currencyInr) }}
+            </span>
+          </div>
+          <div class="summary-row" *ngIf="f.paymentMethod.value !== 'cod'">
+            <span class="summary-label">Delivery Charges</span>
+            <span class="summary-value" [class.free]="getDeliveryCharge() === 0">
+              {{ getDeliveryCharge() === 0 ? 'Free' : (getDeliveryCharge() | currencyInr) }}
+            </span>
+          </div>
+          <div class="summary-divider"></div>
+          <div class="summary-total-row">
+            <span class="summary-total-label">Total</span>
+            <span class="summary-total-value">{{ getGrandTotal() | currencyInr }}</span>
+          </div>
+        }
+        <span class="summary-gst">Inclusive of all taxes</span>
+        <div class="summary-delivery-date">
+          <span class="delivery-date-icon">📅</span>
+          <span class="delivery-date-text">Expected Delivery: <strong>{{ deliveryDateMessage() }}</strong></span>
+        </div>
+      </div>
+
+      <button type="button" class="btn-place-order" (click)="placeOrder()"
+        [disabled]="isSubmitting() || checkoutItems().length === 0">
+        {{ isSubmitting() ? 'PLACING ORDER...' : 'PLACE ORDER' }}
+      </button>
+
+      <div class="secure-note">
+        <span>&#128274;</span>
+        <span>Secure 256-bit Encrypted Checkout</span>
+      </div>
+
+      <div class="edit-cart">
+        <span>Need to change something?</span>
+        <a routerLink="/cart">Edit Cart</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADDRESS MODAL -->
+  <div class="address-modal-overlay" *ngIf="showAddressModal()">
+    <div class="address-modal" style="position: relative;">
+      <button type="button" class="address-modal-close" (click)="closeAddressModal()" aria-label="Close modal">&times;</button>
+      <div class="address-modal-header">
+        <h3>Shipping Details Required</h3>
+        <p>Please provide your shipping address and pincode to continue with your subscription and calculate delivery charges.</p>
+      </div>
+      <form [formGroup]="addressModalForm" (ngSubmit)="saveAddressModal()" class="address-modal-form">
+        <div class="field-group">
+          <label class="field-label">Street Address</label>
+          <input class="field-input" [class.field-error]="addressModalForm.get('address')?.invalid && addressModalForm.get('address')?.touched" type="text" formControlName="address" placeholder="123 Main Street" />
+          <span class="field-hint error" *ngIf="addressModalForm.get('address')?.touched && addressModalForm.get('address')?.invalid">
+            Please enter a valid street address (min 5 chars).
+          </span>
+        </div>
+        <div class="field-row" style="margin-top: 16px;">
+          <div class="field-group">
+            <label class="field-label">City</label>
+            <input class="field-input" [class.field-error]="addressModalForm.get('city')?.invalid && addressModalForm.get('city')?.touched" type="text" formControlName="city" placeholder="City" />
+            <span class="field-hint error" *ngIf="addressModalForm.get('city')?.touched && addressModalForm.get('city')?.invalid">City is required.</span>
+          </div>
+          <div class="field-group">
+            <label class="field-label">State</label>
+            <select class="field-select" [class.field-error]="addressModalForm.get('state')?.invalid && addressModalForm.get('state')?.touched" formControlName="state">
+              <option value="">Select state</option>
+              @for (s of states(); track s.name || $index) {
+                <option [value]="s.name">{{ s.name }}</option>
+              }
+            </select>
+            <span class="field-hint error" *ngIf="addressModalForm.get('state')?.touched && addressModalForm.get('state')?.invalid">State is required.</span>
+          </div>
+        </div>
+        <div class="field-group" style="margin-top: 16px;">
+          <label class="field-label">PIN Code</label>
+          <input class="field-input" [class.field-error]="addressModalForm.get('pin')?.invalid && addressModalForm.get('pin')?.touched" type="text" formControlName="pin" placeholder="110001" maxlength="6" />
+          <span class="field-hint error" *ngIf="addressModalForm.get('pin')?.touched && addressModalForm.get('pin')?.invalid">Valid 6-digit PIN is required.</span>
+        </div>
+        
+        <div class="address-modal-actions" style="display: flex; gap: 12px; margin-top: 24px;">
+          <button type="button" class="btn-cancel" (click)="closeAddressModal()" style="flex: 1; padding: 14px; background: transparent; color: var(--charcoal); border: 1px solid rgba(26,26,26,0.2); font-weight: 600; font-family: var(--font-sans); cursor: pointer; border-radius: 4px;">
+            Cancel &amp; Go Back
+          </button>
+          <button type="submit" class="btn-customise" [disabled]="savingAddressModal()" style="flex: 1; padding: 14px; background: var(--green-deep); color: white; border: none; font-weight: 600; font-family: var(--font-sans); cursor: pointer; border-radius: 4px;">
+            {{ savingAddressModal() ? 'Saving...' : 'Save &amp; Continue' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

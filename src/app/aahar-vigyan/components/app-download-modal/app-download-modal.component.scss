@@ -1,0 +1,102 @@
+.av-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(26, 32, 16, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  animation: avFadeIn 0.25s ease;
+}
+
+.av-modal {
+  background: #fefcf7;
+  border-radius: 20px;
+  padding: 40px 32px 32px;
+  max-width: 420px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 24px 56px rgba(26, 32, 16, 0.14);
+  position: relative;
+  animation: avSlideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.av-modal-close {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #8a9080;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.av-modal-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #eeeaf8;
+  border: 2px solid rgba(74, 74, 138, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  font-size: 26px;
+  color: #4a4a8a;
+}
+
+.av-modal-title {
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: #1a2010;
+  margin-bottom: 12px;
+  line-height: 1.2;
+}
+
+.av-modal-text {
+  font-size: 0.875rem;
+  color: #4a5040;
+  line-height: 1.65;
+  margin-bottom: 24px;
+}
+
+.av-modal-note {
+  font-size: 0.75rem;
+  color: #8a9080;
+  margin-top: 12px;
+}
+
+.av-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 32px;
+  border-radius: 100px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+}
+
+.av-btn-gold {
+  background: #c4900f;
+  color: #fff;
+}
+
+.av-btn-gold:hover {
+  background: #a87808;
+}
+
+@keyframes avFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes avSlideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}

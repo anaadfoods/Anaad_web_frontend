@@ -1,0 +1,19 @@
+<div class="av-modal-overlay" (click)="onBackdropClick($event)" role="dialog" aria-modal="true" aria-labelledby="av-app-modal-title">
+  <div class="av-modal">
+    <button type="button" class="av-modal-close" (click)="close()" aria-label="Close">×</button>
+    <div class="av-modal-icon">★</div>
+    <h2 id="av-app-modal-title" class="av-modal-title lora">Your full Kundali lives in the app</h2>
+    <p class="av-modal-text">
+      Birth chart, planetary food intelligence, and daily Jyotish guidance are available in the ANAAD mobile app.
+      Download the app for your complete Janma Kundali experience.
+    </p>
+    <a
+      class="av-btn av-btn-gold"
+      [href]="appLink"
+      (click)="appLink === '#' ? $event.preventDefault() : close()"
+    >
+      Try our app →
+    </a>
+    <p class="av-modal-note">App store link coming soon.</p>
+  </div>
+</div>

@@ -1,0 +1,275 @@
+<div class="page-wrap">
+  <div class="mobile-brand-header">
+    <div class="wordmark">ANAAD</div>
+    <div class="tagline">Heirloom grain. Zero compromise.</div>
+  </div>
+
+  <!-- LEFT DECORATIVE PANEL -->
+  <div class="left-panel">
+    <div class="left-overlay"></div>
+    <div class="left-content">
+      <span class="left-tagline">A Sacred Traceable Commitment </span>
+      <h2 class="left-headline">Toxin Free<br /><em>Traceable Food</em><br />is Your Right.</h2>
+      <p class="left-body">Access our ICBN Farm Offerings</p>
+      <div class="left-badges">
+        <div class="left-badge-row"><span class="badge-check">&#10003;</span><span class="badge-label">
+            Zero Toxic Industrial input used</span></div>
+        <div class="left-badge-row"><span class="badge-check">&#10003;</span><span class="badge-label">Vacuum packaging for preservative free shelf life</span></div>
+        <div class="left-badge-row"><span class="badge-check">&#10003;</span><span class="badge-label">Know your Farmer</span></div>
+        <!-- <div class="left-badge-row"><span class="badge-check">&#10003;</span><span class="badge-label">Free cold-chain
+            shipping on all orders</span></div> -->
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT FORM PANEL -->
+  <div class="right-panel">
+    <div class="form-header">
+      <span class="form-header-tag">New Member</span>
+      <h1>Create your<br />account</h1>
+      <p>Join the ANAAD circle access full batch traceability, priority product selection, and subscription benefits.
+      </p>
+    </div>
+
+    <div class="form-error" *ngIf="error">{{ error }}</div>
+
+    <form class="signup-form" [formGroup]="registerForm" (ngSubmit)="onSubmit()" novalidate>
+
+      <div class="field-row">
+        <div class="field-group">
+          <label class="field-label">First Name</label>
+          <input class="field-input" [class.field-error]="f.first_name.invalid && f.first_name.touched" type="text"
+            formControlName="first_name" placeholder="Arjun" autocomplete="given-name" />
+          <span class="field-hint error" *ngIf="f.first_name.touched && f.first_name.invalid">First name
+            required.</span>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Last Name</label>
+          <input class="field-input" [class.field-error]="f.last_name.invalid && f.last_name.touched" type="text"
+            formControlName="last_name" placeholder="Sharma" autocomplete="family-name" />
+          <span class="field-hint error" *ngIf="f.last_name.touched && f.last_name.invalid">Last name required.</span>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field-group">
+          <label class="field-label">Email Address</label>
+          <input class="field-input" [class.field-error]="f.email.invalid && f.email.touched" type="email"
+            formControlName="email" placeholder="arjun@example.com" autocomplete="email" />
+          <span class="field-hint error" *ngIf="f.email.touched && f.email.hasError('required')">Email is
+            required.</span>
+          <span class="field-hint error" *ngIf="f.email.touched && f.email.hasError('email')">Please enter a valid
+            email.</span>
+
+          <!-- Email OTP verification block -->
+          <div class="otp-verification-inline" style="margin-top: 8px;">
+            @if (emailOtpStep() === 'idle') {
+            <button type="button" class="btn-otp-action" (click)="sendEmailOtp()"
+              [disabled]="f.email.invalid || emailOtpSending()">
+              {{ emailOtpSending() ? 'Sending OTP...' : 'Verify Email via OTP' }}
+            </button>
+            }
+            @if (emailOtpStep() === 'sent') {
+            <div class="otp-input-inline-row" style="display: flex; gap: 8px; margin-top: 4px;">
+              <input type="text" class="field-input otp-field" placeholder="Enter Email OTP" maxlength="8"
+                [value]="emailOtpValue()" (input)="emailOtpValue.set($any($event.target).value)"
+                style="max-width: 150px;" />
+              <button type="button" class="btn-otp-action verify" (click)="verifyEmailOtp()"
+                [disabled]="emailOtpVerifying() || !emailOtpValue()">
+                {{ emailOtpVerifying() ? 'Verifying...' : 'Verify' }}
+              </button>
+              <button type="button" class="btn-otp-action resend" (click)="sendEmailOtp()"
+                [disabled]="emailOtpResendTimer() > 0"
+                style="background: transparent; color: var(--green-deep); border: 1px solid var(--green-deep);">
+                {{ emailOtpResendTimer() > 0 ? 'Resend in ' + emailOtpResendTimer() + 's' : 'Resend' }}
+              </button>
+              <button type="button" class="btn-otp-action change" (click)="resetEmailOtp()"
+                style="background: transparent; border: none; color: var(--text-muted);">Change</button>
+            </div>
+            @if (emailOtpSuccessMsg()) {
+            <span class="field-hint success" style="color: var(--green-deep);">{{ emailOtpSuccessMsg() }}</span>
+            }
+            @if (emailOtpError()) {
+            <span class="field-hint error">{{ emailOtpError() }}</span>
+            }
+            }
+            @if (emailOtpStep() === 'verified') {
+            <div class="verified-badge"
+              style="display: flex; align-items: center; gap: 6px; color: var(--green-deep); font-size: 13px; font-weight: 500; margin-top: 4px;">
+              <span>✓ Email Verified</span>
+              <button type="button" (click)="resetEmailOtp()"
+                style="background: transparent; border: none; color: var(--text-muted); font-size: 11px; cursor: pointer; text-decoration: underline;">Change</button>
+            </div>
+            }
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Phone Number</label>
+          <input class="field-input" [class.field-error]="f.phone_number.invalid && f.phone_number.touched" type="tel"
+            formControlName="phone_number" placeholder="+91 98765 43210" autocomplete="tel" />
+          <span class="field-hint">Used for delivery updates and batch dispatch alerts only.</span>
+          <span class="field-hint error" *ngIf="f.phone_number.touched && f.phone_number.invalid">Enter a valid phone
+            number (10–13 digits).</span>
+
+          <!-- Phone OTP verification block -->
+          <div class="otp-verification-inline" style="margin-top: 8px;">
+            @if (phoneOtpStep() === 'idle') {
+            <button type="button" class="btn-otp-action" (click)="sendPhoneOtp()"
+              [disabled]="f.phone_number.invalid || phoneOtpSending()">
+              {{ phoneOtpSending() ? 'Sending OTP...' : 'Verify Phone via OTP' }}
+            </button>
+            }
+            @if (phoneOtpStep() === 'sent') {
+            <div class="otp-input-inline-row" style="display: flex; gap: 8px; margin-top: 4px;">
+              <input type="text" class="field-input otp-field" placeholder="Enter Phone OTP" maxlength="8"
+                [value]="phoneOtpValue()" (input)="phoneOtpValue.set($any($event.target).value)"
+                style="max-width: 150px;" />
+              <button type="button" class="btn-otp-action verify" (click)="verifyPhoneOtp()"
+                [disabled]="phoneOtpVerifying() || !phoneOtpValue()">
+                {{ phoneOtpVerifying() ? 'Verifying...' : 'Verify' }}
+              </button>
+              <button type="button" class="btn-otp-action resend" (click)="sendPhoneOtp()"
+                [disabled]="phoneOtpResendTimer() > 0"
+                style="background: transparent; color: var(--green-deep); border: 1px solid var(--green-deep);">
+                {{ phoneOtpResendTimer() > 0 ? 'Resend in ' + phoneOtpResendTimer() + 's' : 'Resend' }}
+              </button>
+              <button type="button" class="btn-otp-action change" (click)="resetPhoneOtp()"
+                style="background: transparent; border: none; color: var(--text-muted);">Change</button>
+            </div>
+            @if (phoneOtpSuccessMsg()) {
+            <span class="field-hint success" style="color: var(--green-deep);">{{ phoneOtpSuccessMsg() }}</span>
+            }
+            @if (phoneOtpError()) {
+            <span class="field-hint error">{{ phoneOtpError() }}</span>
+            }
+            }
+            @if (phoneOtpStep() === 'verified') {
+            <div class="verified-badge"
+              style="display: flex; align-items: center; gap: 6px; color: var(--green-deep); font-size: 13px; font-weight: 500; margin-top: 4px;">
+              <span>✓ Phone Verified</span>
+              <button type="button" (click)="resetPhoneOtp()"
+                style="background: transparent; border: none; color: var(--text-muted); font-size: 11px; cursor: pointer; text-decoration: underline;">Change</button>
+            </div>
+            }
+          </div>
+        </div>
+      </div>
+    <div class="field-row">
+
+      <div class="field-group">
+        <label class="field-label">Password</label>
+        <div class="password-wrap">
+          <input class="field-input" [class.field-error]="f.password.invalid && f.password.touched"
+            [type]="showPassword ? 'text' : 'password'" formControlName="password" placeholder="Minimum 8 characters"
+            autocomplete="new-password" />
+          <button type="button" class="toggle-pw" (click)="showPassword = !showPassword"
+            [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'">
+            <svg *ngIf="!showPassword" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2"
+              fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+            <svg *ngIf="showPassword" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2"
+              fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path
+                d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24">
+              </path>
+              <line x1="1" y1="1" x2="23" y2="23"></line>
+            </svg>
+          </button>
+        </div>
+        <div class="password-strength" *ngIf="f.password.value">
+          <div class="strength-bar" [class.filled-weak]="passwordStrength !== 'none'"
+            [class.filled-medium]="passwordStrength === 'medium' || passwordStrength === 'strong'"
+            [class.filled-strong]="passwordStrength === 'strong'"></div>
+          <div class="strength-bar"
+            [class.filled-medium]="passwordStrength === 'medium' || passwordStrength === 'strong'"
+            [class.filled-strong]="passwordStrength === 'strong'"></div>
+          <div class="strength-bar" [class.filled-strong]="passwordStrength === 'strong'"></div>
+        </div>
+        <span class="field-hint error" *ngIf="f.password.touched && f.password.hasError('minlength')">Password must be
+          at least 8 characters.</span>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Confirm Password</label>
+        <div class="password-wrap">
+          <input class="field-input"
+            [class.field-error]="(f.confirm_password.invalid || registerForm.hasError('passwordMismatch')) && f.confirm_password.touched"
+            [type]="showConfirm ? 'text' : 'password'" formControlName="confirm_password"
+            placeholder="Re-enter password" autocomplete="new-password" />
+          <button type="button" class="toggle-pw" (click)="showConfirm = !showConfirm"
+            [attr.aria-label]="showConfirm ? 'Hide password' : 'Show password'">
+            <svg *ngIf="!showConfirm" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2"
+              fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+            <svg *ngIf="showConfirm" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2"
+              fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path
+                d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24">
+              </path>
+              <line x1="1" y1="1" x2="23" y2="23"></line>
+            </svg>
+          </button>
+        </div>
+        <span class="field-hint error"
+          *ngIf="f.confirm_password.touched && registerForm.hasError('passwordMismatch')">Passwords do not match.</span>
+      </div>
+</div>
+
+      <div class="field-group" *ngIf="showReferralField()">
+        <label class="field-label">Referral Code (Optional)</label>
+        <input class="field-input" type="text" formControlName="referral_code" placeholder="e.g. REF12345" />
+      </div>
+
+      <button type="button" (click)="showReferralField.set(true)" *ngIf="!showReferralField()"
+        style="background: transparent; border: none; color: var(--green-deep); font-family: var(--font-sans); font-size: 13px; font-weight: 500; cursor: pointer; text-align: left; padding: 0; width: fit-content; text-decoration: underline; margin-bottom: 8px;">
+        Have a referral code?
+      </button>
+
+      <div class="terms-row">
+        <div class="terms-checkbox" [class.checked]="f.agree_terms.value"
+          (click)="f.agree_terms.setValue(!f.agree_terms.value)">
+          <span class="check-mark" *ngIf="f.agree_terms.value">&#10003;</span>
+        </div>
+        <p class="terms-text">
+          I agree to the <a routerLink="/terms-conditions" target="_blank">Terms &amp; Conditions</a>
+          and <a routerLink="/privacy-policy" target="_blank">Privacy Policy</a>.
+        </p>
+      </div>
+      <span class="field-hint error" *ngIf="f.agree_terms.touched && !f.agree_terms.value">You must agree to the terms
+        to continue.</span>
+
+      <button type="submit" class="btn-create" [disabled]="loading">
+        {{ loading ? 'CREATING ACCOUNT...' : 'CREATE ACCOUNT' }}
+      </button>
+
+      <!-- Social Authentication Section -->
+      <div class="social-divider">
+        <span>or sign up with</span>
+      </div>
+      <div class="social-actions">
+        <div id="googleBtnRegister" class="google-btn-wrapper"></div>
+        <button type="button" class="btn-apple" (click)="signInWithApple()" *ngIf="false">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
+            <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 
+            0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 
+            2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 
+            3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 
+            1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 
+            3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+          </svg>
+          <span>Sign up with Apple</span>
+        </button>
+      </div>
+
+      <div class="signin-row">
+        <span>Already have an account?</span>
+        <a routerLink="/login" [queryParams]="{returnUrl: route.snapshot.queryParams['returnUrl'] || null}"
+          class="signin-link">Sign In</a>
+      </div>
+    </form>
+  </div>
+</div>

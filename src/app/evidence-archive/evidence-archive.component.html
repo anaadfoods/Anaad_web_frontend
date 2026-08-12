@@ -1,80 +1,92 @@
-﻿<section class="evidence-hero">
-  <!-- Floating decorative shapes -->
-  <div class="evidence-hero__shape evidence-hero__shape--1"></div>
-  <div class="evidence-hero__shape evidence-hero__shape--2"></div>
-  <div class="evidence-hero__shape evidence-hero__shape--3"></div>
-
-  <h1 class="evidence-hero__title">THE EVIDENCE ARCHIVE</h1>
-  <p class="evidence-hero__subtitle">
-    We didn't invent these standards.<br />
-    Nature did. Science confirmed it.
-  </p>
-
-  <div class="evidence-hero__chips">
-    <button type="button" class="evidence-chip evidence-chip--1">[Peer Reviewed]</button>
-    <button type="button" class="evidence-chip evidence-chip--2">[Soil Science]</button>
-    <button type="button" class="evidence-chip evidence-chip--3">[Toxicology]</button>
-  </div>
-</section>
-
-<section class="evidence-list">
-  @if (loading) {
-    <div class="evidence-list__loading">
-      <div class="evidence-list__spinner"></div>
-      <p>Loading research papers...</p>
+<div class="archive-page">
+  <!-- HERO -->
+  <div class="evidence-hero">
+    <div class="hero-left">
+      <span class="hero-tag">Clinical Research Papers</span>
+      <h1>THE EVIDENCE<br />ARCHIVE</h1>
+      <p class="evidence-hero-sub">"We didn't invent these standards. Nature did. Science confirmed it."</p>
     </div>
-  }
+    <div class="hero-right">
+      <span class="hero-count">{{ papers.length || '20+' }}</span>
+      <span class="hero-count-label">Peer-reviewed studies</span>
+    </div>
+  </div>
 
-  @if (error) {
-    <div class="evidence-list__error">{{ error }}</div>
-  }
+  <!-- FILTER ROW -->
+  <!-- <div class="filter-row">
+    <span class="filter-label">Filter by</span>
+    <span class="filter-pill active">All Studies</span>
+    <span class="filter-pill">Peer Reviewed</span>
+    <span class="filter-pill">Soil Science</span>
+    <span class="filter-pill">Toxicology</span>
+    <span class="filter-pill">Nutrition</span>
+  </div> -->
 
-  @for (paper of papers; track paper.id; let i = $index) {
-    <article 
-      class="evidence-card evidence-card--reveal" 
-      [class.evidence-card--primary]="isSelected(paper.id)"
-      [style.--reveal-delay]="(i * 0.1) + 's'"
-      (click)="selectPaper(paper.id)">
-      
-      <header class="evidence-card__header">
-        <h2>STUDY {{ i + 1 }}: {{ paper.title }}</h2>
-        <p class="evidence-card__source">Source: {{ paper.subtitle }}</p>
-      </header>
-
-      @if (isSelected(paper.id)) {
-        <div class="evidence-card__body">
-          <div class="evidence-card__content" [innerHTML]="paper.description"></div>
-          
-          <p class="evidence-card__date">Published: {{ formatDate(paper.publication_date) }}</p>
-
-          <div class="evidence-card__actions">
-            @if (paper.external_link) {
-              <button 
-                type="button" 
-                class="evidence-card__summary-button" 
-                (click)="openExternalLink($event, paper.external_link)">
-                [READ SUMMARY SOURCE]
-              </button>
-            }
-            
-            @if (paper.pdf_file) {
-              <button 
-                type="button" 
-                class="evidence-card__download-button" 
-                (click)="downloadPdf($event, paper.pdf_file)">
-                Download PDF
-              </button>
-            }
+  <!-- STUDIES -->
+  <div class="studies-section">
+    <ng-container *ngIf="loading">
+      <div class="study-card" *ngFor="let i of [1, 2, 3]">
+        <div class="study-num-col">
+          <app-skeleton-loader width="40px" height="40px" borderRadius="4px"></app-skeleton-loader>
+        </div>
+        <div class="study-content">
+          <app-skeleton-loader width="120px" height="14px" borderRadius="2px"></app-skeleton-loader>
+          <app-skeleton-loader width="80%" height="28px" borderRadius="4px"></app-skeleton-loader>
+          <app-skeleton-loader width="60px" height="12px" borderRadius="2px"></app-skeleton-loader>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <app-skeleton-loader width="100%" height="16px" borderRadius="2px"></app-skeleton-loader>
+            <app-skeleton-loader width="90%" height="16px" borderRadius="2px"></app-skeleton-loader>
+            <app-skeleton-loader width="95%" height="16px" borderRadius="2px"></app-skeleton-loader>
           </div>
         </div>
-      }
-    </article>
-  }
-</section>
+      </div>
+    </ng-container>
 
-<section class="evidence-cta">
-  <div class="evidence-cta__card">
-    <h2 class="evidence-cta__title">The Data is Clear. The Choice is Logical.</h2>
-    <button type="button" class="evidence-cta__button" [routerLink]="['/join-waitlist']">Join the Waitlist</button>
+    <ng-container *ngIf="!loading && error">
+      <div style="padding: 40px 0; font-family: var(--font-sans); color: #8B2020;">
+        {{ error }}
+      </div>
+    </ng-container>
+
+    <div class="study-card" *ngFor="let paper of papers; let i = index">
+      <div class="study-num-col">
+        <span class="study-num">{{ (i + 1).toString().padStart(2, '0') }}</span>
+        <!-- Tags placeholder (if API eventually provides them, map here) -->
+        <!-- <span class="study-type-tag peer">Peer Reviewed</span> -->
+      </div>
+      <div class="study-content">
+        <div class="study-source-row">
+          <span class="study-source">{{ paper.subtitle || 'Research Publication' }}</span>
+          <span class="study-date" *ngIf="paper.publication_date">{{ formatDate(paper.publication_date) }}</span>
+        </div>
+        <h2 class="study-title">{{ paper.title }}</h2>
+        <span class="study-insights-label">Key Findings</span>
+
+        <!-- The API description HTML contains the findings and why it matters -->
+        <!-- For perfect matching, we apply the study-insights class to the wrapper. -->
+        <!-- If the backend HTML doesn't match the specific layout, it will still render. -->
+        <div class="dynamic-html-content" [innerHTML]="paper.description"></div>
+
+        <div style="margin-top: 16px; display:flex; gap:16px;">
+          <a *ngIf="paper.external_link" [href]="paper.external_link" target="_blank"
+            style="font-family: var(--font-sans); font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--green-deep); text-decoration: underline;">Read
+            Original Paper</a>
+        </div>
+      </div>
+    </div>
   </div>
-</section>
+
+  <!-- CTA BAND -->
+  <div class="cta-band">
+    <div class="cta-left">
+      <span class="cta-tag">Act on the evidence</span>
+      <h2>The data is clear.<br />The choice is yours.</h2>
+      <p>Every study above points to the same conclusion: what you eat, and how it was grown, has consequences that
+        extend far beyond your kitchen. Choose grain that is clean at the source.</p>
+      <div class="cta-actions">
+        <a routerLink="/product" class="btn-cta-primary">Shop Clean Grain &#8594;</a>
+        <a routerLink="/blogs" class="btn-cta-secondary">Read the Blog</a>
+      </div>
+    </div>
+  </div>
+</div>

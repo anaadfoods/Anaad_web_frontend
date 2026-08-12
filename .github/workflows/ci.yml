@@ -1,0 +1,52 @@
+name: CI — Anaad Foods Angular
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [20.x]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      # 1. TypeScript type check
+      - name: Type check
+        run: npx tsc --noEmit
+
+      # 2. Build check (SSR production build)
+      - name: Production build
+        run: npx ng build --configuration=production
+
+      # 3. Ban console.log in production code
+      - name: Check for console.log
+        run: |
+          if grep -rn "console\.log\|console\.warn\|console\.debug" src/app --include="*.ts" | grep -v "log.service.ts" | grep -v "node_modules"; then
+            echo "::error::Found console.log statements in production code. Use LogService instead."
+            exit 1
+          fi
+          echo "✅ No console.log found in production code"
+
+      # 4. Check for HTTP raw IP addresses
+      - name: Check for insecure URLs
+        run: |
+          if grep -rn "http://[0-9]" src/app --include="*.ts"; then
+            echo "::warning::Found HTTP requests to raw IP addresses."
+          fi
+          echo "✅ Insecure URL check complete"

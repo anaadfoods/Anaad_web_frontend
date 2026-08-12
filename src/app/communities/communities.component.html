@@ -1,82 +1,241 @@
-<div class="communities-page">
-  <!-- Main Communities Section -->
-  <section class="communities-main">
-    <div class="container">
-      <h1 class="page-title">ANAAD's Communities</h1>
-
-      <!-- Row 1: KRINITY (board left, text right) -->
-      <div class="row" revealOnScroll>
-        <div class="board board-green" revealOnScroll tiltOnHover [parallaxOnScroll]="true"
-          style="--reveal-delay: 400ms;">
-          <span class="badge">Coming Soon <span class="leaf" aria-hidden="true">🍃</span></span>
-          <div class="board-surface">
-            <h4 class="board-title">Benefits</h4>
-            <ul class="board-list">
-              <li>Share Proven ICBN Agricultural Techniques</li>
-              <li>Get Insights from Real Success Stories</li>
-              <li>Find Your Farming Brotherhood</li>
-              <li>Connect with Real-Time Experts for Advice</li>
-              <li>Boast Your Harvest with Pride</li>
-            </ul>
-          </div>
-        </div>
-
-        <div class="text-block" revealOnScroll [parallaxOnScroll]="true" style="--reveal-delay: 600ms;">
-          <br/>
-          <img src="assets/images/4.svg" alt="KRINITY - A Krishi Community" width="150px" />
-          <h3 class="tag">A Krishi Community</h3>
-          <p>
-            Farming has always been a community effort, but modern times have isolated the grower. KRINITY is a
-            dedicated digital platform designed to bring that connection back. Think of it as a digital brotherhood
-            where farmers can create profiles, follow like-minded peers, and share their daily farming challenges. This
-            is a space to post stories from the field, exchange technical wisdom on ICBN farming and read testimonials
-            from others who have broken free from the chemical cycle. It is no longer about struggling alone; it is all
-            about uniting with your tribe.
-          </p>
-          <button class="btn-register" type="button" routerLink="/register" (mouseenter)="onButtonHover($event)"
-            (mouseleave)="onButtonLeave($event)" (click)="onButtonClick($event)">
-            <span>Register</span>
-          </button>
-        </div>
+<div class="communities-page-wrap">
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-inner">
+      <span class="hero-eyebrow">Living Communities</span>
+      <h1>Where Farmers &amp;<br><span>Families</span> Meet</h1>
+      <p class="hero-sub">Two communities. One mission. Building the bridge between those who grow real food and those who demand it.</p>
+      <div class="hero-pill">
+        <span class="hero-pill-dot"></span>
+        <span class="hero-pill-text">Both Communities Launching Soon</span>
       </div>
+    </div>
+  </section>
 
-      <!-- Row 2: GRANITY (text left, board right) -->
-      <div class="row" revealOnScroll>
-        <div class="text-block maroon" revealOnScroll [parallaxOnScroll]="true" style="--reveal-delay: 1000ms;">
-          <img src="assets/images/3.svg" alt="KRINITY - A Krishi Community" width="150px" />
-          <h3 class="tag">A Grahak Community</h3>
-          <p>
-            Adopting a Toxin-Free lifestyle is a quiet revolution. Whether you are optimizing your own biology or
-            protecting a household, the path away from industrial shortcuts should not be walked alone.
-          </p>
-          <p>
-            GRANITY is the exclusive alliance for those who demand better. Here, we exchange Heirloom culinary wisdom,
-            document the reversal of Modern Lifestyle Diseases, and decode the link between soil health and mental
-            clarity. It is no longer about isolated choices; it is about shared impact. GRANITY is where your personal
-            standard for purity finds its collective strength.
-          </p>
-          <button class="btn-register" type="button" routerLink="/register" (mouseenter)="onButtonHover($event)"
-            (mouseleave)="onButtonLeave($event)" (click)="onButtonClick($event)">
-            <span>Register</span>
-          </button>
+  <!-- DIVIDER STRIP -->
+  <div class="divider-strip">
+    <div class="divider-inner">
+      <div class="divider-stat">
+        <span class="divider-num">2</span>
+        <span class="divider-label">Communities</span>
+      </div>
+      <div class="divider-stat">
+        <span class="divider-num">1</span>
+        <span class="divider-label">Mission</span>
+      </div>
+      <div class="divider-stat">
+        <span class="divider-num">&#8734;</span>
+        <span class="divider-label">Connections</span>
+      </div>
+      <div class="divider-stat">
+        <span class="divider-num">0</span>
+        <span class="divider-label">Middlemen</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMMUNITIES CONTENT -->
+  <div class="communities-wrap">
+
+    <!-- KRINITY -->
+    <div class="community-block">
+      <div class="community-identity">
+        <div class="community-badge">
+          <div class="badge-icon krinity">&#127807;</div>
+          <span class="badge-name krinity">KRINITY</span>
+        </div>
+        <h2 class="community-headline">The Farmer's<br>Brotherhood</h2>
+        <p class="community-tagline">KRINITY — from <em>Krishi</em> (agriculture) — is ANAAD's exclusive network for farmers practicing or transitioning to ICBN (Indian Cow Based Natural) farming. Share wisdom, get support, find your tribe.</p>
+
+        <div class="community-meta">
+          <div class="meta-row"><span class="meta-dot"></span>For farmers practising or exploring ICBN methods</div>
+          <div class="meta-row"><span class="meta-dot"></span>Direct channel to ANAAD's agronomy experts</div>
+          <div class="meta-row"><span class="meta-dot"></span>Verified network — each member's land is traceable</div>
+          <div class="meta-row"><span class="meta-dot"></span>Priority access to contract farming opportunities</div>
         </div>
 
-        <div class="board board-maroon" revealOnScroll tiltOnHover [parallaxOnScroll]="true"
-          style="--reveal-delay: 1200ms;">
-          <span class="badge">Coming Soon <span class="leaf" aria-hidden="true">🍃</span></span>
-          <div class="board-surface">
-            <h4 class="board-title">Benefits</h4>
-            <ul class="board-list">
-              <li>Connect with Conscious Families</li>
-              <li>Exchange Heirloom Recipes</li>
-              <li>Share Health Transformation Stories</li>
-              <li>Unfiltered Nutrition Discussions</li>
-              <li>Support for Your Lifestyle Switch</li>
-              <li>Exclusive Behind-the-Scenes Access</li>
-            </ul>
+        <div class="coming-soon-cta">
+          <div class="coming-soon-tag">
+            <span class="coming-soon-dot green"></span>
+            <span class="coming-soon-text green">Coming Soon — Pre-Register Now</span>
+          </div>
+          <div class="cta-row">
+            <a routerLink="/contact" class="cta-btn green">Register as a Farmer &#8594;</a>
+            <a routerLink="/rfp" class="cta-btn outline-green">Learn About RFP</a>
           </div>
         </div>
       </div>
+
+      <div class="benefits-card">
+        <div class="benefits-card-header green">
+          <h3>What You Get in KRINITY</h3>
+          <p>5 pillars of the farmer network</p>
+        </div>
+        <div class="benefits-list">
+          <div class="benefit-item">
+            <span class="benefit-num green">1</span>
+            <div class="benefit-text">
+              <span class="benefit-title">Share ICBN Techniques</span>
+              <span class="benefit-desc">Exchange field-tested methods for Jeevamrit preparation, Beejamrit seed treatment, and natural pest management with fellow ICBN practitioners.</span>
+            </div>
+          </div>
+          <div class="benefit-item">
+            <span class="benefit-num green">2</span>
+            <div class="benefit-text">
+              <span class="benefit-title">Get Real Insights</span>
+              <span class="benefit-desc">Access crop calendars, soil health data, and weather-adjusted guidance built on real farm outcomes from ANAAD's network — not textbook theory.</span>
+            </div>
+          </div>
+          <div class="benefit-item">
+            <span class="benefit-num green">3</span>
+            <div class="benefit-text">
+              <span class="benefit-title">Find Farming Brotherhood</span>
+              <span class="benefit-desc">Connect with farmers across Haryana, Punjab, and beyond who share your commitment to soil-first agriculture. You are not alone in this work.</span>
+            </div>
+          </div>
+          <div class="benefit-item">
+            <span class="benefit-num green">4</span>
+            <div class="benefit-text">
+              <span class="benefit-title">Connect with Experts</span>
+              <span class="benefit-desc">Regular AMAs and virtual field visits with soil scientists, ICBN specialists, and ANAAD's own agronomy team — ask what you need, directly.</span>
+            </div>
+          </div>
+          <div class="benefit-item">
+            <span class="benefit-num green">5</span>
+            <div class="benefit-text">
+              <span class="benefit-title">Boast Your Harvest</span>
+              <span class="benefit-desc">Showcase your best yields, share your batch registry links with consumers, and receive community recognition for exceptional produce quality.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="section-sep">
+
+    <!-- GRANITY -->
+    <div class="community-block reverse">
+      <div class="community-identity">
+        <div class="community-badge">
+          <div class="badge-icon granity">&#127968;</div>
+          <span class="badge-name granity">GRANITY</span>
+        </div>
+        <h2 class="community-headline">The Conscious<br>Consumer Circle</h2>
+        <p class="community-tagline">GRANITY — from <em>Grahak</em> (consumer) — is where families who care about what's on their plate come together. Share recipes, question labels, swap health stories, and hold the food system accountable.</p>
+
+        <div class="community-meta">
+          <div class="meta-row"><span class="meta-dot"></span>For families seeking real, traceable, heirloom food</div>
+          <div class="meta-row"><span class="meta-dot"></span>Private, curated — no influencer noise</div>
+          <div class="meta-row"><span class="meta-dot"></span>Behind-the-scenes access to ANAAD's farm operations</div>
+          <div class="meta-row"><span class="meta-dot"></span>Early product drops before public launch</div>
+        </div>
+
+        <div class="coming-soon-cta">
+          <div class="coming-soon-tag">
+            <span class="coming-soon-dot amber"></span>
+            <span class="coming-soon-text amber">Coming Soon — Join the Waitlist</span>
+          </div>
+          <div class="cta-row">
+            <a routerLink="/contact" class="cta-btn amber">Join GRANITY Waitlist &#8594;</a>
+            <a routerLink="/commitment" class="cta-btn outline-green">View CBA Plans</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="benefits-card">
+        <div class="benefits-card-header amber">
+          <h3>What You Get in GRANITY</h3>
+          <p>6 pillars of the conscious consumer circle</p>
+        </div>
+        <div class="benefits-list">
+          <div class="benefit-item">
+            <span class="benefit-num amber">1</span>
+            <div class="benefit-text">
+              <span class="benefit-title">Conscious Families</span>
+              <span class="benefit-desc">Be part of a vetted circle of families who have made the commitment to eat real food. Shared values, shared stories, real conversation — no brand noise.</span>
+            </div>
+          </div>
+          <div class="benefit-item">
+            <span class="benefit-num amber">2</span>
+            <div class="benefit-text">
+              <span class="benefit-title">Heirloom Recipes</span>
+              <span class="benefit-desc">Discover and share recipes built around ANAAD's seasonal grains — from Emmer khichdi to Kodo millet kheer. Community-curated, kitchen-tested.</span>
+            </div>
+          </div>
+          <div class="benefit-item">
+            <span class="benefit-num amber">3</span>
+            <div class="benefit-text">
+              <span class="benefit-title">Health Stories</span>
+              <span class="benefit-desc">Real accounts from GRANITY members on how switching to heirloom grains has affected digestion, energy, and long-term wellness — evidence over anecdote.</span>
+            </div>
+          </div>
+          <div class="benefit-item">
+            <span class="benefit-num amber">4</span>
+            <div class="benefit-text">
+              <span class="benefit-title">Nutrition Discussions</span>
+              <span class="benefit-desc">Deep-dive threads on the science of ancestral nutrition — glycaemic index, phytate content, traditional fermentation, and what modern food processing strips away.</span>
+            </div>
+          </div>
+          <div class="benefit-item">
+            <span class="benefit-num amber">5</span>
+            <div class="benefit-text">
+              <span class="benefit-title">Lifestyle Support</span>
+              <span class="benefit-desc">From meal planning around your CBA box to transitioning children to natural foods — community support for every step of the real-food journey.</span>
+            </div>
+          </div>
+          <div class="benefit-item">
+            <span class="benefit-num amber">6</span>
+            <div class="benefit-text">
+              <span class="benefit-title">Behind-the-Scenes Access</span>
+              <span class="benefit-desc">Live farm visits (virtual and in-person), pre-harvest dispatches, batch photos, and direct Q&amp;As with the farmers who grew your food.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- VISION BAND -->
+  <div class="vision-band">
+    <div class="vision-inner">
+      <div class="vision-text">
+        <span class="vision-eyebrow">The Bigger Picture</span>
+        <h2 class="vision-headline">Two Communities.<br>One Food System.</h2>
+        <p class="vision-body">When farmers and conscious consumers are in the same room — talking, trusting, transacting directly — the entire food supply chain transforms. KRINITY and GRANITY are not just groups; they are the infrastructure of a post-industrial food movement.</p>
+      </div>
+      <div class="vision-stats">
+        <div class="vs-item">
+          <span class="vs-num">&#8734;</span>
+          <span class="vs-label">Conversations between farmers &amp; families</span>
+        </div>
+        <div class="vs-item">
+          <span class="vs-num">0</span>
+          <span class="vs-label">Intermediaries between soil and plate</span>
+        </div>
+        <div class="vs-item">
+          <span class="vs-num">100%</span>
+          <span class="vs-label">Traceability — every batch, every grain</span>
+        </div>
+        <div class="vs-item">
+          <span class="vs-num">2</span>
+          <span class="vs-label">Communities, one shared commitment</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- NOTIFY SECTION -->
+  <section class="notify-section" style="padding-top:72px;">
+    <div class="notify-card">
+      <span class="notify-icon">&#128233;</span>
+      <h2 class="notify-headline">Be First Through the Door</h2>
+      <p class="notify-sub">KRINITY and GRANITY are launching soon. Drop your email below and we'll notify you the moment registrations open — with founding member privileges.</p>
+      <div class="notify-form">
+        <input type="email" placeholder="your@email.com">
+        <button type="button">Notify Me</button>
+      </div>
+      <p style="font-size:12px; color:var(--warm-gray);">Founding members get early access + a surprise from the farm. No spam, ever.</p>
     </div>
   </section>
 </div>

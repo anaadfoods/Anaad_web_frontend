@@ -1,7 +1,10 @@
-// Design tokens: swap values with your brand colors and typography
+// ============================================
+// Design Tokens
+// Merged: existing brand + Website UI mockups
+// ============================================
 
 // SCSS variables (authoring-time)
-// Brand colors from design board
+// ── Existing brand colors ───────────────────
 $color-primary: #3f5e46; // Deep organic green
 $color-primary-600: #2f4634; // Darker shade
 $color-secondary: #ad8441; // Gold/ochre accent
@@ -13,6 +16,18 @@ $color-text-muted: #6f665c; // Warm gray
 $color-success: #3f5e46;
 $color-warning: #ad8441;
 $color-error: #6b1e1e;
+
+// ── Mockup-aligned palette ──────────────────
+$bg-parchment:     #F5F0E8;
+$green-deep:       #2C4A1E;
+$green-mid:        #3f5e46;
+$amber-harvest:    #C9943A;
+$earth-raw:        #6B4226;
+$charcoal:         #1A1A1A;
+$cream-light:      #FAF7F0;
+$border-subtle:    rgba(26, 26, 26, 0.10);
+$text-faded:       rgba(26, 26, 26, 0.50);
+$text-ghost:       rgba(26, 26, 26, 0.28);
 
 $radius-sm: 8px;
 $radius-md: 14px;
@@ -27,20 +42,20 @@ $space-2: 8px;
 $space-3: 12px;
 $space-4: 16px;
 $space-5: 20px;
-$space-6: 24px;
-$space-7: 28px;
-$space-8: 32px;
-$space-10: 40px;
-$space-12: 48px;
-$space-16: 64px;
+$space-6: 20px;
+$space-7: 20px;
+$space-8: 20px;
+$space-10: 20px;
+$space-12: 20px;
+$space-16: 20px;
 
 // CSS custom properties (runtime)
 :root {
-  --color-primary: #{$color-primary};
-  --color-primary-600: #{$color-primary-600};
+  --color-primary: var(--green-mid);
+  --color-primary-600: #2f4634;
   --color-secondary: #{$color-secondary};
   --color-accent: #{$color-accent};
-  --color-bg: #{$color-bg};
+  --color-bg: var(--bg-parchment);
   --color-surface: #{$color-surface};
   --color-text: #{$color-text};
   --color-text-muted: #{$color-text-muted};
@@ -48,9 +63,26 @@ $space-16: 64px;
   --color-warning: #{$color-warning};
   --color-error: #{$color-error};
 
+  /* Mockup-aligned design tokens */
+  --bg-parchment:     #{$bg-parchment};
+  --green-deep:       #{$green-deep};
+  --green-mid:        #{$green-mid};
+  --amber-harvest:    #{$amber-harvest};
+  --earth-raw:        #{$earth-raw};
+  --charcoal:         #{$charcoal};
+  --cream-light:      #{$cream-light};
+  --border-subtle:    #{$border-subtle};
+  --text-faded:       #{$text-faded};
+  --text-ghost:       #{$text-ghost};
+
+  /* Section Spacing Tiers – capped at 20px for consistent tight layout */
+  --section-pad-xl: 20px;
+  --section-pad-lg: 20px;
+  --section-pad-md: 20px;
+
   /* Typography families (Google alternatives for now) */
-  --font-sans: 'Outfit', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
-  --font-serif: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  --font-sans: 'DM Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+  --font-serif: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
   --font-script: 'Allura', 'Segoe Script', cursive;
 
   --radius-sm: #{$radius-sm};
@@ -80,6 +112,7 @@ body { color: var(--color-text); background: var(--color-bg); font-family: var(-
 .container {
   width: min(1200px, 100% - 32px);
   margin-inline: auto;
+  padding-inline: clamp(1.25rem, 5vw, 4rem);
 }
 
 .btn {
@@ -137,3 +170,13 @@ body { color: var(--color-text); background: var(--color-bg); font-family: var(-
   transition: top 0.2s ease;
 }
 .skip-link:focus { top: 8px; outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, #fff 60%, transparent); }
+
+/* ───────────────────────────────────────
+   DOCUMENTED SITE-WIDE Z-INDEX SCALE:
+   - 100: Sticky headers / navigation bars
+   - 200: Tooltips and inline popovers
+   - 300: Standard dropdowns
+   - 400: Modals / overlays
+   - 500: Toasts / top-level alerts
+   ─────────────────────────────────────── */
+

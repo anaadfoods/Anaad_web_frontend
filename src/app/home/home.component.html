@@ -1,396 +1,336 @@
-<!-- Reddish hero band with wavy design - blank panel -->
-<section class="hero-band" revealOnScroll>
-  <!-- Animated gradient overlay -->
-  <div class="hero-gradient-overlay"></div>
+<!-- ═══ IMAGE CAROUSEL SECTION ═══ -->
+<section class="home-carousel-section" revealOnScroll>
+  <div class="carousel-container" [style.--active-index]="activeIndex" [style.--drag-offset.px]="dragOffset"
+    [class.is-dragging]="isDragging" (mouseenter)="onMouseEnter()" (mouseleave)="onMouseLeave()"
+    (pointerdown)="onPointerDown($event)" (pointermove)="onPointerMove($event)" (pointerup)="onPointerEnd($event)"
+    (pointercancel)="onPointerEnd($event)" (pointerleave)="onPointerLeave($event)">
+    <div class="carousel-track">
+      <a *ngFor="let img of carouselImages; let i = index" class="carousel-slide" [class.active]="i === activeIndex"
+        routerLink="/products" (click)="onSlideClick($event)">
+        <picture class="carousel-picture">
+          <source media="(max-width: 768px)" [srcset]="img.mobile">
+          <source media="(min-width: 769px)" [srcset]="img.desktop">
+          <img [src]="img.desktop" alt="Anaad Farm Image" class="carousel-image" />
+        </picture>
+      </a>
+    </div>
 
-  <!-- Floating background shapes -->
-  <div class="hero-shape hero-shape--1"></div>
-  <div class="hero-shape hero-shape--2"></div>
-  <div class="hero-shape hero-shape--3"></div>
-  <div class="hero-shape hero-shape--4"></div>
-  <div class="hero-shape hero-shape--5"></div>
+    <!-- Arrow Controls -->
+    <!-- <button class="carousel-control prev" (click)="prevSlide()" aria-label="Previous slide">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+        stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"></polyline>
+      </svg>
+    </button>
+    <button class="carousel-control next" (click)="nextSlide()" aria-label="Next slide">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+        stroke-linejoin="round">
+        <polyline points="9 18 15 12 9 6"></polyline>
+      </svg> -->
+    <!-- </button> -->
 
-  <!-- Floating orbs with glow -->
-  <div class="hero-orb hero-orb--1"></div>
-  <div class="hero-orb hero-orb--2"></div>
-  <div class="hero-orb hero-orb--3"></div>
-
-  <!-- Glow rings -->
-  <div class="hero-ring hero-ring--1"></div>
-  <div class="hero-ring hero-ring--2"></div>
-
-  <!-- Floating particles -->
-  <div class="hero-particle hero-particle--1"></div>
-  <div class="hero-particle hero-particle--2"></div>
-  <div class="hero-particle hero-particle--3"></div>
-  <div class="hero-particle hero-particle--4"></div>
-  <div class="hero-particle hero-particle--5"></div>
-  <div class="hero-particle hero-particle--6"></div>
-  <div class="hero-particle hero-particle--7"></div>
-  <div class="hero-particle hero-particle--8"></div>
-  <div class="hero-particle hero-particle--9"></div>
-  <div class="hero-particle hero-particle--10"></div>
-
-  <!-- Sparkle effects -->
-  <div class="hero-sparkle hero-sparkle--1"></div>
-  <div class="hero-sparkle hero-sparkle--2"></div>
-  <div class="hero-sparkle hero-sparkle--3"></div>
-  <div class="hero-sparkle hero-sparkle--4"></div>
-  <div class="hero-sparkle hero-sparkle--5"></div>
-  <div class="hero-sparkle hero-sparkle--6"></div>
-  <div class="hero-sparkle hero-sparkle--7"></div>
-
-  <!-- Light rays -->
-  <div class="hero-rays"></div>
-
-  <!-- Picture container -->
-  <div class="hero-picture-container">
-    <img src="assets/images/Header-Home Page.svg" alt="Hero" class="hero-picture" />
-  </div>
-
-  <!-- Wavy desert dunes divider -->
-  <div class="hero-waves">
-    <svg class="hero-wave-svg" viewBox="0 0 1440 120" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-      <path class="wave-layer wave-layer--back"
-        d="M0,50 C180,25 360,60 540,45 C720,25 900,55 1080,40 C1260,20 1380,50 1440,40 L1440,120 L0,120 Z" />
-      <path class="wave-layer wave-layer--mid"
-        d="M0,65 C200,45 400,80 600,65 C800,45 1000,75 1200,58 C1350,42 1400,65 1440,58 L1440,120 L0,120 Z" />
-      <path class="wave-layer wave-layer--front"
-        d="M0,80 C150,62 350,95 550,80 C750,62 950,92 1150,75 C1300,62 1380,85 1440,80 L1440,120 L0,120 Z" />
-    </svg>
+    <!-- Dots Navigation -->
+    <div class="carousel-dots">
+      <button *ngFor="let img of carouselImages; let i = index" class="carousel-dot" [class.active]="i === activeIndex"
+        (click)="setActiveIndex(i)" [attr.aria-label]="'Go to slide ' + (i + 1)"></button>
+    </div>
   </div>
 </section>
-
-<!-- Cream text section with clean background -->
-<section class="cream-text-section" revealOnScroll>
-  <!-- Ambient floating elements -->
-  <div class="cream-ambient cream-ambient--1"></div>
-  <div class="cream-ambient cream-ambient--2"></div>
-  <div class="cream-ambient cream-ambient--3"></div>
-
-  <!-- Leaf particles -->
-  <div class="cream-leaf cream-leaf--1">🌿</div>
-  <div class="cream-leaf cream-leaf--2">🍃</div>
-  <div class="cream-leaf cream-leaf--3">🌱</div>
-
-  <div class="container center">
-    <h1 class="cream-title">
-      <span class="cream-title__word cream-title__word--1">"Toxin-free ICBN"</span>
-
-      <!-- <span class="cream-title__word cream-title__word--2">The Only Luxury that Matters</span> -->
+<!-- ═══ HERO SECTION ═══ -->
+<section class="hero" revealOnScroll>
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <div class="hero-eyebrow">ICBN Farming &nbsp;·&nbsp; Est. 2023</div>
+    <h1 class="heading-display heading-display--light">Traceable food from living soil,<br>grown beyond the market's
+      <em>shortcuts.</em>
     </h1>
-    <br />
-    <p class="cream-tagline">
-      <span class="cream-tagline__line cream-tagline__line--1">The antidote to <i>Modern Lifestyle
-          Diseases</i>.</span>
-      <br />
-      <span class="cream-tagline__line cream-tagline__line--2">A movement for <i>Environmental Health</i>.</span>
-      <br />
-      <span class="cream-tagline__line cream-tagline__line--3">The future of <i>Farmer Economic Welfare</i>.</span>
-    </p>
-    <div class="cta"><a routerLink="/our-story" class="btn btn-green pill">Explore Our Story</a></div>
+    <p>We grow toxin-free ICBN food you can trace to its roots, preserving nutritional integrity to nourish people,
+      revive ecosystems, and raise farmers’ livelihoods.</p>
+    <div class="hero-actions">
+      <a routerLink="/our-soil" class="btn-primary">How We Farm &rarr;</a>
+      <a [routerLink]="['/registry']" fragment="ledger" class="btn-ghost-light">View Batch Records &rarr;</a>
+    </div>
   </div>
 </section>
 
-<!-- Three gradient cards -->
-<section class="trio">
-  <div class="container trio-grid">
-    <article class="panel gold">
-      <h3>For Indian Home</h3>
-      <div class="thumb">
-        <img src="assets/images/grinity.svg" alt="For Indian Home" />
+
+<div class="home-wrap">
+
+  <!-- ═══ MANIFESTO SECTION ═══ -->
+  <section class="manifesto" revealOnScroll>
+    <div class="manifesto-left">
+      <div class="section-label">Our Pledge</div>
+      <div class="divider-rule"></div>
+
+      <h2 class="heading-1">We don't use the word 'organic.' Here is <em>why.</em></h2>
+      <div style="display: flex; flex-direction: column; gap: 16px;">
+        <p>Organic certifications can tell you what has been left out, but they do not always tell you whether the soil
+          beneath the crop is truly alive. For grain to be deeply nourishing, the soil must be active with life, because
+          living soil helps the crop access minerals, build resilience, and develop fuller nutrition naturally.</p>
+        <p>ANAAD practices Indigenous Cow Based Natural farming by building fertility inside the soil with on-farm
+          inputs. The goal is simple: support a thriving soil ecosystem so the crop can grow in the way nature intended.
+        </p>
       </div>
-      <p>Secure your family's share of the harvest by joining the priority waitlist for our App. Access commitment-based
-        subscriptions of rare Native staple varieties</p>
-      <a class="link" routerLink="/our-story" fragment="stronger-nation">Join the Domestic List</a>
-    </article>
-    <article class="panel gold-green">
-      <h3>For International Community</h3>
-      <div class="thumb">
-        <img src="assets/images/International_communities.svg" alt="For International Community" />
+    </div>
+    <div class="manifesto-right">
+      <a class="manifesto-card" routerLink="/product" style="text-decoration: none;">
+        <div class="manifesto-card-number">01 — Seed Integrity</div>
+        <h3 class="heading-3">Seed integrity, carried forward</h3>
+        <p>The farm grows carefully selected traditional grain varieties that are naturally suited to the local soil and
+          climate. This helps preserve character, resilience, and nutrition while honoring a generational lineage of
+          seeds that can be carried forward season after season.</p>
+      </a>
+      <a class="manifesto-card" routerLink="/product" style="text-decoration: none;">
+        <div class="manifesto-card-number">02 — Soil Science</div>
+        <h3 class="heading-3">Enriching the microbial population</h3>
+        <p>A healthy microbial population is essential because soil microbes help unlock nutrition for the crop in forms
+          the plant can actually absorb. Nitrogen-fixing bacteria such as Rhizobium and Azotobacter,
+          phosphate-solubilizing bacteria such as Bacillus megaterium and Pseudomonas fluorescens, and
+          potassium-mobilizing bacteria such as Bacillus mucilaginosus help keep soil fertility active and balanced,
+          making microbial abundance essential for reducing dependence on synthetic farm chemicals.</p>
+      </a>
+      <a class="manifesto-card" routerLink="/product" style="text-decoration: none;">
+        <div class="manifesto-card-number">03 — Post-Harvest</div>
+        <h3 class="heading-3">Tradition, strengthened by technology</h3>
+        <p>ANAAD combines traditional wisdom with modern processing discipline to retain maximum nutrition while
+          achieving the consistency and efficiency needed for contemporary food systems. The result is processing that
+          respects the integrity of the crop without compromising the nutritional value cultivated in the field.</p>
+      </a>
+    </div>
+  </section>
+  <!-- ═══ RADICAL TRANSPARENCY ═══ 
+  <section class="transparency" revealOnScroll>
+    <div class="transparency-dashboard">
+      <div class="dashboard-header">
+        <div class="dashboard-logo-text">ANAAD · OPEN LEDGER</div>
+        <div class="dashboard-status-dot"></div>
       </div>
-      <p>The finest of India, for the world. We are bringing Heirloom seeds and Regional superfoods to the global stage.
-        Register your interest for our upcoming international shipping launch.</p>
-      <a class="link" routerLink="/our-story" fragment="global-commitment">Join the Global List</a>
-    </article>
-    <article class="panel gold">
-      <h3>For Business Partnerships</h3>
-      <div class="thumb">
-        <img src="assets/images/Business_Partnerships.svg" alt="For Business Partnerships" />
-      </div>
-      <p>For HORECA and brands refusing to compromise. Partner with us for a transparent, Toxin-Free ICBN supply chain
-        that validates your commitment to quality.</p>
-      <a class="link" routerLink="/our-story" fragment="sustainable-future">Partner With Us</a>
-    </article>
-  </div>
-</section>
-
-<!-- Subscription Plans section -->
-<section class="plans-block plans-block--coming-soon">
-  <div class="container">
-    <!-- Blurred carousel wrapper -->
-    <div class="plans-carousel-wrapper">
-      <!-- Floating particles for overlay -->
-      <!-- <div class="plans-particle plans-particle--1"></div>
-      <div class="plans-particle plans-particle--2"></div>
-      <div class="plans-particle plans-particle--3"></div>
-      <div class="plans-particle plans-particle--4"></div>
-      <div class="plans-particle plans-particle--5"></div>
-      <div class="plans-particle plans-particle--6"></div> -->
-
-      <!-- Animated rings -->
-      <!-- <div class="plans-ring plans-ring--1"></div>
-      <div class="plans-ring plans-ring--2"></div>
-      <div class="plans-ring plans-ring--3"></div> -->
-
-      <!-- Sparkles
-      <div class="plans-sparkle plans-sparkle--1"></div>
-      <div class="plans-sparkle plans-sparkle--2"></div>
-      <div class="plans-sparkle plans-sparkle--3"></div>
-      <div class="plans-sparkle plans-sparkle--4"></div> -->
-
-      <!-- Floating orbs -->
-      <!-- <div class="plans-orb plans-orb--1"></div>
-      <div class="plans-orb plans-orb--2"></div> -->
-
-      <!-- Coming Soon overlay (on top of blurred carousel) -->
-      <div class="plans-overlay">
-        <!-- Aurora/Northern Lights waves -->
-        <!-- <div class="aurora">
-          <div class="aurora__wave aurora__wave--1"></div>
-          <div class="aurora__wave aurora__wave--2"></div>
-          <div class="aurora__wave aurora__wave--3"></div>
-          <div class="aurora__wave aurora__wave--4"></div>
-        </div> -->
-
-        <!-- Falling snowflakes
-        <div class="snowflake snowflake--1">❄</div>
-        <div class="snowflake snowflake--2">❅</div>
-        <div class="snowflake snowflake--3">❆</div>
-        <div class="snowflake snowflake--4">❄</div>
-        <div class="snowflake snowflake--5">❅</div>
-        <div class="snowflake snowflake--6">❆</div>
-        <div class="snowflake snowflake--7">❄</div>
-        <div class="snowflake snowflake--8">❅</div> -->
-
-        <div class="plans-overlay__content">
-          <div class="plans-overlay__icon">
-            <!-- Rotating ring around clock -->
-            <div class="rotating-ring"></div>
-            <div class="rotating-ring rotating-ring--reverse"></div>
-            <!-- Summer branch on clock -->
-            <div class="summer-branch">
-              <svg viewBox="0 0 100 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <!-- Branch shadow -->
-                <ellipse cx="52" cy="72" rx="40" ry="6" fill="rgba(0,0,0,0.15)" />
-                <!-- Main branch body -->
-                <path d="M50 70 C50 50 55 30 65 15" stroke="#4a3728" stroke-width="4" stroke-linecap="round"/>
-                <!-- Leaf 1 -->
-                <path d="M55 45 C70 35 85 45 60 55" fill="#4a7c44" />
-                <!-- Leaf 2 -->
-                <path d="M53 30 C38 20 23 30 50 40" fill="#6ba35e" />
-                <!-- Leaf 3 -->
-                <path d="M60 20 C75 10 90 20 65 30" fill="#4a7c44" />
-              </svg>
-            </div>
-            <!-- Clock icon -->
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-              <circle cx="12" cy="12" r="10" />
-              <path d="M12 6v6l4 2" />
-            </svg>
-          </div>
-          <span class="plans-overlay__badge">
-            Coming Soon
-          </span>
-          <p class="plans-overlay__text">Fresh summer subscriptions arriving soon!</p>
-          <div class="plans-overlay__dots">
-            <span></span><span></span><span></span>
-          </div>
+      <div class="dashboard-batch-id">Current Batch ID</div>
+      <div class="dashboard-batch-value">AN-SON-0526</div>
+      <div class="dashboard-metrics">
+        <div class="dashboard-metric-row">
+          <span class="metric-label">Harvest Date</span>
+          <span class="metric-value">14 March 2026</span>
+        </div>
+        <div class="dashboard-metric-row">
+          <span class="metric-label">Pesticide & Adulterant Screen</span>
+          <span class="metric-value pass">0.00% — CLEAR</span>
+        </div>
+        <div class="dashboard-metric-row">
+          <span class="metric-label">Soil Biology Status</span>
+          <span class="metric-value optimal">OPTIMAL</span>
+        </div>
+        <div class="dashboard-metric-row">
+          <span class="metric-label">Seed Lineage</span>
+          <span class="metric-value">Sona Moti (Heirloom)</span>
+        </div>
+        <div class="dashboard-metric-row">
+          <span class="metric-label">Green Manure Sown</span>
+          <span class="metric-value">28 Oct 2025</span>
+        </div>
+        <div class="dashboard-metric-row">
+          <span class="metric-label">Independent Certifier</span>
+          <span class="metric-value">SGS India Pvt. Ltd.</span>
         </div>
       </div>
+      <div class="dashboard-footer-note">
+        Verified &nbsp;·&nbsp; Open Access &nbsp;·&nbsp; Updated per harvest cycle
+      </div>
+    </div>
+    <div class="transparency-content">
+      <div class="section-label">ANAAD · OPEN LEDGER</div>
+      <div class="divider-rule"></div>
+      <h2 class="heading-2">Your current batch.<br>Right now.</h2>
+      <p>Every harvest is independently tested and published before a single gram ships. This is not marketing. This is a public record.</p>
+      <div class="transparency-stats">
+        <div class="stat-block">
+          <div class="stat-number">28 Acres</div>
+          <div class="stat-desc">Under continuous ICBN cultivation</div>
+        </div>
+        <div class="stat-block">
+          <div class="stat-number">0.00%</div>
+          <div class="stat-desc">Pesticide residue. Every batch. No exceptions.</div>
+        </div>
+        <div class="stat-block">
+          <div class="stat-number">6+ Years</div>
+          <div class="stat-desc">Of unbroken soil restoration</div>
+        </div>
+      </div>
+      <a routerLink="/ledger" class="link-cta">Read the Full Lab Report &rarr;</a>
+    </div>
+  </section> -->
 
-      <!-- Blurred carousel content -->
-      <div class="plans-blur-content">
-        @if (loadingPlans) {
-        <div aria-live="polite">Loading plans…</div>
-        } @else if (plansError) {
-        <div role="alert">{{ plansError }}</div>
-        } @else if (subscriptionPlans.length === 0) {
-        <div aria-live="polite">No plans available right now. Please check back later.</div>
+  <!-- ═══ ACTIVE SUBSCRIPTION DASHBOARD ═══ -->
+  <ng-container *ngIf="authState.isAuthenticated()">
+    <section class="active-subs" revealOnScroll>
+      <div class="active-subs-header">
+        <div class="section-label">Your Commitment</div>
+        <h2 class="heading-2">Active Subscriptions</h2>
+      </div>
+      <div class="active-subs-grid">
+        @if (activeSubscriptions().length > 0) {
+        @for (sub of activeSubscriptions(); track sub.id) {
+        <div class="active-sub-card" [routerLink]="['/subscription', sub.id]">
+          <div class="active-sub-header">
+            <h3 class="heading-3">{{ $any(sub).plan_details?.name || sub.plan_name || 'Anaad Subscription' }}</h3>
+            <span class="status-badge" [class]="sub.status.toLowerCase()">{{ sub.status }}</span>
+          </div>
+          <div class="active-sub-body">
+            <div class="sub-detail">
+              <span class="detail-label">Next Delivery</span>
+              <span class="detail-value">{{ sub.next_delivery_date || 'Pending' }}</span>
+            </div>
+            <div class="sub-detail">
+              <span class="detail-label">Completed Deliveries</span>
+              <span class="detail-value">{{ $any(sub).completed_deliveries || 0 }}</span>
+            </div>
+            <div class="sub-detail">
+              <span class="detail-label">Remaining Deliveries</span>
+              <span class="detail-value">{{ $any(sub).total_deliveries - $any(sub).completed_deliveries || 0 }}</span>
+            </div>
+          </div>
+          <div class="active-sub-footer">
+            <span class="manage-text">Manage Subscription &#8594;</span>
+          </div>
+        </div>
+        }
         } @else {
-        <app-plans-carousel [plans]="subscriptionPlans" [intervalMs]="4000" [enableAutoHighlight]="true"
-          (selectPlan)="onPlanSelected($event)">
-        </app-plans-carousel>
+        <div class="active-sub-card empty-state-card" routerLink="/commitment">
+          <div class="active-sub-header">
+            <h3 class="heading-3">Start your first commitment</h3>
+          </div>
+          <div class="active-sub-body">
+            <p class="empty-state-text">You have no active commitments. Secure your direct household grain supply from
+              our upcoming sowing cycles.</p>
+          </div>
+          <div class="active-sub-footer">
+            <span class="manage-text">Choose Your Tier &rarr;</span>
+          </div>
+        </div>
         }
       </div>
+    </section>
+  </ng-container>
+
+  <!-- ═══ HEIRLOOM PANTRY STOREFRONT ═══ -->
+  <section class="shop" revealOnScroll>
+    <div class="shop-header">
+      <div class="section-label">Farm Offerings</div>
+      <h2 class="heading-2">Here's what our Farmers have to Offer</h2>
+      <p>Grains and flours grown on the farm, handled with care, and prepared with nutrition in mind. Freshly milled
+        flour is made available every month so what reaches the pantry stays closely connected to the harvest.</p>
+    </div>
+    <div class="products-grid">
+      @if (loadingProducts()) {
+      <div aria-live="polite" class="loading-message">Loading products…</div>
+      } @else if (productsError()) {
+      <div role="alert" class="error-message">{{ productsError() }}</div>
+      } @else if (products().length === 0) {
+      <div aria-live="polite" class="no-products-message">No products available right now.</div>
+      } @else {
+      @for (variant of products(); track variant.id) {
+      <app-product-card [variant]="variant" (addToCart)="onAddToCart($event)">
+      </app-product-card>
+      }
+      }
+    </div>
+    <div class="shop-actions">
+      <a routerLink="/product" class="btn-product shop-actions-link">Explore the Offerings &rarr;</a>
+    </div>
+  </section>
+
+  <!-- ═══ TRUST STRIP ═══ -->
+  <div class="trust-strip">
+    <div class="trust-marquee-track">
+      <!-- First set -->
+      <div class="trust-item">
+        <div class="trust-item-label">Farming Method</div>
+        <div class="trust-item-value">Indigenous Cow Based Natural</div>
+      </div>
+      <div class="trust-separator"></div>
+      <div class="trust-item">
+        <div class="trust-item-label">Packaging Type</div>
+        <div class="trust-item-value">Vacuum Packed</div>
+      </div>
+      <div class="trust-separator"></div>
+      <div class="trust-item">
+        <div class="trust-item-label">Processing</div>
+        <div class="trust-item-value">Nutrition Focused</div>
+      </div>
+      <div class="trust-separator"></div>
+      <div class="trust-item">
+        <div class="trust-item-label">Avail</div>
+        <div class="trust-item-value">Subscription Based</div>
+      </div>
+      <div class="trust-separator"></div>
+
+      <!-- Duplicate set for seamless loop -->
+      <div class="trust-item">
+        <div class="trust-item-label">Farming Method</div>
+        <div class="trust-item-value">Indigenous Cow Based Natural</div>
+      </div>
+      <div class="trust-separator"></div>
+      <div class="trust-item">
+        <div class="trust-item-label">Packaging Type</div>
+        <div class="trust-item-value">Vacuum Packed</div>
+      </div>
+      <div class="trust-separator"></div>
+      <div class="trust-item">
+        <div class="trust-item-label">Processing</div>
+        <div class="trust-item-value">Nutrition Focused</div>
+      </div>
+      <div class="trust-separator"></div>
+      <div class="trust-item">
+        <div class="trust-item-label">Avail</div>
+        <div class="trust-item-value">Subscription Based</div>
+      </div>
+      <div class="trust-separator"></div>
     </div>
   </div>
 
-</section>
-
-<!-- Categories section -->
-<section class="categories-block" aria-labelledby="cat-title">
-  <div class="container">
-    <div class="categories-card">
-      <div class="panel-content">
-        <h2 id="cat-title">Commit to Toxin-Free<br />ICBN Staples</h2>
-        <p class="eyebrow">Our Categories:-</p>
-        <div class="category-tiles">
-          <a class="tile" routerLink="/shop" aria-label="The Ancestral Pantry">
-            <div class="tile-media">
-              <img src="assets/images/category-1.svg" alt="The Ancestral Pantry" />
-            </div>
-            <div class="tile-title">The Ancestral Pantry</div>
-          </a>
-          <a class="tile" routerLink="/offerings" aria-label="Your Remote Farm">
-            <div class="tile-media">
-              <img src="assets/images/box-3.svg" alt="Your Remote Farm" />
-            </div>
-            <div class="tile-title">Your Remote Farm</div>
-          </a>
-        </div>
+  <!-- ═══ WHY WE STARTED FARMING SECTION ═══ -->
+  <section class="why-started" revealOnScroll>
+    <div class="why-started-content">
+      <div class="section-label">Our Story</div>
+      <div class="divider-rule"></div>
+      <h2 class="heading-2">We took up farming because it was the only honest answer to the question in front of us.
+      </h2>
+      <div class="why-started-body">
+        <p>Could untraceable food ever be good enough for the families closest to us? That question led ANAAD back to
+          ancestral land, and it took three full growing cycles to begin building the kind of farm that could answer it
+          with conviction.</p>
+        <p>ANAAD is built by farmers who chose to stay accountable to the food at every step, from the seed sown in the
+          field to the day it lands on your kitchen shelf. The search for a truthful answer to that original question
+          continues to guide every decision and will always keep the work fueled.</p>
       </div>
     </div>
+    <div class="why-started-image">
+      <div class="farm-placeholder">
+        <img src="assets/images-new/6.jpeg" alt="Desi Gir cow on ANAAD farm" />
 
-    <div class="offerings-cta center">
-      <h3 class="headline">Taste the Goodness</h3>
-      <p>From our farm to your doorstep, every product is traceable to the source and free from hidden additives.</p>
-      <div class="cta"><a class="btn btn-primary pill" routerLink="/shop">View All Offerings</a></div>
-    </div>
-  </div>
-</section>
-
-<!-- Featured products panel -->
-<section class="end-products end-products--coming-soon" aria-label="Featured products">
-  <div class="container">
-    <div class="products-panel">
-      <!-- Aurora waves for products
-      <div class="products-aurora">
-        <div class="aurora__wave aurora__wave--1"></div>
-        <div class="aurora__wave aurora__wave--2"></div>
-        <div class="aurora__wave aurora__wave--3"></div>
-      </div>
-
-      Floating particles
-      <div class="products-particle products-particle--1"></div>
-      <div class="products-particle products-particle--2"></div>
-      <div class="products-particle products-particle--3"></div>
-      <div class="products-particle products-particle--4"></div>
-
-       Sparkles
-      <div class="products-sparkle products-sparkle--1"></div>
-      <div class="products-sparkle products-sparkle--2"></div>
-      <div class="products-sparkle products-sparkle--3"></div>
-
-       Snowflakes 
-      <div class="products-snow products-snow--1">❄</div>
-      <div class="products-snow products-snow--2">❅</div>
-      <div class="products-snow products-snow--3">❆</div>
-      <div class="products-snow products-snow--4">❄</div>
-      <div class="products-snow products-snow--5">❅</div>
-
-       Push bulges - products trying to break through
-      <div class="products-push-bulge products-push-bulge--1"></div>
-      <div class="products-push-bulge products-push-bulge--2"></div>
-      <div class="products-push-bulge products-push-bulge--3"></div>
-      <div class="products-push-bulge products-push-bulge--4"></div>
-
-       Stress cracks on the sheet 
-      <div class="products-stress-line products-stress-line--1"></div>
-      <div class="products-stress-line products-stress-line--2"></div>
-      <div class="products-stress-line products-stress-line--3"></div> -->
-
-      <!-- Coming Soon overlay -->
-      <div class="products-overlay">
-        <div class="products-overlay__content">
-          <div class="products-overlay__icon">
-            <!-- Rotating rings -->
-            <div class="products-ring"></div>
-            <div class="products-ring products-ring--reverse"></div>
-            <!-- Summer branch -->
-            <div class="summer-branch products-summer-branch">
-              <svg viewBox="0 0 100 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <ellipse cx="52" cy="72" rx="40" ry="6" fill="rgba(0,0,0,0.15)" />
-                <!-- Main branch body -->
-                <path d="M50 70 C50 50 55 30 65 15" stroke="#4a3728" stroke-width="4" stroke-linecap="round"/>
-                <!-- Leaf 1 -->
-                <path d="M55 45 C70 35 85 45 60 55" fill="#4a7c44" />
-                <!-- Leaf 2 -->
-                <path d="M53 30 C38 20 23 30 50 40" fill="#6ba35e" />
-                <!-- Leaf 3 -->
-                <path d="M60 20 C75 10 90 20 65 30" fill="#4a7c44" />
-              </svg>
-            </div>
-            <!-- Clock icon -->
-            <svg class="products-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-              <circle cx="12" cy="12" r="10" />
-              <path d="M12 6v6l4 2" />
-            </svg>
-          </div>
-          <span class="products-overlay__badge">Coming Soon</span>
-          <p class="products-overlay__text">Organic summer offerings arriving soon!</p>
-        </div>
-      </div>
-
-      <!-- Blurred products grid -->
-      <div class="products-blur-content">
-        <div class="products-grid">
-          @if (loadingProducts) {
-          <div aria-live="polite" class="loading-message">Loading products…</div>
-          } @else if (productsError) {
-          <div role="alert" class="error-message">{{ productsError }}</div>
-          } @else if (products.length === 0) {
-          <div aria-live="polite" class="no-products-message">No products available right now.</div>
-          } @else {
-          @for (product of products; track product.id) {
-          <article class="prod">
-            <div class="prod-media" [style.backgroundImage]="formatBg(product.image)"
-              [attr.aria-label]="product.altText"></div>
-            <div class="prod-meta">
-              <h4>{{ product.name }}</h4>
-              <div class="price">{{ product.pricePerKg }}</div>
-            </div>
-          </article>
-          }
-          }
-        </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- Ecosystem / Communities section -->
-<section class="communities" aria-labelledby="comm-title">
-  <div class="container">
-    <div class="comm-grid">
-      <article class="comm-card green" routerLink="/communities">
-        <div class="media-window">
-          <img src="assets/images/box-2.svg" alt="KRINITY - A Krishi Community" />
-          <div class="badge">Coming Soon <span class="leaf" aria-hidden="true"></span></div>
-        </div>
-        <div class="comm-body">
-          <img src="assets/images/4.svg" alt="KRINITY - A Krishi Community" width="120px" />
-          <h4 class="tag">A Krishi Community</h4>
-          <p>The hands that feed the nation. We are uniting farmers to reclaim their sovereignty and restore the dignity
-            of agriculture.</p>
-          <div class="pill">Learn More</div>
-        </div>
-      </article>
-      <article class="comm-card maroon" routerLink="/communities">
-        <div class="media-window">
-          <img src="assets/images/box-1.svg" alt="GRANITY - A Grahak Community" width="120px" />
-          <div class="badge">Coming Soon <span class="leaf" aria-hidden="true"></span></div>
-        </div>
-        <div class="comm-body">
-          <img src="assets/images/3.svg" alt="GRANITY - A Grahak Community" width="120px" />
-          <h4 class="tag">A Grahak Community</h4>
-          <p>Discover the lost recipes, share the distinct flavors, and gain insights on the science of eating right.
-          </p>
-          <div class="pill">Learn More</div>
-        </div>
-      </article>
+  <!-- ═══ COMMITMENT / SUBSCRIPTION ═══ -->
+  <section class="subscription" revealOnScroll>
+    <div class="subscription-header">
+      <div class="section-label">Subscription-Based Agriculture</div>
+      <h2 class="heading-2">Share the risk. Secure the harvest.</h2>
+      <p>In conventional industrial farming, growers often decide what to sow by predicting what the market might buy.
+        When that prediction fails, prices fall, produce is devalued, and food goes to waste. ANAAD's subscribers commit
+        before sowing, giving the farmer the confidence to grow only what already has a home while adhering to the ICBN
+        agricultural practices.
+      </p>
+      <p class="subscription-note">
+        A subscription is not just a recurring order. It funds a part of the next sowing cycle in advance. In return,
+        subscribers receive staples directly from the source (without going through 7-8 levels of middlmen),
+        at a price fixed before harvest, from a crop their
+        commitment helped bring to life.
+      </p>
     </div>
-  </div>
-</section>
-
-<!-- Footer CTA is provided globally via <app-footer>; removed page-level duplicate. -->
+    <app-subscription-plans [showAction]="true" actionLink="/commitment"
+      actionText="Choose Your Subscription Tier &rarr;" [isCoverflow]="true">
+    </app-subscription-plans>
+  </section>
+</div>

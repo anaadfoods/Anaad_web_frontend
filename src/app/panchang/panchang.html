@@ -1,0 +1,222 @@
+<div class="panchang-page-wrap">
+  <!-- HERO HEADER -->
+  <div class="panchang-hero">
+    <div class="container-narrow">
+      <span class="section-label">Vedic Calendar</span>
+      <h1 class="heading-display">We farm by the sky, not just the soil.</h1>
+      <p class="hero-desc">
+        The Panchang — the Vedic agricultural calendar — governs every sowing, every incorporation, every harvest on our farm. Not as ritual. As science refined over four thousand years of agrarian observation.
+      </p>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="panchang-intro-card" style="background: var(--cream-light, #FAF7F0); border: 1px solid var(--border-subtle, rgba(26, 26, 26, 0.1)); padding: 32px; margin-bottom: 40px; border-radius: 2px;">
+      <p style="font-family: var(--font-sans); font-size: 15px; color: var(--charcoal, #1A1A1A); line-height: 1.7; margin: 0 0 16px 0;">
+        Modern agriculture runs on quarterly profit cycles. ICBN farming runs on a much older clock — one that tracks lunar phases, asterisms, and seasonal transitions that have governed Indian harvests for millennia. We make our calendar public because transparency means showing you not just what we grow, but when and why.
+      </p>
+      <p style="font-family: var(--font-sans); font-size: 14px; color: var(--text-faded, rgba(26, 26, 26, 0.6)); line-height: 1.7; font-weight: 300; margin: 0;">
+        The Vedic calendar is an empirical record — generations of farmers observing correlations between celestial cycles and plant behaviour, codified into a system that modern biodynamic research increasingly validates. For instance, sowing during specific lunar phases directly correlates with enhanced seed germination rates and optimum sap flow.
+      </p>
+    </div>
+
+    <div class="panchang-layout">
+      <!-- CALENDAR COL (LEFT) -->
+      <div class="calendar-column">
+        <div class="calendar-card">
+          <!-- Calendar Controls -->
+          <div class="calendar-header">
+            <button class="month-nav" (click)="changeMonth(-1)">&larr;</button>
+            <h2 class="month-title">{{ monthsList[currentDate().getMonth()] }} {{ currentDate().getFullYear() }}</h2>
+            <button class="month-nav" (click)="changeMonth(1)">&rarr;</button>
+          </div>
+
+          <!-- Week headers -->
+          <div class="week-days-grid">
+            @for (day of weekDays; track day) {
+              <div class="week-day">{{ day }}</div>
+            }
+          </div>
+
+          <!-- Month Days -->
+          <div class="month-days-grid">
+            @for (date of daysInMonth(); track date) {
+              <button class="day-cell"
+                [class.outside-month]="!isCurrentMonth(date)"
+                [class.selected-day]="isSameDay(date, currentDate())"
+                [class.today-day]="isSameDay(date, currentDate())"
+                (click)="selectDate(date)">
+                <span class="day-num">{{ date.getDate() }}</span>
+              </button>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- DETAILS COL (RIGHT) -->
+      <div class="details-column">
+        <!-- TAB SELECTOR -->
+        <div class="tab-selector">
+          <button [class.active]="activeTab() === 'daily'" (click)="setTab('daily')">Daily Panchang</button>
+          <button [class.active]="activeTab() === 'muhurats'" (click)="setTab('muhurats')">Auspicious Times</button>
+          <button [class.active]="activeTab() === 'festivals'" (click)="setTab('festivals')">Festivals &amp; Vrats</button>
+          <button [class.active]="activeTab() === 'profile'" (click)="setTab('profile')">Vedic Profile</button>
+        </div>
+
+        <!-- DETAILS CONTAINER -->
+        <div class="details-card">
+          
+          <!-- DAILY PANCHANG TAB -->
+          <div class="tab-content" *ngIf="activeTab() === 'daily'">
+            <div class="loading-state" *ngIf="loadingDay()">
+              <div class="loading-spinner"></div>
+              <span>Fetching astronomical data...</span>
+            </div>
+
+            <div *ngIf="!loadingDay() && panchangData()">
+              <div class="details-section-header">
+                <span class="details-eyebrow">{{ formatDateToYMD(currentDate()) }}</span>
+                <h2>Vedic Solar-Lunar Coordinates</h2>
+              </div>
+
+              <!-- Grid of Panchang Metrics -->
+              <div class="panchang-metrics-grid">
+                <div class="metric-item">
+                  <span class="metric-label">Tithi (Lunar Day)</span>
+                  <strong class="metric-val">{{ panchangData()?.tithi || 'Shukla Pratipada' }}</strong>
+                </div>
+                <div class="metric-item">
+                  <span class="metric-label">Nakshatra (Lunar Mansion)</span>
+                  <strong class="metric-val">{{ panchangData()?.nakshatra || 'Rohini' }}</strong>
+                </div>
+                <div class="metric-item">
+                  <span class="metric-label">Yoga</span>
+                  <strong class="metric-val">{{ panchangData()?.yoga || 'Siddha' }}</strong>
+                </div>
+                <div class="metric-item">
+                  <span class="metric-label">Karana</span>
+                  <strong class="metric-val">{{ panchangData()?.karana || 'Bava' }}</strong>
+                </div>
+                <div class="metric-item">
+                  <span class="metric-label">Sunrise</span>
+                  <strong class="metric-val">{{ panchangData()?.sunrise || '05:24 AM' }}</strong>
+                </div>
+                <div class="metric-item">
+                  <span class="metric-label">Sunset</span>
+                  <strong class="metric-val">{{ panchangData()?.sunset || '07:11 PM' }}</strong>
+                </div>
+              </div>
+
+              <div class="rahukaal-alert" *ngIf="panchangData()?.rahukaal">
+                <span class="rahukaal-title">⚠️ Rahukaal (Avoid new undertakings):</span>
+                <span>{{ panchangData()?.rahukaal }}</span>
+              </div>
+
+              <!-- Dynamic Agriculture & Dietary Guidance -->
+              <div class="guidance-block" *ngIf="dailyGuidance()">
+                <h3>Soil &amp; Dietary Guidance</h3>
+                
+                <div class="guidance-item" *ngIf="dailyGuidance()?.agriculture">
+                  <div class="guidance-icon">&#127809;</div>
+                  <div class="guidance-text">
+                    <strong>ICBN Agriculture Recommendation:</strong>
+                    <p>{{ dailyGuidance()?.agriculture }}</p>
+                  </div>
+                </div>
+
+                <div class="guidance-item" *ngIf="dailyGuidance()?.dietary">
+                  <div class="guidance-icon">&#127858;</div>
+                  <div class="guidance-text">
+                    <strong>Dietary/Ayurvedic Guidance:</strong>
+                    <p>{{ dailyGuidance()?.dietary }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="error-msg" *ngIf="errorDay()">
+              {{ errorDay() }}
+            </div>
+          </div>
+
+          <!-- AUSPICIOUS TIMES TAB -->
+          <div class="tab-content" *ngIf="activeTab() === 'muhurats'">
+            <div class="loading-state" *ngIf="loadingMuhurats()">
+              <div class="loading-spinner"></div>
+              <span>Calculating auspicious muhurats...</span>
+            </div>
+
+            <div *ngIf="!loadingMuhurats() && muhurats()">
+              <div class="details-section-header">
+                <h2>Muhurats for Today</h2>
+                <p>Specific time ranges calculated for launching new plans, crop sowing, and business initiatives.</p>
+              </div>
+
+              <div class="muhurats-list">
+                @for (muhurat of muhurats(); track $index) {
+                  <div class="muhurat-item-card">
+                    <div class="muhurat-header">
+                      <strong class="muhurat-name">{{ muhurat.name }}</strong>
+                      <span class="muhurat-time">{{ muhurat.time }}</span>
+                    </div>
+                    <p class="muhurat-desc">{{ muhurat.description }}</p>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+
+          <!-- FESTIVALS & VRATS TAB -->
+          <div class="tab-content" *ngIf="activeTab() === 'festivals'">
+            <div class="loading-state" *ngIf="loadingFestivals()">
+              <div class="loading-spinner"></div>
+              <span>Fetching festival calendar...</span>
+            </div>
+
+            <div *ngIf="!loadingFestivals() && festivals()">
+              <div class="details-section-header">
+                <h2>Upcoming Festivals &amp; Vrat Observances</h2>
+                <p>Lunar festivals and fasting milestones affecting traditional grain consumption guidelines.</p>
+              </div>
+
+              <div class="festivals-list">
+                @for (fest of festivals(); track $index) {
+                  <div class="festival-item-card">
+                    <span class="festival-date">{{ formatDate(fest.date) }}</span>
+                    <strong class="festival-name">{{ fest.name }}</strong>
+                    <p class="festival-desc">{{ fest.description }}</p>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+
+          <!-- VEDIC PROFILE TAB -->
+          <div class="tab-content" *ngIf="activeTab() === 'profile'">
+            @if (authSvc.isAuthenticated()) {
+              <div class="details-section-header">
+                <h2>Personalized Ayurvedic Guidance Settings</h2>
+                <p>Manage your Vedic profile in your Account Settings to compute your personal Rashi and Nakshatra for custom crop and dietary advice.</p>
+              </div>
+
+              <div class="alert-success" *ngIf="profileMessage()">
+                {{ profileMessage() }}
+              </div>
+              <div style="margin-top: 24px;">
+                <a routerLink="/profile" class="action-btn primary">Go to Profile Settings</a>
+              </div>
+            } @else {
+              <div class="empty-state">
+                <span class="empty-icon">&#128100;</span>
+                <h3>Vedic Guidance Profile</h3>
+                <p>Create or sign in to your ANAAD account to configure birth details and unlock personalized recommendations.</p>
+                <a routerLink="/login" class="action-btn primary">Sign In</a>
+              </div>
+            }
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

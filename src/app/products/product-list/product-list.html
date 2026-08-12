@@ -1,0 +1,171 @@
+<div class="shop-page-wrap">
+  <!-- SHOP HERO -->
+  <div class="shop-hero">
+    <div class="shop-hero-text">
+      <div class="section-label">Farm Offerings</div>
+      <h1>Here is what our farmers are growing for you.</h1>
+      <p>Explore wheat flours made from carefully grown traditional varieties, ethically processed with attention to
+        nutrition,
+        freshness, and traceability. Each product is part of a farming system built to keep the crop connected
+        to its source.</p>
+    </div>
+    <div class="shop-hero-promises-grouped">
+      <div class="promise-cluster">
+        <div class="cluster-label">Quality</div>
+        <div class="promise-text">✓ ICBN Living soil</div>
+        <div class="promise-text">✓ 100% Nutrient retention</div>
+
+      </div>
+      <div class="promise-cluster">
+        <div class="cluster-label">Delivery</div>
+        <div class="promise-text">✓ Preservative free</div>
+        <div class="promise-text">✓ Vacuum packed</div>
+        <div class="promise-text">✓ Traceable batches</div>
+        <div class="promise-text">✓ Subscription based</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SEARCH BAR -->
+  <div class="search-bar-wrap">
+    <div class="search-input-wrap">
+      <span class="search-icon">
+        <svg width="16" height="16" viewBox="0 0 16 16">
+          <circle cx="6.5" cy="6.5" r="4.5" stroke="currentColor" stroke-width="1.5" fill="none" />
+          <path d="M10.5 10.5L14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+        </svg>
+      </span>
+      <input type="text" class="search-input" placeholder="Search by grain, flour, or variety..."
+        [value]="searchQuery()" (input)="onSearch($any($event.target).value)" />
+      <button type="button" class="search-clear" *ngIf="searchQuery()" (click)="clearSearch()">&#215;</button>
+    </div>
+  </div>
+
+  <!-- CATEGORY HEADER -->
+  <div class="category-header-wrap" *ngIf="categories().length > 0">
+    <h2 class="category-header-title">{{ activeCategoryName() }}</h2>
+  </div>
+
+  <!-- FILTER BAR -->
+  <div class="filter-bar" *ngIf="categories().length > 0">
+    <div class="filter-tab" tabindex="0" [class.active]="activeCategoryId() === 'all'" (click)="filterByCategory('all')"
+      (keydown.enter)="filterByCategory('all')">
+      All <span class="filter-count">{{ getCategoryCount('all') }}</span>
+    </div>
+    @for (cat of categories(); track cat.id) {
+    <div class="filter-tab" tabindex="0" [class.active]="activeCategoryId() === cat.id.toString()"
+      (click)="filterByCategory(cat.id.toString())" (keydown.enter)="filterByCategory(cat.id.toString())">
+      {{ cat.name }} <span class="filter-count">{{ getCategoryCount(cat.id) }}</span>
+    </div>
+    }
+  </div>
+
+  <!-- GRID AREA -->
+  <section class="shop-grid">
+    <div class="grid-label">
+      Showing {{ filteredProducts().length }} product{{ filteredProducts().length !== 1 ? 's' : '' }}
+      <span *ngIf="searchQuery()"> for "{{ searchQuery() }}"</span>
+    </div>
+
+    <div class="product-grid" *ngIf="loading()">
+      @for (i of [1,2,3,4,5]; track i) {
+      <div style="display: flex; flex-direction: column; gap: 12px;">
+        <app-skeleton-loader height="320px" width="100%" borderRadius="0"></app-skeleton-loader>
+        <app-skeleton-loader height="16px" width="40%" borderRadius="2px"></app-skeleton-loader>
+        <app-skeleton-loader height="24px" width="80%" borderRadius="2px"></app-skeleton-loader>
+        <app-skeleton-loader height="48px" width="100%" borderRadius="4px"></app-skeleton-loader>
+      </div>
+      }
+    </div>
+
+    <div class="product-grid" *ngIf="!loading()">
+      @for (variant of filteredProducts(); track variant.id) {
+      <app-product-card [variant]="variant" (addToCart)="onAddToCart($event)">
+      </app-product-card>
+      }
+
+      <div class="empty-state" *ngIf="filteredProducts().length === 0">
+        <p *ngIf="searchQuery()">No products found for "{{ searchQuery() }}". <button type="button"
+            (click)="clearSearch()">Clear search</button></p>
+        <p *ngIf="!searchQuery()">No products found in this category.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROCESS -->
+  <section class="process">
+    <div class="process-image">
+      <img src="assets/images-new/6.png" alt="Cold stone milling process" />
+    </div>
+    <div class="process-content">
+      <div class="section-label">How We Mill</div>
+      <div class="divider-rule"></div>
+      <h2>How flour used to be: whole, fresh, nutrient‑rich</h2>
+      <div class="process-steps">
+        <div class="process-step">
+          <div class="process-step-num">01</div>
+          <div class="process-step-body">
+            <h4>Harvested in season</h4>
+            <p>Harvest happens only when wheat has naturally ripened at the end of the rabi season, ensuring full grain
+              maturity and maximum nutrition..</p>
+          </div>
+        </div>
+        <div class="process-step">
+          <div class="process-step-num">02</div>
+          <div class="process-step-body">
+            <h4>Stored with care</h4>
+            <p>After harvest, the grain is stored properly so its quality remains protected over time.</p>
+          </div>
+        </div>
+        <div class="process-step">
+          <div class="process-step-num">03</div>
+          <div class="process-step-body">
+            <h4>Orders are received</h4>
+            <p>When an order comes in, it is added to the upcoming milling schedule.</p>
+          </div>
+        </div>
+        <div class="process-step">
+          <div class="process-step-num">04</div>
+          <div class="process-step-body">
+            <h4>Milled as scheduled</h4>
+            <p>The wheat is milled into flour according to planned milling slots so it can be prepared in an organized
+              and efficient way.</p>
+          </div>
+        </div>
+        <div class="process-step">
+          <div class="process-step-num">05</div>
+          <div class="process-step-body">
+            <h4>Vacuum packed</h4>
+            <p>Once milled, the flour is packed in vacuum packaging to support a natural shelf life without using toxic
+              industrial preservatives.</p>
+          </div>
+        </div>
+        <div class="process-step">
+          <div class="process-step-num">06</div>
+          <div class="process-step-body">
+            <h4>Dispatched to you</h4>
+            <p> After packing, the order is dispatched, subscriptions make this process possible to plan, helping anaad
+              farmers to exclusively grow and mill for subscribers only Subscriptions make this process easier to plan,
+              helping
+              ANAAD mill flour more smoothly against expected demand.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SUBSCRIBE NUDGE -->
+  <div class="subscribe-nudge">
+    <div class="nudge-text">
+      <h3>Want toxin‑free food?<br /> Subscribe to it, because it’s the clearest way to signal demand to your farmer.
+      </h3>
+      <!-- <div style="display: flex; flex-direction: column; gap: 12px;">
+        <p></p>
+      </div> -->
+    </div>
+    <div class="nudge-action">
+      <a routerLink="/commitment" class="btn-primary-light">Choose Your Subscription &rarr;</a>
+      <div class="nudge-note">Flexible payment options &nbsp;·&nbsp; subscription pause/play available </div>
+    </div>
+  </div>
+</div>

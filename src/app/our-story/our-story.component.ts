@@ -1,7 +1,9 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ChangeDetectionStrategy, PLATFORM_ID, inject } from '@angular/core';
 import { RouterLink, ActivatedRoute } from '@angular/router';
+import { isPlatformBrowser } from '@angular/common';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-our-story',
   standalone: true,
   imports: [RouterLink],
@@ -10,6 +12,7 @@ import { RouterLink, ActivatedRoute } from '@angular/router';
 })
 export class OurStoryComponent implements OnInit, AfterViewInit {
   private fragment: string | null = null;
+  private platformId = inject(PLATFORM_ID);
 
   constructor(private route: ActivatedRoute) {}
 
@@ -20,14 +23,16 @@ export class OurStoryComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    // Small delay to ensure DOM is fully rendered
-    setTimeout(() => {
-      if (this.fragment) {
-        const element = document.getElementById(this.fragment);
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (isPlatformBrowser(this.platformId)) {
+      // Small delay to ensure DOM is fully rendered
+      setTimeout(() => {
+        if (this.fragment) {
+          const element = document.getElementById(this.fragment);
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
         }
-      }
-    }, 100);
+      }, 100);
+    }
   }
 }

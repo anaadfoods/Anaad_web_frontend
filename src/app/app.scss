@@ -1,0 +1,43 @@
+.global-toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: var(--charcoal, #1A1A1A);
+  color: #fff;
+  padding: 12px 24px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 8px 24px rgba(26, 26, 26, 0.15);
+  font-family: var(--font-sans, 'DM Sans', sans-serif);
+  font-size: 14px;
+  font-weight: 500;
+  z-index: 9999;
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  pointer-events: none;
+
+  &.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
+
+  .toast-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    background: var(--green-deep, #2C4A1E);
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: bold;
+  }
+}
+
+main.main--immersive {
+  padding: 0;
+  max-width: none;
+}
