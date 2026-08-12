@@ -128,12 +128,20 @@ export interface Referral {
   status?: string;
   status_display?: string;
   reward_issued?: boolean;
+  reward_you_get?: string;
 }
 
 export interface ReferralsSummary {
   referral_code: string | null;
   referrals_count: number;
+  ordered_count?: number;
+  pending_count?: number;
+  pending_reward_count?: number;
   referred_by: string | null;
+  rewards_info?: {
+    you_get: string;
+    they_get: string;
+  };
   referred_users?: Referral[];
   referrals?: Referral[];
 }

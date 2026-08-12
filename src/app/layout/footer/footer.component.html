@@ -60,19 +60,19 @@
         @if (footerCategories().length > 0) {
         @for (cat of footerCategories(); track cat.id) {
         <div class="footer-cat-group">
-          <a routerLink="/products" [queryParams]="{category: cat.name.toLowerCase()}" class="footer-cat-link">{{
+          <a routerLink="/product" [queryParams]="{category: cat.name.toLowerCase()}" class="footer-cat-link">{{
             cat.name }}</a>
           <div class="footer-prod-list">
             @for (prod of cat.products; track prod.id) {
-            <a [routerLink]="['/products', prod.id]" class="footer-prod-link">— {{ prod.name }}</a>
+            <a [routerLink]="['/product', prod.id]" class="footer-prod-link"> &nbsp;{{ prod.name }}</a>
             }
           </div>
         </div>
         }
         } @else {
-        <a routerLink="/products" [queryParams]="{category: 'rice'}">Rice</a>
-        <a routerLink="/products" [queryParams]="{category: 'wheat flour'}">Stone-ground Flours</a>
-        <a routerLink="/products" [queryParams]="{category: 'millets'}">Millets</a>
+        <a routerLink="/product" [queryParams]="{category: 'rice'}">Rice</a>
+        <a routerLink="/product" [queryParams]="{category: 'wheat flour'}">Stone-ground Flours</a>
+        <a routerLink="/product" [queryParams]="{category: 'millets'}">Millets</a>
         }
         <a [routerLink]="['/commitment']" fragment="tiers" class="footer-cat-link mt-2">Subscriptions</a>
       </div>
@@ -112,13 +112,13 @@
   <div class="footer-certification">
     <span class="cert-text"><strong>SGS India</strong> Lab Tested</span>
     <div class="cert-sep"></div>
-    <span class="cert-text"><span class="fssai-badge">fssai</span> Lic. No. 10821017000186</span>
+    <span class="cert-text"><span class="fssai-badge">fssai</span> Lic. No. 10826999000524</span>
     <div class="cert-sep"></div>
     <span class="cert-text"><strong>ICBN</strong> Verified</span>
   </div>
 
   <div class="footer-bottom">
     <span class="footer-copy">&copy; {{ currentYear }} Anhad Naad Foods Pvt. Ltd. All rights reserved.</span>
-    <span class="footer-cert">Est. 2019 &nbsp;·&nbsp; Sonipat, Haryana</span>
+    <span class="footer-cert">Est. 2023 &nbsp;·&nbsp; Sonipat, Haryana</span>
   </div>
 </footer>

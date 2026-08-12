@@ -20,9 +20,7 @@ import {
 
 } from '@angular/core';
 
-import { isPlatformBrowser, TitleCasePipe, UpperCasePipe, DecimalPipe } from '@angular/common';
-
-import { RouterLink } from '@angular/router';
+import { isPlatformBrowser, TitleCasePipe, UpperCasePipe } from '@angular/common';
 
 import { AuthState } from '../../../core/state/auth.state';
 
@@ -48,7 +46,6 @@ import { PanchangTileData } from '../../models/panchang-rich.model';
 const DEFAULT_PRAKRITI: PrakritiScores = { vata: 33, pitta: 33, kapha: 34, dominant: 'vata' };
 
 const SCROLL_DOT_SECTIONS = [
-  { id: 'panchang', label: 'Today' },
   { id: 'food', label: 'Food' },
   { id: 'dosha', label: 'Dosha' },
   { id: 'kundali', label: 'Kundali' },
@@ -57,8 +54,6 @@ const SCROLL_DOT_SECTIONS = [
 
 /** DOM section id → nav / dot id */
 const SCROLL_SPY_SECTIONS: { elId: string; navId: string }[] = [
-  { elId: 'panchang', navId: 'panchang' },
-  { elId: 'panchang-tiles', navId: 'panchang' },
   { elId: 'food', navId: 'food' },
   { elId: 'dosha', navId: 'dosha' },
   { elId: 'kundali', navId: 'kundali' },
@@ -95,9 +90,7 @@ export interface TithiPhaseInfo {
 
   selector: 'app-aahar-vigyan-main',
 
-  standalone: true,
-
-  imports: [RouterLink, AppDownloadModalComponent, ScrollRevealDirective, MainKundaliSectionComponent, MainTailSectionComponent, TitleCasePipe, UpperCasePipe, DecimalPipe],
+  imports: [AppDownloadModalComponent, ScrollRevealDirective, MainKundaliSectionComponent, MainTailSectionComponent, TitleCasePipe, UpperCasePipe],
 
   templateUrl: './main.component.html',
 
@@ -133,7 +126,7 @@ export class AaharVigyanMainComponent implements OnInit, AfterViewInit, OnDestro
 
   protected readonly scrollProgress = signal(0);
 
-  protected readonly activeSection = signal('panchang');
+  protected readonly activeSection = signal('food');
 
   protected readonly chipsReady = signal(false);
   protected readonly mandalaParallax = signal(0);
@@ -537,7 +530,7 @@ export class AaharVigyanMainComponent implements OnInit, AfterViewInit, OnDestro
     if (!isPlatformBrowser(this.platformId)) return;
 
     const anchor = 100 + (this.showMiniSummary() ? 36 : 0);
-    let current = 'panchang';
+    let current = 'food';
 
     for (const { elId, navId } of SCROLL_SPY_SECTIONS) {
       const el = document.getElementById(elId);

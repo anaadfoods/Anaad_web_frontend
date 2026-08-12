@@ -1,8 +1,10 @@
-import { Component, OnInit, computed, inject, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, computed, inject, signal, ChangeDetectionStrategy, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../core/services/auth.service';
+import { AppleAuthService } from '../core/services/apple-auth.service';
 import { ProfileService } from '../core/services/profile.service';
+import { AuthState } from '../core/state/auth.state';
 import { OrderService } from '../core/services/order.service';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { CurrencyInrPipe } from '../shared/pipes/currency-inr.pipe';
@@ -32,6 +34,8 @@ import { SkeletonLoaderComponent } from '../shared/components/skeleton-loader/sk
 })
 export class Profile implements OnInit {
   private readonly authSvc = inject(AuthService);
+  private readonly authState = inject(AuthState);
+  private readonly appleAuth = inject(AppleAuthService);
   private readonly profileSvc = inject(ProfileService);
   private readonly orderSvc = inject(OrderService);
   private readonly subscriptionSvc = inject(SubscriptionService);
@@ -55,6 +59,17 @@ export class Profile implements OnInit {
   rfpDeliveries = signal<RfpDelivery[]>([]);
   activeTab = signal<string>('overview');
   loading = signal<boolean>(true);
+  showCancelModal = signal<boolean>(false);
+  cancelTargetOrderId = signal<number | null>(null);
+  selectedCancelReason = signal<string>('');
+  customCancelReason = signal<string>('');
+  readonly cancelReasons = [
+    'Found a better alternative / price',
+    'No longer need the products / changed my mind',
+    'Delivery is taking too long / scheduling issues',
+    'Quality or quantity concerns',
+    'Other (Please specify)'
+  ];
   error = signal<string>('');
   savingProfile = signal<boolean>(false);
   savingAddress = signal<boolean>(false);
@@ -105,12 +120,34 @@ export class Profile implements OnInit {
 
   ngOnInit() {
     this.route.queryParamMap.subscribe(params => {
+      const idToken = params.get('id_token');
       const tab = params.get('tab');
-      if (tab) {
-        this.activeTab.set(tab);
+
+      if (idToken) {
+        this.loading.set(true);
+        console.log('[Apple Login] id_token found in URL, length:', idToken.length);
+        this.appleAuth.loginWithToken(idToken).subscribe({
+          next: () => {
+            console.log('[Apple Login] Success — tokens stored, navigating to /profile');
+            this.cartSvc.syncOnLogin();
+            this.favoritesSvc.syncOnLogin();
+            this.router.navigate(['/profile'], { replaceUrl: true });
+          },
+          error: (err) => {
+            console.error('[Apple Login] loginWithToken failed:', err.status, err.statusText, err.error);
+            this.toastSvc.show('Apple sign-in failed. Please try again.', 'error');
+            this.router.navigate(['/login'], { queryParams: { error: 'apple_login_failed' } });
+          }
+        });
+      } else {
+        if (tab) {
+          this.activeTab.set(tab);
+        } else {
+          this.activeTab.set('overview');
+        }
+        this.loadAccountData();
       }
     });
-    this.loadAccountData();
   }
 
   loadAccountData() {
@@ -141,7 +178,8 @@ export class Profile implements OnInit {
         this.profileData.set(profile);
         if (profile) this.patchForms(profile);
         this.ordersData.set(orders);
-        this.subscriptionsData.set(subscriptions);
+        const sortedSubscriptions = [...subscriptions].sort((a, b) => b.id - a.id);
+        this.subscriptionsData.set(sortedSubscriptions);
         this.favoritesData.set(favorites as ProductVariant[]);
         this.userSummaryData.set(userSummary);
         this.rfpDeliveries.set(rfpDeliveries);
@@ -161,9 +199,15 @@ export class Profile implements OnInit {
           if (rewards.total_referred_users === undefined && referrals) {
             rewards.total_referred_users = referrals.referrals_count;
           }
-          if (rewards.rewards_earned === undefined) {
-            rewards.rewards_earned = rewards.pending_rewards_count;
+          if (rewards.rewards_earned === undefined && referrals) {
+            rewards.rewards_earned = referrals.ordered_count ?? referrals.referrals_count;
           }
+        } else if (referrals) {
+          rewards = {
+            pending_rewards_count: referrals.pending_reward_count ?? 0,
+            total_referred_users: referrals.referrals_count ?? 0,
+            rewards_earned: referrals.ordered_count ?? 0
+          };
         }
         this.referralRewardCount.set(rewards);
 
@@ -203,9 +247,21 @@ export class Profile implements OnInit {
     this.activeTab.set(tabId);
     this.actionMessage.set('');
     this.error.set('');
+    if (isPlatformBrowser(this.platformId) && tabId !== 'overview') {
+      history.pushState({ tab: tabId }, '', window.location.href.split('?')[0] + `?tab=${tabId}`);
+    }
     setTimeout(() => {
       this.tabLoading.set(false);
     }, 300);
+  }
+
+  @HostListener('window:popstate', ['$event'])
+  onPopState(event: any) {
+    if (isPlatformBrowser(this.platformId)) {
+      const urlParams = new URLSearchParams(window.location.search);
+      const tab = urlParams.get('tab') || 'overview';
+      this.activeTab.set(tab);
+    }
   }
 
   logout() {
@@ -340,12 +396,39 @@ export class Profile implements OnInit {
   }
 
   cancelOrder(orderId: number) {
-    this.orderSvc.cancelOrder(orderId).subscribe({
+    this.cancelTargetOrderId.set(orderId);
+    this.selectedCancelReason.set('');
+    this.customCancelReason.set('');
+    this.showCancelModal.set(true);
+  }
+
+  cancelOrderConfirmed() {
+    const orderId = this.cancelTargetOrderId();
+    if (!orderId) return;
+
+    let reason = this.selectedCancelReason();
+    if (reason === 'Other (Please specify)') {
+      reason = this.customCancelReason().trim();
+      if (!reason) {
+        alert('Please write your reason for cancellation.');
+        return;
+      }
+    } else if (!reason) {
+      alert('Please select a reason for cancellation.');
+      return;
+    }
+
+    this.showCancelModal.set(false);
+    this.orderSvc.cancelOrder(orderId, reason).subscribe({
       next: () => {
         this.actionMessage.set('Cancellation request submitted.');
+        this.toastSvc.show('Cancellation request submitted.', 'success');
         this.loadAccountData();
       },
-      error: err => this.error.set(err.error?.message || 'Could not cancel order.'),
+      error: err => {
+        this.error.set(err.error?.message || 'Could not cancel order.');
+        this.toastSvc.show('Could not cancel order.', 'error');
+      },
     });
   }
 
@@ -391,7 +474,7 @@ export class Profile implements OnInit {
     });
   }
 
-  shopProducts() { this.router.navigate(['/products']); }
+  shopProducts() { this.router.navigate(['/product']); }
   browseSubscriptions() { this.router.navigate(['/registry']); }
 
   shareViaWhatsApp() {

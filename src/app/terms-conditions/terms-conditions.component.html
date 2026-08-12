@@ -1,9 +1,9 @@
 <div class="legal-page-wrap">
-  <div class="page-header">
+  <!-- <div class="page-header">
     <span class="page-tag">Legal</span>
     <h1>{{ title() }}</h1>
-  </div>
-  <div class="legal-content">
+  </div> -->
+  <div class="legal-content" (click)="onContentClick($event)">
     <div class="loading-state" *ngIf="loading()">Loading...</div>
     <div *ngIf="!loading() && content()" [innerHTML]="content()"></div>
     <p *ngIf="!loading() && !content()" class="placeholder">Content not available. Please contact support.</p>

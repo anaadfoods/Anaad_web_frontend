@@ -12,10 +12,16 @@
       data-tooltip="Keep. Strong. No change needed">How We Farm</a>
     <a routerLink="/registry" routerLinkActive="active" (click)="close()"
       data-tooltip="Batch reports & lab tests">Batch Records</a>
-    <a routerLink="/products" routerLinkActive="active" (click)="close()"
+    <a routerLink="/product" routerLinkActive="active" (click)="close()"
       data-tooltip="Milled this week. Dispatched in 72 hours.">Farm Offerings</a>
-    <a routerLink="/panchang" routerLinkActive="active" (click)="close()">Vedic Calendar</a>
-    <a routerLink="/aahar-vigyan" routerLinkActive="active" (click)="close()">Aahar Vigyan</a>
+    @if (aaharVigyanEnabled) {
+      <a routerLink="/aahar-vigyan" routerLinkActive="active" (click)="close()"
+        data-tooltip="our food decide how we think">Aahar Vigyan</a>
+    } @else {
+      <span class="nav-link-coming-soon" data-tooltip="Coming Soon">
+        Aahar Vigyan <span class="coming-soon-badge">Coming Soon</span>
+      </span>
+    }
     <a routerLink="/commitment" routerLinkActive="active" (click)="close()"
       data-tooltip="Pre-harvest allocation. Lock your supply.">Subscription</a>
   </nav>

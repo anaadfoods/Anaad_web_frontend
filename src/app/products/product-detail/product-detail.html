@@ -22,9 +22,9 @@
   <div *ngIf="!loading() && variant()">
     <!-- BREADCRUMB -->
     <div class="breadcrumb">
-      <a routerLink="/products">Heirloom Pantry</a>
+      <a routerLink="/product">Farm Offerings</a>
       <span class="breadcrumb-sep">&#8594;</span>
-      <span class="breadcrumb-current">{{ variant()?.product_name }}</span>
+      <span class="breadcrumb-current">{{ variant()?.product_name | truncate: 4 : '...' : 'words' }}</span>
     </div>
 
     <!-- PRODUCT HERO -->
@@ -70,17 +70,26 @@
         <!-- Rating hidden as reviews are not currently implemented in data model -->
 
         <div class="price-block" *ngIf="isActive()">
+          <span class="price-mrp" *ngIf="purchaseType() === 'single' && mrpToDisplay !== null" style="text-decoration: line-through; color: rgba(26,26,26,0.5); font-size: 16px;">
+            {{ mrpToDisplay | currencyInr }}
+          </span>
+          <span class="price-mrp" *ngIf="purchaseType() === 'subscription' && selectedPlanId()" style="text-decoration: line-through; color: rgba(26,26,26,0.5); font-size: 16px;">
+            {{ priceToDisplay | currencyInr }}
+          </span>
           <span class="price-main">{{ (purchaseType() === 'subscription' && selectedPlanId() ?
-            discountedSubscriptionPrice : variant()?.price) | currencyInr }}</span>
+            discountedSubscriptionPrice : priceToDisplay) | currencyInr }}</span>
           <span class="price-per">per {{ variant()?.weight }}{{ variant()?.unit }} &nbsp;&middot;&nbsp; incl.
             taxes</span>
           <span class="price-savings"
-            *ngIf="purchaseType() === 'single' && variant()?.compare_at_price && savingsPercentage > 0">
+            *ngIf="purchaseType() === 'single' && mrpToDisplay !== null && savingsPercentage > 0">
             &#10003; Save {{ savingsPercentage }}% on MRP
           </span>
           <span class="price-savings" *ngIf="purchaseType() === 'subscription' && selectedPlanId()">
             &#10003; Subscription Discount Applied
           </span>
+          <div class="arambh-deal" *ngIf="arambhPrice()" style="margin-top: 8px; color: var(--earth-raw, #6B4226); font-family: var(--font-sans); font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 4px;">
+            🔥 Hot deal: go with Aarambh plan for {{ arambhPrice() | currencyInr }}
+          </div>
         </div>
         <div class="price-block" *ngIf="!isActive()">
           <span class="price-main">-</span>
@@ -95,6 +104,17 @@
               (click)="purchaseType.set('single')">One-time</button>
             <button class="size-btn" [class.active]="purchaseType() === 'subscription'"
               (click)="purchaseType.set('subscription')">Subscribe & Save</button>
+          </div>
+        </div>
+
+        <!-- Subscription Payment Options selector -->
+        <div class="selector-block" *ngIf="purchaseType() === 'subscription' && selectedPlan()?.allows_installments" style="margin-top: 12px;">
+          <span class="selector-label">Payment Option</span>
+          <div class="size-options">
+            <button class="size-btn" [class.active]="selectedPaymentType() === 'PAID_FULL'"
+              (click)="selectedPaymentType.set('PAID_FULL')">Pay in Full</button>
+            <button class="size-btn" [class.active]="selectedPaymentType() === 'INSTALLMENT'"
+              (click)="selectedPaymentType.set('INSTALLMENT')">Pay in Installments</button>
           </div>
         </div>
 
@@ -161,7 +181,7 @@
         </div>
 
         <div class="trace-row" *ngIf="variant()?.crop_cycle_id" style="margin-top: 16px;">
-          <a [routerLink]="['/traceability-journey']" [queryParams]="{crop_id: variant()?.crop_cycle_id}"
+          <a [routerLink]="['/traceability-journey', variant()?.crop_cycle_id]"
             style="display: block; text-align: center; width: 100%; text-decoration: none; padding: 14px 24px; background-color: var(--earth-raw, #6B4226); color: #fff; font-family: var(--font-sans); font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; border-radius: 8px; transition: background-color 0.2s;">
             Trace this Batch &#8594;
           </a>
@@ -239,6 +259,6 @@
   <div class="empty-state" *ngIf="!loading() && !variant()">
     <h2>Product not found</h2>
     <p>We couldn't find the heirloom staple you were looking for.</p>
-    <a routerLink="/products" class="btn-back">Return to Pantry</a>
+    <a routerLink="/product" class="btn-back">Return to Pantry</a>
   </div>
 </div>

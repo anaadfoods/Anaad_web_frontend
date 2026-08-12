@@ -7,6 +7,7 @@ import { CartState } from '../../core/state/cart.state';
 import { AuthService } from '../../core/services/auth.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { ToastService } from '../../core/services/toast.service';
+import { environment } from '../../../environments/environment';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -17,12 +18,13 @@ import { ToastService } from '../../core/services/toast.service';
   styleUrls: ['./header.component.scss']
 })
 export class HeaderComponent implements OnInit, OnDestroy {
+  protected readonly aaharVigyanEnabled = environment.aaharVigyanEnabled;
   private readonly logSvc = inject(LogService);
   private readonly platformId = inject(PLATFORM_ID);
   bannerMessages = [
-    'Milled this week: Batch AN-SON-0526 · Zero residue · SGS verified',
-    'Pre-harvest allocation · Lock your supply · Share the farm risk',
-    'Milled this week · Dispatched in 72 hours · Pan-India delivery'
+    "India's food future is live. Join Early Access",
+    "Farmer Income | Human Health | Ecological Balance",
+    "Orders placed in the next 72 hours will be fulfilled on Aug'26 Week 1. Act now."
   ];
   currentBannerIndex = signal(0);
   private bannerIntervalId: any;
@@ -91,15 +93,15 @@ export class HeaderComponent implements OnInit, OnDestroy {
     }
   }
 
-  toggle() { 
-    this.isOpen.update(v => !v); 
+  toggle() {
+    this.isOpen.update(v => !v);
     if (this.isOpen()) {
       this.closeNotifications();
     }
   }
-  
-  close() { 
-    this.isOpen.set(false); 
+
+  close() {
+    this.isOpen.set(false);
   }
 
   toggleNotifications() {
@@ -107,6 +109,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     if (this.isNotificationsOpen()) {
       this.close(); // Close mobile menu if open
       this.notificationSvc.sync().subscribe();
+      this.notificationSvc.requestPermission();
     }
   }
 
@@ -136,15 +139,15 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
       if (objectId) {
         if (type === 'subscription' || item.title.toLowerCase().includes('subscription')) {
-          this.router.navigate(['/subscriptions', objectId]);
+          this.router.navigate(['/subscription', objectId]);
         } else {
-          this.router.navigate(['/orders', objectId]);
+          this.router.navigate(['/order', objectId]);
         }
       }
     } catch (e) {
       this.logSvc.warn('Failed to parse notification metadata', e);
     }
-    
+
     this.closeNotifications();
     this.close();
   }

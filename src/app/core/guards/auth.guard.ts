@@ -21,6 +21,11 @@ export const authGuard: CanActivateFn = (route, state) => {
     return true;
   }
 
+  // Allow through if this is an Apple Sign In callback redirect
+  if (route.queryParamMap.has('id_token')) {
+    return true;
+  }
+
   router.navigate(['/login'], {
     queryParams: { returnUrl: state.url }
   });

@@ -50,15 +50,14 @@ export class AuthState {
   setTokens(access: string, refresh: string): void {
     this._accessToken.set(access);
     this._refreshToken.set(refresh);
-    // Access token → sessionStorage (clears on tab close)
-    this.storage.sessionSet(STORAGE_KEYS.ACCESS_TOKEN, access);
-    // Refresh token → localStorage (persists across sessions)
+    // Both tokens → localStorage (persists across payment gateway redirects)
+    this.storage.setItem(STORAGE_KEYS.ACCESS_TOKEN, access);
     this.storage.setItem(STORAGE_KEYS.REFRESH_TOKEN, refresh);
   }
 
   setAccessToken(access: string): void {
     this._accessToken.set(access);
-    this.storage.sessionSet(STORAGE_KEYS.ACCESS_TOKEN, access);
+    this.storage.setItem(STORAGE_KEYS.ACCESS_TOKEN, access);
   }
 
   setRefreshToken(refresh: string): void {
@@ -87,33 +86,29 @@ export class AuthState {
     this._user.set(null);
     this._accessToken.set(null);
     this._refreshToken.set(null);
-    // Clear access token from sessionStorage
-    this.storage.sessionRemove(STORAGE_KEYS.ACCESS_TOKEN);
-    // Clear refresh token from localStorage
-    this.storage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
-    // Clear user profile from localStorage
-    this.storage.removeItem(STORAGE_KEYS.USER_PROFILE);
-    // Also clear legacy localStorage access token (migration cleanup)
+    // Clear all tokens and profile from localStorage
     this.storage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
+    this.storage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
+    this.storage.removeItem(STORAGE_KEYS.USER_PROFILE);
+    // Also clear legacy sessionStorage access token (migration cleanup)
+    this.storage.sessionRemove(STORAGE_KEYS.ACCESS_TOKEN);
   }
 
   // ── Private ───────────────────────────────
 
   private hydrateFromStorage(): void {
-    // Access token: try sessionStorage first, then fall back to localStorage (migration)
-    let access = this.storage.sessionGet(STORAGE_KEYS.ACCESS_TOKEN);
+    // All auth data lives in localStorage so it survives payment gateway redirects
+    let access = this.storage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
+    // Migration: if access token is still in sessionStorage from before this change,
+    // move it to localStorage and clear sessionStorage
     if (!access) {
-      // Migration: if access token is still in localStorage from before this change,
-      // move it to sessionStorage and remove from localStorage
-      access = this.storage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
+      access = this.storage.sessionGet(STORAGE_KEYS.ACCESS_TOKEN);
       if (access) {
-        this.storage.sessionSet(STORAGE_KEYS.ACCESS_TOKEN, access);
-        this.storage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
+        this.storage.setItem(STORAGE_KEYS.ACCESS_TOKEN, access);
+        this.storage.sessionRemove(STORAGE_KEYS.ACCESS_TOKEN);
       }
     }
-    // Refresh token: always in localStorage
     const refresh = this.storage.getItem(STORAGE_KEYS.REFRESH_TOKEN);
-    // User profile: always in localStorage
     const user = this.storage.getJSON<UserProfile>(STORAGE_KEYS.USER_PROFILE);
 
     if (access) this._accessToken.set(access);

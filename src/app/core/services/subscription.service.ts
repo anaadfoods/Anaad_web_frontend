@@ -13,8 +13,9 @@ import {
   CreateSubscriptionRequest,
   SubscriptionPaymentStatus,
   SubscriptionInvoice,
-  JuspaySubscriptionSession,
+  SubscriptionPaymentSession,
   PlanProductsResponse,
+  CancelSubscriptionResponse,
 } from '../models/subscription.model';
 
 @Injectable({ providedIn: 'root' })
@@ -52,8 +53,8 @@ export class SubscriptionService {
     return this.http.get<Subscription>(`${API.SUBSCRIPTIONS.DETAIL}${id}/`);
   }
 
-  createSubscription(req: CreateSubscriptionRequest): Observable<Subscription | JuspaySubscriptionSession> {
-    return this.http.post<Subscription | JuspaySubscriptionSession>(API.SUBSCRIPTIONS.CREATE, req);
+  createSubscription(req: CreateSubscriptionRequest): Observable<Subscription | SubscriptionPaymentSession> {
+    return this.http.post<Subscription | SubscriptionPaymentSession>(API.SUBSCRIPTIONS.CREATE, req);
   }
 
   // ── Lifecycle ─────────────────────────────
@@ -72,8 +73,8 @@ export class SubscriptionService {
     );
   }
 
-  cancelSubscription(id: number, reason?: string): Observable<{ message: string }> {
-    return this.http.post<{ message: string }>(
+  cancelSubscription(id: number, reason?: string): Observable<CancelSubscriptionResponse> {
+    return this.http.post<CancelSubscriptionResponse>(
       `${API.SUBSCRIPTIONS.DETAIL}${id}/cancel/`,
       { reason }
     );
@@ -81,8 +82,8 @@ export class SubscriptionService {
 
   // ── Installments ──────────────────────────
 
-  payNextInstallment(subscriptionId: number): Observable<JuspaySubscriptionSession> {
-    return this.http.post<JuspaySubscriptionSession>(
+  payNextInstallment(subscriptionId: number): Observable<SubscriptionPaymentSession> {
+    return this.http.post<SubscriptionPaymentSession>(
       `${API.SUBSCRIPTIONS.NEXT_INSTALLMENT_PAYMENT}${subscriptionId}/next-installment-payment/`,
       {}
     );
@@ -90,12 +91,12 @@ export class SubscriptionService {
 
   // ── Payment Status ────────────────────────
 
-  getPaymentStatus(subscriptionId: number): Observable<SubscriptionPaymentStatus> {
-    return this.http.get<SubscriptionPaymentStatus>(`${API.SUBSCRIPTIONS.PAYMENT_STATUS}${subscriptionId}/`);
+  getPaymentStatus(subscriptionIdOrNumber: number | string): Observable<SubscriptionPaymentStatus> {
+    return this.http.get<SubscriptionPaymentStatus>(`${API.SUBSCRIPTIONS.PAYMENT_STATUS}${subscriptionIdOrNumber}/`);
   }
 
-  getSubscriptionPaymentStatus(subscriptionId: number): Observable<SubscriptionPaymentStatus> {
-    return this.getPaymentStatus(subscriptionId);
+  getSubscriptionPaymentStatus(subscriptionIdOrNumber: number | string): Observable<SubscriptionPaymentStatus> {
+    return this.getPaymentStatus(subscriptionIdOrNumber);
   }
 
   // ── Invoices ──────────────────────────────

@@ -19,11 +19,28 @@ app.use(
     contentSecurityPolicy: {
       directives: {
         ...helmet.contentSecurityPolicy.getDefaultDirectives(),
-        'connect-src': ["'self'", 'https://bck.anaadfoods.com', 'https://bck-dev.anaadfoods.com', 'https://accounts.google.com', 'https://appleid.apple.com', 'https://nwmimvqcoxxdulpmdqvp.supabase.co'],
+        'connect-src': [
+          "'self'",
+          'https://bck.anaadfoods.com',
+          'https://bck-dev.anaadfoods.com',
+          'wss://bck.anaadfoods.com',
+          'wss://bck-dev.anaadfoods.com',
+          'https://accounts.google.com',
+          'https://appleid.apple.com',
+          'https://nwmimvqcoxxdulpmdqvp.supabase.co',
+          'https://firebaseinstallations.googleapis.com',
+          'https://fcmregistrations.googleapis.com'
+        ],
         'font-src': ["'self'", 'https://fonts.googleapis.com', 'https://fonts.gstatic.com'],
         'style-src': ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
         'img-src': ["'self'", 'data:', 'https:'],
-        'script-src': ["'self'", "'unsafe-inline'", 'https://accounts.google.com', 'https://appleid.cdn-apple.com'],
+        'script-src': [
+          "'self'",
+          "'unsafe-inline'",
+          'https://accounts.google.com',
+          'https://appleid.cdn-apple.com',
+          'https://www.gstatic.com'
+        ],
         'script-src-attr': ["'unsafe-inline'"],
         'frame-src': ["'self'", 'https://accounts.google.com', 'https://appleid.apple.com'],
       },

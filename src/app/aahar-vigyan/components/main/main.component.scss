@@ -373,7 +373,7 @@
 @keyframes avBounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(7px); } }
 
 /* SECTIONS */
-.av-section { padding: 96px 24px; }
+.av-section { padding: 96px 24px; scroll-margin-top: 140px; }
 .av-container { max-width: 1200px; margin: 0 auto; }
 .av-cap { font-size: 10px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--t3); display: block; margin-bottom: 8px; }
 .av-cap-jyotish { color: #8a7aaa; }

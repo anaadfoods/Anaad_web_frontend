@@ -28,8 +28,6 @@ import { AaharVigyanPrakritiComponent } from './components/prakriti-result/prakr
 
 import { AaharVigyanMainComponent } from './components/main/main.component';
 
-import { FooterComponent } from '../layout/footer/footer.component';
-
 import { AaharVigyanStateService } from './services/aahar-vigyan-state.service';
 
 import { AaharVigyanStep, DoshaCode, PrakritiScores } from './models/aahar-vigyan.model';
@@ -59,8 +57,6 @@ import { environment } from '../../environments/environment';
     AaharVigyanPrakritiComponent,
 
     AaharVigyanMainComponent,
-
-    FooterComponent,
 
   ],
 

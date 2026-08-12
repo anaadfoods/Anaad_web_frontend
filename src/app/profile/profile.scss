@@ -257,9 +257,9 @@
   .card-side { align-items: flex-start; }
   .inline-error, .inline-success { margin-left: 20px; margin-right: 20px; }
   .dashboard-stats-grid { grid-template-columns: 1fr; gap: 16px; }
-  .referral-stats-grid { grid-template-columns: 1fr; gap: 16px; }
+  .referral-stats-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
   .referred-users-table { width: 100%; min-width: 0; overflow-x: auto; -webkit-overflow-scrolling: touch; display: block; }
-  .ref-table-header, .ref-table-row { min-width: 500px; }
+  .ref-table-header, .ref-table-row { min-width: 650px; grid-template-columns: 1.8fr 1.2fr 2fr 1.2fr; }
   
   .sub-tabs-container {
     overflow-x: auto;
@@ -280,6 +280,7 @@
 @media (max-width: 480px) {
   .profile-stats { gap: 20px; }
   .profile-stat-value { font-size: 24px; }
+  .referral-stats-grid { grid-template-columns: 1fr; }
 }
 
 /* Profile page additions */
@@ -480,8 +481,18 @@
 
 .referral-stats-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(4, 1fr);
   gap: 20px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
 }
 
 .ref-stat-card {
@@ -491,6 +502,10 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
+
+  @media (max-width: 480px) {
+    padding: 16px;
+  }
 }
 
 .ref-stat-label {
@@ -524,7 +539,7 @@
 
 .ref-table-header {
   display: grid;
-  grid-template-columns: 2fr 1.5fr 1.5fr;
+  grid-template-columns: 1.8fr 1.2fr 2fr 1.2fr;
   padding: 12px 20px;
   border-bottom: 1px solid rgba(26,26,26,0.08);
   font-family: var(--font-sans);
@@ -532,11 +547,15 @@
   font-weight: 600;
   text-transform: uppercase;
   color: rgba(26,26,26,0.45);
+
+  @media (max-width: 768px) {
+    display: none;
+  }
 }
 
 .ref-table-row {
   display: grid;
-  grid-template-columns: 2fr 1.5fr 1.5fr;
+  grid-template-columns: 1.8fr 1.2fr 2fr 1.2fr;
   padding: 16px 20px;
   border-bottom: 1px solid rgba(26,26,26,0.05);
   font-family: var(--font-sans);
@@ -545,6 +564,54 @@
 
   &:last-child {
     border-bottom: none;
+  }
+
+  @media (max-width: 768px) {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 16px;
+    align-items: stretch;
+
+    & > span {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12.5px;
+      line-height: 1.5;
+    }
+
+    .ref-username::before {
+      content: "Friend's Username";
+      font-weight: 600;
+      color: rgba(26, 26, 26, 0.5);
+      margin-right: 12px;
+    }
+
+    .ref-date::before {
+      content: "Joined Date";
+      font-weight: 600;
+      color: rgba(26, 26, 26, 0.5);
+      margin-right: 12px;
+    }
+
+    .ref-reward::before {
+      content: "Your Reward";
+      font-weight: 600;
+      color: rgba(26, 26, 26, 0.5);
+      margin-right: 12px;
+    }
+
+    .ref-status::before {
+      content: "Reward Status";
+      font-weight: 600;
+      color: rgba(26, 26, 26, 0.5);
+      margin-right: 12px;
+    }
+
+    .ref-status {
+      align-self: stretch;
+    }
   }
 }
 
@@ -599,8 +666,100 @@
       line-height: 1.6;
       margin-bottom: 6px;
 
-      &:last-child {
-        margin-bottom: 0;
+    }
+  }
+}
+
+/* CUSTOM CANCEL MODAL */
+.cancel-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(26, 26, 26, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+
+  &.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+.cancel-modal-card {
+  background: #FFF;
+  border: 1px solid rgba(26, 26, 26, 0.12);
+  border-radius: 12px;
+  width: 90%;
+  max-width: 520px;
+  padding: 32px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  transform: translateY(20px);
+  transition: transform 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+  position: relative;
+
+  .cancel-modal-overlay.active & {
+    transform: translateY(0);
+  }
+
+  h3 {
+    font-family: var(--font-serif);
+    font-size: 24px;
+    font-weight: 700;
+    color: #c0392b;
+    margin: 0 0 16px 0;
+  }
+
+  p.consequence-lead {
+    font-family: var(--font-sans);
+    font-size: 15px;
+    color: var(--charcoal);
+    font-weight: 500;
+    margin: 0 0 16px 0;
+    line-height: 1.5;
+  }
+
+  .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+
+    .btn-modal-action {
+      font-family: var(--font-sans);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-modal-keep {
+      background-color: var(--green-deep, #2C4A1E);
+      color: var(--bg-parchment);
+
+      &:hover {
+        background-color: var(--charcoal);
+      }
+    }
+
+    .btn-modal-cancel {
+      background-color: rgba(192, 57, 43, 0.08);
+      color: #c0392b;
+      border: 1px solid rgba(192, 57, 43, 0.2);
+
+      &:hover {
+        background-color: rgba(192, 57, 43, 0.15);
       }
     }
   }

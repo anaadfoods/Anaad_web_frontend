@@ -113,7 +113,14 @@
             <div class="next-box-header">
               <div style="display:flex; flex-direction:column; gap:4px;">
                 <span class="next-box-date-label">Next Delivery</span>
-                <span class="next-box-date heading-3">{{ formatDate(subscriptionData()?.next_delivery_date) }}</span>
+                <span class="next-box-date heading-3">
+                  <ng-container *ngIf="showApiDeliveryDate; else staticDeliveryText">
+                    {{ subscriptionData()?.next_delivery_date ? formatDate(subscriptionData()?.next_delivery_date) : '—' }}
+                  </ng-container>
+                  <ng-template #staticDeliveryText>
+                    delivery will be start from Aug 2026 first week
+                  </ng-template>
+                </span>
               </div>
             </div>
             <div class="next-box-items">
@@ -203,14 +210,18 @@
         <span class="sidebar-title heading-3" style="margin-top:16px;">Payment Info</span>
         <div class="detail-rows">
           <div class="detail-row">
-            <span class="detail-label">Method</span>
+            <span class="detail-label">Payment Type</span>
             <span class="detail-value">{{ subscriptionData()?.payment_type }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Method</span>
+            <span class="detail-value">{{ subscriptionData()?.payment_method || 'N/A' }}</span>
           </div>
           <div class="detail-row" *ngIf="paymentStatus()">
             <span class="detail-label">Status</span>
             <span class="detail-value"
-              [style.color]="paymentStatus()?.payment_status === 'PAID' ? 'var(--green-deep)' : 'inherit'">{{
-              paymentStatus()?.payment_status }}</span>
+              [style.color]="getPaymentStatusDisplay() === 'PAID' ? 'var(--green-deep)' : 'inherit'">{{
+              getPaymentStatusDisplay() }}</span>
           </div>
         </div>
 
@@ -274,11 +285,67 @@
           </ul>
         </div>
 
+        <div class="cancellation-reason-section" style="margin-bottom: 24px; text-align: left;">
+          <p style="font-weight: 600; margin: 0 0 12px 0; font-family: var(--font-sans); font-size: 13.5px; color: var(--charcoal);">Why are you cancelling?</p>
+          <div class="reason-options" style="display: flex; flex-direction: column; gap: 8px;">
+            @for (reason of cancelReasons; track reason) {
+              <label style="display: flex; align-items: center; gap: 8px; font-family: var(--font-sans); font-size: 13px; color: rgba(26,26,26,0.8); cursor: pointer;">
+                <input type="radio" name="subCancelReason" [value]="reason" [checked]="selectedCancelReason() === reason" (change)="selectedCancelReason.set(reason)" />
+                {{ reason }}
+              </label>
+            }
+          </div>
+          
+          <div class="custom-reason-input" *ngIf="selectedCancelReason() === 'Other (Please specify)'" style="margin-top: 12px;">
+            <textarea style="width: 100%; height: 80px; padding: 10px; border: 1px solid rgba(26, 26, 26, 0.15); border-radius: 6px; font-family: var(--font-sans); font-size: 13px; box-sizing: border-box; resize: none;" 
+                      placeholder="Please write your reason here..." 
+                      [value]="customCancelReason()" 
+                      (input)="customCancelReason.set($any($event.target).value)"></textarea>
+          </div>
+        </div>
+
         <div class="modal-actions">
           <button class="btn-modal-action btn-modal-keep" (click)="showCancelModal.set(false)">Keep My Subscription</button>
           <button class="btn-modal-action btn-modal-cancel" (click)="cancelSubscriptionConfirmed()">Yes, Cancel Subscription</button>
         </div>
       </div>
     </div>
+
+    <!-- Cancellation Result Modal -->
+    <div class="cancel-result-overlay" [class.active]="showCancelResultModal()" (click)="closeCancelResultModal()">
+      <div class="cancel-result-card" (click)="$event.stopPropagation()">
+        <div class="result-icon-circle">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </div>
+        <h3 class="result-title">{{ cancelResultData()?.title || 'Subscription Cancelled' }}</h3>
+        
+        <div class="result-message-box">
+          <p>{{ cancelResultData()?.message }}</p>
+        </div>
+
+        <div class="subscription-number-tag" *ngIf="cancelResultData()?.subscriptionNumber">
+          Subscription #{{ cancelResultData()?.subscriptionNumber }}
+        </div>
+
+        <div class="refund-banner" *ngIf="cancelResultData()?.refundInitiated">
+          <div class="refund-icon-badge">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#B8860B" stroke-width="2">
+              <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+              <line x1="2" y1="10" x2="22" y2="10"></line>
+            </svg>
+          </div>
+          <div class="refund-info">
+            <div class="refund-title">Refund Initiated</div>
+            <div class="refund-subtitle">5–7 Working Days to original payment</div>
+          </div>
+        </div>
+
+        <div class="result-modal-actions">
+          <button class="btn-result-gotit" (click)="closeCancelResultModal()">Got It</button>
+        </div>
+      </div>
+    </div>
   </ng-container>
-</div>
+</div>

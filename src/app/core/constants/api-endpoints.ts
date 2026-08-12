@@ -10,6 +10,7 @@ export const API = {
     REFRESH: '/api/auth/token/refresh/',
     GOOGLE: '/api/auth/google/',
     APPLE: '/api/auth/apple/callback/',
+    APPLE_LOGIN: '/api/auth/apple/',
     SEND_OTP: '/api/auth/send-otp/',
     VERIFY_OTP: '/api/auth/verify-otp/',
     TEST_TOKEN: '/api/auth/test-token/',
@@ -55,7 +56,7 @@ export const API = {
     CREATE: '/api/subscriptions/create/',
     DETAIL: '/api/subscriptions/',             // append {id}/
     NEXT_INSTALLMENT_PAYMENT: '/api/subscriptions/', // append {id}/next-installment-payment/
-    PAYMENT_STATUS: '/api/payments/subscription-status/',
+    PAYMENT_STATUS: '/api/payments/status/',
     INVOICES: '/api/invoicing/subscriptions/',      // append {id}/invoices/
   },
 
@@ -117,22 +118,8 @@ export const API = {
   },
 
   PAYMENTS: {
-    INITIATE: '/api/payments/initiate/',
-    STATUS: '/api/payments/status/',                        // append {orderId}/
-    SUBSCRIPTION_STATUS: '/api/payments/subscription-status/', // append {subId}/
-    SUCCESS_REDIRECT: '/api/payments/success',             // Juspay success return URL
-    FAILURE_REDIRECT: '/api/payments/failure',             // Juspay failure return URL
-  },
-
-  /**
-   * External payment handler — the secondary Node.js bridge server
-   * that acts as a manual webhook trigger for Juspay server-to-server callbacks.
-   * Mirrors Flutter's ApiConfig.paymentUrl (http://13.235.242.181:5000)
-   * TODO: Migrate to an HTTPS-enabled domain to resolve insecure HTTP connection.
-   */
-  PAYMENT_HANDLER: {
-    BASE_URL: 'http://13.235.242.181:5000',
-    HANDLE_JUSPAY_RESPONSE: 'http://13.235.242.181:5000/handleJuspayResponse',
+    STATUS: '/api/payments/status/',                        // append {orderId}/ or {subscriptionNumber}/
+    SUBSCRIPTION_STATUS: '/api/payments/status/', // append {subId}/
   },
 
   TRACEABILITY: {

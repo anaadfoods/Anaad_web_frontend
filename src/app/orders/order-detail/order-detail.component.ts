@@ -1,13 +1,14 @@
 import { LogService } from '../../core/services/log.service';
 import { Component, OnInit, OnDestroy, inject, signal, ChangeDetectionStrategy, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser, CommonModule } from '@angular/common';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink, Router } from '@angular/router';
 import { Order, OrderTracking } from '../../core/models/order.model';
 import { OrderService } from '../../core/services/order.service';
 import { PaymentService } from '../../core/services/payment.service';
 import { CurrencyInrPipe } from '../../shared/pipes/currency-inr.pipe';
 import { SafeImageDirective } from '../../shared/safe-image.directive';
 import { timer, switchMap, takeWhile, catchError, of, Subscription } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -22,14 +23,34 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
   private readonly orderSvc = inject(OrderService);
   private readonly paymentSvc = inject(PaymentService);
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly platformId = inject(PLATFORM_ID);
-
+  protected readonly showApiDeliveryDate = environment.showApiDeliveryDate;
   orderData = signal<Order | null>(null);
   trackingData = signal<OrderTracking | null>(null);
   loading = signal<boolean>(true);
   error = signal<string>('');
   activeTab = signal<'details' | 'tracking'>('details');
   retryPaymentLoading = signal<boolean>(false);
+
+  showCancelModal = signal<boolean>(false);
+  selectedCancelReason = signal<string>('');
+  customCancelReason = signal<string>('');
+  readonly cancelReasons = [
+    'I found a better price elsewhere.',
+    'I am moving to a different city and no longer need this.',
+    'No longer need the products / changed my mind.',
+    'Delivery is taking too long / scheduling issues.',
+    'Other (Please specify)'
+  ];
+
+  showCancelResultModal = signal<boolean>(false);
+  cancelResultData = signal<{
+    title: string;
+    message: string;
+    refundInitiated: boolean;
+    orderNumber?: string;
+  } | null>(null);
 
   isVerifyingPayment = signal<boolean>(false);
   verificationMessage = signal<string>('');
@@ -54,6 +75,15 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
       next: (order) => {
         this.orderData.set(order);
         
+        // Start payment verification only for online (non-COD) orders with pending status
+        if (order.payment_method !== 'COD') {
+          if (order.order_number) {
+            this.verifyPaymentStatus(order.order_number);
+          } else {
+            this.verifyPaymentStatus(order.id.toString());
+          }
+        }
+
         // Load tracking info if order number is available
         if (order.order_number) {
           this.loadTracking(order.order_number);
@@ -109,20 +139,49 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
   }
 
   cancelOrder() {
+    this.selectedCancelReason.set('');
+    this.customCancelReason.set('');
+    this.showCancelModal.set(true);
+  }
+
+  cancelOrderConfirmed() {
     const order = this.orderData();
     if (!order) return;
 
-    if (confirm('Are you sure you want to cancel this order?')) {
-      this.orderSvc.cancelOrder(order.id).subscribe({
-        next: () => {
-          alert('Cancellation request submitted successfully');
-          this.loadOrderDetails(order.id.toString());
-        },
-        error: () => {
-          alert('Failed to cancel order');
-        }
-      });
+    let reason = this.selectedCancelReason();
+    if (reason === 'Other (Please specify)') {
+      reason = this.customCancelReason().trim();
+      if (!reason) {
+        alert('Please write your reason for cancellation.');
+        return;
+      }
+    } else if (!reason) {
+      alert('Please select a reason for cancellation.');
+      return;
     }
+
+    this.showCancelModal.set(false);
+    this.orderSvc.cancelOrder(order.id, reason).subscribe({
+      next: (res) => {
+        this.cancelResultData.set({
+          title: 'Order Cancelled',
+          message: res.message || 'Your order cancellation request has been submitted successfully.',
+          refundInitiated: res.refund_initiated ?? false,
+          orderNumber: res.order_number || order.order_number
+        });
+        this.showCancelResultModal.set(true);
+        this.loadOrderDetails(order.id.toString());
+      },
+      error: (err) => {
+        const errorMsg = err.error?.message || err.error?.detail || 'Failed to cancel order. Please try again.';
+        alert(errorMsg);
+      }
+    });
+  }
+
+  closeCancelResultModal() {
+    this.showCancelResultModal.set(false);
+    this.cancelResultData.set(null);
   }
 
   downloadInvoice() {
@@ -213,11 +272,17 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
     this.paymentSvc.initiatePayment({ order_id: order.id }).subscribe({
       next: (res) => {
         this.retryPaymentLoading.set(false);
-        if (res.success && res.payment_links?.web) {
+        const paymentUrl = res.checkout_url;
+        const orderNumber = res.order_number || order.order_number || order.id.toString();
+        
+        if (res.success && paymentUrl) {
           sessionStorage.setItem('pendingPaymentId', order.id.toString());
           sessionStorage.setItem('pendingPaymentType', 'order');
-          sessionStorage.setItem('pendingPaymentNumber', order.order_number || order.id.toString());
-          window.location.href = res.payment_links.web;
+          sessionStorage.setItem('pendingPaymentNumber', orderNumber);
+          if (res.merchant_transaction_id) {
+            sessionStorage.setItem('pendingMerchantTransactionId', res.merchant_transaction_id);
+          }
+          window.location.href = paymentUrl;
         } else {
           alert(res.error || 'Failed to initiate payment. Please try again.');
         }
@@ -236,21 +301,22 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
     }
   }
 
-  verifyPaymentStatus(orderId: number) {
-    const isPendingInSession = sessionStorage.getItem('pendingPaymentId') === orderId.toString() &&
-                               sessionStorage.getItem('pendingPaymentType') === 'order';
-
+  verifyPaymentStatus(orderNumber: string) {
     const order = this.orderData();
     if (!order) {
       this.logSvc.warn('[DEBUG] [OrderDetail] verifyPaymentStatus called but orderData is null');
       return;
     }
 
+    const orderId = order.id;
+    const isPendingInSession = sessionStorage.getItem('pendingPaymentId') === orderId.toString() &&
+                               sessionStorage.getItem('pendingPaymentType') === 'order';
+
     const isPending = order.payment_status === 'PENDING_PAYMENT' || order.payment_status === 'PENDING';
 
     this.logSvc.debug('[DEBUG] [OrderDetail] Evaluating order status for verification:', {
       orderId,
-      orderNumber: order.order_number,
+      orderNumber,
       payment_status: order.payment_status,
       isPending,
       isPendingInSession,
@@ -278,9 +344,8 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
     this.pollSub = timer(0, 2500).pipe(
       switchMap(() => {
         attempts++;
-        const url = `/api/payments/status/${orderId}/`;
-        this.logSvc.debug(`[DEBUG] [OrderDetail] Polling attempt #${attempts} | GET: ${url}`);
-        return this.orderSvc.getPaymentStatus(orderId).pipe(
+        this.logSvc.debug(`[DEBUG] [OrderDetail] Polling attempt #${attempts} | reference: ${orderNumber}`);
+        return this.orderSvc.getPaymentStatus(orderNumber).pipe(
           catchError(err => {
             this.logSvc.error(`[DEBUG] [OrderDetail] Polling error on attempt #${attempts}:`, err);
             return of(null);
@@ -297,17 +362,16 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
           return true;
         }
         
-        const pStatus = res.payment_status;
-        const tStatus = res.transaction_status;
+        const tStatus = res.transaction_status?.toUpperCase();
 
-        this.logSvc.debug(`[DEBUG] [OrderDetail] Status check: payment_status=${pStatus}, transaction_status=${tStatus}`);
+        this.logSvc.debug(`[DEBUG] [OrderDetail] Status check: transaction_status=${tStatus}`);
 
-        if (pStatus === 'PAID' && tStatus === 'SUCCESS') {
+        if (tStatus === 'SUCCESS') {
           this.logSvc.debug('[DEBUG] [OrderDetail] Reached final success state. Stopping poll.');
           return false;
         }
-        if (tStatus === 'FAILED') {
-          this.logSvc.debug('[DEBUG] [OrderDetail] Reached failed state. Stopping poll.');
+        if (tStatus === 'FAILED' || tStatus === 'CANCELLED' || tStatus === 'ABANDONED') {
+          this.logSvc.debug('[DEBUG] [OrderDetail] Reached terminal failure state. Stopping poll.');
           return false;
         }
         
@@ -320,7 +384,8 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
     ).subscribe({
       next: (res: any) => {
         this.logSvc.debug('[DEBUG] [OrderDetail] Polling subscription finished. Final response resolved:', res);
-        const isSuccess = res?.payment_status === 'PAID' && res?.transaction_status === 'SUCCESS';
+        const tStatus = res?.transaction_status?.toUpperCase();
+        const isSuccess = tStatus === 'SUCCESS';
         
         this.logSvc.debug('[DEBUG] [OrderDetail] Verification result flag:', { isSuccess });
 
@@ -330,6 +395,7 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
           sessionStorage.removeItem('pendingPaymentId');
           sessionStorage.removeItem('pendingPaymentType');
           sessionStorage.removeItem('pendingPaymentNumber');
+          sessionStorage.removeItem('pendingMerchantTransactionId');
           // Disable loading and reload details
           this.loading.set(true);
           this.orderSvc.getOrderById(orderId).subscribe({
@@ -343,12 +409,23 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
               this.loading.set(false);
             }
           });
-        } else if (attempts >= maxAttempts || (res && res.transaction_status === 'FAILED')) {
+        } else if (attempts >= maxAttempts || (tStatus && tStatus !== 'PENDING' && tStatus !== 'INITIATED')) {
           this.logSvc.warn('[DEBUG] [OrderDetail] Verification finished without success. Clearing session keys.');
           this.isVerifyingPayment.set(false);
           sessionStorage.removeItem('pendingPaymentId');
           sessionStorage.removeItem('pendingPaymentType');
           sessionStorage.removeItem('pendingPaymentNumber');
+          sessionStorage.removeItem('pendingMerchantTransactionId');
+          this.loading.set(true);
+          this.orderSvc.getOrderById(orderId).subscribe({
+            next: (newOrder) => {
+              this.orderData.set(newOrder);
+              this.loading.set(false);
+            },
+            error: () => {
+              this.loading.set(false);
+            }
+          });
         }
       },
       error: (err) => {

@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { LegalService } from '../core/services/legal.service';
 
 @Component({
@@ -14,14 +15,15 @@ import { LegalService } from '../core/services/legal.service';
 export class TermsConditionsComponent implements OnInit {
   private readonly legalSvc = inject(LegalService);
   private readonly router = inject(Router);
+  private readonly sanitizer = inject(DomSanitizer);
 
-  content = signal<string>('');
+  content = signal<SafeHtml | string>('');
   title = signal<string>('Legal Document');
   loading = signal(true);
 
   ngOnInit() {
     const url = this.router.url;
-    
+
     this.legalSvc.getLatestLegal().subscribe({
       next: docs => {
         let doc;
@@ -35,9 +37,9 @@ export class TermsConditionsComponent implements OnInit {
           doc = docs.find(d => d.type_display?.toLowerCase().includes('terms'));
           this.title.set('Terms & Conditions');
         }
-        
+
         if (doc) {
-          this.content.set(doc.content);
+          this.content.set(this.sanitizer.bypassSecurityTrustHtml(doc.content));
           this.title.set(doc.type_display);
         } else {
           // Provide fallback content
@@ -84,5 +86,28 @@ export class TermsConditionsComponent implements OnInit {
       }
     });
   }
-}
+  onContentClick(event: MouseEvent) {
+    const target = event.target as HTMLElement;
+    const anchor = target.closest('a');
 
+    if (anchor) {
+      const href = anchor.getAttribute('href');
+      if (href && href.startsWith('#')) {
+        event.preventDefault();
+        const elementId = href.substring(1);
+        const element = document.getElementById(elementId);
+        if (element) {
+          const headerOffset = 200; // Offset for sticky header
+          const elementPosition = element.getBoundingClientRect().top;
+          const offsetPosition = elementPosition + window.scrollY - headerOffset;
+
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth'
+          });
+          this.router.navigate([], { fragment: elementId, replaceUrl: true });
+        }
+      }
+    }
+  }
+}

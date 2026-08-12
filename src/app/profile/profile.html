@@ -48,7 +48,7 @@
             <span class="profile-stat-label">Orders</span>
           </ng-container>
           <ng-template #zeroOrders>
-            <a routerLink="/products" class="profile-stat-action">Start your first order &rarr;</a>
+            <a routerLink="/product" class="profile-stat-action">Start your first order &rarr;</a>
           </ng-template>
         </div>
         <div class="profile-stat" [class.cold-state]="subscriptionCount() === 0">
@@ -66,7 +66,7 @@
             <span class="profile-stat-label">Favorites</span>
           </ng-container>
           <ng-template #zeroFavorites>
-            <a routerLink="/products" class="profile-stat-action">Find your favorites &rarr;</a>
+            <a routerLink="/product" class="profile-stat-action">Find your favorites &rarr;</a>
           </ng-template>
         </div>
       </div>
@@ -138,7 +138,7 @@
 
           <div class="sidebar-divider"></div>
 
-          <a routerLink="/products" class="sidebar-nav-item">
+          <a routerLink="/product" class="sidebar-nav-item">
             <span class="sidebar-icon">&#127858;</span>
             <span class="sidebar-text">Shop Products</span>
           </a>
@@ -390,7 +390,7 @@
               </div>
 
               @for (order of ordersData(); track order.id) {
-              <div class="order-row" [routerLink]="['/orders', order.id]" style="cursor: pointer;">
+              <div class="order-row" [routerLink]="['/order', order.id]" style="cursor: pointer;">
                 <span class="order-id">
                   <div class="order-id-link">
                     {{ order.order_number || '#' + order.id }}
@@ -476,11 +476,11 @@
 
             <div class="card-list">
               @for (subscription of filteredSubscriptions(); track subscription.id) {
-              <div class="data-card" [routerLink]="['/subscriptions', subscription.id]" style="cursor: pointer;">
+              <div class="data-card" [routerLink]="['/subscription', subscription.id]" style="cursor: pointer;">
                 <div class="card-main">
                   <span class="detail-label">
                     <div class="subscription-id-link">
-                      {{ subscription.subscription_number || ('SUB #' + subscription.id) }}
+                      {{ subscription.subscription_number || 'Subscription' }}
                     </div>
                   </span>
                   <div class="subscription-id-link">
@@ -540,7 +540,7 @@
 
             <div class="favorites-grid">
               @for (variant of favoritesData(); track variant.id) {
-              <div class="favorite-card" [routerLink]="['/products', variant.id]" style="cursor: pointer;">
+              <div class="favorite-card" [routerLink]="['/product', variant.id]" style="cursor: pointer;">
                 <div class="fav-img-wrap">
                   <img [src]="getFavoriteImage(variant)" [alt]="variant.product_name" />
                 </div>
@@ -695,10 +695,18 @@
           </ng-container>
 
           <ng-template #referralsContent>
-            <div class="content-section-header">
-              <span class="section-label-tag">Rewards Program</span>
-              <h2>Refer &amp; Nourish</h2>
-              <p>Share the gift of natural, zero-residue food with your friends and earn rewards.</p>
+            <div class="content-section-header" style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px;">
+              <div>
+                <span class="section-label-tag">Rewards Program</span>
+                <h2>Refer &amp; Nourish</h2>
+                <p>Share the gift of natural, zero-residue food with your friends and earn rewards.</p>
+              </div>
+              <a routerLink="/refer-earn" class="action-btn primary" style="display: inline-flex; align-items: center; gap: 8px; font-weight: 700; text-decoration: none; padding: 10px 20px; border-radius: 12px; background: var(--green-deep, #2C4A1E); color: #FFFFFF;">
+                <span>Open Full Dashboard</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </a>
             </div>
 
             <div class="referrals-dashboard">
@@ -725,19 +733,31 @@
                     {{ shareReferralText() }}
                   </button>
                 </div>
-                <p class="share-desc">Give your friends 10% off their first order, and you'll get 10% off your next
-                  delivery once they buy.</p>
+                <p class="share-desc" *ngIf="referralsSummary()?.rewards_info; else fallbackDesc">
+                  Give your friends <strong style="color: var(--green-deep, #2C4A1E);">{{ referralsSummary()?.rewards_info?.they_get }}</strong>, and you'll get <strong style="color: var(--green-deep, #2C4A1E);">{{ referralsSummary()?.rewards_info?.you_get }}</strong> once they buy!
+                </p>
+                <ng-template #fallbackDesc>
+                  <p class="share-desc">Give your friends 10% off their first order, and you'll get 10% off your next delivery once they buy.</p>
+                </ng-template>
               </div>
 
               <!-- Referral Stats Grid -->
               <div class="referral-stats-grid">
                 <div class="ref-stat-card">
-                  <span class="ref-stat-label">Successful Referrals</span>
-                  <strong class="ref-stat-val">{{ referralRewardCount()?.total_referred_users || 0 }}</strong>
+                  <span class="ref-stat-label">Total Referred</span>
+                  <strong class="ref-stat-val">{{ referralsSummary()?.referrals_count || 0 }}</strong>
                 </div>
                 <div class="ref-stat-card">
-                  <span class="ref-stat-label">Total Rewards Earned</span>
-                  <strong class="ref-stat-val">{{ referralRewardCount()?.rewards_earned || 0 }}</strong>
+                  <span class="ref-stat-label">Orders Placed</span>
+                  <strong class="ref-stat-val">{{ referralsSummary()?.ordered_count || 0 }}</strong>
+                </div>
+                <div class="ref-stat-card">
+                  <span class="ref-stat-label">Pending Orders</span>
+                  <strong class="ref-stat-val">{{ referralsSummary()?.pending_count || 0 }}</strong>
+                </div>
+                <div class="ref-stat-card">
+                  <span class="ref-stat-label">Pending Rewards</span>
+                  <strong class="ref-stat-val">{{ referralsSummary()?.pending_reward_count || 0 }}</strong>
                 </div>
               </div>
 
@@ -748,12 +768,14 @@
                   <div class="ref-table-header">
                     <span>Friend's Username</span>
                     <span>Joined Date</span>
+                    <span>Your Reward</span>
                     <span>Reward Status</span>
                   </div>
                   @for (ref of referralsSummary()?.referred_users; track $index) {
                   <div class="ref-table-row">
                     <span class="ref-username">{{ ref.username || ref.first_name || ref.email || 'Friend' }}</span>
                     <span class="ref-date">{{ parseOrderDate(ref.date_joined) | date:'dd MMM yyyy' }}</span>
+                    <span class="ref-reward" style="color: var(--charcoal, #1A1A1A); font-weight: 500;">{{ ref.reward_you_get || '—' }}</span>
                     <span class="ref-status status-pill" [class]="getReferralStatusClass(ref.status)">
                       {{ ref.status_display || ref.status || 'Joined' }}
                     </span>
@@ -924,8 +946,45 @@
             </div>
           </ng-template>
         </ng-container>
-
       </div><!-- end account-content -->
     </div><!-- end account-layout -->
+
+    <!-- Cancellation Modal for Orders -->
+    <div class="cancel-modal-overlay" [class.active]="showCancelModal()" (click)="showCancelModal.set(false)">
+      <div class="cancel-modal-card" (click)="$event.stopPropagation()">
+        <h3>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="#c0392b" style="display:inline-block; vertical-align:middle; margin-top:-3px; margin-right:8px;">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+          </svg>
+          Cancel Order
+        </h3>
+        <p class="consequence-lead">Are you sure you want to cancel this order? This action cannot be undone.</p>
+
+        <div class="cancellation-reason-section" style="margin-bottom: 24px; text-align: left;">
+          <p style="font-weight: 600; margin: 0 0 12px 0; font-family: var(--font-sans); font-size: 13.5px; color: var(--charcoal, #1A1A1A);">Why are you cancelling?</p>
+          <div class="reason-options" style="display: flex; flex-direction: column; gap: 8px;">
+            @for (reason of cancelReasons; track reason) {
+              <label style="display: flex; align-items: center; gap: 8px; font-family: var(--font-sans); font-size: 13px; color: rgba(26,26,26,0.8); cursor: pointer;">
+                <input type="radio" name="profileOrderCancelReason" [value]="reason" [checked]="selectedCancelReason() === reason" (change)="selectedCancelReason.set(reason)" />
+                {{ reason }}
+              </label>
+            }
+          </div>
+          
+          <div class="custom-reason-input" *ngIf="selectedCancelReason() === 'Other (Please specify)'" style="margin-top: 12px;">
+            <textarea style="width: 100%; height: 80px; padding: 10px; border: 1px solid rgba(26, 26, 26, 0.15); border-radius: 6px; font-family: var(--font-sans); font-size: 13px; box-sizing: border-box; resize: none;" 
+                      placeholder="Please write your reason here..." 
+                      [value]="customCancelReason()" 
+                      (input)="customCancelReason.set($any($event.target).value)"></textarea>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn-modal-action btn-modal-keep" (click)="showCancelModal.set(false)">Keep My Order</button>
+          <button class="btn-modal-action btn-modal-cancel" (click)="cancelOrderConfirmed()">Yes, Cancel Order</button>
+        </div>
+      </div>
+    </div>
+
   </ng-container>
 </div>

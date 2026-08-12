@@ -14,14 +14,13 @@ import {
   PaymentStatus,
   InvoiceResponse,
   ShippingDetails,
-  JuspaySession,
+  PaymentSession,
+  CancelOrderResponse,
 } from '../models/order.model';
-import { PaymentService } from './payment.service';
 
 @Injectable({ providedIn: 'root' })
 export class OrderService {
   private readonly http = inject(HttpClient);
-  private readonly paymentSvc = inject(PaymentService);
 
   // ── Order CRUD ────────────────────────────
 
@@ -35,12 +34,12 @@ export class OrderService {
     return this.http.get<Order>(`${API.ORDERS.DETAIL}${id}/`);
   }
 
-  createOrder(req: CreateOrderRequest): Observable<Order | JuspaySession> {
-    return this.http.post<Order | JuspaySession>(API.ORDERS.CREATE, req);
+  createOrder(req: CreateOrderRequest): Observable<Order | PaymentSession> {
+    return this.http.post<Order | PaymentSession>(API.ORDERS.CREATE, req);
   }
 
-  cancelOrder(id: number, reason?: string): Observable<{ message: string }> {
-    return this.http.post<{ message: string }>(
+  cancelOrder(id: number, reason?: string): Observable<CancelOrderResponse> {
+    return this.http.post<CancelOrderResponse>(
       `${API.ORDERS.DETAIL}${id}/cancel-request/`,
       { reason }
     );
@@ -77,25 +76,15 @@ export class OrderService {
 
   // ── Payment Status ────────────────────────
 
-  getPaymentStatus(orderId: number): Observable<PaymentStatus> {
-    return this.http.get<PaymentStatus>(`${API.ORDERS.PAYMENT_STATUS}${orderId}/`);
+  getPaymentStatus(orderIdOrNumber: number | string): Observable<PaymentStatus> {
+    return this.http.get<PaymentStatus>(`${API.ORDERS.PAYMENT_STATUS}${orderIdOrNumber}/`);
   }
 
   /**
    * Convenience alias used by PaymentSuccess component.
-   * Mirrors Flutter's _orderService.fetchPaymentStatus(orderId).
    */
-  fetchPaymentStatus(orderId: number): Observable<PaymentStatus> {
-    return this.getPaymentStatus(orderId);
-  }
-
-  /**
-   * Trigger the Node.js payment bridge for a given order number.
-   * Mirrors Flutter's _orderService.postOrderId(orderNumber).
-   * This is a fire-and-forget call; errors are swallowed internally.
-   */
-  postOrderId(orderNumber: string): Observable<unknown> {
-    return this.paymentSvc.triggerJuspayWebhook(orderNumber);
+  fetchPaymentStatus(orderIdOrNumber: number | string): Observable<PaymentStatus> {
+    return this.getPaymentStatus(orderIdOrNumber);
   }
 
   // ── Invoice ───────────────────────────────

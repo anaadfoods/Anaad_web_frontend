@@ -1,21 +1,60 @@
-<div class="home-wrap">
-
-  <!-- ═══ HERO SECTION ═══ -->
-  <section class="hero" revealOnScroll>
-    <div class="hero-overlay"></div>
-    <div class="hero-content">
-      <div class="hero-eyebrow">ICBN Farming &nbsp;·&nbsp; Est. 2023</div>
-      <h1 class="heading-display heading-display--light">Traceable food from living soil,<br>grown beyond the market's
-        <em>shortcuts.</em>
-      </h1>
-      <p>We grow toxin-free ICBN food you can trace to its roots, preserving nutritional integrity to nourish people,
-        revive ecosystems, and raise farmers’ livelihoods.</p>
-      <div class="hero-actions">
-        <a routerLink="/our-soil" class="btn-primary">How We Farm &rarr;</a>
-        <a [routerLink]="['/registry']" fragment="ledger" class="btn-ghost-light">View Batch Records &rarr;</a>
-      </div>
+<!-- ═══ IMAGE CAROUSEL SECTION ═══ -->
+<section class="home-carousel-section" revealOnScroll>
+  <div class="carousel-container" [style.--active-index]="activeIndex" [style.--drag-offset.px]="dragOffset"
+    [class.is-dragging]="isDragging" (mouseenter)="onMouseEnter()" (mouseleave)="onMouseLeave()"
+    (pointerdown)="onPointerDown($event)" (pointermove)="onPointerMove($event)" (pointerup)="onPointerEnd($event)"
+    (pointercancel)="onPointerEnd($event)" (pointerleave)="onPointerLeave($event)">
+    <div class="carousel-track">
+      <a *ngFor="let img of carouselImages; let i = index" class="carousel-slide" [class.active]="i === activeIndex"
+        routerLink="/products" (click)="onSlideClick($event)">
+        <picture class="carousel-picture">
+          <source media="(max-width: 768px)" [srcset]="img.mobile">
+          <source media="(min-width: 769px)" [srcset]="img.desktop">
+          <img [src]="img.desktop" alt="Anaad Farm Image" class="carousel-image" />
+        </picture>
+      </a>
     </div>
-  </section>
+
+    <!-- Arrow Controls -->
+    <!-- <button class="carousel-control prev" (click)="prevSlide()" aria-label="Previous slide">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+        stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"></polyline>
+      </svg>
+    </button>
+    <button class="carousel-control next" (click)="nextSlide()" aria-label="Next slide">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+        stroke-linejoin="round">
+        <polyline points="9 18 15 12 9 6"></polyline>
+      </svg> -->
+    <!-- </button> -->
+
+    <!-- Dots Navigation -->
+    <div class="carousel-dots">
+      <button *ngFor="let img of carouselImages; let i = index" class="carousel-dot" [class.active]="i === activeIndex"
+        (click)="setActiveIndex(i)" [attr.aria-label]="'Go to slide ' + (i + 1)"></button>
+    </div>
+  </div>
+</section>
+<!-- ═══ HERO SECTION ═══ -->
+<section class="hero" revealOnScroll>
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <div class="hero-eyebrow">ICBN Farming &nbsp;·&nbsp; Est. 2023</div>
+    <h1 class="heading-display heading-display--light">Traceable food from living soil,<br>grown beyond the market's
+      <em>shortcuts.</em>
+    </h1>
+    <p>We grow toxin-free ICBN food you can trace to its roots, preserving nutritional integrity to nourish people,
+      revive ecosystems, and raise farmers’ livelihoods.</p>
+    <div class="hero-actions">
+      <a routerLink="/our-soil" class="btn-primary">How We Farm &rarr;</a>
+      <a [routerLink]="['/registry']" fragment="ledger" class="btn-ghost-light">View Batch Records &rarr;</a>
+    </div>
+  </div>
+</section>
+
+
+<div class="home-wrap">
 
   <!-- ═══ MANIFESTO SECTION ═══ -->
   <section class="manifesto" revealOnScroll>
@@ -34,14 +73,14 @@
       </div>
     </div>
     <div class="manifesto-right">
-      <div class="manifesto-card">
+      <a class="manifesto-card" routerLink="/product" style="text-decoration: none;">
         <div class="manifesto-card-number">01 — Seed Integrity</div>
         <h3 class="heading-3">Seed integrity, carried forward</h3>
         <p>The farm grows carefully selected traditional grain varieties that are naturally suited to the local soil and
           climate. This helps preserve character, resilience, and nutrition while honoring a generational lineage of
           seeds that can be carried forward season after season.</p>
-      </div>
-      <div class="manifesto-card">
+      </a>
+      <a class="manifesto-card" routerLink="/product" style="text-decoration: none;">
         <div class="manifesto-card-number">02 — Soil Science</div>
         <h3 class="heading-3">Enriching the microbial population</h3>
         <p>A healthy microbial population is essential because soil microbes help unlock nutrition for the crop in forms
@@ -49,14 +88,14 @@
           phosphate-solubilizing bacteria such as Bacillus megaterium and Pseudomonas fluorescens, and
           potassium-mobilizing bacteria such as Bacillus mucilaginosus help keep soil fertility active and balanced,
           making microbial abundance essential for reducing dependence on synthetic farm chemicals.</p>
-      </div>
-      <div class="manifesto-card">
+      </a>
+      <a class="manifesto-card" routerLink="/product" style="text-decoration: none;">
         <div class="manifesto-card-number">03 — Post-Harvest</div>
         <h3 class="heading-3">Tradition, strengthened by technology</h3>
         <p>ANAAD combines traditional wisdom with modern processing discipline to retain maximum nutrition while
           achieving the consistency and efficiency needed for contemporary food systems. The result is processing that
           respects the integrity of the crop without compromising the nutritional value cultivated in the field.</p>
-      </div>
+      </a>
     </div>
   </section>
   <!-- ═══ RADICAL TRANSPARENCY ═══ 
@@ -131,7 +170,7 @@
       <div class="active-subs-grid">
         @if (activeSubscriptions().length > 0) {
         @for (sub of activeSubscriptions(); track sub.id) {
-        <div class="active-sub-card" [routerLink]="['/subscriptions', sub.id]">
+        <div class="active-sub-card" [routerLink]="['/subscription', sub.id]">
           <div class="active-sub-header">
             <h3 class="heading-3">{{ $any(sub).plan_details?.name || sub.plan_name || 'Anaad Subscription' }}</h3>
             <span class="status-badge" [class]="sub.status.toLowerCase()">{{ sub.status }}</span>
@@ -196,7 +235,7 @@
       }
     </div>
     <div class="shop-actions">
-      <a routerLink="/products" class="btn-product shop-actions-link">Browse the Full Pantry &rarr;</a>
+      <a routerLink="/product" class="btn-product shop-actions-link">Explore the Offerings &rarr;</a>
     </div>
   </section>
 
@@ -276,7 +315,7 @@
   <!-- ═══ COMMITMENT / SUBSCRIPTION ═══ -->
   <section class="subscription" revealOnScroll>
     <div class="subscription-header">
-      <div class="section-label">Commitment-Based Agriculture</div>
+      <div class="section-label">Subscription-Based Agriculture</div>
       <h2 class="heading-2">Share the risk. Secure the harvest.</h2>
       <p>In conventional industrial farming, growers often decide what to sow by predicting what the market might buy.
         When that prediction fails, prices fall, produce is devalued, and food goes to waste. ANAAD's subscribers commit
@@ -290,8 +329,8 @@
         commitment helped bring to life.
       </p>
     </div>
-    <app-subscription-plans [showAction]="true" actionLink="/commitment" actionText="Choose Your Commitment Tier &rarr;"
-      [isCoverflow]="true">
+    <app-subscription-plans [showAction]="true" actionLink="/commitment"
+      actionText="Choose Your Subscription Tier &rarr;" [isCoverflow]="true">
     </app-subscription-plans>
   </section>
 </div>

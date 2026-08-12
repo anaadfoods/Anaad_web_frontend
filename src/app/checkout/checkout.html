@@ -37,20 +37,45 @@
             <h2 class="form-block-title">Payment Method</h2>
           </div>
           <div class="field-row">
-            <!-- <label class="radio-card" [class.selected]="f.paymentMethod.value === 'prepaid'">
-              <input type="radio" formControlName="paymentMethod" value="prepaid" class="hidden-radio" />
+            <label class="radio-card" [class.selected]="f.paymentMethod.value === 'upi'">
+              <input type="radio" formControlName="paymentMethod" value="upi" class="hidden-radio" />
               <div class="radio-dot-outer"><div class="radio-dot-inner"></div></div>
               <div class="radio-card-info">
-                <span class="radio-card-name">Pay Now (UPI/Card)</span>
-                <span class="radio-card-desc">Instant confirmation</span>
+                <span class="radio-card-name">Pay Online (UPI)</span>
+                <span class="radio-card-desc">Instant confirmation via UPI</span>
               </div>
-            </label> -->
+            </label>
             <label class="radio-card" [class.selected]="f.paymentMethod.value === 'cod'">
               <input type="radio" formControlName="paymentMethod" value="cod" class="hidden-radio" />
               <div class="radio-dot-outer"><div class="radio-dot-inner"></div></div>
               <div class="radio-card-info">
                 <span class="radio-card-name">Cash on Delivery</span>
                 <span class="radio-card-desc">No upfront payment needed</span>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- SUBSCRIPTION PAYMENT OPTIONS -->
+        <div class="form-block" *ngIf="isSubscription() && selectedPlan()?.allows_installments">
+          <div class="form-block-header">
+            <h2 class="form-block-title">Subscription Payment Options</h2>
+          </div>
+          <div class="field-row">
+            <label class="radio-card" [class.selected]="selectedPaymentType() === 'PAID_FULL'">
+              <input type="radio" name="checkoutPaymentType" [checked]="selectedPaymentType() === 'PAID_FULL'" (change)="selectedPaymentType.set('PAID_FULL')" class="hidden-radio" />
+              <div class="radio-dot-outer"><div class="radio-dot-inner"></div></div>
+              <div class="radio-card-info">
+                <span class="radio-card-name">Pay in Full</span>
+                <span class="radio-card-desc">Pay for the entire subscription duration upfront</span>
+              </div>
+            </label>
+            <label class="radio-card" [class.selected]="selectedPaymentType() === 'INSTALLMENT'">
+              <input type="radio" name="checkoutPaymentType" [checked]="selectedPaymentType() === 'INSTALLMENT'" (change)="selectedPaymentType.set('INSTALLMENT')" class="hidden-radio" />
+              <div class="radio-dot-outer"><div class="radio-dot-inner"></div></div>
+              <div class="radio-card-info">
+                <span class="radio-card-name">Pay in Installments</span>
+                <span class="radio-card-desc">Pay monthly installments over the subscription duration</span>
               </div>
             </label>
           </div>
@@ -199,22 +224,32 @@
             <span class="summary-label">Subscription Duration</span>
             <span class="summary-value">{{ planDurationMonths() }} Month{{ planDurationMonths() > 1 ? 's' : '' }}</span>
           </div>
-          <div class="summary-divider"></div>
-          <div class="summary-row">
-            <span class="summary-label">Total Item Cost</span>
-            <span class="summary-value">{{ totalItemCost() | currencyInr }}</span>
-          </div>
-          <div class="summary-row">
-            <span class="summary-label">Total Delivery Cost</span>
-            <span class="summary-value" [class.free]="totalDeliveryCost() === 0">
-              {{ totalDeliveryCost() === 0 ? 'Free' : (totalDeliveryCost() | currencyInr) }}
-            </span>
+          <div class="summary-row" *ngIf="selectedPlan()?.allows_installments">
+            <span class="summary-label">Payment Option</span>
+            <span class="summary-value">{{ selectedPaymentType() === 'INSTALLMENT' ? 'Installments (Pay Monthly)' : 'Pay in Full' }}</span>
           </div>
           <div class="summary-divider"></div>
-          <div class="summary-total-row">
-            <span class="summary-total-label">Total Amount</span>
-            <span class="summary-total-value">{{ getGrandTotal() | currencyInr }}</span>
+          <div class="summary-row">
+            <span class="summary-label">Total Subscription Value</span>
+            <span class="summary-value">{{ totalAmount() | currencyInr }}</span>
           </div>
+          @if (selectedPaymentType() === 'INSTALLMENT') {
+            <div class="summary-row" style="color: var(--green-deep, #1C3B2B); font-weight: 500;">
+              <span class="summary-label">Subsequent Installments</span>
+              <span class="summary-value">{{ (discountedPricePerMonth() + deliveryChargePerMonth()) | currencyInr }}/month</span>
+            </div>
+            <div class="summary-divider"></div>
+            <div class="summary-total-row">
+              <span class="summary-total-label">First Installment Due Now</span>
+              <span class="summary-total-value">{{ getGrandTotal() | currencyInr }}</span>
+            </div>
+          } @else {
+            <div class="summary-divider"></div>
+            <div class="summary-total-row">
+              <span class="summary-total-label">Total Amount Due Now</span>
+              <span class="summary-total-value">{{ getGrandTotal() | currencyInr }}</span>
+            </div>
+          }
         } @else {
           <div class="summary-row">
             <span class="summary-label">Subtotal</span>
@@ -239,6 +274,10 @@
           </div>
         }
         <span class="summary-gst">Inclusive of all taxes</span>
+        <div class="summary-delivery-date">
+          <span class="delivery-date-icon">📅</span>
+          <span class="delivery-date-text">Expected Delivery: <strong>{{ deliveryDateMessage() }}</strong></span>
+        </div>
       </div>
 
       <button type="button" class="btn-place-order" (click)="placeOrder()"
@@ -308,5 +347,4 @@
       </form>
     </div>
   </div>
-
 </div>

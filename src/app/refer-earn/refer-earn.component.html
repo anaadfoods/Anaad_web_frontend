@@ -1,0 +1,258 @@
+<div class="refer-earn-page">
+  <div class="container">
+    <!-- Page Header Navigation -->
+    <div class="page-nav">
+      <a routerLink="/profile" class="btn-back">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        Back to Account
+      </a>
+    </div>
+
+    <!-- Loading State -->
+    <div class="loading-state" *ngIf="loading()">
+      <div class="spinner"></div>
+      <p>Loading your referral rewards details...</p>
+    </div>
+
+    <!-- Error State -->
+    <div class="error-state" *ngIf="error() && !loading()">
+      <p>{{ error() }}</p>
+      <button class="btn-retry" (click)="loadReferralData()">Retry</button>
+    </div>
+
+    <!-- Main Content -->
+    <div class="referral-content" *ngIf="!loading() && !error()">
+      
+      <!-- Copy Toast Alert -->
+      <div class="toast-copied" [class.show]="copiedToast()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+        Referral code copied to clipboard!
+      </div>
+
+      <!-- Hero Section -->
+      <div class="hero-section">
+        <div class="gift-icon-container">
+          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 12 20 22 4 22 4 12"></polyline>
+            <rect x="2" y="7" width="20" height="5"></rect>
+            <line x1="12" y1="22" x2="12" y2="7"></line>
+            <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path>
+            <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path>
+          </svg>
+        </div>
+        <h1 class="hero-title">Sow the Seeds of Health.</h1>
+        <p class="hero-desc">{{ heroDescription }}</p>
+      </div>
+
+      <!-- Referral Code Card -->
+      <div class="referral-code-card">
+        <div class="card-shimmer"></div>
+        <div class="card-inner">
+          <span class="card-subtitle">Your Referral Code</span>
+          <div class="code-box">
+            <span class="code-text">{{ referralCode }}</span>
+            <button class="btn-copy-code" (click)="copyCode()" title="Copy Code">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+            </button>
+          </div>
+          <button class="btn-primary-share" (click)="share('native')">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="18" cy="5" r="3"></circle>
+              <circle cx="6" cy="12" r="3"></circle>
+              <circle cx="18" cy="19" r="3"></circle>
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+            </svg>
+            Share Now
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Share Platforms -->
+      <div class="share-platforms-section">
+        <h3 class="section-heading">Share Your Code</h3>
+        <div class="share-grid">
+          <button class="share-btn share-whatsapp" (click)="share('whatsapp')">
+            <div class="share-icon-bg">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-1.143 4.174 4.286-1.123z"/>
+              </svg>
+            </div>
+            <span>WhatsApp</span>
+          </button>
+
+          <button class="share-btn share-telegram" (click)="share('telegram')">
+            <div class="share-icon-bg">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.197 1.006.128.832.941z"/>
+              </svg>
+            </div>
+            <span>Telegram</span>
+          </button>
+
+          <button class="share-btn share-email" (click)="share('email')">
+            <div class="share-icon-bg">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                <polyline points="22,6 12,13 2,6"></polyline>
+              </svg>
+            </div>
+            <span>Email</span>
+          </button>
+
+          <button class="share-btn share-more" (click)="share('more')">
+            <div class="share-icon-bg">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="1"></circle>
+                <circle cx="19" cy="12" r="1"></circle>
+                <circle cx="5" cy="12" r="1"></circle>
+              </svg>
+            </div>
+            <span>More</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Stats Grid -->
+      <div class="stats-section">
+        <h3 class="section-heading">Your Referral Stats</h3>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon icon-referred">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+              </svg>
+            </div>
+            <div class="stat-value">{{ totalReferrals }}</div>
+            <div class="stat-label">Referred</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon icon-ordered">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="9" cy="21" r="1"></circle>
+                <circle cx="20" cy="21" r="1"></circle>
+                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+              </svg>
+            </div>
+            <div class="stat-value">{{ orderedReferrals }}</div>
+            <div class="stat-label">Ordered</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon icon-pending">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+            </div>
+            <div class="stat-value">{{ pendingReferrals }}</div>
+            <div class="stat-label">Pending</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon icon-rewards">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="20 12 20 22 4 22 4 12"></polyline>
+                <rect x="2" y="7" width="20" height="5"></rect>
+              </svg>
+            </div>
+            <div class="stat-value">{{ pendingRewards }}</div>
+            <div class="stat-label">Rewards</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Referred By Card (if user was referred) -->
+      <div class="referred-by-card" *ngIf="referredBy">
+        <div class="referred-by-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="8.5" cy="7" r="4"></circle>
+            <polyline points="17 11 19 13 23 9"></polyline>
+          </svg>
+        </div>
+        <div class="referred-by-info">
+          <div class="referred-by-label">Referred By</div>
+          <div class="referred-by-name">
+            {{ referredBy.first_name ? (referredBy.first_name + ' ' + (referredBy.last_name || '')).trim() : (referredBy.username || referredBy) }}
+          </div>
+          <div class="referred-by-reward" *ngIf="referredBy.reward_you_get">
+            Reward: {{ referredBy.reward_you_get }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Referred Users List -->
+      <div class="referred-users-section">
+        <h3 class="section-heading">Referred Friends</h3>
+        
+        <div class="users-card">
+          <div class="empty-users" *ngIf="referredUsers.length === 0">
+            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+            </svg>
+            <p>You haven't referred anyone yet. Share your code above to start earning!</p>
+          </div>
+
+          <div class="users-list" *ngIf="referredUsers.length > 0">
+            <div class="user-row" *ngFor="let u of referredUsers">
+              <div class="user-avatar">
+                {{ (u.first_name || u.username || u.email || 'F').charAt(0).toUpperCase() }}
+              </div>
+              <div class="user-details">
+                <div class="user-name">
+                  {{ u.first_name ? (u.first_name + ' ' + (u.last_name || '')).trim() : (u.username || u.email || 'Friend') }}
+                </div>
+                <div class="user-meta">
+                  Joined {{ formatDate(u.date_joined || u.created_at) }}
+                </div>
+              </div>
+              <div class="user-status-wrapper">
+                <span class="status-pill" [class]="getReferralStatusClass(u.status)">
+                  {{ u.status_display || u.status || 'Joined' }}
+                </span>
+                <span class="user-reward" *ngIf="u.reward_you_get">{{ u.reward_you_get }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- How It Works Section -->
+      <div class="how-it-works-section">
+        <h3 class="section-heading">How It Works</h3>
+        <div class="steps-grid">
+          <div class="step-card">
+            <div class="step-number">1</div>
+            <div class="step-title">Share Code</div>
+            <div class="step-desc">Send your unique referral code or link to your friends and family.</div>
+          </div>
+          <div class="step-card">
+            <div class="step-number">2</div>
+            <div class="step-title">Friend Registers</div>
+            <div class="step-desc">They sign up on Anaad using your code & place their first order.</div>
+          </div>
+          <div class="step-card">
+            <div class="step-number">3</div>
+            <div class="step-title">Earn Rewards</div>
+            <div class="step-desc">Both you and your friend receive special farm rewards!</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

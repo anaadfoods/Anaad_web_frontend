@@ -26,6 +26,10 @@ footer.site-footer {
 
 .footer-brand {
   max-width: 320px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
 }
 
 .footer-logo-img {
@@ -47,6 +51,7 @@ footer.site-footer {
   display: flex;
   flex-direction: row;
   gap: 24px;
+  justify-content: center;
 }
 
 .social-link {

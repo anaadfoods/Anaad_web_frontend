@@ -519,3 +519,93 @@
   padding: 8px 12px;
   font-size: 14px;
 }
+
+/* Social Login Styling */
+.social-divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 16px 0 8px 0;
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(26, 26, 26, 0.40);
+
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid rgba(26, 26, 26, 0.12);
+  }
+
+  &::before {
+    margin-right: 16px;
+  }
+
+  &::after {
+    margin-left: 16px;
+  }
+}
+
+.social-actions {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.google-btn-wrapper {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  flex: 1;
+  min-width: 0;
+  height: 40px;
+
+  ::ng-deep iframe {
+    width: 100% !important;
+    height: 40px !important;
+  }
+}
+
+.btn-apple {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  flex: 1;
+  height: 40px;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #ffffff;
+  background-color: #000000;
+  border: 1px solid #000000;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s, opacity 0.2s;
+
+  &:hover {
+    background-color: #1a1a1a;
+  }
+
+  svg {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
+  }
+}
+
+@media (max-width: 600px) {
+  .social-actions {
+    flex-direction: column;
+    gap: 12px;
+  }
+}

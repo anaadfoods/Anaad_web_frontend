@@ -189,7 +189,7 @@ export class ProductList implements OnInit, OnDestroy {
 
   onAddToCart(variant: ProductVariant) {
     if (!this.authState.isAuthenticated()) {
-      this.router.navigate(['/login'], { queryParams: { returnUrl: '/products' } });
+      this.router.navigate(['/login'], { queryParams: { returnUrl: '/product' } });
       return;
     }
     const adding = new Set(this.cartAddingIds());

@@ -10,7 +10,7 @@
 /* GALLERY */
 .gallery-col { display: flex; flex-direction: column; gap: 12px; padding: 20px clamp(1.25rem, 3vw, 2.5rem) 20px clamp(1.25rem, 5vw, 4rem); border-right: 1px solid rgba(26,26,26,0.08); position: sticky; top: 120px; }
 .gallery-main { width: 100%; max-width: 480px; margin: 0 auto; aspect-ratio: 1 / 1; overflow: hidden; background-color: var(--bg-parchment); position: relative; }
-.gallery-main img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.68); transform-origin: center center; }
+.gallery-main img { width: 100%; height: 100%; object-fit: contain; transform: scale(1); transform-origin: center center; padding: 16px; box-sizing: border-box; }
 .gallery-main.blurred img { filter: blur(4px); opacity: 0.8; }
 .gallery-main-badge { position: absolute; top: 20px; left: 20px; font-family: var(--font-sans); font-size: 10px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--bg-parchment); background-color: var(--green-deep); padding: 5px 12px; }
 .coming-soon-overlay { position: absolute; inset: auto 0 0 0; display: flex; align-items: center; justify-content: center; background-color: var(--amber-harvest, #E09E3E); color: #fff; font-family: var(--font-sans); font-size: 14px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 12px; z-index: 10; }
@@ -18,7 +18,7 @@
 .gallery-thumbs { display: flex; flex-direction: row; gap: 10px; width: 100%; max-width: 480px; margin: 0 auto; }
 .gallery-thumb { width: 64px; height: 64px; overflow: hidden; background-color: #DDD8CE; cursor: pointer; border: 2px solid transparent; }
 .gallery-thumb.active { border-color: var(--green-deep); }
-.gallery-thumb img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.68); transform-origin: center center; }
+.gallery-thumb img { width: 100%; height: 100%; object-fit: contain; transform: scale(1); transform-origin: center center; padding: 4px; box-sizing: border-box; }
 
 /* PRODUCT INFO */
 .info-col { padding: 20px clamp(1.25rem, 5vw, 4rem) 20px clamp(1.25rem, 3vw, 2.5rem); display: flex; flex-direction: column; gap: 16px; position: sticky; top: 120px; }

@@ -90,7 +90,7 @@
         @for (c of filteredCrops(); track c.crop_id) {
         <div class="batch-row"
           style="grid-template-columns: 1.3fr 100px 1.3fr 110px 110px 115px 90px 150px; cursor: pointer;"
-          [routerLink]="['/traceability-journey']" [queryParams]="{crop_id: c.crop_id}">
+          [routerLink]="['/traceability-journey', c.crop_id]">
           <span class="batch-variety">{{ c.crop_name }}</span>
           <span class="batch-id">{{ c.crop_id }}</span>
           <span class="batch-variety secondary-text">{{ getLocation(c) }}</span>
@@ -127,8 +127,7 @@
     <!-- Mobile Layout (Visible on screens < 768px) -->
     <div class="batch-cards-mobile">
       @for (c of filteredCrops(); track c.crop_id) {
-      <div class="batch-card-mobile" style="cursor: pointer;" [routerLink]="['/traceability-journey']"
-        [queryParams]="{crop_id: c.crop_id}">
+      <div class="batch-card-mobile" style="cursor: pointer;" [routerLink]="['/traceability-journey', c.crop_id]">
         <div class="card-header">
           <span class="crop-name">{{ c.crop_name }}</span>
           <span class="status-badge" [class.pass]="getStatus(c) === 'Verified' || getStatus(c) === 'Available'">{{

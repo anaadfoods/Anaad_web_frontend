@@ -1,8 +1,15 @@
-import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, inject, signal, ChangeDetectionStrategy, OnInit, OnDestroy, NgZone, PLATFORM_ID, ChangeDetectorRef } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
+import { AppleAuthService } from '../../core/services/apple-auth.service';
+import { CartApiService } from '../../core/services/cart-api.service';
+import { FavoritesService } from '../../core/services/favorites.service';
+import { AuthState } from '../../core/state/auth.state';
+import { environment } from '../../../environments/environment';
+
+declare var google: any;
 
 export const passwordMatchValidator: ValidatorFn = (group: AbstractControl): ValidationErrors | null => {
   const pass = group.get('password')?.value;
@@ -18,11 +25,18 @@ export const passwordMatchValidator: ValidatorFn = (group: AbstractControl): Val
   templateUrl: './register.html',
   styleUrls: ['./register.scss'],
 })
-export class Register {
+export class Register implements OnInit, OnDestroy {
   private readonly fb = inject(FormBuilder);
   private readonly authSvc = inject(AuthService);
+  private readonly appleAuth = inject(AppleAuthService);
+  private readonly cartSvc = inject(CartApiService);
+  private readonly favSvc = inject(FavoritesService);
+  private readonly authState = inject(AuthState);
   private readonly router = inject(Router);
   protected readonly route = inject(ActivatedRoute);
+  private readonly ngZone = inject(NgZone);
+  private readonly platformId = inject(PLATFORM_ID);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   // Email OTP signals
   emailOtpStep = signal<'idle' | 'sent' | 'verified'>('idle');
@@ -258,7 +272,7 @@ export class Register {
       referral_code: val.referral_code || undefined,
     };
 
-    this.authSvc.register(req).subscribe({
+        this.authSvc.register(req).subscribe({
       next: () => {
         this.clearEmailResendTimer();
         this.clearPhoneResendTimer();
@@ -280,5 +294,91 @@ export class Register {
         this.error = errorData?.message || errorData?.detail || 'Registration failed. Please check your details.';
       }
     });
+  }
+
+  ngOnInit(): void {
+    const refCode = this.route.snapshot.queryParams['ref'] || this.route.snapshot.queryParams['referral_code'];
+    if (refCode) {
+      this.registerForm.patchValue({ referral_code: refCode });
+      this.showReferralField.set(true);
+    }
+    if (isPlatformBrowser(this.platformId)) {
+      this.initGoogleSignIn();
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.clearEmailResendTimer();
+    this.clearPhoneResendTimer();
+  }
+
+  private initGoogleSignIn() {
+    const checkGoogle = setInterval(() => {
+      if (typeof google !== 'undefined' && google.accounts?.id) {
+        const btnContainer = document.getElementById('googleBtnRegister');
+        if (btnContainer) {
+          clearInterval(checkGoogle);
+
+          google.accounts.id.initialize({
+            client_id: environment.googleClientId,
+            callback: (response: any) => this.handleGoogleCredentialResponse(response)
+          });
+
+          google.accounts.id.renderButton(btnContainer, {
+            theme: 'outline',
+            size: 'large',
+            width: '100%',
+            text: 'signup_with'
+          });
+        }
+      }
+    }, 100);
+    setTimeout(() => clearInterval(checkGoogle), 10000);
+  }
+
+  private handleGoogleCredentialResponse(response: any) {
+    this.ngZone.run(() => {
+      this.loading = true;
+      this.error = '';
+      this.cdr.markForCheck();
+
+      this.authSvc.googleLogin(response.credential).subscribe({
+        next: () => {
+          this.cartSvc.syncOnLogin();
+          this.favSvc.syncOnLogin();
+          this.redirectAfterLogin();
+        },
+        error: (err) => {
+          this.loading = false;
+          const detail = err.error?.detail || err.error?.non_field_errors?.[0];
+          this.error = detail || 'Google sign in failed. Please try again.';
+          this.cdr.markForCheck();
+        }
+      });
+    });
+  }
+
+  signInWithApple(): void {
+    this.appleAuth.initiateSignIn();
+  }
+
+  private redirectAfterLogin(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/profile';
+
+    const isExternal =
+      returnUrl.startsWith('http://') || returnUrl.startsWith('https://');
+
+    if (isExternal) {
+      const target = new URL(returnUrl);
+      const access = this.authState.accessToken();
+      const refresh = this.authState.refreshToken();
+      if (access) target.searchParams.set('access_token', access);
+      if (refresh) target.searchParams.set('refresh_token', refresh);
+      window.location.href = target.toString();
+      return;
+    }
+
+    this.router.navigateByUrl(returnUrl);
   }
 }

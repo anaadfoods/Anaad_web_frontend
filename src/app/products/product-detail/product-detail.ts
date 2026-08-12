@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, effect, untracked, ChangeDetectionStrategy } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -62,6 +62,24 @@ export class ProductDetail implements OnInit {
   }
 
   selectedPlanId = signal<number | null>(null);
+  selectedPlan = computed(() => this.subscriptionPlans().find(p => p.id === this.selectedPlanId()) || null);
+  selectedPaymentType = signal<'PAID_FULL' | 'INSTALLMENT'>('PAID_FULL');
+
+  constructor() {
+    effect(() => {
+      const plan = this.selectedPlan();
+      if (!plan || !plan.allows_installments) {
+        untracked(() => {
+          this.selectedPaymentType.set('PAID_FULL');
+        });
+      }
+    });
+  }
+  arambhPrice = computed(() => {
+    const prices = this.planPrices();
+    const arambh = prices.find(p => p.plan_name.toLowerCase().includes('arambh') || p.plan_name.toLowerCase().includes('aarambh'));
+    return arambh ? arambh.discounted_price : null;
+  });
 
   ngOnInit() {
     this.route.paramMap.subscribe(params => {
@@ -72,6 +90,7 @@ export class ProductDetail implements OnInit {
     this.subscriptionSvc.getPlans().subscribe({
       next: (plans) => {
         const activePlans = plans.filter(p => p.is_active);
+        activePlans.sort((a, b) => a.duration_months - b.duration_months);
         this.subscriptionPlans.set(activePlans);
         
         const currentVariant = this.variant();
@@ -112,6 +131,15 @@ export class ProductDetail implements OnInit {
   checkPlanEligibility(variantId: number) {
     this.subscriptionSvc.getPlanPricesByVariant(variantId).subscribe({
       next: (prices) => {
+        const plans = this.subscriptionPlans();
+        prices.sort((a, b) => {
+          const planA = plans.find(p => p.id === a.plan_id);
+          const planB = plans.find(p => p.id === b.plan_id);
+          const durA = planA ? planA.duration_months : 999;
+          const durB = planB ? planB.duration_months : 999;
+          return durA - durB;
+        });
+
         this.planPrices.set(prices);
         const eligibleIds = prices.map(p => p.plan_id);
         this.eligiblePlanIds.set(eligibleIds);
@@ -130,7 +158,7 @@ export class ProductDetail implements OnInit {
             this.selectedPlanId.set(parsedPlanId);
           } else if (isSubscribeAction) {
             this.purchaseType.set('subscription');
-            this.selectedPlanId.set(eligibleIds[eligibleIds.length - 1]);
+            this.selectedPlanId.set(eligibleIds[0]);
           } else {
             this.selectedPlanId.set(eligibleIds[0]);
           }
@@ -192,7 +220,7 @@ export class ProductDetail implements OnInit {
     const v = this.variant();
     if (!v || !this.hasStock()) return;
     if (!this.authState.isAuthenticated()) {
-      this.router.navigate(['/login'], { queryParams: { returnUrl: `/products/${v.id}` } });
+      this.router.navigate(['/login'], { queryParams: { returnUrl: `/product/${v.id}` } });
       return;
     }
     this.addingToCart.set(true);
@@ -232,8 +260,8 @@ export class ProductDetail implements OnInit {
     if (!v || !this.hasStock()) return;
     if (!this.authState.isAuthenticated()) {
       const returnUrl = this.purchaseType() === 'subscription' && this.selectedPlanId()
-        ? `/products/${v.id}?subscribe=true&plan_id=${this.selectedPlanId()}`
-        : `/products/${v.id}`;
+        ? `/product/${v.id}?subscribe=true&plan_id=${this.selectedPlanId()}`
+        : `/product/${v.id}`;
       this.router.navigate(['/login'], { queryParams: { returnUrl } });
       return;
     }
@@ -250,6 +278,9 @@ export class ProductDetail implements OnInit {
 
     if (this.purchaseType() === 'subscription' && this.selectedPlanId()) {
       queryParams['plan_id'] = this.selectedPlanId();
+      if (this.selectedPlan()?.allows_installments) {
+        queryParams['payment_type'] = this.selectedPaymentType();
+      }
     }
 
     this.router.navigate(['/checkout'], { queryParams });
@@ -285,13 +316,32 @@ export class ProductDetail implements OnInit {
     return basePrice - (basePrice * (discount / 100));
   }
 
-  get savingsPercentage(): number {
+  get priceToDisplay(): number {
     const v = this.variant();
-    if (!v || !v.compare_at_price) return 0;
-    const price = parseFloat(v.price) || 0;
-    const comparePrice = parseFloat(v.compare_at_price) || 0;
-    if (comparePrice <= 0 || comparePrice <= price) return 0;
-    return Math.round(((comparePrice - price) / comparePrice) * 100);
+    if (!v) return 0;
+    const price = parseFloat(v.price || '0');
+    const finalPrice = parseFloat(v.final_price || '0');
+    if (finalPrice > 0) return finalPrice;
+    return price;
+  }
+
+  get mrpToDisplay(): number | null {
+    const v = this.variant();
+    if (!v) return null;
+    const price = parseFloat(v.price || '0');
+    const finalPrice = parseFloat(v.final_price || '0');
+    const compareAt = parseFloat(v.compare_at_price || '0');
+    
+    if (compareAt > price) return compareAt;
+    if (finalPrice > 0 && finalPrice < price) return price;
+    return null;
+  }
+
+  get savingsPercentage(): number {
+    const mrp = this.mrpToDisplay;
+    const price = this.priceToDisplay;
+    if (!mrp || mrp <= price) return 0;
+    return Math.round(((mrp - price) / mrp) * 100);
   }
 
   isFavorite(): boolean {
@@ -304,8 +354,8 @@ export class ProductDetail implements OnInit {
     if (!v) return;
     if (!this.authState.isAuthenticated()) {
       const returnUrl = this.purchaseType() === 'subscription' && this.selectedPlanId()
-        ? `/products/${v.id}?subscribe=true&plan_id=${this.selectedPlanId()}`
-        : `/products/${v.id}`;
+        ? `/product/${v.id}?subscribe=true&plan_id=${this.selectedPlanId()}`
+        : `/product/${v.id}`;
       this.router.navigate(['/login'], { queryParams: { returnUrl } });
       return;
     }

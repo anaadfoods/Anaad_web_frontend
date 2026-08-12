@@ -1,6 +1,8 @@
 import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { LegalService } from '../core/services/legal.service';
+import { Router } from '@angular/router';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -12,7 +14,9 @@ import { LegalService } from '../core/services/legal.service';
 })
 export class PrivacyPolicyComponent implements OnInit {
   private readonly legalSvc = inject(LegalService);
-  content = signal<string>('');
+  private readonly sanitizer = inject(DomSanitizer);
+  private readonly router = inject(Router);
+  content = signal<SafeHtml | string>('');
   title = signal<string>('Privacy Policy');
   loading = signal(true);
 
@@ -20,9 +24,9 @@ export class PrivacyPolicyComponent implements OnInit {
     this.legalSvc.getLatestLegal().subscribe({
       next: docs => {
         const policy = docs.find(d => d.type_display?.toLowerCase().includes('privacy'));
-        if (policy) { 
-          this.content.set(policy.content); 
-          this.title.set(policy.type_display); 
+        if (policy) {
+          this.content.set(this.sanitizer.bypassSecurityTrustHtml(policy.content));
+          this.title.set(policy.type_display);
         } else {
           this.content.set(`
             <h3>Privacy Policy</h3>
@@ -42,6 +46,31 @@ export class PrivacyPolicyComponent implements OnInit {
         this.loading.set(false);
       }
     });
+  }
+
+  onContentClick(event: MouseEvent) {
+    const target = event.target as HTMLElement;
+    const anchor = target.closest('a');
+
+    if (anchor) {
+      const href = anchor.getAttribute('href');
+      if (href && href.startsWith('#')) {
+        event.preventDefault();
+        const elementId = href.substring(1);
+        const element = document.getElementById(elementId);
+        if (element) {
+          const headerOffset = 200; // Offset for sticky header
+          const elementPosition = element.getBoundingClientRect().top;
+          const offsetPosition = elementPosition + window.scrollY - headerOffset;
+
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth'
+          });
+          this.router.navigate([], { fragment: elementId, replaceUrl: true });
+        }
+      }
+    }
   }
 }
 

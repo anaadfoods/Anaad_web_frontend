@@ -35,7 +35,7 @@ export class App implements OnInit {
 
   constructor() {
     this.router.events.pipe(filter((e) => e instanceof NavigationEnd)).subscribe(() => {
-      this.immersiveLayout.set(this.router.url.startsWith('/aahar-vigyan'));
+      this.immersiveLayout.set(false);
     });
   }
 

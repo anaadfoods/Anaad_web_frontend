@@ -92,7 +92,7 @@
           <a href="https://wa.me/919996166186" target="_blank" rel="noopener noreferrer" class="whatsapp-btn">
             <span class="wa-icon">💬</span> Chat on WhatsApp
           </a>
-          <span class="connect-subtext">Typically responds in under 2 hours</span>
+          <span class="connect-subtext">Typically responds in under 24 hours</span>
         </div>
 
         <div class="info-card contact-details">
@@ -102,7 +102,7 @@
             <span class="item-icon">📧</span>
             <div class="item-text">
               <span class="item-label">Email Support</span>
-              <a href="mailto:connect@anaadfoods.com" class="item-link">connect@anaadfoods.com</a>
+              <a href="mailto:connect@anaadfoods.com" class="item-link">complaints@anaadfoods.com</a>
             </div>
           </div>
 
@@ -244,7 +244,7 @@
         <form [formGroup]="form" (ngSubmit)="onSubmit()" class="support-form" novalidate>
           <div class="form-group">
             <label for="fullName">Full Name</label>
-            <input id="fullName" type="text" formControlName="fullName" placeholder="E.g., John Doe"
+            <input id="fullName" type="text" formControlName="fullName" placeholder="E.g., Arjun sharma"
               [class.invalid]="f.fullName.invalid && (f.fullName.touched || f.fullName.dirty)" />
             @if (f.fullName.invalid && (f.fullName.touched || f.fullName.dirty)) {
             <span class="error-msg">Full name is required (min 2 characters).</span>
@@ -254,7 +254,7 @@
           <div class="form-row">
             <div class="form-group">
               <label for="email">Email Address</label>
-              <input id="email" type="email" formControlName="email" placeholder="john@example.com"
+              <input id="email" type="email" formControlName="email" placeholder="arjun@example.com"
                 [class.invalid]="f.email.invalid && (f.email.touched || f.email.dirty)" />
               @if (f.email.invalid && (f.email.touched || f.email.dirty)) {
               <span class="error-msg">Please enter a valid email address.</span>
@@ -292,7 +292,7 @@
                 }
               </label>
               <input id="businessOrFamilyName" type="text" formControlName="businessOrFamilyName"
-                placeholder="E.g., Doe Family / Parker's Bakery"
+                placeholder="E.g., Sharma Family / organic stores"
                 [class.invalid]="f.businessOrFamilyName.invalid && (f.businessOrFamilyName.touched || f.businessOrFamilyName.dirty)" />
               @if (f.businessOrFamilyName.invalid && (f.businessOrFamilyName.touched || f.businessOrFamilyName.dirty)) {
               <span class="error-msg">This field is required for families or businesses.</span>

@@ -1,13 +1,15 @@
 import { LogService } from '../../core/services/log.service';
 import { Component, OnInit, OnDestroy, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Subscription, SubscriptionPaymentStatus as PaymentStatus } from '../../core/models/subscription.model';
 import { SubscriptionService } from '../../core/services/subscription.service';
+import { PaymentService } from '../../core/services/payment.service';
 import { CurrencyInrPipe } from '../../shared/pipes/currency-inr.pipe';
 import { SafeImageDirective } from '../../shared/safe-image.directive';
 import { timer, switchMap, takeWhile, catchError, of, Subscription as RxSubscription } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 interface SubscriptionInvoice {
   id: number;
@@ -29,7 +31,10 @@ export class SubscriptionDetailComponent implements OnInit, OnDestroy {
   private readonly logSvc = inject(LogService);
   private readonly subscriptionSvc = inject(SubscriptionService);
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly paymentSvc = inject(PaymentService);
 
+  protected readonly showApiDeliveryDate = environment.showApiDeliveryDate;
   subscriptionData = signal<Subscription | null>(null);
   paymentStatus = signal<PaymentStatus | null>(null);
   invoices = signal<SubscriptionInvoice[]>([]);
@@ -40,6 +45,23 @@ export class SubscriptionDetailComponent implements OnInit, OnDestroy {
   pauseEndDate = '';
   showPauseForm = signal<boolean>(false);
   showCancelModal = signal<boolean>(false);
+  selectedCancelReason = signal<string>('');
+  customCancelReason = signal<string>('');
+  readonly cancelReasons = [
+    'I am moving to a different city and no longer need this.',
+    'I found a better price elsewhere.',
+    'Delivery is taking too long / scheduling issues.',
+    'Quality or product selection concerns.',
+    'Other (Please specify)'
+  ];
+
+  showCancelResultModal = signal<boolean>(false);
+  cancelResultData = signal<{
+    title: string;
+    message: string;
+    refundInitiated: boolean;
+    subscriptionNumber?: string;
+  } | null>(null);
   pauseLoading = signal<boolean>(false);
 
   isVerifyingPayment = signal<boolean>(false);
@@ -63,8 +85,14 @@ export class SubscriptionDetailComponent implements OnInit, OnDestroy {
       next: (subscription) => {
         this.subscriptionData.set(subscription);
         
-        // Polling status verify if it's pending
-        this.verifyPaymentStatus(subscription.id);
+        // Start payment verification only for online (non-COD) subscriptions with pending status
+        if (subscription.payment_method !== 'COD') {
+          if (subscription.subscription_number) {
+            this.verifyPaymentStatus(subscription.subscription_number);
+          } else {
+            this.verifyPaymentStatus(subscription.id.toString());
+          }
+        }
 
         // Load payment status
         this.loadPaymentStatus(Number(subscriptionId));
@@ -151,6 +179,8 @@ export class SubscriptionDetailComponent implements OnInit, OnDestroy {
   }
 
   cancelSubscription() {
+    this.selectedCancelReason.set('');
+    this.customCancelReason.set('');
     this.showCancelModal.set(true);
   }
 
@@ -158,16 +188,40 @@ export class SubscriptionDetailComponent implements OnInit, OnDestroy {
     const subscription = this.subscriptionData();
     if (!subscription) return;
 
+    let reason = this.selectedCancelReason();
+    if (reason === 'Other (Please specify)') {
+      reason = this.customCancelReason().trim();
+      if (!reason) {
+        alert('Please write your reason for cancellation.');
+        return;
+      }
+    } else if (!reason) {
+      alert('Please select a reason for cancellation.');
+      return;
+    }
+
     this.showCancelModal.set(false);
-    this.subscriptionSvc.cancelSubscription(subscription.id).subscribe({
-      next: () => {
-        alert('Subscription cancelled successfully');
+    this.subscriptionSvc.cancelSubscription(subscription.id, reason).subscribe({
+      next: (res) => {
+        this.cancelResultData.set({
+          title: 'Subscription Cancelled',
+          message: res.message || 'Your subscription cancellation has been processed successfully.',
+          refundInitiated: res.refund_initiated ?? false,
+          subscriptionNumber: res.subscription_number || subscription.subscription_number || subscription.id.toString()
+        });
+        this.showCancelResultModal.set(true);
         this.loadSubscriptionDetails(subscription.id.toString());
       },
-      error: () => {
-        alert('Failed to cancel subscription');
+      error: (err) => {
+        const errorMsg = err.error?.message || err.error?.detail || 'Failed to cancel subscription. Please try again.';
+        alert(errorMsg);
       }
     });
+  }
+
+  closeCancelResultModal() {
+    this.showCancelResultModal.set(false);
+    this.cancelResultData.set(null);
   }
 
   payNextInstallment() {
@@ -176,11 +230,19 @@ export class SubscriptionDetailComponent implements OnInit, OnDestroy {
 
     this.subscriptionSvc.payNextInstallment(subscription.id).subscribe({
       next: (response: any) => {
-        if (response?.payment_links?.web) {
+        const paymentUrl = response?.checkout_url;
+        const subNumber = response?.subscription_number || subscription.subscription_number || subscription.id.toString();
+        
+        if (paymentUrl) {
           sessionStorage.setItem('pendingPaymentId', subscription.id.toString());
           sessionStorage.setItem('pendingPaymentType', 'subscription');
-          sessionStorage.setItem('pendingPaymentNumber', subscription.subscription_number || subscription.id.toString());
-          window.location.href = response.payment_links.web;
+          sessionStorage.setItem('pendingPaymentNumber', subNumber);
+          if (response?.merchant_transaction_id) {
+            sessionStorage.setItem('pendingMerchantTransactionId', response.merchant_transaction_id);
+          }
+          window.location.href = paymentUrl;
+        } else {
+          alert(response?.error || 'Failed to initiate payment. Please try again.');
         }
       },
       error: () => {
@@ -212,6 +274,15 @@ export class SubscriptionDetailComponent implements OnInit, OnDestroy {
       'EXPIRED': '#6c757d'
     };
     return colorMap[status] || '#999999';
+  }
+
+  getPaymentStatusDisplay(): string {
+    const status = this.paymentStatus();
+    if (!status) return 'UNKNOWN';
+    if (this.subscriptionData()?.payment_type === 'INSTALLMENT' && status.installment_payment_status) {
+      return status.installment_payment_status;
+    }
+    return status.payment_status;
   }
 
   getDurationLabel(months: number | undefined): string {
@@ -343,21 +414,22 @@ export class SubscriptionDetailComponent implements OnInit, OnDestroy {
     }
   }
 
-  verifyPaymentStatus(subscriptionId: number) {
-    const isPendingInSession = sessionStorage.getItem('pendingPaymentId') === subscriptionId.toString() &&
-                               sessionStorage.getItem('pendingPaymentType') === 'subscription';
-
+  verifyPaymentStatus(subscriptionNumber: string) {
     const sub = this.subscriptionData();
     if (!sub) {
       this.logSvc.warn('[DEBUG] [SubscriptionDetail] verifyPaymentStatus called but subscriptionData is null');
       return;
     }
 
+    const subscriptionId = sub.id;
+    const isPendingInSession = sessionStorage.getItem('pendingPaymentId') === subscriptionId.toString() &&
+                               sessionStorage.getItem('pendingPaymentType') === 'subscription';
+
     const isPending = sub.payment_status === 'PENDING' || sub.payment_status === 'UNPAID';
 
     this.logSvc.debug('[DEBUG] [SubscriptionDetail] Evaluating subscription status for verification:', {
       subscriptionId,
-      subscriptionNumber: sub.subscription_number,
+      subscriptionNumber,
       payment_status: sub.payment_status,
       isPending,
       isPendingInSession,
@@ -385,9 +457,8 @@ export class SubscriptionDetailComponent implements OnInit, OnDestroy {
     this.pollSub = timer(0, 2500).pipe(
       switchMap(() => {
         attempts++;
-        const url = `/api/payments/subscription-status/${subscriptionId}/`;
-        this.logSvc.debug(`[DEBUG] [SubscriptionDetail] Polling attempt #${attempts} | GET: ${url}`);
-        return this.subscriptionSvc.getSubscriptionPaymentStatus(subscriptionId).pipe(
+        this.logSvc.debug(`[DEBUG] [SubscriptionDetail] Polling attempt #${attempts} | reference: ${subscriptionNumber}`);
+        return this.subscriptionSvc.getPaymentStatus(subscriptionNumber).pipe(
           catchError(err => {
             this.logSvc.error(`[DEBUG] [SubscriptionDetail] Polling error on attempt #${attempts}:`, err);
             return of(null);
@@ -404,11 +475,15 @@ export class SubscriptionDetailComponent implements OnInit, OnDestroy {
           return true;
         }
 
-        const tStatus = res.transaction_status;
+        const tStatus = res.transaction_status?.toUpperCase();
         this.logSvc.debug(`[DEBUG] [SubscriptionDetail] Status check: transaction_status=${tStatus}`);
 
-        if (tStatus === 'SUCCESS' || tStatus === 'ACTIVE' || tStatus === 'FAILED') {
+        if (tStatus === 'SUCCESS' || tStatus === 'ACTIVE') {
           this.logSvc.debug(`[DEBUG] [SubscriptionDetail] Reached final subscription state: ${tStatus}. Stopping poll.`);
+          return false;
+        }
+        if (tStatus === 'FAILED' || tStatus === 'CANCELLED' || tStatus === 'ABANDONED') {
+          this.logSvc.debug(`[DEBUG] [SubscriptionDetail] Reached terminal failure state: ${tStatus}. Stopping poll.`);
           return false;
         }
 
@@ -421,7 +496,8 @@ export class SubscriptionDetailComponent implements OnInit, OnDestroy {
     ).subscribe({
       next: (res: any) => {
         this.logSvc.debug('[DEBUG] [SubscriptionDetail] Polling subscription finished. Final response resolved:', res);
-        const isSuccess = res?.transaction_status === 'SUCCESS' || res?.transaction_status === 'ACTIVE';
+        const tStatus = res?.transaction_status?.toUpperCase();
+        const isSuccess = tStatus === 'SUCCESS' || tStatus === 'ACTIVE';
 
         this.logSvc.debug('[DEBUG] [SubscriptionDetail] Verification result flag:', { isSuccess });
 
@@ -431,6 +507,7 @@ export class SubscriptionDetailComponent implements OnInit, OnDestroy {
           sessionStorage.removeItem('pendingPaymentId');
           sessionStorage.removeItem('pendingPaymentType');
           sessionStorage.removeItem('pendingPaymentNumber');
+          sessionStorage.removeItem('pendingMerchantTransactionId');
           
           this.loading.set(true);
           this.subscriptionSvc.getSubscriptionById(subscriptionId).subscribe({
@@ -445,12 +522,24 @@ export class SubscriptionDetailComponent implements OnInit, OnDestroy {
               this.loading.set(false);
             }
           });
-        } else if (attempts >= maxAttempts || (res && res.transaction_status === 'FAILED')) {
+        } else if (attempts >= maxAttempts || (tStatus && tStatus !== 'PENDING' && tStatus !== 'INITIATED')) {
           this.logSvc.warn('[DEBUG] [SubscriptionDetail] Verification finished without success. Clearing session keys.');
           this.isVerifyingPayment.set(false);
           sessionStorage.removeItem('pendingPaymentId');
           sessionStorage.removeItem('pendingPaymentType');
           sessionStorage.removeItem('pendingPaymentNumber');
+          sessionStorage.removeItem('pendingMerchantTransactionId');
+          this.loading.set(true);
+          this.subscriptionSvc.getSubscriptionById(subscriptionId).subscribe({
+            next: (newSub) => {
+              this.subscriptionData.set(newSub);
+              this.loadPaymentStatus(subscriptionId);
+              this.loadInvoices(subscriptionId);
+            },
+            error: () => {
+              this.loading.set(false);
+            }
+          });
         }
       },
       error: (err) => {

@@ -16,7 +16,7 @@ import { Title, Meta } from '@angular/platform-browser';
         <p>The page you're looking for doesn't exist — but the grain does. Head back to the Pantry or explore the farm.</p>
         <div class="error-actions">
           <a routerLink="/" class="btn-primary">Back to Home &rarr;</a>
-          <a routerLink="/products" class="btn-ghost-light">Shop the Pantry &rarr;</a>
+          <a routerLink="/product" class="btn-ghost-light">Shop the Pantry &rarr;</a>
         </div>
       </div>
     </div>

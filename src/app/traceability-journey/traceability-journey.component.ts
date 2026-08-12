@@ -14,6 +14,7 @@ import {
   inject,
   signal
 } from '@angular/core';
+import { combineLatest } from 'rxjs';
 import { isPlatformBrowser, NgTemplateOutlet } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
@@ -458,12 +459,15 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
       });
     }
 
-    this.route.queryParams.subscribe(params => {
-      const qrParam = params['qr'];
-      const cropIdParam = params['crop_id'];
-      const unlockedParam = params['unlocked'];
-      const accessToken = params['access_token'];
-      const refreshToken = params['refresh_token'];
+    combineLatest([
+      this.route.params,
+      this.route.queryParams
+    ]).subscribe(([params, queryParams]) => {
+      const qrParam = queryParams['qr'];
+      const cropIdParam = params['crop_id'] || queryParams['crop_id'];
+      const unlockedParam = queryParams['unlocked'];
+      const accessToken = queryParams['access_token'];
+      const refreshToken = queryParams['refresh_token'];
 
       if (qrParam === 'mock' || qrParam === 'sandbox' || cropIdParam === 'mock' || cropIdParam === 'sandbox') {
         this.currentQrCode.set('mock');

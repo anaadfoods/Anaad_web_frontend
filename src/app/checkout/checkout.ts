@@ -1,9 +1,9 @@
-import { Component, OnInit, PLATFORM_ID, inject, signal, computed, effect, untracked, ChangeDetectionStrategy, ChangeDetectorRef, DestroyRef } from '@angular/core';
+import { Component, OnInit, PLATFORM_ID, inject, signal, computed, effect, untracked, ChangeDetectionStrategy, ChangeDetectorRef, DestroyRef, HostListener } from '@angular/core';
 import { CommonModule, isPlatformBrowser, Location } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { toSignal, takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { startWith } from 'rxjs';
+import { startWith, Subscription as RxSubscription } from 'rxjs';
 import { CartState } from '../core/state/cart.state';
 import { CartApiService } from '../core/services/cart-api.service';
 import { CurrencyInrPipe } from '../shared/pipes/currency-inr.pipe';
@@ -15,7 +15,9 @@ import { ProductService } from '../core/services/product.service';
 import { SubscriptionService } from '../core/services/subscription.service';
 import { SubscriptionPlan } from '../core/models/subscription.model';
 import { ErrorHandlerService } from '../core/services/error-handler.service';
+import { PaymentService } from '../core/services/payment.service';
 import { finalize } from 'rxjs/operators';
+import { environment } from '../../environments/environment';
 
 interface StateOption { id: number; name: string; }
 
@@ -43,6 +45,7 @@ export class Checkout implements OnInit {
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly destroyRef = inject(DestroyRef);
   private readonly location = inject(Location);
+  private readonly paymentSvc = inject(PaymentService);
 
   constructor() {
     effect(() => {
@@ -55,6 +58,15 @@ export class Checkout implements OnInit {
       if (items.length > 0 && pin && pin.length === 6 && isPinValid) {
         untracked(() => {
           this.calculateCharges(pin);
+        });
+      }
+    });
+
+    effect(() => {
+      const plan = this.selectedPlan();
+      if (!plan || !plan.allows_installments) {
+        untracked(() => {
+          this.selectedPaymentType.set('PAID_FULL');
         });
       }
     });
@@ -89,6 +101,14 @@ export class Checkout implements OnInit {
   readonly codCharge = signal<number>(0);
   readonly prepaidCharge = signal<number>(0);
   readonly expectedDeliveryDate = signal<string>('');
+  readonly showApiDeliveryDate = environment.showApiDeliveryDate;
+  readonly deliveryDateMessage = computed(() => {
+    if (this.showApiDeliveryDate) {
+      return this.expectedDeliveryDate() || 'â€”';
+    } else {
+      return 'delivery will be start from Aug 2026 first week';
+    }
+  });
   readonly isCalculatingDelivery = signal<boolean>(false);
 
   // Convert Form control value changes to a signal
@@ -121,6 +141,7 @@ export class Checkout implements OnInit {
   });
 
   readonly selectedPlan = signal<SubscriptionPlan | null>(null);
+  readonly selectedPaymentType = signal<'PAID_FULL' | 'INSTALLMENT'>('PAID_FULL');
 
   readonly isSubscription = computed(() => !!this.directPlanId());
   readonly discountedPricePerMonth = computed(() => this.subtotal());
@@ -132,6 +153,9 @@ export class Checkout implements OnInit {
 
   readonly grandTotal = computed(() => {
     if (this.isSubscription()) {
+      if (this.selectedPaymentType() === 'INSTALLMENT') {
+        return this.discountedPricePerMonth() + this.deliveryChargePerMonth();
+      }
       return this.totalAmount();
     }
     return +(this.subtotal() + this.deliveryCharge()).toFixed(2);
@@ -148,6 +172,9 @@ export class Checkout implements OnInit {
         if (params['plan_id']) {
           this.directPlanId.set(Number(params['plan_id']));
           this.checkoutForm.get('paymentMethod')?.setValue('cod');
+          if (params['payment_type'] === 'INSTALLMENT' || params['payment_type'] === 'PAID_FULL') {
+            this.selectedPaymentType.set(params['payment_type']);
+          }
         }
         this.loadDirectBuyPrice();
       } else if (this.cartState.itemCount() === 0) {
@@ -162,6 +189,17 @@ export class Checkout implements OnInit {
       error: () => undefined
     });
     this.prefillCheckout();
+
+    // Push dummy state to capture browser back button
+    if (isPlatformBrowser(this.platformId)) {
+      history.pushState(null, '', window.location.href);
+    }
+  }
+
+  @HostListener('window:popstate', ['$event'])
+  onPopState(event: any) {
+    const tab = this.isSubscription() ? 'subscriptions' : 'orders';
+    this.router.navigate(['/profile'], { queryParams: { tab } });
   }
 
   calculateCharges(pincode: string) {
@@ -431,7 +469,7 @@ export class Checkout implements OnInit {
         delivery_pincode: val.pin!,
         delivery_phone: val.phone!,
         email: val.email!,
-        payment_type: 'PAID_FULL',
+        payment_type: this.selectedPaymentType(),
         payment_method: paymentMethod,
         notes: val.notes || undefined,
         delivery_fee: this.getDeliveryCharge(),
@@ -477,24 +515,32 @@ export class Checkout implements OnInit {
       return;
     }
 
-    const paymentUrl = res?.payment_links?.web;
-    const isSub = !!this.directPlanId() || !!res?.subscription_id || !!res?.subscription?.id || !!res?.subscription?.subscription_number || (res?.id && res?.subscription_number);
-    const orderIdToSave = res?.order?.id || res?.order_id || res?.subscription_id || res?.subscription?.id || res?.id;
-    const orderNumberToSave = res?.order?.order_number || res?.order_number || res?.subscription_number || res?.subscription?.subscription_number || res?.id || 'new';
+    const paymentUrl = res?.checkout_url;
+    const isSub = !!this.directPlanId() || !!res?.subscription_number || !!res?.subscription_id || !!res?.subscription?.id || !!res?.subscription?.subscription_number || (res?.id && res?.subscription_number);
+    const orderIdToSave = res?.order?.id || res?.order_id || res?.subscription_id || res?.subscription?.id || res?.id || '';
+    const orderNumberToSave = res?.order_number || res?.subscription_number || res?.order?.order_number || res?.subscription?.subscription_number || res?.id || '';
+    const merchantTxnId = res?.merchant_transaction_id;
 
     if (paymentUrl && isPlatformBrowser(this.platformId)) {
-      if (orderIdToSave) sessionStorage.setItem('pendingPaymentId', orderIdToSave.toString());
+      sessionStorage.setItem('pendingPaymentId', orderIdToSave.toString());
       sessionStorage.setItem('pendingPaymentType', isSub ? 'subscription' : 'order');
       sessionStorage.setItem('pendingPaymentNumber', orderNumberToSave.toString());
+      if (merchantTxnId) {
+        sessionStorage.setItem('pendingMerchantTransactionId', merchantTxnId);
+      }
 
       if (!this.isDirectBuy()) {
-        this.cartSvc.clearCart().pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
+        this.cartSvc.clearCart().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+          next: () => this.openPaymentGateway(paymentUrl),
+          error: () => this.openPaymentGateway(paymentUrl)
+        });
+      } else {
+        this.openPaymentGateway(paymentUrl);
       }
-      window.location.href = paymentUrl;
       return;
     }
 
-    const route = isSub ? ['/subscriptions', orderIdToSave] : ['/orders', orderIdToSave];
+    const route = isSub ? ['/subscription', orderIdToSave] : ['/order', orderIdToSave];
 
     if (!this.isDirectBuy()) {
       this.cartSvc.clearCart().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
@@ -504,6 +550,10 @@ export class Checkout implements OnInit {
     } else {
       this.router.navigate(route);
     }
+  }
+
+  private openPaymentGateway(url: string) {
+    window.location.href = url;
   }
 
   private handleCheckoutError(err: any) {

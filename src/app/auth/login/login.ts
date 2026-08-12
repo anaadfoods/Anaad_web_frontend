@@ -3,6 +3,7 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
+import { AppleAuthService } from '../../core/services/apple-auth.service';
 import { CartApiService } from '../../core/services/cart-api.service';
 import { FavoritesService } from '../../core/services/favorites.service';
 import { AuthState } from '../../core/state/auth.state';
@@ -22,6 +23,7 @@ declare var AppleID: any;
 export class Login implements OnInit, OnDestroy {
   private readonly fb = inject(FormBuilder);
   private readonly authSvc = inject(AuthService);
+  private readonly appleAuth = inject(AppleAuthService);
   private readonly cartSvc = inject(CartApiService);
   private readonly favSvc = inject(FavoritesService);
   private readonly router = inject(Router);
@@ -30,6 +32,10 @@ export class Login implements OnInit, OnDestroy {
   private readonly ngZone = inject(NgZone);
   private readonly platformId = inject(PLATFORM_ID);
   private readonly cdr = inject(ChangeDetectorRef);
+
+  signInWithApple(): void {
+    this.appleAuth.initiateSignIn();
+  }
 
   loginForm = this.fb.group({
     email: ['', [Validators.required, Validators.email]],

@@ -2,25 +2,16 @@ import { LogService } from '../core/services/log.service';
 // ============================================
 // PaymentSuccess Component
 //
-// This page is the Angular equivalent of Flutter's Phase 3 & 4 flow:
+// This page handles the final step of the Easebuzz popup payment flow:
 //
-//   Flutter WebViewPage → detects success URL → calls fetchPaymentStatus
-//   + postOrderId (bridge trigger) → passes to CheckoutScreen callback
-//   → _verifyAndHandlePaymentSuccess() → final fetchPaymentStatus check
-//   → navigate to Order Details.
-//
-// Angular equivalent:
-//   Juspay Gateway → redirects to /api/payments/success
-//   → Django backend forwards to Angular /payment-success?id=X&type=Y
-//   → This component:
-//       1. Reads pending payment context (query params → sessionStorage fallback)
-//       2. Calls triggerJuspayWebhook (postOrderId) — non-blocking bridge trigger
-//       3. Polls getPaymentStatus every 2s (up to 8 attempts = 16s max)
-//       4. On confirmed SUCCESS → shows receipt → auto-navigates to details
-//       5. On FAILED/timeout → shows pending warning → navigates to details
+//   1. The user initiates payment via checkout / order-detail / sub-detail.
+//   2. The PaymentService launches a popup and polls for status.
+//   3. On SUCCESS, the PaymentService routes the user to this page.
+//   4. This component reads the session storage (or query params) to display a receipt.
+//   5. A 5-second countdown triggers before auto-redirecting to the order/sub detail page.
 // ============================================
 
-import { Component, OnInit, OnDestroy, inject, PLATFORM_ID, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, PLATFORM_ID, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { OrderService } from '../core/services/order.service';
@@ -31,7 +22,7 @@ import { PaymentStatus } from '../core/models/order.model';
 import { SubscriptionPaymentStatus } from '../core/models/subscription.model';
 import {
   timer, switchMap, takeWhile, catchError, of,
-  forkJoin, timeout, Subscription as RxSubscription
+  forkJoin, timeout, map, Observable, Subscription as RxSubscription
 } from 'rxjs';
 
 @Component({
@@ -51,6 +42,7 @@ export class PaymentSuccess implements OnInit, OnDestroy {
   private readonly paymentSvc   = inject(PaymentService);
   private readonly toastSvc     = inject(ToastService);
   private readonly platformId   = inject(PLATFORM_ID);
+  private readonly cdr          = inject(ChangeDetectorRef);
 
   /** null = verifying, true = success, false = failed/pending */
   paymentSuccess: boolean | null = null;
@@ -75,37 +67,34 @@ export class PaymentSuccess implements OnInit, OnDestroy {
     if (!isPlatformBrowser(this.platformId)) return;
 
     this.logSvc.debug('[PaymentSuccess] ngOnInit');
-
     this.route.queryParams.subscribe(params => {
       this.logSvc.debug('[PaymentSuccess] Query params:', params);
 
       // Phase 1: resolve the pending transaction context
-      // Priority: query params → sessionStorage fallback (set during checkout redirect)
-      const idParam          = params['id'];
+      // Priority: query params → sessionStorage fallback
       const typeParam        = params['type'];
-      const orderNumberParam = params['order_number'] || params['order_id'];
+      const orderNumberParam = params['order_number'] || params['order_id'] || params['reference'];
+      const txnParam         = params['merchant_transaction_id'];
 
-      let orderIdStr  = idParam          || sessionStorage.getItem('pendingPaymentId');
       let type        = typeParam        || sessionStorage.getItem('pendingPaymentType');
-      const orderNum  = orderNumberParam || sessionStorage.getItem('pendingPaymentNumber') || orderIdStr;
+      const orderNum  = orderNumberParam || sessionStorage.getItem('pendingPaymentNumber');
+      const txnId     = txnParam         || sessionStorage.getItem('pendingMerchantTransactionId');
 
       let isSubscription = type === 'subscription';
 
-      // Parse subscription ID from transaction number format "SUB-XX-..."
-      if (!orderIdStr && orderNum?.startsWith('SUB-')) {
+      if (!isSubscription && orderNum?.startsWith('SUB-')) {
         isSubscription = true;
-        const parts = orderNum.split('-');
-        if (parts.length > 1) orderIdStr = parts[1];
       }
 
-      this.logSvc.debug('[PaymentSuccess] Resolved:', { orderIdStr, isSubscription, orderNum });
+      this.logSvc.debug('[PaymentSuccess] Resolved payment details:', { isSubscription, orderNum, txnId });
 
       // Clear sessionStorage immediately so a page refresh doesn't re-trigger
       sessionStorage.removeItem('pendingPaymentId');
       sessionStorage.removeItem('pendingPaymentType');
       sessionStorage.removeItem('pendingPaymentNumber');
+      sessionStorage.removeItem('pendingMerchantTransactionId');
 
-      if (!orderIdStr) {
+      if (!orderNum) {
         this.logSvc.error('[PaymentSuccess] No pending transaction reference found.');
         this.statusMessage = 'No pending transaction found. Redirecting...';
         this.paymentSuccess = false;
@@ -113,7 +102,7 @@ export class PaymentSuccess implements OnInit, OnDestroy {
         return;
       }
 
-      this.runVerificationFlow(Number(orderIdStr), isSubscription, orderNum || orderIdStr);
+      this.runVerificationFlow(orderNum, isSubscription, txnId || '—');
     });
   }
 
@@ -124,85 +113,48 @@ export class PaymentSuccess implements OnInit, OnDestroy {
 
   // ── Verification Flow ─────────────────────
 
-  /**
-   * Mirrors Flutter's two-step verification:
-   *   Step 1 (WebViewPage): postOrderId + fetchPaymentStatus
-   *   Step 2 (CheckoutScreen): _verifyAndHandlePaymentSuccess → fetchPaymentStatus again
-   *
-   * Angular implementation:
-   *   1. Fire-and-forget triggerJuspayWebhook (postOrderId equivalent)
-   *   2. Poll status with forkJoin → timer until final state
-   */
   private runVerificationFlow(
-    orderId: number,
+    orderNumber: string,
     isSubscription: boolean,
-    orderNumber: string
+    merchantTxnId: string
   ): void {
-    this.statusMessage = 'Synchronizing transaction details...';
-    this.logSvc.debug('[PaymentSuccess] Starting verification:', { orderId, isSubscription, orderNumber });
+    this.statusMessage = 'Verifying payment status with backend...';
+    this.logSvc.debug('[PaymentSuccess] Starting verification:', { orderNumber, isSubscription, merchantTxnId });
 
-    // Step 1: Trigger the Node.js bridge (non-blocking, mirrors postOrderId)
-    const bridgeTrigger$ = this.paymentSvc.triggerJuspayWebhook(orderNumber).pipe(
-      timeout(5000),
-      catchError(err => {
-        this.logSvc.warn('[PaymentSuccess] Bridge trigger failed (non-blocking):', err);
-        return of(null);
-      })
-    );
+    let attempts = 0;
+    const maxAttempts = 15; // 30 seconds max polling
 
-    // Step 2: After bridge, poll Django for actual status
-    this.syncSub = forkJoin([bridgeTrigger$]).pipe(
+    this.syncSub = timer(0, 2000).pipe(
       switchMap(() => {
-        this.statusMessage = 'Verifying payment status with backend...';
-        let attempts = 0;
-        const maxAttempts = 8;
-
-        return timer(0, 2000).pipe(
-          switchMap(() => {
-            attempts++;
-            this.logSvc.debug(`[PaymentSuccess] Poll attempt #${attempts}`);
-
-            const statusPoll$ = isSubscription
-              ? this.subSvc.getPaymentStatus(orderId).pipe(catchError(() => of(null)))
-              : this.orderSvc.getPaymentStatus(orderId).pipe(catchError(() => of(null)));
-
-            return statusPoll$;
-          }),
-          takeWhile((res: PaymentStatus | SubscriptionPaymentStatus | null) => {
-            this.logSvc.debug(`[PaymentSuccess] Attempt #${attempts} response:`, res);
-            if (!res) return attempts < maxAttempts;
-
-            const pStatus = res.payment_status;
-            const tStatus = res.transaction_status;
-
-            if (isSubscription) {
-              if (tStatus === 'SUCCESS' || tStatus === 'ACTIVE' || tStatus === 'FAILED') {
-                return false;
-              }
-            } else {
-              if (pStatus === 'PAID' && tStatus === 'SUCCESS') return false;
-              if (tStatus === 'FAILED') return false;
-            }
-
-            return attempts < maxAttempts;
-          }, true /* inclusive — emit the last value that returned false */)
+        attempts++;
+        this.logSvc.debug(`[PaymentSuccess] Poll attempt #${attempts} for reference: ${orderNumber}`);
+        return this.paymentSvc.getPaymentStatus(orderNumber).pipe(
+          catchError(err => {
+            this.logSvc.error(`[PaymentSuccess] Polling error on attempt #${attempts}:`, err);
+            return of(null);
+          })
         );
-      })
+      }),
+      takeWhile((res: any) => {
+        this.logSvc.debug(`[PaymentSuccess] Attempt #${attempts} response:`, res);
+        if (!res) return attempts < maxAttempts;
+
+        const tStatus = res.transaction_status?.toUpperCase();
+
+        // Keep polling as long as status is INITIATED or PENDING or null
+        if (tStatus === 'INITIATED' || tStatus === 'PENDING' || !tStatus) {
+          return attempts < maxAttempts;
+        }
+
+        // Final state reached
+        return false;
+      }, true /* inclusive */)
     ).subscribe({
-      next: (res: PaymentStatus | SubscriptionPaymentStatus | null) => {
+      next: (res: any) => {
         this.logSvc.debug('[PaymentSuccess] Final poll response:', res);
 
-        const isSuccess = isSubscription
-          ? (res?.transaction_status === 'SUCCESS' || res?.transaction_status === 'ACTIVE')
-          : (res?.payment_status === 'PAID' && res?.transaction_status === 'SUCCESS');
-
-        this.receiptDetails = {
-          id: orderId,
-          number: (res as any)?.order_number || (res as any)?.orderNumber || orderNumber,
-          transactionId: res?.transaction_id || res?.merchant_transaction_id || '—',
-          amount: res?.amount || '—',
-          type: isSubscription ? 'subscription' : 'order',
-        };
+        const tStatus = res?.transaction_status?.toUpperCase();
+        const isSuccess = tStatus === 'SUCCESS' || (isSubscription && tStatus === 'ACTIVE');
 
         if (isSuccess) {
           this.paymentSuccess = true;
@@ -215,29 +167,121 @@ export class PaymentSuccess implements OnInit, OnDestroy {
             'success',
             5000
           );
-          this.logSvc.debug('[PaymentSuccess] SUCCESS — starting redirect timer');
+
+          // Phase 2: Resolve DB ID so we can redirect to the details page and fetch paid amount
+          this.resolveObjectId(orderNumber, isSubscription).subscribe({
+            next: (resolvedId) => {
+              this.logSvc.debug('[PaymentSuccess] Resolved database ID:', resolvedId);
+              if (resolvedId) {
+                this.receiptDetails = {
+                  id: resolvedId,
+                  number: orderNumber,
+                  transactionId: merchantTxnId || '—',
+                  amount: '—',
+                  type: isSubscription ? 'subscription' : 'order'
+                };
+                this.cdr.markForCheck();
+
+                // Fetch full details of the resolved order/subscription to show correct paid amount
+                if (isSubscription) {
+                  this.subSvc.getSubscriptionById(resolvedId).subscribe({
+                    next: (details) => {
+                      if (this.receiptDetails) {
+                        this.receiptDetails.amount = details?.total || details?.subtotal || '—';
+                        this.cdr.markForCheck();
+                      }
+                    },
+                    complete: () => {
+                      this.startRedirectTimer(resolvedId, isSubscription);
+                    }
+                  });
+                } else {
+                  this.orderSvc.getOrderById(resolvedId).subscribe({
+                    next: (details) => {
+                      if (this.receiptDetails) {
+                        this.receiptDetails.amount = details?.total || details?.total_price || '—';
+                        this.cdr.markForCheck();
+                      }
+                    },
+                    complete: () => {
+                      this.startRedirectTimer(resolvedId, isSubscription);
+                    }
+                  });
+                }
+              } else {
+                // Fallback if DB ID is not resolved: redirect to profile / list page
+                this.receiptDetails = {
+                  id: 0,
+                  number: orderNumber,
+                  transactionId: merchantTxnId || '—',
+                  amount: '—',
+                  type: isSubscription ? 'subscription' : 'order'
+                };
+                this.cdr.markForCheck();
+                this.startRedirectTimer(0, isSubscription);
+              }
+            },
+            error: () => {
+              this.startRedirectTimer(0, isSubscription);
+            }
+          });
+
         } else {
+          // Failure / Cancelled / Abandoned
           this.paymentSuccess = false;
-          this.statusMessage =
-            'Payment status is being processed. Your order is saved — we\'ll update you shortly.';
+          const msg = res?.resp_message || 'Payment not completed or failed.';
+          this.logSvc.warn('[PaymentSuccess] Payment terminal status is failed or pending:', tStatus);
 
           this.toastSvc.show(
-            'Payment verification pending. Check your profile for status updates.',
-            'info',
-            6000
+            `Payment Verification: ${msg}`,
+            'error',
+            5000
           );
-          this.logSvc.warn('[PaymentSuccess] PENDING/FAILED — navigating to details');
-        }
 
-        this.startRedirectTimer(orderId, isSubscription);
+          // Resolve DB ID to pass to failure page so it can offer a retry
+          this.resolveObjectId(orderNumber, isSubscription).subscribe({
+            next: (resolvedId) => {
+              const queryParams = {
+                id: resolvedId || undefined,
+                type: isSubscription ? 'subscription' : 'order',
+                order_number: orderNumber,
+                message: msg
+              };
+              this.router.navigate(['/payment-failure'], { queryParams });
+            },
+            error: () => {
+              this.router.navigate(['/payment-failure'], { queryParams: { order_number: orderNumber, message: msg } });
+            }
+          });
+        }
       },
       error: (err) => {
-        this.logSvc.error('[PaymentSuccess] Verification stream error:', err);
+        this.logSvc.error('[PaymentSuccess] Polling stream crashed:', err);
         this.paymentSuccess = false;
         this.statusMessage = 'An error occurred during verification. Please check your profile.';
-        this.startRedirectTimer(orderId, isSubscription);
+        this.router.navigate(['/payment-failure'], { queryParams: { order_number: orderNumber, message: 'Verification error' } });
       }
     });
+  }
+
+  private resolveObjectId(orderNum: string, isSubscription: boolean): Observable<number | null> {
+    if (isSubscription) {
+      return this.subSvc.getSubscriptions().pipe(
+        map(subs => {
+          const match = subs.find(s => s.subscription_number === orderNum);
+          return match ? match.id : null;
+        }),
+        catchError(() => of(null))
+      );
+    } else {
+      return this.orderSvc.getOrders().pipe(
+        map(orders => {
+          const match = orders.find(o => o.order_number === orderNum);
+          return match ? match.id : null;
+        }),
+        catchError(() => of(null))
+      );
+    }
   }
 
   // ── Redirect Helpers ──────────────────────
@@ -247,7 +291,10 @@ export class PaymentSuccess implements OnInit, OnDestroy {
     this.countdown = 3;
 
     this.countdownInterval = setInterval(() => {
-      if (this.countdown > 0) this.countdown--;
+      if (this.countdown > 0) {
+        this.countdown--;
+        this.cdr.markForCheck();
+      }
     }, 1000);
 
     this.redirectTimer = setTimeout(() => {
@@ -265,10 +312,14 @@ export class PaymentSuccess implements OnInit, OnDestroy {
 
   continueNavigation(objectId: number, isSubscription: boolean): void {
     this.clearTimers();
-    if (isSubscription) {
-      this.router.navigate(['/subscriptions', objectId]);
+    if (objectId && objectId > 0) {
+      if (isSubscription) {
+        this.router.navigate(['/subscription', objectId]);
+      } else {
+        this.router.navigate(['/order', objectId]);
+      }
     } else {
-      this.router.navigate(['/orders', objectId]);
+      this.router.navigate(['/profile']);
     }
   }
 

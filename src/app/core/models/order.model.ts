@@ -4,7 +4,7 @@
 //              /api/shiprocket/*, /api/odoo/*
 // ============================================
 
-/** POST /api/orders/create/ */
+/** POST /api/orders/ */
 export interface CreateOrderRequest {
   payment_method: 'COD' | 'UPI';
   delivery_address: string;
@@ -132,16 +132,13 @@ export interface PaymentStatus {
   error_code?: string | null;
 }
 
-/** Juspay payment session (returned when payment_method=JUSPAY) */
-export interface JuspaySession {
+/** Easebuzz payment session (returned when payment_method=UPI) */
+export interface PaymentSession {
   order_id: string;
-  payment_links: {
-    web: string;
-    expiry?: string;
-  };
+  checkout_url: string;
+  order_number?: string;
   merchant_transaction_id?: string;
   message?: string;
-  sdk_payload?: Record<string, unknown>;
 }
 
 /** GET /api/odoo/orders/?order_number= */
@@ -157,3 +154,14 @@ export interface InvoiceResponse {
 export interface CancelOrderRequest {
   reason?: string;
 }
+
+export interface CancelOrderResponse {
+  success?: boolean;
+  status?: string;
+  message?: string;
+  refund_initiated?: boolean;
+  order_number?: string;
+  current_status?: string;
+  raw_data?: any;
+}
+

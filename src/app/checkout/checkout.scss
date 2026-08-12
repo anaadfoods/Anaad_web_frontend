@@ -197,3 +197,35 @@ textarea.field-input { resize: vertical; min-height: 80px; font-family: var(--fo
     background-color: rgba(26, 26, 26, 0.05) !important;
   }
 }
+
+.summary-delivery-date {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+  padding: 12px 16px;
+  background-color: #f7f1e7;
+  border: 1px dashed rgba(196, 144, 15, 0.35);
+  border-radius: 8px;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  color: var(--charcoal);
+  line-height: 1.4;
+
+  .delivery-date-icon {
+    font-size: 15px;
+    flex-shrink: 0;
+  }
+
+  .delivery-date-text {
+    strong {
+      color: var(--green-deep, #1a2a16);
+      font-weight: 600;
+    }
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

@@ -167,9 +167,9 @@ export class ThankYouComponent implements OnInit {
         this.logSvc.debug(`[DEBUG] [ThankYouComponent] Success. Navigating to details screen: /${this.isSubscription ? 'subscriptions' : 'orders'}/${this.orderId}`);
         this.cdr.markForCheck();
         if (this.isSubscription) {
-          this.router.navigate(['/subscriptions', this.orderId]);
+          this.router.navigate(['/subscription', this.orderId]);
         } else {
-          this.router.navigate(['/orders', this.orderId]);
+          this.router.navigate(['/order', this.orderId]);
         }
       } else {
         this.logSvc.warn('[DEBUG] [ThankYouComponent] Verification resolved to failure or timed out.');
@@ -200,8 +200,18 @@ export class ThankYouComponent implements OnInit {
     }
   }
 
-  continueShopping() { this.router.navigate(['/products']); }
-  viewOrders() { this.router.navigate(['/profile']); }
+  continueShopping() { this.router.navigate(['/product']); }
+  viewOrders() {
+    if (this.orderId) {
+      if (this.isSubscription) {
+        this.router.navigate(['/subscription', this.orderId]);
+      } else {
+        this.router.navigate(['/order', this.orderId]);
+      }
+    } else {
+      this.router.navigate(['/profile']);
+    }
+  }
 
   // UI Helpers
   get orderItems(): any[] {

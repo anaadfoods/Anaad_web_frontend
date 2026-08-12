@@ -45,7 +45,7 @@ export interface Subscription {
   delivery_phone?: string;
   recipient_name?: string;
   payment_type?: 'INSTALLMENT' | 'PAID_FULL' | 'FULL_PAYMENT';
-  payment_method?: 'COD' | 'UPI' | 'JUSPAY';
+  payment_method?: 'COD' | 'UPI';
   payment_status?: string;
   start_date?: string;
   end_date?: string;
@@ -84,7 +84,7 @@ export interface CreateSubscriptionRequest {
   email?: string;
   notes?: string;
   payment_type: 'INSTALLMENT' | 'PAID_FULL' | 'FULL_PAYMENT';
-  payment_method: 'COD' | 'UPI' | 'JUSPAY' | 'CARD';
+  payment_method: 'COD' | 'UPI';
   delivery_fee: number;
   expected_delivery_date: string;
   items: Array<{ product_variant_id: number; quantity: number }>;
@@ -103,10 +103,11 @@ export interface SubscriptionPaymentStatus {
   created_at?: string;
 }
 
-export interface JuspaySubscriptionSession {
+export interface SubscriptionPaymentSession {
   success: boolean;
-  payment_links: { web: string; expiry?: string };
+  checkout_url: string;
   subscription_id: number;
+  subscription_number?: string;
   merchant_transaction_id?: string;
   message?: string;
 }
@@ -132,3 +133,14 @@ export interface SubscriptionInvoice {
   }>;
   total_invoices: number;
 }
+
+export interface CancelSubscriptionResponse {
+  success?: boolean;
+  status?: string;
+  message?: string;
+  refund_initiated?: boolean;
+  subscription_number?: string;
+  current_status?: string;
+  raw_data?: any;
+}
+

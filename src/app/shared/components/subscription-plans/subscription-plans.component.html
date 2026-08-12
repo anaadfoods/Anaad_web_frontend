@@ -15,8 +15,8 @@
     <div aria-live="polite">No plans available right now. Please check back later.</div>
   } @else {
     @for (plan of extendedPlans(); track $index; let i = $index) {
-      <div class="tier-card" [class.featured]="plan.isFeatured || (i % subscriptionPlans().length) === 2" [class.is-center]="activeIndex() === i">
-        <a [routerLink]="['/commitment']" fragment="tiers" class="tier-badge" style="text-decoration: none;">{{ plan.badge || ((i % subscriptionPlans().length) === 2 ? 'Most Popular' : 'Tier') }}</a>
+      <div class="tier-card" [class.featured]="plan.isFeatured || (i % subscriptionPlans().length) === 0" [class.is-center]="activeIndex() === i">
+        <a [routerLink]="['/commitment']" fragment="tiers" class="tier-badge" style="text-decoration: none;">{{ plan.badge || ((i % subscriptionPlans().length) === 0 ? 'Most Popular' : 'Tier') }}</a>
         <div class="tier-name" [innerHTML]="plan.title"></div>
         <div class="tier-subtitle" [innerHTML]="plan.subtitle"></div>
         @if (plan.description) {
@@ -42,7 +42,7 @@
         </div>
         <div class="tier-product-selector">
           <select class="tier-product-dropdown"
-                  [class.featured-dropdown]="plan.isFeatured || (i % subscriptionPlans().length) === 2"
+                  [class.featured-dropdown]="plan.isFeatured || (i % subscriptionPlans().length) === 0"
                   [value]="tierSelectedVariant()[plan.id] || ''"
                   (change)="onTierProductSelect(plan.id, $event)">
             <option value="" disabled>Select a product</option>

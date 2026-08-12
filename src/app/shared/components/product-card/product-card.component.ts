@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject, ChangeDetectionStrategy, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { ProductVariant } from '../../../core/models/product.model';
@@ -8,6 +8,7 @@ import { SafeImageDirective } from '../../safe-image.directive';
 import { WishlistState } from '../../../core/state/wishlist.state';
 import { FavoritesService } from '../../../core/services/favorites.service';
 import { AuthState } from '../../../core/state/auth.state';
+import { SubscriptionService } from '../../../core/services/subscription.service';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -15,7 +16,7 @@ import { AuthState } from '../../../core/state/auth.state';
   standalone: true,
   imports: [CommonModule, RouterLink, CurrencyInrPipe, TruncatePipe, SafeImageDirective],
   template: `
-    <div class="product-card" [class.blurred]="!hasStock() || !isActive()" [attr.aria-disabled]="!hasStock() || !isActive()" [routerLink]="hasStock() && isActive() ? ['/products', variant.id] : null" [style.cursor]="hasStock() && isActive() ? 'pointer' : 'default'">
+    <div class="product-card" [class.blurred]="!hasStock() || !isActive()" [attr.aria-disabled]="!hasStock() || !isActive()" [routerLink]="hasStock() && isActive() ? ['/product', variant.id] : null" [style.cursor]="hasStock() && isActive() ? 'pointer' : 'default'">
       <div class="product-image-wrap">
         <img
           [src]="variant.images[0]?.image || ''" appSafeImage
@@ -42,7 +43,10 @@ import { AuthState } from '../../../core/state/auth.state';
       </div>
       
       <div class="product-body">
-        <div class="product-tagline">{{ variant.category?.name || 'Heirloom Staple' }}</div>
+        <div class="product-taglines-row">
+          <div class="product-tagline">{{ variant.category?.name || 'Heirloom Staple' }}</div>
+          <div class="product-tagline" *ngIf="variant.crop_cycle_id">{{ variant.crop_cycle_id }}</div>
+        </div>
         
         <div class="product-title-link">
           <h3>{{ variant.product_name }}</h3>
@@ -55,12 +59,15 @@ import { AuthState } from '../../../core/state/auth.state';
           <span class="product-format">{{ variant.weight }}{{ variant.unit }}</span>
           
           <div class="price-block" *ngIf="isActive()">
-            <span class="price-mrp" *ngIf="hasDiscount()">{{ variant.compare_at_price | currencyInr }}</span>
-            <span class="product-price">{{ variant.price | currencyInr }}</span>
+            <span class="price-mrp" *ngIf="hasDiscount()">{{ mrpToDisplay | currencyInr }}</span>
+            <span class="product-price">{{ priceToDisplay | currencyInr }}</span>
           </div>
           <div class="price-block" *ngIf="!isActive()">
             <span class="product-price">-</span>
           </div>
+        </div>
+        <div class="arambh-deal" *ngIf="arambhPrice()" style="margin-top: -8px; margin-bottom: 16px; text-align: right; color: var(--earth-raw, #6B4226); font-family: var(--font-sans); font-size: 12px; font-weight: 600;">
+          🔥 Hot deal: go with Aarambh plan for {{ arambhPrice() | currencyInr }}
         </div>
         
         <div class="product-actions">
@@ -86,6 +93,12 @@ import { AuthState } from '../../../core/state/auth.state';
     </div>
   `,
   styles: [`
+    :host {
+      display: block;
+      height: 100%;
+      width: 100%;
+    }
+
     .product-card {
       display: flex;
       flex-direction: column;
@@ -115,21 +128,22 @@ import { AuthState } from '../../../core/state/auth.state';
       display: block;
       background: var(--bg-parchment, #F5F0E8);
       border-bottom: 1px solid rgba(26, 26, 26, 0.08);
+      padding: 16px;
     }
 
     .product-image-wrap img {
       width: 100%;
       height: 100%;
       aspect-ratio: 4 / 3;
-      object-fit: cover;
+      object-fit: contain;
       object-position: center;
       transition: transform 0.6s ease;
-      transform: scale(1.35);
+      transform: scale(1);
       transform-origin: center center;
     }
 
     .product-card:hover .product-image-wrap img {
-      transform: scale(1.42);
+      transform: scale(1.05);
     }
 
     .out-of-stock-overlay {
@@ -216,6 +230,13 @@ import { AuthState } from '../../../core/state/auth.state';
       flex-grow: 1;
     }
 
+    .product-taglines-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+
     .product-tagline {
       font-family: var(--font-sans, 'DM Sans', sans-serif);
       font-size: 10px;
@@ -227,7 +248,6 @@ import { AuthState } from '../../../core/state/auth.state';
       padding: 4px 10px;
       border-radius: 12px;
       width: fit-content;
-      margin-bottom: 8px;
     }
 
     .product-title-link {
@@ -367,7 +387,7 @@ import { AuthState } from '../../../core/state/auth.state';
     }
   `]
 })
-export class ProductCardComponent {
+export class ProductCardComponent implements OnInit {
   @Input({ required: true }) variant!: ProductVariant;
 
   @Output() addToCart = new EventEmitter<ProductVariant>();
@@ -376,6 +396,23 @@ export class ProductCardComponent {
   private readonly favSvc = inject(FavoritesService);
   private readonly authState = inject(AuthState);
   private readonly router = inject(Router);
+  private readonly subscriptionSvc = inject(SubscriptionService);
+
+  arambhPrice = signal<number | null>(null);
+
+  ngOnInit(): void {
+    if (this.variant && this.variant.is_subscription_eligible !== false) {
+      this.subscriptionSvc.getPlanPricesByVariant(this.variant.id).subscribe({
+        next: (prices) => {
+          const arambh = prices.find(p => p.plan_name.toLowerCase().includes('arambh') || p.plan_name.toLowerCase().includes('aarambh'));
+          if (arambh) {
+            this.arambhPrice.set(arambh.discounted_price);
+          }
+        },
+        error: (err) => console.error('Failed to load plan prices for variant in card', this.variant.id, err)
+      });
+    }
+  }
 
   isFavorite(): boolean {
     return this.wishlistState.isFavorite(this.variant?.id);
@@ -386,23 +423,39 @@ export class ProductCardComponent {
     event.stopPropagation();
     if (this.variant) {
       if (!this.authState.isAuthenticated()) {
-        this.router.navigate(['/login'], { queryParams: { returnUrl: '/products' } });
+        this.router.navigate(['/login'], { queryParams: { returnUrl: '/product' } });
         return;
       }
       this.favSvc.toggleFavorite(this.variant.id).subscribe();
     }
   }
 
+  get priceToDisplay(): number {
+    if (!this.variant) return 0;
+    const price = parseFloat(this.variant.price || '0');
+    const finalPrice = parseFloat(this.variant.final_price || '0');
+    if (finalPrice > 0) return finalPrice;
+    return price;
+  }
+
+  get mrpToDisplay(): number | null {
+    if (!this.variant) return null;
+    const price = parseFloat(this.variant.price || '0');
+    const finalPrice = parseFloat(this.variant.final_price || '0');
+    const compareAt = parseFloat(this.variant.compare_at_price || '0');
+    
+    if (compareAt > price) return compareAt;
+    if (finalPrice > 0 && finalPrice < price) return price;
+    return null;
+  }
+
   hasDiscount(): boolean {
-    if (!this.variant) return false;
-    const mrp = parseFloat(this.variant.compare_at_price || '0');
-    const price = parseFloat(this.variant.price);
-    return mrp > price;
+    return this.mrpToDisplay !== null;
   }
 
   discountPercent(): number {
-    const mrp = parseFloat(this.variant.compare_at_price || '0');
-    const price = parseFloat(this.variant.price);
+    const mrp = this.mrpToDisplay;
+    const price = this.priceToDisplay;
     if (!mrp || mrp <= price) return 0;
     return Math.round(((mrp - price) / mrp) * 100);
   }
@@ -429,7 +482,7 @@ export class ProductCardComponent {
 
   onSubscribeNow() {
     if (this.hasStock()) {
-      this.router.navigate(['/products', this.variant.id], { queryParams: { subscribe: 'true' } });
+      this.router.navigate(['/product', this.variant.id], { queryParams: { subscribe: 'true' } });
     }
   }
 }

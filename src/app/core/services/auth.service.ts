@@ -12,6 +12,7 @@ import { API } from '../constants/api-endpoints';
 import { AuthState } from '../state/auth.state';
 import { environment } from '../../../environments/environment';
 import { DEV_BYPASS_ACCESS, DEV_BYPASS_REFRESH, isDevBypassSession } from '../utils/dev-auth.util';
+import { NotificationService } from './notification.service';
 import {
   RegisterRequest,
   LoginRequest,
@@ -34,11 +35,16 @@ export class AuthService {
   private readonly authState = inject(AuthState);
   private readonly router = inject(Router);
   private readonly platformId = inject(PLATFORM_ID);
+  private readonly notificationSvc = inject(NotificationService);
 
   // ── Registration ──────────────────────────
 
   register(req: RegisterRequest): Observable<UserProfile> {
-    return this.http.post<{ data?: UserProfile; success?: boolean } | UserProfile>(API.AUTH.REGISTER, req).pipe(
+    const signupData = {
+      ...req,
+      device_id: this.notificationSvc.getOrCreateDeviceId()
+    };
+    return this.http.post<{ data?: UserProfile; success?: boolean } | UserProfile>(API.AUTH.REGISTER, signupData).pipe(
       map(res => {
         if ('data' in res && res.data) return res.data;
         return res as UserProfile;
@@ -276,6 +282,17 @@ export class AuthService {
   // ── Logout ────────────────────────────────
 
   logout(redirectUrl: string = '/login'): void {
+    if (this.authState.isAuthenticated()) {
+      this.notificationSvc.logoutDevice().subscribe({
+        next: () => this.executeLocalLogout(redirectUrl),
+        error: () => this.executeLocalLogout(redirectUrl)
+      });
+    } else {
+      this.executeLocalLogout(redirectUrl);
+    }
+  }
+
+  private executeLocalLogout(redirectUrl: string): void {
     this.authState.logout();
     if (isPlatformBrowser(this.platformId)) {
       this.router.navigate([redirectUrl]);

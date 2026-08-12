@@ -194,7 +194,7 @@ export class SubscriptionPlansComponent implements OnInit {
     const variantId = this.tierSelectedVariant()[planId];
     if (!variantId) return;
 
-    this.router.navigate([`/products/${variantId}`], {
+    this.router.navigate([`/product/${variantId}`], {
       queryParams: {
         subscribe: 'true',
         plan_id: Number(planId)

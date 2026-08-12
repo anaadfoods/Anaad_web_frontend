@@ -40,18 +40,22 @@ export class PaymentFailure implements OnInit {
 
   ngOnInit(): void {
     if (!isPlatformBrowser(this.platformId)) return;
-
     this.route.queryParams.subscribe(params => {
       let storedId     = params['id']     || sessionStorage.getItem('pendingPaymentId');
       let storedType   = params['type']   || sessionStorage.getItem('pendingPaymentType');
-      let storedNumber = params['order_number'] || params['order_id']
-                       || sessionStorage.getItem('pendingPaymentNumber') || storedId;
+      let storedNumber = params['order_number'] || params['order_id'] || params['reference']
+                       || sessionStorage.getItem('pendingPaymentNumber');
       this.errorMessage = params['message'] || params['error_message'] || '';
 
       // Clean up immediately
       sessionStorage.removeItem('pendingPaymentId');
       sessionStorage.removeItem('pendingPaymentType');
       sessionStorage.removeItem('pendingPaymentNumber');
+      sessionStorage.removeItem('pendingMerchantTransactionId');
+
+      if (!storedType && storedNumber?.startsWith('SUB-')) {
+        storedType = 'subscription';
+      }
 
       this.orderId        = storedId ? Number(storedId) : null;
       this.isSubscription = storedType === 'subscription';
@@ -75,6 +79,6 @@ export class PaymentFailure implements OnInit {
   }
 
   continueShopping(): void {
-    this.router.navigate(['/products']);
+    this.router.navigate(['/product']);
   }
 }
