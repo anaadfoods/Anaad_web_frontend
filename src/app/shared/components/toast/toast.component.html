@@ -2,13 +2,16 @@
   <div 
     class="toast-message" 
     *ngFor="let toast of toastService.messages()" 
-    [ngClass]="toast.type">
+    [ngClass]="toast.type"
+    [class.clickable]="!!toast.deepLink || !!toast.onClick"
+    (click)="onToastClick(toast)">
     <div class="toast-content">
       <span class="icon" *ngIf="toast.type === 'success'">&#10003;</span>
       <span class="icon" *ngIf="toast.type === 'error'">&#33;</span>
       <span class="icon" *ngIf="toast.type === 'info'">&#10548;</span>
       <span class="text">{{ toast.message }}</span>
+      <span class="toast-action-pill" *ngIf="toast.actionText">{{ toast.actionText }}</span>
     </div>
-    <button class="toast-close" (click)="remove(toast.id)">&times;</button>
+    <button class="toast-close" (click)="remove(toast.id, $event)">&times;</button>
   </div>
 </div>

@@ -1,5 +1,6 @@
 import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { ToastService, ToastMessage } from '../../../core/services/toast.service';
 
 @Component({
@@ -11,9 +12,27 @@ import { ToastService, ToastMessage } from '../../../core/services/toast.service
   styleUrls: ['./toast.component.scss']
 })
 export class ToastComponent {
+  // Toast with clickable deep link support
   toastService = inject(ToastService);
+  private router = inject(Router);
 
-  remove(id: number) {
+  onToastClick(toast: ToastMessage) {
+    if (toast.onClick) {
+      toast.onClick();
+      this.remove(toast.id);
+      return;
+    }
+    if (toast.deepLink) {
+      const link = toast.deepLink.startsWith('/') ? toast.deepLink : `/${toast.deepLink}`;
+      this.router.navigateByUrl(link);
+      this.remove(toast.id);
+    }
+  }
+
+  remove(id: number, event?: MouseEvent) {
+    if (event) {
+      event.stopPropagation();
+    }
     this.toastService.remove(id);
   }
 }

@@ -11,6 +11,17 @@ export const legacyRedirectGuard: CanActivateFn = (route, state) => {
   const requestedSegments = requestedPath.split('/');
   const queryParams = route.queryParams;
 
+  // Handle /profile/<anything> e.g. /profile/tab=settings or /profile/settings or /profile/tab=security
+  if (requestedSegments.length === 2 && requestedSegments[0] === 'profile') {
+    let tab = requestedSegments[1].trim();
+    while (tab.startsWith('tab=')) {
+      tab = tab.substring(4);
+    }
+    return router.createUrlTree(['/profile'], {
+      queryParams: { ...queryParams, tab: tab || 'settings' }
+    });
+  }
+
   for (const [legacyPath, targetPath] of Object.entries(LEGACY_REDIRECTS)) {
     const legacySegments = legacyPath.split('/');
     if (legacySegments.length !== requestedSegments.length) {

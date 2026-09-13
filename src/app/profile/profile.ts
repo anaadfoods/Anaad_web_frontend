@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, inject, signal, ChangeDetectionStrategy, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy, computed, inject, signal, ChangeDetectionStrategy, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../core/services/auth.service';
@@ -32,7 +32,7 @@ import { SkeletonLoaderComponent } from '../shared/components/skeleton-loader/sk
   templateUrl: './profile.html',
   styleUrls: ['./profile.scss'],
 })
-export class Profile implements OnInit {
+export class Profile implements OnInit, OnDestroy {
   private readonly authSvc = inject(AuthService);
   private readonly authState = inject(AuthState);
   private readonly appleAuth = inject(AppleAuthService);
@@ -79,9 +79,17 @@ export class Profile implements OnInit {
   animatedSubscriptions = signal<number>(0);
   animatedFavorites = signal<number>(0);
   tabLoading = signal<boolean>(false);
-  deactivateStep = signal<'idle' | 'confirm' | 'otp'>('idle');
+  
+  // Account Deactivation & Deletion Signals
+  actionType = signal<'deactivate' | 'delete'>('deactivate');
+  showDeleteWarningModal = signal<boolean>(false);
+  deactivateStep = signal<'idle' | 'confirm' | 'otp' | 'done'>('idle');
   deactivating = signal<boolean>(false);
   deactivateError = signal<string>('');
+  deactivateSuccessMsg = signal<string>('');
+  otpTimer = signal<number>(0);
+  private otpTimerInterval: any = null;
+
   editAddressMode = signal<boolean>(false);
   isSidebarOpen = signal<boolean>(false);
   activeSubTab = signal<string>('ALL');
@@ -118,10 +126,46 @@ export class Profile implements OnInit {
   readonly subscriptionCount = computed(() => this.subscriptionsData().length);
   readonly favoriteCount = computed(() => this.favoritesData().length);
 
+  normalizeTab(tab: string | null | undefined): string {
+    if (!tab) return 'overview';
+    let cleaned = tab.toLowerCase().trim();
+    while (cleaned.startsWith('tab=')) {
+      cleaned = cleaned.substring(4);
+    }
+    if (cleaned === 'settings' || cleaned === 'security') return 'settings';
+    return cleaned;
+  }
+
   ngOnInit() {
     this.route.queryParamMap.subscribe(params => {
       const idToken = params.get('id_token');
-      const tab = params.get('tab');
+      let tab = params.get('tab');
+
+      // DEBUG: trace what Angular's queryParamMap gives us
+      console.log('[Profile ngOnInit] queryParamMap keys:', params.keys);
+      console.log('[Profile ngOnInit] tab from queryParamMap:', JSON.stringify(tab));
+      if (isPlatformBrowser(this.platformId)) {
+        console.log('[Profile ngOnInit] window.location.href:', window.location.href);
+        console.log('[Profile ngOnInit] window.location.search:', window.location.search);
+      }
+
+      // Comprehensive fallback to ensure tab is always captured even during complex redirects
+      if (!tab && isPlatformBrowser(this.platformId)) {
+        const searchParams = new URLSearchParams(window.location.search);
+        tab = searchParams.get('tab');
+        console.log('[Profile ngOnInit] fallback tab from URLSearchParams:', JSON.stringify(tab));
+
+        if (!tab) {
+          const pathSegments = window.location.pathname.split('/').filter(Boolean);
+          if (pathSegments.length >= 2 && pathSegments[0] === 'profile') {
+            tab = pathSegments[1];
+            console.log('[Profile ngOnInit] fallback tab from pathname:', JSON.stringify(tab));
+          }
+        }
+      }
+
+      console.log('[Profile ngOnInit] final tab value:', JSON.stringify(tab));
+      console.log('[Profile ngOnInit] normalizeTab result:', this.normalizeTab(tab));
 
       if (idToken) {
         this.loading.set(true);
@@ -131,7 +175,9 @@ export class Profile implements OnInit {
             console.log('[Apple Login] Success — tokens stored, navigating to /profile');
             this.cartSvc.syncOnLogin();
             this.favoritesSvc.syncOnLogin();
-            this.router.navigate(['/profile'], { replaceUrl: true });
+            const normalizedTab = this.normalizeTab(tab);
+            const targetUrl = normalizedTab !== 'overview' ? `/profile?tab=${normalizedTab}` : '/profile';
+            this.router.navigateByUrl(targetUrl);
           },
           error: (err) => {
             console.error('[Apple Login] loginWithToken failed:', err.status, err.statusText, err.error);
@@ -141,8 +187,15 @@ export class Profile implements OnInit {
         });
       } else {
         if (tab) {
-          this.activeTab.set(tab);
+          const normalized = this.normalizeTab(tab);
+          console.log('[Profile ngOnInit] Setting activeTab to:', normalized);
+          this.activeTab.set(normalized);
+          if (isPlatformBrowser(this.platformId) && normalized !== 'overview') {
+            const baseUrl = window.location.href.split('?')[0];
+            history.replaceState({ tab: normalized }, '', `${baseUrl}?tab=${normalized}`);
+          }
         } else {
+          console.log('[Profile ngOnInit] No tab found, setting activeTab to: overview');
           this.activeTab.set('overview');
         }
         this.loadAccountData();
@@ -151,6 +204,7 @@ export class Profile implements OnInit {
   }
 
   loadAccountData() {
+    if (!isPlatformBrowser(this.platformId)) return;
     this.loading.set(true);
     this.error.set('');
 
@@ -243,12 +297,19 @@ export class Profile implements OnInit {
   }
 
   setTab(tabId: string) {
+    const normalized = this.normalizeTab(tabId);
     this.tabLoading.set(true);
-    this.activeTab.set(tabId);
+    this.activeTab.set(normalized);
     this.actionMessage.set('');
     this.error.set('');
-    if (isPlatformBrowser(this.platformId) && tabId !== 'overview') {
-      history.pushState({ tab: tabId }, '', window.location.href.split('?')[0] + `?tab=${tabId}`);
+    if (isPlatformBrowser(this.platformId)) {
+      const baseUrl = window.location.href.split('?')[0];
+      if (normalized !== 'overview') {
+        const urlTab = normalized === 'settings' ? 'settings' : normalized;
+        history.pushState({ tab: urlTab }, '', `${baseUrl}?tab=${urlTab}`);
+      } else {
+        history.pushState({ tab: 'overview' }, '', baseUrl);
+      }
     }
     setTimeout(() => {
       this.tabLoading.set(false);
@@ -259,7 +320,7 @@ export class Profile implements OnInit {
   onPopState(event: any) {
     if (isPlatformBrowser(this.platformId)) {
       const urlParams = new URLSearchParams(window.location.search);
-      const tab = urlParams.get('tab') || 'overview';
+      const tab = this.normalizeTab(urlParams.get('tab'));
       this.activeTab.set(tab);
     }
   }
@@ -444,34 +505,153 @@ export class Profile implements OnInit {
     });
   }
 
-  initiateDeactivate() { this.deactivateStep.set('confirm'); }
-  cancelDeactivate() { this.deactivateStep.set('idle'); this.deactivateForm.reset(); this.deactivateError.set(''); }
+  selectDeactivate() {
+    this.actionType.set('deactivate');
+    this.deactivateError.set('');
+    this.deactivateStep.set('confirm');
+    this.deactivateForm.reset();
+  }
+
+  selectDelete() {
+    this.actionType.set('delete');
+    this.deactivateError.set('');
+    this.showDeleteWarningModal.set(true);
+  }
+
+  closeDeleteWarningModal() {
+    this.showDeleteWarningModal.set(false);
+  }
+
+  deactivateInsteadFromModal() {
+    this.showDeleteWarningModal.set(false);
+    this.actionType.set('deactivate');
+    this.deactivateError.set('');
+    this.deactivateStep.set('confirm');
+    this.deactivateForm.reset();
+    this.toastSvc.show('Switched to Account Deactivation.', 'info');
+  }
+
+  proceedWithDeleteFromModal() {
+    this.showDeleteWarningModal.set(false);
+    this.actionType.set('delete');
+    this.deactivateError.set('');
+    this.deactivateStep.set('confirm');
+    this.deactivateForm.reset();
+  }
+
+  initiateDeactivate() {
+    this.selectDeactivate();
+  }
+
+  cancelDeactivate() {
+    this.deactivateStep.set('idle');
+    this.deactivateForm.reset();
+    this.deactivateError.set('');
+    this.clearOtpTimer();
+  }
 
   confirmDeactivate() {
     const pw = this.deactivateForm.get('password')?.value;
-    if (!pw) { this.deactivateError.set('Please enter your password.'); return; }
+    if (!pw) {
+      this.deactivateError.set('Please enter your current password.');
+      return;
+    }
     this.deactivating.set(true);
+    this.deactivateError.set('');
     this.authSvc.deactivate(pw).pipe(
       finalize(() => this.deactivating.set(false))
     ).subscribe({
-      next: () => this.deactivateStep.set('otp'),
-      error: err => this.deactivateError.set(err.error?.message || 'Incorrect password.'),
+      next: (res) => {
+        this.deactivateStep.set('otp');
+        this.startOtpTimer(60);
+        const contactMsg = res.message || 'OTP has been sent to your registered email and mobile phone.';
+        this.toastSvc.show(contactMsg, 'info');
+      },
+      error: (err) => {
+        const msg = err.error?.message || err.error?.detail || 'Incorrect password. Please try again.';
+        this.deactivateError.set(msg);
+        this.toastSvc.show(msg, 'error');
+      }
     });
   }
 
-  submitDeactivateOtp() {
-    const otp = this.deactivateForm.get('otp')?.value;
-    if (!otp) { this.deactivateError.set('Please enter the OTP.'); return; }
+  resendDeactivateOtp() {
+    const pw = this.deactivateForm.get('password')?.value;
+    if (!pw) {
+      this.deactivateStep.set('confirm');
+      return;
+    }
+    if (this.otpTimer() > 0) return;
     this.deactivating.set(true);
+    this.deactivateError.set('');
+    this.authSvc.deactivate(pw).pipe(
+      finalize(() => this.deactivating.set(false))
+    ).subscribe({
+      next: () => {
+        this.startOtpTimer(60);
+        this.toastSvc.show('A new OTP has been sent to your email and phone.', 'success');
+      },
+      error: (err) => {
+        this.deactivateError.set(err.error?.message || 'Failed to resend OTP.');
+      }
+    });
+  }
+
+  private startOtpTimer(seconds: number) {
+    this.clearOtpTimer();
+    this.otpTimer.set(seconds);
+    this.otpTimerInterval = setInterval(() => {
+      const current = this.otpTimer();
+      if (current <= 1) {
+        this.clearOtpTimer();
+      } else {
+        this.otpTimer.set(current - 1);
+      }
+    }, 1000);
+  }
+
+  private clearOtpTimer() {
+    if (this.otpTimerInterval) {
+      clearInterval(this.otpTimerInterval);
+      this.otpTimerInterval = null;
+    }
+    this.otpTimer.set(0);
+  }
+
+  submitDeactivateOtp() {
+    const otp = this.deactivateForm.get('otp')?.value?.trim();
+    if (!otp) {
+      this.deactivateError.set('Please enter the OTP.');
+      return;
+    }
+    this.deactivating.set(true);
+    this.deactivateError.set('');
     this.authSvc.deactivateConfirm(otp).pipe(
       finalize(() => this.deactivating.set(false))
     ).subscribe({
       next: () => {
-        this.toastSvc.show('Your account has been permanently deactivated.', 'success');
-        this.authSvc.logout('/');
+        const isDelete = this.actionType() === 'delete';
+        const successMsg = isDelete
+          ? 'Your account and data have been permanently deleted.'
+          : 'Your account has been deactivated successfully.';
+        this.deactivateSuccessMsg.set(successMsg);
+        this.deactivateStep.set('done');
+        this.clearOtpTimer();
+        this.toastSvc.show(successMsg, 'success');
+        setTimeout(() => {
+          this.authSvc.logout('/');
+        }, 2500);
       },
-      error: err => this.deactivateError.set(err.error?.message || 'Invalid OTP.'),
+      error: (err) => {
+        const msg = err.error?.message || err.error?.detail || 'Invalid or expired OTP. Please try again.';
+        this.deactivateError.set(msg);
+        this.toastSvc.show(msg, 'error');
+      }
     });
+  }
+
+  ngOnDestroy() {
+    this.clearOtpTimer();
   }
 
   shopProducts() { this.router.navigate(['/product']); }

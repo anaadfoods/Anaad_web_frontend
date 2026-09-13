@@ -7,11 +7,13 @@ import { computed, inject, Injectable, signal, PLATFORM_ID } from '@angular/core
 import { isPlatformBrowser } from '@angular/common';
 import { UserProfile } from '../models/auth.model';
 import { StorageService, STORAGE_KEYS } from '../utils/storage.utils';
+import { WebAnalyticsService } from '../services/web-analytics.service';
 
 @Injectable({ providedIn: 'root' })
 export class AuthState {
   private readonly storage = inject(StorageService);
   private readonly platformId = inject(PLATFORM_ID);
+  private readonly analytics = inject(WebAnalyticsService);
 
   // ── Signals ───────────────────────────────
   private readonly _user = signal<UserProfile | null>(null);
@@ -68,6 +70,9 @@ export class AuthState {
   setUser(user: UserProfile): void {
     this._user.set(user);
     this.storage.setJSON(STORAGE_KEYS.USER_PROFILE, user);
+    if (user?.id) {
+      this.analytics.identify(user.id);
+    }
   }
 
   updateUser(partial: Partial<UserProfile>): void {
@@ -86,6 +91,8 @@ export class AuthState {
     this._user.set(null);
     this._accessToken.set(null);
     this._refreshToken.set(null);
+    // Clear analytics identity
+    this.analytics.clearIdentity();
     // Clear all tokens and profile from localStorage
     this.storage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
     this.storage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
@@ -113,7 +120,12 @@ export class AuthState {
 
     if (access) this._accessToken.set(access);
     if (refresh) this._refreshToken.set(refresh);
-    if (user) this._user.set(user);
+    if (user) {
+      this._user.set(user);
+      if (user.id) {
+        this.analytics.identify(user.id);
+      }
+    }
   }
 }
 

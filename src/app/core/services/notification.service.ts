@@ -6,6 +6,8 @@ import { Observable, catchError, of, tap } from 'rxjs';
 import { API } from '../constants/api-endpoints';
 import { AuthState } from '../state/auth.state';
 import { NotificationItem, NotificationSyncResponse, UnreadCountResponse } from '../models/notification.model';
+import { ToastService } from './toast.service';
+import { StorageService, STORAGE_KEYS } from '../utils/storage.utils';
 import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
@@ -14,6 +16,8 @@ export class NotificationService {
   private readonly authState = inject(AuthState);
   private readonly platformId = inject(PLATFORM_ID);
   private readonly router = inject(Router);
+  private readonly toastSvc = inject(ToastService);
+  private readonly storage = inject(StorageService);
 
   // ── State Signals ─────────────────────────
   readonly notifications = signal<NotificationItem[]>([]);
@@ -27,9 +31,13 @@ export class NotificationService {
   private isWsConnecting = false;
 
   constructor() {
-    // Generate device id and start sync if already authenticated on browser
+    // Generate device id and start sync on browser
     if (isPlatformBrowser(this.platformId)) {
       this.getOrCreateDeviceId();
+      this.getOrCreateAnonymousId();
+
+      // Register web device token with backend immediately
+      this.registerToken('web_' + this.getOrCreateDeviceId(), 'web').subscribe();
       
       // Monitor auth state changes to start/stop polling
       this.initPolling();
@@ -40,25 +48,19 @@ export class NotificationService {
       // Listen to tab visibility & focus to sync
       this.initForegroundSync();
 
-      // Reactively connect/disconnect WS on auth state changes
+      // Reactively connect/reconnect WS and sync on auth state changes
       effect(() => {
-        if (this.authState.isAuthenticated()) {
-          console.log('[NotificationService] User authenticated. Syncing and connecting WS...');
-          this.sync().subscribe();
-          this.fetchUnreadCount().subscribe();
-          this.connectWebSocket();
-        } else {
-          console.log('[NotificationService] User logged out. Disconnecting WS and resetting state...');
-          this.disconnectWebSocket();
-          this.notifications.set([]);
-          this.unreadCount.set(0);
-          this.sinceVersion = 0;
-        }
+        const isAuth = this.authState.isAuthenticated();
+        console.log(`[NotificationService] Auth state changed (isAuthenticated=${isAuth}). Reconnecting WS...`);
+        this.disconnectWebSocket();
+        this.connectWebSocket();
+        this.sync().subscribe();
+        this.fetchUnreadCount().subscribe();
       });
     }
   }
 
-  // ── Device ID Management ──────────────────
+  // ── Device & Identity Management ───────────────
 
   getOrCreateDeviceId(): string {
     if (!isPlatformBrowser(this.platformId)) return 'server-side';
@@ -70,30 +72,35 @@ export class NotificationService {
     return id;
   }
 
+  getOrCreateAnonymousId(): string {
+    if (!isPlatformBrowser(this.platformId)) return '';
+    let id = this.storage.getItem(STORAGE_KEYS.ANONYMOUS_ID);
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    if (!id || !uuidRegex.test(id)) {
+      id = (typeof crypto !== 'undefined' && crypto.randomUUID)
+        ? crypto.randomUUID()
+        : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+            const r = Math.random() * 16 | 0;
+            return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+          });
+      this.storage.setItem(STORAGE_KEYS.ANONYMOUS_ID, id);
+    }
+    return id;
+  }
+
   // ── Polling & Lifecycle ───────────────────
 
   private initPolling() {
     // Poll every 30 seconds for new notifications and unread count
     this.pollInterval = setInterval(() => {
-      if (this.authState.isAuthenticated()) {
-        this.sync().subscribe();
-        this.fetchUnreadCount().subscribe();
-      } else {
-        // Reset state on logout
-        if (this.notifications().length > 0) {
-          this.notifications.set([]);
-          this.unreadCount.set(0);
-          this.sinceVersion = 0;
-        }
-      }
+      this.sync().subscribe();
+      this.fetchUnreadCount().subscribe();
     }, 30000);
 
     // Initial load
     setTimeout(() => {
-      if (this.authState.isAuthenticated()) {
-        this.sync().subscribe();
-        this.fetchUnreadCount().subscribe();
-      }
+      this.sync().subscribe();
+      this.fetchUnreadCount().subscribe();
     }, 1000);
   }
 
@@ -101,11 +108,15 @@ export class NotificationService {
 
   /** Sync notifications since last version */
   sync(): Observable<NotificationSyncResponse | null> {
-    if (!this.authState.isAuthenticated()) return of(null);
-
-    const params = new HttpParams()
+    let params = new HttpParams()
       .set('since_version', this.sinceVersion.toString())
       .set('limit', '50');
+
+    if (!this.authState.isAuthenticated()) {
+      const anonId = this.getOrCreateAnonymousId();
+      if (!anonId) return of(null);
+      params = params.set('anonymous_id', anonId);
+    }
 
     return this.http.get<NotificationSyncResponse>(API.NOTIFICATIONS.SYNC, { params }).pipe(
       tap(res => {
@@ -142,9 +153,14 @@ export class NotificationService {
 
   /** Get active unread count from server */
   fetchUnreadCount(): Observable<UnreadCountResponse | null> {
-    if (!this.authState.isAuthenticated()) return of(null);
+    let params = new HttpParams();
+    if (!this.authState.isAuthenticated()) {
+      const anonId = this.getOrCreateAnonymousId();
+      if (!anonId) return of(null);
+      params = params.set('anonymous_id', anonId);
+    }
 
-    return this.http.get<UnreadCountResponse>(API.NOTIFICATIONS.UNREAD_COUNT).pipe(
+    return this.http.get<UnreadCountResponse>(API.NOTIFICATIONS.UNREAD_COUNT, { params }).pipe(
       tap(res => {
         if (res) {
           this.unreadCount.set(res.unread_count);
@@ -159,12 +175,15 @@ export class NotificationService {
 
   /** Mark selected notifications as read */
   markAsRead(notificationIds: number[]): Observable<any> {
-    if (notificationIds.length === 0 || !this.authState.isAuthenticated()) return of(null);
+    if (notificationIds.length === 0) return of(null);
 
-    const body = {
+    const body: any = {
       notification_ids: notificationIds,
       origin_device_id: this.getOrCreateDeviceId()
     };
+    if (!this.authState.isAuthenticated()) {
+      body.anonymous_id = this.getOrCreateAnonymousId();
+    }
 
     // Optimistically update local state
     this.notifications.update(list => list.map(item => {
@@ -186,12 +205,15 @@ export class NotificationService {
 
   /** Dismiss (hide) selected notifications */
   dismiss(notificationIds: number[]): Observable<any> {
-    if (notificationIds.length === 0 || !this.authState.isAuthenticated()) return of(null);
+    if (notificationIds.length === 0) return of(null);
 
-    const body = {
+    const body: any = {
       notification_ids: notificationIds,
       origin_device_id: this.getOrCreateDeviceId()
     };
+    if (!this.authState.isAuthenticated()) {
+      body.anonymous_id = this.getOrCreateAnonymousId();
+    }
 
     // Optimistically update local state
     this.notifications.update(list => list.filter(item => !notificationIds.includes(item.id)));
@@ -208,13 +230,14 @@ export class NotificationService {
 
   /** Register device FCM push token with backend */
   registerToken(token: string, platform: 'android' | 'ios' | 'web' = 'web'): Observable<any> {
-    if (!this.authState.isAuthenticated()) return of(null);
-
-    const body = {
+    const body: any = {
       token,
       device_id: this.getOrCreateDeviceId(),
       platform
     };
+    if (!this.authState.isAuthenticated()) {
+      body.anonymous_id = this.getOrCreateAnonymousId();
+    }
 
     return this.http.post(API.NOTIFICATIONS.REGISTER_TOKEN, body).pipe(
       catchError(err => {
@@ -370,17 +393,125 @@ export class NotificationService {
     });
   }
 
-  private showForegroundToast(title: string, body: string, data: any) {
-    // Show native browser notification if permitted, or in-app toast
+  private showForegroundToast(title: string, body: string, data: any, deepLink?: string) {
+    // Show native browser notification if permitted
     if (Notification.permission === 'granted') {
-      new Notification(title, {
-        body: body,
-        icon: '/assets/favicon.ico',
-        data: data
-      });
-    } else {
-      // In-app alert fallback if browser notifications are not permitted
-      alert(`${title}\n${body}`);
+      try {
+        const notif = new Notification(title, {
+          body: body,
+          icon: '/assets/favicon.ico',
+          data: data
+        });
+        notif.onclick = () => {
+          if (isPlatformBrowser(this.platformId)) {
+            window.focus();
+            this.navigateToDeepLink(deepLink || data?.deep_link || data?.screen, data);
+          }
+        };
+      } catch (e) {
+        console.warn('Native notification display failed:', e);
+      }
+    }
+  }
+
+  /**
+   * Navigate to the target screen based on deep_link string or metadata.
+   */
+  navigateToDeepLink(deepLink?: string | null, metadata?: any): void {
+    if (!deepLink && !metadata) return;
+
+    const rawTarget = (deepLink || metadata?.deep_link || metadata?.screen || metadata?.target || metadata?.action || '').toString().trim();
+    if (!rawTarget) return;
+
+    console.log('[NotificationService] Navigating to deep link:', rawTarget);
+
+    // 1. External URL
+    if (rawTarget.startsWith('http://') || rawTarget.startsWith('https://')) {
+      if (isPlatformBrowser(this.platformId)) {
+        window.location.href = rawTarget;
+      }
+      return;
+    }
+
+    // 2. Direct absolute path starting with '/'
+    if (rawTarget.startsWith('/')) {
+      this.router.navigateByUrl(rawTarget);
+      return;
+    }
+
+    const normalized = rawTarget.toLowerCase().replace(/^open_/, '').replace(/-/g, '_');
+    const objectId = metadata?.id || metadata?.order_id || metadata?.subscription_id || metadata?.product_id;
+
+    switch (normalized) {
+      case 'cart':
+        this.router.navigate(['/cart']);
+        break;
+      case 'checkout':
+        this.router.navigate(['/checkout']);
+        break;
+      case 'store':
+      case 'products':
+      case 'pantry':
+      case 'shop':
+        this.router.navigate(['/products']);
+        break;
+      case 'product':
+      case 'product_detail':
+        if (objectId) {
+          this.router.navigate(['/product', objectId]);
+        } else {
+          this.router.navigate(['/products']);
+        }
+        break;
+      case 'orders':
+      case 'order_list':
+      case 'my_orders':
+        this.router.navigate(['/profile'], { queryParams: { tab: 'orders' } });
+        break;
+      case 'order':
+      case 'order_detail':
+        if (objectId) {
+          this.router.navigate(['/order', objectId]);
+        } else {
+          this.router.navigate(['/profile'], { queryParams: { tab: 'orders' } });
+        }
+        break;
+      case 'subscriptions':
+      case 'subscription_list':
+        this.router.navigate(['/profile'], { queryParams: { tab: 'subscriptions' } });
+        break;
+      case 'subscription':
+      case 'subscription_detail':
+        if (objectId) {
+          this.router.navigate(['/subscription', objectId]);
+        } else {
+          this.router.navigate(['/profile'], { queryParams: { tab: 'subscriptions' } });
+        }
+        break;
+      case 'panchang':
+        this.router.navigate(['/panchang']);
+        break;
+      case 'rfp':
+        this.router.navigate(['/rfp']);
+        break;
+      case 'aahar_vigyan':
+        this.router.navigate(['/aahar-vigyan']);
+        break;
+      case 'refer_earn':
+      case 'referral':
+        this.router.navigate(['/refer-earn']);
+        break;
+      case 'profile':
+      case 'account':
+      case 'settings':
+        this.router.navigate(['/profile']);
+        break;
+      case 'home':
+        this.router.navigate(['/']);
+        break;
+      default:
+        this.router.navigateByUrl(`/${rawTarget}`);
+        break;
     }
   }
 
@@ -390,12 +521,10 @@ export class NotificationService {
     if (!isPlatformBrowser(this.platformId)) return;
 
     const handleSync = () => {
-      if (this.authState.isAuthenticated()) {
-        console.log('[NotificationService] Foreground sync triggered.');
-        this.sync().subscribe();
-        this.fetchUnreadCount().subscribe();
-        this.connectWebSocket();
-      }
+      console.log('[NotificationService] Foreground sync triggered.');
+      this.sync().subscribe();
+      this.fetchUnreadCount().subscribe();
+      this.connectWebSocket();
     };
 
     document.addEventListener('visibilitychange', () => {
@@ -416,14 +545,16 @@ export class NotificationService {
     if (this.socket !== null || this.isWsConnecting) return;
 
     const token = this.authState.accessToken();
-    if (!token) {
-      console.log('[NotificationService] WS connection skipped: no access token.');
-      return;
-    }
-
+    const anonId = this.getOrCreateAnonymousId();
     const deviceId = this.getOrCreateDeviceId();
+
     const wsBase = environment.apiBaseUrl.replace(/^http/, 'ws');
-    const wsUrl = `${wsBase}/ws/notifications/?token=${token}&device_id=${deviceId}&platform=web`;
+    let wsUrl = `${wsBase}/ws/notifications/?device_id=${deviceId}&platform=web`;
+    if (token) {
+      wsUrl += `&token=${token}`;
+    } else if (anonId) {
+      wsUrl += `&anonymous_id=${anonId}`;
+    }
 
     this.isWsConnecting = true;
     console.log('[NotificationService] Connecting to WebSocket:', wsUrl);
@@ -466,12 +597,10 @@ export class NotificationService {
     this.isWsConnecting = false;
     if (this.wsReconnectTimer) clearTimeout(this.wsReconnectTimer);
 
-    if (this.authState.isAuthenticated()) {
-      this.wsReconnectTimer = setTimeout(() => {
-        console.log('[NotificationService] Attempting WebSocket reconnect...');
-        this.connectWebSocket();
-      }, 10000);
-    }
+    this.wsReconnectTimer = setTimeout(() => {
+      console.log('[NotificationService] Attempting WebSocket reconnect...');
+      this.connectWebSocket();
+    }, 5000);
   }
 
   private handleWebSocketMessage(rawMessage: string) {
@@ -489,12 +618,72 @@ export class NotificationService {
         case 'NOTIFICATION_SYNC_ACK':
           console.log('[NotificationService] WS ACK:', data);
           break;
-        case 'NOTIFICATION_CREATED':
+
+        case 'NOTIFICATION_CREATED': {
+          console.log('[NotificationService] Real-time NOTIFICATION_CREATED received:', data);
+          if (data) {
+            const targetLink = data.deep_link || data.metadata?.deep_link || data.metadata?.screen || (data.metadata?.data && data.metadata.data.screen);
+
+            const newItem: NotificationItem = {
+              id: data.id || Date.now(),
+              title: data.title || '',
+              message: data.message || '',
+              channel: data.channel || 'push',
+              status: 'sent',
+              priority: data.priority || 'normal',
+              created_at: data.created_at || new Date().toISOString(),
+              deep_link: targetLink,
+              metadata: data.metadata || {},
+              source: data.source || 'SERVER',
+              is_read: false,
+              is_dismissed: false,
+              sync_version: data.sync_version || (this.sinceVersion + 1),
+            };
+
+            // 1. Instantly update reactive notifications signal (prepend)
+            this.notifications.update(list => {
+              const idx = list.findIndex(item => item.id === newItem.id);
+              if (idx !== -1) {
+                const updated = [...list];
+                updated[idx] = newItem;
+                return updated;
+              }
+              return [newItem, ...list];
+            });
+
+            // 2. Instantly update reactive unread count
+            if (unreadCount === undefined || unreadCount === null) {
+              this.updateUnreadCountLocally();
+            }
+
+            // 3. Trigger immediate in-app toast notification with deep-link click action
+            const displayTitle = newItem.title ? `${newItem.title}: ` : '';
+            this.toastSvc.show(
+              `${displayTitle}${newItem.message}`,
+              'info',
+              6000,
+              {
+                deepLink: targetLink,
+                actionText: targetLink ? 'View' : undefined,
+                onClick: targetLink ? () => this.navigateToDeepLink(targetLink, data.metadata) : undefined
+              }
+            );
+
+            // 4. Trigger native browser push notification if permitted
+            this.showForegroundToast(newItem.title, newItem.message, data.metadata, targetLink);
+          }
+
+          // Authoritatively sync with backend in background
+          this.sync().subscribe();
+          break;
+        }
+
         case 'NOTIFICATION_READ':
         case 'NOTIFICATION_DISMISSED':
           console.log('[NotificationService] WS Triggered sync for:', eventName);
           this.sync().subscribe();
           break;
+
         default:
           console.warn('[NotificationService] Unknown WS event:', eventName);
           break;

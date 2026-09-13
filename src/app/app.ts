@@ -13,6 +13,7 @@ import { CartState } from './core/state/cart.state';
 import { isDevBypassSession } from './core/utils/dev-auth.util';
 import { environment } from '../environments/environment';
 import { AaharVigyanStateService } from './aahar-vigyan/services/aahar-vigyan-state.service';
+import { WebAnalyticsService } from './core/services/web-analytics.service';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -32,15 +33,20 @@ export class App implements OnInit {
   private readonly platformId = inject(PLATFORM_ID);
   private readonly router = inject(Router);
   private readonly avState = inject(AaharVigyanStateService);
+  private readonly analytics = inject(WebAnalyticsService);
 
   constructor() {
-    this.router.events.pipe(filter((e) => e instanceof NavigationEnd)).subscribe(() => {
+    this.router.events.pipe(filter((e) => e instanceof NavigationEnd)).subscribe((e: any) => {
       this.immersiveLayout.set(false);
+      this.analytics.trackPageView(undefined, e.urlAfterRedirects || e.url);
     });
   }
 
   ngOnInit() {
     if (!isPlatformBrowser(this.platformId)) return;
+
+    // Track initial page view when user visits or watches the website
+    this.analytics.trackPageView(document.title || 'Home', window.location.pathname + window.location.search);
 
     // Drop leftover fake dev session from earlier local testing
     if (

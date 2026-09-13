@@ -26,10 +26,11 @@ export const authGuard: CanActivateFn = (route, state) => {
     return true;
   }
 
-  router.navigate(['/login'], {
-    queryParams: { returnUrl: state.url }
+  const targetUrl = state.url || '/profile';
+  console.log('[authGuard] redirecting to /login with returnUrl:', targetUrl);
+  return router.createUrlTree(['/login'], {
+    queryParams: { returnUrl: targetUrl }
   });
-  return false;
 };
 
 export const guestGuard: CanActivateFn = (route, state) => {
@@ -41,7 +42,18 @@ export const guestGuard: CanActivateFn = (route, state) => {
 
   if (!authState.isAuthenticated()) return true;
 
-  const returnUrl = route.queryParams['returnUrl'] || '/profile';
+  const rawReturnUrl = route.queryParams['returnUrl'] || '/profile';
+  const tabParam = route.queryParams['tab'];
+  let returnUrl = rawReturnUrl;
+  try {
+    returnUrl = decodeURIComponent(rawReturnUrl);
+  } catch {
+    returnUrl = rawReturnUrl;
+  }
+  if (tabParam && !returnUrl.includes('tab=')) {
+    const sep = returnUrl.includes('?') ? '&' : '?';
+    returnUrl = `${returnUrl}${sep}tab=${tabParam}`;
+  }
   router.navigateByUrl(returnUrl);
   return false;
 };

@@ -208,6 +208,42 @@
         }
       </div>
 
+      <!-- COUPON BOX -->
+      <div class="coupon-box" *ngIf="!isSubscription()">
+        @if (appliedCoupon(); as coupon) {
+          <div class="coupon-applied-badge">
+            <span class="coupon-tag">🎉 {{ coupon.code }} (-{{ coupon.discount_amount | currencyInr }})</span>
+            <button type="button" class="btn-remove-coupon" (click)="removeCoupon()">Remove</button>
+          </div>
+        } @else {
+          <div class="coupon-input-wrap">
+            <input
+              type="text"
+              class="coupon-input"
+              placeholder="ENTER COUPON"
+              [value]="couponCodeInput()"
+              (input)="onCouponInputChange($event)"
+              (keyup.enter)="applyCoupon()"
+              [disabled]="isValidatingCoupon()"
+            />
+            <button
+              type="button"
+              class="btn-apply-coupon"
+              (click)="applyCoupon()"
+              [disabled]="isValidatingCoupon() || !couponCodeInput().trim()"
+            >
+              {{ isValidatingCoupon() ? '...' : 'APPLY' }}
+            </button>
+          </div>
+          @if (couponError()) {
+            <span class="coupon-msg error">{{ couponError() }}</span>
+          }
+          @if (couponSuccess()) {
+            <span class="coupon-msg success">{{ couponSuccess() }}</span>
+          }
+        }
+      </div>
+
       <div class="summary-lines">
         @if (isSubscription()) {
           <div class="summary-row">
@@ -266,6 +302,10 @@
             <span class="summary-value" [class.free]="getDeliveryCharge() === 0">
               {{ getDeliveryCharge() === 0 ? 'Free' : (getDeliveryCharge() | currencyInr) }}
             </span>
+          </div>
+          <div class="summary-row discount-row" *ngIf="appliedCoupon()">
+            <span class="summary-label">Coupon Discount ({{ appliedCoupon()?.code }})</span>
+            <span class="summary-value discount-value">-{{ couponDiscount() | currencyInr }}</span>
           </div>
           <div class="summary-divider"></div>
           <div class="summary-total-row">

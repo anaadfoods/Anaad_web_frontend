@@ -119,4 +119,7 @@ export const STORAGE_KEYS = {
   USER_PROFILE: 'anaad_user_profile',
   CART_CACHE: 'anaad_cart_cache',
   FAVORITES: 'anaad_favorites',
+  ANONYMOUS_ID: 'anaad_anonymous_id',
+  SESSION_ID: 'anaad_session_id',
+  SESSION_LAST_ACTIVE: 'anaad_session_last_active',
 } as const;

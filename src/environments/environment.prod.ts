@@ -14,7 +14,7 @@
 
 
 // environment.prod.ts — unchanged, already correct
-const apiBaseUrl = 'https://bck.anaadfoods.com';
+const apiBaseUrl = 'http://localhost:8000';
 // const apiBaseUrl = 'https://educated-carpentry-reverence.ngrok-free.dev';
 
 export const environment = {
@@ -29,4 +29,5 @@ export const environment = {
   appleRedirectUri: `${apiBaseUrl}/api/auth/apple/callback/`,
   appleWebCallbackPath: '/auth/apple/callback',
   externalLoginUrl: 'https://anaadfoods.com/profile',
+  sutraBaseUrl: 'http://localhost:8010', // Will point to prod sutra when deployed
 };

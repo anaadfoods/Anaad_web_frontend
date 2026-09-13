@@ -290,10 +290,8 @@ export const routes: Routes = [
   },
   {
     path: 'delete-account',
-    loadComponent: () =>
-      import('./delete-account/delete-account.component').then(m => m.DeleteAccountComponent),
-    canActivate: [authGuard],
-    title: 'Delete Account • Anaad Foods'
+    redirectTo: 'profile?tab=settings',
+    pathMatch: 'full'
   },
 
   {

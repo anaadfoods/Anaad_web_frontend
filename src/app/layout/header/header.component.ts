@@ -134,14 +134,22 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
     try {
       const metadata = typeof item.metadata === 'string' ? JSON.parse(item.metadata) : item.metadata;
-      const type = metadata?.type || item.metadata?.type;
-      const objectId = metadata?.id || item.metadata?.id || metadata?.order_id || item.metadata?.order_id || metadata?.subscription_id || item.metadata?.subscription_id;
+      const target = item.deep_link || metadata?.deep_link || metadata?.screen || (metadata?.data && metadata.data.screen);
 
-      if (objectId) {
-        if (type === 'subscription' || item.title.toLowerCase().includes('subscription')) {
-          this.router.navigate(['/subscription', objectId]);
+      if (target) {
+        this.notificationSvc.navigateToDeepLink(target, metadata);
+      } else {
+        const type = metadata?.type || item.metadata?.type;
+        const objectId = metadata?.id || item.metadata?.id || metadata?.order_id || item.metadata?.order_id || metadata?.subscription_id || item.metadata?.subscription_id;
+
+        if (objectId) {
+          if (type === 'subscription' || item.title?.toLowerCase().includes('subscription')) {
+            this.router.navigate(['/subscription', objectId]);
+          } else {
+            this.router.navigate(['/order', objectId]);
+          }
         } else {
-          this.router.navigate(['/order', objectId]);
+          this.router.navigate(['/profile'], { queryParams: { tab: 'orders' } });
         }
       }
     } catch (e) {

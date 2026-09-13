@@ -16,6 +16,8 @@ import { SubscriptionService } from '../core/services/subscription.service';
 import { SubscriptionPlan } from '../core/models/subscription.model';
 import { ErrorHandlerService } from '../core/services/error-handler.service';
 import { PaymentService } from '../core/services/payment.service';
+import { CouponService, CouponData } from '../core/services/coupon.service';
+import { WebAnalyticsService } from '../core/services/web-analytics.service';
 import { finalize } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 
@@ -46,6 +48,8 @@ export class Checkout implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly location = inject(Location);
   private readonly paymentSvc = inject(PaymentService);
+  private readonly couponSvc = inject(CouponService);
+  private readonly analytics = inject(WebAnalyticsService);
 
   constructor() {
     effect(() => {
@@ -151,15 +155,84 @@ export class Checkout implements OnInit {
   readonly totalDeliveryCost = computed(() => this.deliveryChargePerMonth() * this.planDurationMonths());
   readonly totalAmount = computed(() => this.totalItemCost() + this.totalDeliveryCost());
 
+  // Coupon state
+  readonly couponCodeInput = signal<string>('');
+  readonly isValidatingCoupon = signal<boolean>(false);
+  readonly couponError = signal<string>('');
+  readonly couponSuccess = signal<string>('');
+  readonly appliedCoupon = signal<CouponData | null>(null);
+
+  readonly couponDiscount = computed(() => {
+    const coupon = this.appliedCoupon();
+    return coupon ? coupon.discount_amount : 0;
+  });
+
   readonly grandTotal = computed(() => {
+    const discount = this.couponDiscount();
     if (this.isSubscription()) {
       if (this.selectedPaymentType() === 'INSTALLMENT') {
-        return this.discountedPricePerMonth() + this.deliveryChargePerMonth();
+        const base = this.discountedPricePerMonth() + this.deliveryChargePerMonth();
+        return Math.max(0, +(base - discount).toFixed(2));
       }
-      return this.totalAmount();
+      return Math.max(0, +(this.totalAmount() - discount).toFixed(2));
     }
-    return +(this.subtotal() + this.deliveryCharge()).toFixed(2);
+    const total = this.subtotal() + this.deliveryCharge() - discount;
+    return Math.max(0, +total.toFixed(2));
   });
+
+  onCouponInputChange(event: Event) {
+    const target = event.target as HTMLInputElement;
+    this.couponCodeInput.set(target.value);
+    this.couponError.set('');
+  }
+
+  applyCoupon() {
+    const code = this.couponCodeInput().trim().toUpperCase();
+    if (!code) {
+      this.couponError.set('Please enter a coupon code.');
+      return;
+    }
+    this.isValidatingCoupon.set(true);
+    this.couponError.set('');
+    this.couponSuccess.set('');
+
+    const currentTotal = this.subtotal();
+    this.couponSvc.validateCoupon(code, currentTotal).subscribe({
+      next: (res) => {
+        this.isValidatingCoupon.set(false);
+        if (res.status === 'success' && res.coupon) {
+          this.appliedCoupon.set(res.coupon);
+          this.couponSuccess.set(`Coupon ${res.coupon.code} applied! Saved ₹${res.coupon.discount_amount}`);
+          this.analytics.track('coupon_applied', {
+            coupon_code: res.coupon.code,
+            discount_amount: res.coupon.discount_amount,
+            cart_total: currentTotal,
+          });
+        } else {
+          this.couponError.set(res.message || 'Invalid coupon code.');
+        }
+        this.cdr.markForCheck();
+      },
+      error: (err) => {
+        this.isValidatingCoupon.set(false);
+        const msg = err?.error?.message || 'Invalid or expired coupon.';
+        this.couponError.set(msg);
+        this.cdr.markForCheck();
+      }
+    });
+  }
+
+  removeCoupon() {
+    const code = this.appliedCoupon()?.code;
+    this.appliedCoupon.set(null);
+    this.couponCodeInput.set('');
+    this.couponSuccess.set('');
+    this.couponError.set('');
+    if (code) {
+      this.analytics.track('coupon_removed', { coupon_code: code });
+    }
+    this.cdr.markForCheck();
+  }
 
   get f() { return this.checkoutForm.controls; }
 
@@ -194,6 +267,14 @@ export class Checkout implements OnInit {
     if (isPlatformBrowser(this.platformId)) {
       history.pushState(null, '', window.location.href);
     }
+
+    // Track checkout started
+    this.analytics.track('checkout_started', {
+      cart_id: 'cart_' + (this.isDirectBuy() ? 'direct' : 'web'),
+      item_count: this.checkoutItems().length,
+      total_amount: this.grandTotal(),
+      is_subscription: this.isSubscription(),
+    });
   }
 
   @HostListener('window:popstate', ['$event'])
@@ -446,6 +527,14 @@ export class Checkout implements OnInit {
     const paymentMethod: 'COD' | 'UPI' = val.paymentMethod === 'cod' ? 'COD' : 'UPI';
     const deliveryAddress = val.address! + (val.landmark ? `, ${val.landmark}` : '');
 
+    // Track payment attempted
+    this.analytics.track('payment_attempted', {
+      payment_method: paymentMethod,
+      amount: this.getGrandTotal(),
+      coupon_code: this.appliedCoupon()?.code || undefined,
+      is_subscription: this.isSubscription(),
+    });
+
     let items: Array<{ product_variant_id: number; quantity: number }> = [];
     if (this.isDirectBuy()) {
       const variantId = this.directVariantId();
@@ -496,6 +585,7 @@ export class Checkout implements OnInit {
         delivery_fee: this.getDeliveryCharge(),
         expected_delivery_date: this.expectedDeliveryDate(),
         items,
+        coupon_code: this.appliedCoupon()?.code || undefined,
       }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
         next: (res: any) => {
           this.handleCheckoutSuccess(res);

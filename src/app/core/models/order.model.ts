@@ -17,6 +17,7 @@ export interface CreateOrderRequest {
   notes?: string;
   delivery_fee: number;
   expected_delivery_date: string;
+  coupon_code?: string;
   items: Array<{
     product_variant_id: number;
     quantity: number;
