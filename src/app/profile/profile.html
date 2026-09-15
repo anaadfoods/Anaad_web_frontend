@@ -130,10 +130,10 @@
             <span class="sidebar-text">Farm Deliveries</span>
             <span class="sidebar-badge" *ngIf="rfpDeliveries()?.length">{{ rfpDeliveries().length }}</span>
           </button>
-          <button class="sidebar-nav-item danger" [class.active]="activeTab() === 'security'"
-            (click)="setTab('security'); isSidebarOpen.set(false)">
+          <button class="sidebar-nav-item danger" [class.active]="activeTab() === 'settings' || activeTab() === 'security'"
+            (click)="setTab('settings'); isSidebarOpen.set(false)">
             <span class="sidebar-icon">&#9881;</span>
-            <span class="sidebar-text">Security</span>
+            <span class="sidebar-text">Settings &amp; Security</span>
           </button>
 
           <div class="sidebar-divider"></div>
@@ -196,9 +196,9 @@
             <span class="tab-text">Deliveries</span>
             <span class="tab-badge" *ngIf="rfpDeliveries()?.length">{{ rfpDeliveries().length }}</span>
           </button>
-          <button class="mobile-tab-item" [class.active]="activeTab() === 'security'" (click)="setTab('security')">
+          <button class="mobile-tab-item" [class.active]="activeTab() === 'settings' || activeTab() === 'security'" (click)="setTab('settings')">
             <span class="tab-icon">&#9881;</span>
-            <span class="tab-text">Security</span>
+            <span class="tab-text">Settings</span>
           </button>
           <button class="mobile-tab-item logout-tab" (click)="logout()">
             <span class="tab-icon">&#8594;</span>
@@ -860,8 +860,8 @@
           </ng-template>
         </ng-container>
 
-        <!-- SECURITY TAB -->
-        <ng-container *ngIf="activeTab() === 'security'">
+        <!-- SECURITY / SETTINGS TAB -->
+        <ng-container *ngIf="activeTab() === 'settings' || activeTab() === 'security'">
           <ng-container *ngIf="tabLoading(); else securityContent">
             <div class="security-skeleton">
               <div class="content-section-header">
@@ -881,73 +881,201 @@
 
           <ng-template #securityContent>
             <div class="content-section-header">
-              <span class="section-label-tag">Account Security</span>
-              <h2>Security Settings</h2>
+              <span class="section-label-tag">Account Management</span>
+              <h2>Settings &amp; Security</h2>
+              <p>Manage your account privacy, temporary deactivation, or permanent deletion.</p>
             </div>
 
-            <div class="security-card">
-              <h3>Delete Account</h3>
-              <p>Permanently Delete your Anaad Foods account. This action cannot be undone.</p>
-
-              <ng-container *ngIf="deactivateStep() === 'idle'">
-                <button type="button" class="action-btn danger" (click)="initiateDeactivate()">Delete Account</button>
-              </ng-container>
-
-              <ng-container *ngIf="deactivateStep() === 'confirm'">
-                <div class="deactivate-form">
-                  <p class="warning-text">&#9888; Please enter your password to confirm Delete.</p>
-                  <div class="deactivation-consequences" style="margin-bottom: 16px;">
-                    <h4>What happens when you delete your account:</h4>
-                    <ul>
-                      <li>Your personal profile, contact information, and saved addresses will be permanently deleted.
-                      </li>
-                      <li>Any active Community Barn Agreement subscriptions will be immediately cancelled.</li>
-                      <li>You will lose lifetime access to your order history, receipts, and invoice records.</li>
-                      <li>Any accrued referral rewards, benefits, or active waitlist points will be permanently
-                        forfeited.</li>
-                      <li>You will be logged out instantly and will not be able to log back in using these credentials.
-                      </li>
+            <!-- STEP: IDLE - Display 2 Options (Deactivate vs Delete) -->
+            <ng-container *ngIf="deactivateStep() === 'idle'">
+              <div class="settings-options-grid">
+                <!-- Option 1: Deactivate Account -->
+                <div class="settings-action-card safe-card">
+                  <div class="card-header-badge">
+                    <span class="badge-safe">&#10003; Recommended Alternative</span>
+                  </div>
+                  <div class="card-body">
+                    <div class="card-icon-title">
+                      <span class="action-icon">&#9208;</span>
+                      <h3>Deactivate Account</h3>
+                    </div>
+                    <p class="action-desc">
+                      Temporarily pause your account. Your order histories, tax invoices, and account profile will be preserved safely. You can return anytime.
+                    </p>
+                    <ul class="action-points">
+                      <li><span>&#10003;</span> Pauses notifications and communications</li>
+                      <li><span>&#10003;</span> Keeps your past receipts, orders &amp; invoices intact</li>
+                      <li><span>&#10003;</span> Easily reactivate whenever you log back in</li>
                     </ul>
                   </div>
-                  <div class="form-field">
-                    <label>Current Password</label>
-                    <input type="password" [formControl]="$any(deactivateForm.get('password'))"
-                      placeholder="Enter your password" />
-                  </div>
-                  <div class="deactivate-error" *ngIf="deactivateError()">{{ deactivateError() }}</div>
-                  <div class="form-actions">
-                    <button type="button" class="action-btn danger" [disabled]="deactivating()"
-                      (click)="confirmDeactivate()">
-                      {{ deactivating() ? 'Sending OTP...' : 'Send Deactivation OTP' }}
+                  <div class="card-footer">
+                    <button type="button" class="action-btn secondary deact-btn" (click)="selectDeactivate()">
+                      Deactivate Account
                     </button>
-                    <button type="button" class="action-btn secondary" (click)="cancelDeactivate()">Cancel</button>
                   </div>
                 </div>
-              </ng-container>
 
-              <ng-container *ngIf="deactivateStep() === 'otp'">
+                <!-- Option 2: Delete Account -->
+                <div class="settings-action-card danger-card">
+                  <div class="card-header-badge">
+                    <span class="badge-danger">&#9888; Irreversible Action</span>
+                  </div>
+                  <div class="card-body">
+                    <div class="card-icon-title">
+                      <span class="action-icon danger">&#128465;</span>
+                      <h3>Delete Account</h3>
+                    </div>
+                    <p class="action-desc">
+                      Permanently delete your account and all associated data. Once deleted, this action cannot be undone.
+                    </p>
+                    <ul class="action-points danger">
+                      <li><span>&times;</span> Permanently erases personal information &amp; addresses</li>
+                      <li><span>&times;</span> Cancels all active farm subscriptions &amp; orders</li>
+                      <li><span>&times;</span> Lifetime loss of order history, invoices &amp; referral points</li>
+                    </ul>
+                  </div>
+                  <div class="card-footer">
+                    <button type="button" class="action-btn danger" (click)="selectDelete()">
+                      Delete Account
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </ng-container>
+
+            <!-- STEP: CONFIRM (Password Verification) -->
+            <ng-container *ngIf="deactivateStep() === 'confirm'">
+              <div class="verification-step-card">
+                <div class="step-header">
+                  <span class="step-tag">Step 1 of 2 &bull; Identity Verification</span>
+                  <h3>{{ actionType() === 'delete' ? 'Confirm Account Deletion' : 'Confirm Account Deactivation' }}</h3>
+                  <p class="step-desc">
+                    For your security, please verify your account password. An OTP will be dispatched to your registered email (<strong>{{ profileData()?.email }}</strong>) and registered mobile phone (<strong>{{ profileData()?.phone_number || 'phone' }}</strong>).
+                  </p>
+                </div>
+
+                <div class="deactivation-consequences" *ngIf="actionType() === 'delete'" style="margin-bottom: 20px;">
+                  <h4>⚠️ Deletion Notice:</h4>
+                  <ul>
+                    <li>Your personal profile, contact information, and saved addresses will be permanently deleted.</li>
+                    <li>Any active Community Barn Agreement subscriptions will be immediately cancelled.</li>
+                    <li>You will lose lifetime access to order receipts, tax invoices, and referral rewards.</li>
+                  </ul>
+                </div>
+
                 <div class="deactivate-form">
-                  <p class="warning-text">Enter the OTP sent to your registered contact to confirm Delete.</p>
                   <div class="form-field">
-                    <label>OTP</label>
-                    <input type="text" [formControl]="$any(deactivateForm.get('otp'))" placeholder="Enter OTP"
-                      maxlength="8" />
+                    <label>Enter Current Password</label>
+                    <input type="password" [formControl]="$any(deactivateForm.get('password'))"
+                      placeholder="Enter your current password" (keyup.enter)="confirmDeactivate()" />
                   </div>
                   <div class="deactivate-error" *ngIf="deactivateError()">{{ deactivateError() }}</div>
                   <div class="form-actions">
-                    <button type="button" class="action-btn danger" [disabled]="deactivating()"
-                      (click)="submitDeactivateOtp()">
-                      {{ deactivating() ? 'Processing...' : 'Confirm Deactivation' }}
+                    <button type="button" class="action-btn" [class.danger]="actionType() === 'delete'" [class.primary]="actionType() === 'deactivate'" [disabled]="deactivating()"
+                      (click)="confirmDeactivate()">
+                      {{ deactivating() ? 'Sending OTP...' : 'Send Verification OTP' }}
                     </button>
                     <button type="button" class="action-btn secondary" (click)="cancelDeactivate()">Cancel</button>
                   </div>
                 </div>
-              </ng-container>
-            </div>
+              </div>
+            </ng-container>
+
+            <!-- STEP: OTP (Dual OTP Verification) -->
+            <ng-container *ngIf="deactivateStep() === 'otp'">
+              <div class="verification-step-card">
+                <div class="step-header">
+                  <span class="step-tag">Step 2 of 2 &bull; OTP Verification</span>
+                  <h3>Enter Verification Code</h3>
+                  <p class="step-desc">
+                    We have sent a verification code to <strong>{{ profileData()?.email }}</strong> and your registered phone number.
+                  </p>
+                </div>
+
+                <div class="deactivate-form">
+                  <div class="form-field">
+                    <label>OTP Code</label>
+                    <input type="text" [formControl]="$any(deactivateForm.get('otp'))" placeholder="Enter 6-digit OTP"
+                      maxlength="8" (keyup.enter)="submitDeactivateOtp()" />
+                  </div>
+                  
+                  <div class="otp-resend-row" style="margin: -6px 0 8px 0; font-size: 13px;">
+                    <span class="muted" *ngIf="otpTimer() > 0">Resend OTP in <strong>{{ otpTimer() }}s</strong></span>
+                    <button type="button" class="link-action-btn" *ngIf="otpTimer() === 0" (click)="resendDeactivateOtp()" [disabled]="deactivating()">
+                      Resend OTP Code
+                    </button>
+                  </div>
+
+                  <div class="deactivate-error" *ngIf="deactivateError()">{{ deactivateError() }}</div>
+                  <div class="form-actions">
+                    <button type="button" class="action-btn" [class.danger]="actionType() === 'delete'" [class.primary]="actionType() === 'deactivate'" [disabled]="deactivating()"
+                      (click)="submitDeactivateOtp()">
+                      {{ deactivating() ? 'Processing...' : (actionType() === 'delete' ? 'Permanently Delete Account' : 'Confirm Deactivation') }}
+                    </button>
+                    <button type="button" class="action-btn secondary" (click)="cancelDeactivate()">Cancel</button>
+                  </div>
+                </div>
+              </div>
+            </ng-container>
+
+            <!-- STEP: DONE -->
+            <ng-container *ngIf="deactivateStep() === 'done'">
+              <div class="verification-step-card done-card" style="text-align: center; padding: 48px 24px;">
+                <span class="da-icon done" style="font-size: 48px; color: #27ae60; display: block; margin-bottom: 16px;">&#10003;</span>
+                <h3>{{ actionType() === 'delete' ? 'Account Deleted' : 'Account Deactivated' }}</h3>
+                <p style="margin: 8px 0 16px; color: rgba(26,26,26,0.7);">{{ deactivateSuccessMsg() }}</p>
+                <p class="muted" style="font-size: 13px;">Logging you out securely...</p>
+              </div>
+            </ng-container>
           </ng-template>
         </ng-container>
       </div><!-- end account-content -->
     </div><!-- end account-layout -->
+
+    <!-- Irreversible Delete Warning Modal -->
+    <div class="delete-warning-modal-overlay" [class.active]="showDeleteWarningModal()" (click)="closeDeleteWarningModal()">
+      <div class="delete-warning-modal-card" (click)="$event.stopPropagation()">
+        <div class="modal-warning-header">
+          <div class="warning-badge-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="#c0392b">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+            </svg>
+          </div>
+          <h3>Permanent Account Deletion Warning</h3>
+          <span class="warning-tag">Irreversible Operation</span>
+        </div>
+
+        <p class="warning-lead">
+          Deleting your account is <strong>permanent and cannot be undone</strong>. All your personal profile details, order histories, tax invoices, active subscriptions, and accumulated referral rewards will be permanently destroyed.
+        </p>
+
+        <!-- Deactivation Recommendation Suggestion Box -->
+        <div class="deactivation-recommendation-box">
+          <div class="recommendation-header">
+            <span class="rec-icon">&#128161;</span>
+            <strong>Deactivation can be a better option</strong>
+          </div>
+          <p>
+            Did you know? If you only need a temporary break, <strong>Deactivating your account</strong> safely pauses all communications and subscriptions while keeping your order history and invoices accessible for when you choose to return.
+          </p>
+        </div>
+
+        <div class="modal-action-buttons">
+          <button type="button" class="btn-rec-deactivate" (click)="deactivateInsteadFromModal()">
+            <span class="btn-star">&#10003;</span>
+            Deactivate Instead (Recommended)
+          </button>
+          <div class="sub-actions">
+            <button type="button" class="btn-modal-cancel" (click)="closeDeleteWarningModal()">
+              Cancel — Keep Account
+            </button>
+            <button type="button" class="btn-proceed-delete" (click)="proceedWithDeleteFromModal()">
+              Proceed with Deletion &rarr;
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- Cancellation Modal for Orders -->
     <div class="cancel-modal-overlay" [class.active]="showCancelModal()" (click)="showCancelModal.set(false)">

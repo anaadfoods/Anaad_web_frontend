@@ -26,7 +26,7 @@ export const serverRoutes: ServerRoute[] = [
     renderMode: RenderMode.Server
   },
   {
-    path: 'traceability-journey',
+    path: 'profile',
     renderMode: RenderMode.Server
   },
   {

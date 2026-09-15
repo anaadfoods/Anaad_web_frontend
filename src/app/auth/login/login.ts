@@ -49,11 +49,31 @@ export class Login implements OnInit, OnDestroy {
   private returnUrl = '/profile';
 
   ngOnInit() {
-    // Synchronously grab returnUrl first
-    const returnUrl = this.route.snapshot.queryParams['returnUrl'];
-    if (returnUrl) this.returnUrl = returnUrl;
+    const parseUrl = (raw: string | undefined, tabParam?: string): string => {
+      if (!raw) return tabParam ? `/profile?tab=${tabParam}` : '/profile';
+      let decoded = raw;
+      try {
+        decoded = decodeURIComponent(raw);
+      } catch {
+        decoded = raw;
+      }
+      if (tabParam && !decoded.includes('tab=')) {
+        const sep = decoded.includes('?') ? '&' : '?';
+        decoded = `${decoded}${sep}tab=${tabParam}`;
+      }
+      return decoded;
+    };
+
+    const initialRaw = this.route.snapshot.queryParams['returnUrl'];
+    const initialTab = this.route.snapshot.queryParams['tab'];
+    this.returnUrl = parseUrl(initialRaw, initialTab);
+    console.log('[Login ngOnInit] initial returnUrl computed:', this.returnUrl);
 
     this.route.queryParams.subscribe(params => {
+      if (params['returnUrl'] || params['tab']) {
+        this.returnUrl = parseUrl(params['returnUrl'], params['tab']);
+        console.log('[Login queryParams subscription] updated returnUrl:', this.returnUrl);
+      }
       if (params['registered']) {
         this.successMessage = 'Account created! Please sign in.';
         this.cdr.markForCheck();
@@ -129,7 +149,7 @@ export class Login implements OnInit, OnDestroy {
         next: () => {
           this.cartSvc.syncOnLogin();
           this.favSvc.syncOnLogin();
-          this.router.navigateByUrl(this.returnUrl);
+          this.redirectAfterLogin();
         },
         error: (err) => {
           this.loading = false;
@@ -248,6 +268,7 @@ export class Login implements OnInit, OnDestroy {
       return;
     }
 
+    console.log('[Login] redirectAfterLogin called, this.returnUrl:', this.returnUrl);
     this.router.navigateByUrl(this.returnUrl);
   }
 }

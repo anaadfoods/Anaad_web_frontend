@@ -48,6 +48,10 @@ export const API = {
     INVOICE: '/api/invoicing/orders/',  // append {orderNumber}/invoice/
   },
 
+  COUPONS: {
+    VALIDATE: '/api/coupons/validate/',
+  },
+
   SUBSCRIPTIONS: {
     PLANS: '/api/subscriptions/plans/',
     PLAN_PRODUCTS: '/api/subscriptions/plans/', // append {planId}/products

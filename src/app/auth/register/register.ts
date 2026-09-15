@@ -364,7 +364,13 @@ export class Register implements OnInit, OnDestroy {
 
   private redirectAfterLogin(): void {
     if (!isPlatformBrowser(this.platformId)) return;
-    const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/profile';
+    const rawReturnUrl = this.route.snapshot.queryParams['returnUrl'] || '/profile';
+    let returnUrl: string;
+    try {
+      returnUrl = decodeURIComponent(rawReturnUrl);
+    } catch {
+      returnUrl = rawReturnUrl;
+    }
 
     const isExternal =
       returnUrl.startsWith('http://') || returnUrl.startsWith('https://');

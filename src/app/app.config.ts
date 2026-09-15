@@ -7,6 +7,7 @@ import { HttpRequest, provideHttpClient, withFetch, withInterceptors } from '@an
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { apiBaseInterceptor } from './core/interceptors/api-base.interceptor';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
+import { requestIdInterceptor } from './core/interceptors/request-id.interceptor';
 
 /**
  * API path prefixes whose data changes frequently (products, cart, orders, etc.).
@@ -49,7 +50,7 @@ export const appConfig: ApplicationConfig = {
     provideAnimations(),
     provideHttpClient(
       withFetch(),
-      withInterceptors([apiBaseInterceptor, authInterceptor])
+      withInterceptors([requestIdInterceptor, apiBaseInterceptor, authInterceptor])
     )
   ]
 };

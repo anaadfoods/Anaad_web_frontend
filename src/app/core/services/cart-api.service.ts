@@ -9,6 +9,7 @@ import { Observable, catchError, finalize, map, tap, throwError, of } from 'rxjs
 import { API } from '../constants/api-endpoints';
 import { CartState } from '../state/cart.state';
 import { ToastService } from './toast.service';
+import { WebAnalyticsService } from './web-analytics.service';
 import { ProductVariant } from '../models/product.model';
 import {
   Cart,
@@ -23,6 +24,7 @@ export class CartApiService {
   private readonly http = inject(HttpClient);
   private readonly cartState = inject(CartState);
   private readonly toastSvc = inject(ToastService);
+  private readonly analytics = inject(WebAnalyticsService);
 
   private extractData(res: any): any {
     let current = res;
@@ -91,7 +93,14 @@ export class CartApiService {
         if (!data || data.items === undefined) return this.cartState.cart();
         return this.normalizeCart(data);
       }),
-      tap(cart => this.cartState.setCart(cart)),
+      tap(cart => {
+        this.cartState.setCart(cart);
+        this.analytics.trackEvent('add_to_cart', {
+          product_variant_id: productVariant,
+          quantity,
+          variant_name: variant?.sku,
+        });
+      }),
       catchError(error => {
         this.cartState.setCart(previous);
         return throwError(() => error);
@@ -133,7 +142,12 @@ export class CartApiService {
         if (!data || data.items === undefined) return this.cartState.cart();
         return this.normalizeCart(data);
       }),
-      tap(cart => this.cartState.setCart(cart)),
+      tap(cart => {
+        this.cartState.setCart(cart);
+        this.analytics.trackEvent('remove_from_cart', {
+          product_variant_id: productVariant,
+        });
+      }),
       catchError(error => {
         this.cartState.setCart(previous);
         return throwError(() => error);

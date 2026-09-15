@@ -5,7 +5,8 @@
 // ============================================
 
 import { HttpInterceptorFn, HttpRequest, HttpHandlerFn, HttpErrorResponse, HttpEvent } from '@angular/common/http';
-import { inject } from '@angular/core';
+import { inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { BehaviorSubject, catchError, filter, switchMap, take, throwError, Observable } from 'rxjs';
 import { AuthState } from '../state/auth.state';
 import { HttpClient } from '@angular/common/http';
@@ -56,6 +57,7 @@ export const authInterceptor: HttpInterceptorFn = (
   const authState = inject(AuthState);
   const http = inject(HttpClient);
   const router = inject(Router);
+  const platformId = inject(PLATFORM_ID);
 
   // Skip auth for public endpoints
   if (isPublicEndpoint(req.url)) {
@@ -103,7 +105,7 @@ export const authInterceptor: HttpInterceptorFn = (
         if (environment.devBypassAuth && isDevBypassToken(authState.accessToken())) {
           return throwError(() => error) as Observable<HttpEvent<unknown>>;
         }
-        return handleTokenRefresh(req, next, authState, http, router);
+        return handleTokenRefresh(req, next, authState, http, router, platformId);
       }
       return throwError(() => error) as Observable<HttpEvent<unknown>>;
     })
@@ -121,7 +123,8 @@ function handleTokenRefresh(
   next: HttpHandlerFn,
   authState: AuthState,
   http: HttpClient,
-  router: Router
+  router: Router,
+  platformId: object
 ): Observable<HttpEvent<unknown>> {
   if (isRefreshing) {
     // Another request already triggered a refresh — wait for it
@@ -141,6 +144,14 @@ function handleTokenRefresh(
   isRefreshing = true;
   refreshTokenSubject.next(null); // Reset so queued requests wait
 
+  const getReturnUrlParams = () => {
+    if (!isPlatformBrowser(platformId)) return {};
+    const currentUrl = router.url && router.url !== '/' && !router.url.startsWith('/login')
+      ? router.url
+      : null;
+    return currentUrl ? { returnUrl: currentUrl } : {};
+  };
+
   const refreshToken = authState.refreshToken();
   if (!refreshToken) {
     isRefreshing = false;
@@ -148,7 +159,9 @@ function handleTokenRefresh(
       return throwError(() => new Error('No refresh token available')) as Observable<HttpEvent<unknown>>;
     }
     authState.logout();
-    router.navigate(['/login']);
+    if (isPlatformBrowser(platformId)) {
+      router.navigate(['/login'], { queryParams: getReturnUrlParams() });
+    }
     return throwError(() => new Error('No refresh token available')) as Observable<HttpEvent<unknown>>;
   }
 
@@ -184,7 +197,9 @@ function handleTokenRefresh(
       refreshTokenSubject.next(null);
       if (!environment.devBypassAuth) {
         authState.logout();
-        router.navigate(['/login']);
+        if (isPlatformBrowser(platformId)) {
+          router.navigate(['/login'], { queryParams: getReturnUrlParams() });
+        }
       }
       return throwError(() => refreshError) as Observable<HttpEvent<unknown>>;
     })

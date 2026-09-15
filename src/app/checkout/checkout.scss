@@ -70,6 +70,96 @@ form { display: flex; flex-direction: column; gap: 56px; }
 .summary-total-value { font-family: var(--font-serif); font-size: 26px; font-weight: 700; color: var(--charcoal); }
 .summary-gst { font-family: var(--font-sans); font-size: 11px; font-weight: 300; color: rgba(26,26,26,0.40); }
 
+/* COUPON SECTION */
+.coupon-box {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px;
+  background-color: rgba(255, 255, 255, 0.55);
+  border: 1px dashed rgba(26, 26, 26, 0.20);
+  border-radius: 8px;
+}
+.coupon-input-wrap {
+  display: flex;
+  gap: 8px;
+}
+.coupon-input {
+  flex: 1;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 8px 12px;
+  background: #ffffff;
+  border: 1px solid rgba(26, 26, 26, 0.18);
+  border-radius: 6px;
+  outline: none;
+}
+.coupon-input:focus {
+  border-color: var(--green-deep);
+}
+.btn-apply-coupon {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #ffffff;
+  background-color: var(--green-deep);
+  padding: 0 14px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.btn-apply-coupon:hover:not(:disabled) {
+  opacity: 0.9;
+}
+.btn-apply-coupon:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.coupon-applied-badge {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(58, 122, 46, 0.08);
+  border: 1px solid rgba(58, 122, 46, 0.25);
+  border-radius: 6px;
+  padding: 8px 12px;
+}
+.coupon-tag {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  color: #2e6224;
+}
+.btn-remove-coupon {
+  background: none;
+  border: none;
+  color: #a93226;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0 4px;
+}
+.coupon-msg {
+  font-family: var(--font-sans);
+  font-size: 11px;
+}
+.coupon-msg.error {
+  color: #a93226;
+}
+.coupon-msg.success {
+  color: #2e6224;
+}
+.discount-row .discount-value {
+  color: #2e6224;
+  font-weight: 600;
+}
+
 /* PLACE ORDER */
 .btn-place-order { display: block; width: 100%; font-family: var(--font-sans); font-size: 12px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--bg-parchment); background-color: var(--green-deep); padding: 20px 0; text-align: center; cursor: pointer; border: none; transition: opacity 0.2s; border-radius: 8px; }
 .btn-place-order:hover:not(:disabled) { opacity: 0.9; }

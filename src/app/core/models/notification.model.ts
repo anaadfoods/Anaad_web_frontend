@@ -8,6 +8,7 @@ export interface NotificationItem {
   sent?: boolean;
   scheduled_time?: string;
   created_at: string;
+  deep_link?: string;
   metadata?: any;
   source?: 'SERVER' | 'LOCAL_DEVICE_APP';
   origin_device_id?: string;
