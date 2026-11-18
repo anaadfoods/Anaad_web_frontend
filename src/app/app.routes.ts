@@ -40,6 +40,15 @@ export const routes: Routes = [
     canActivate: [guestGuard],
     title: 'Create Account • Anaad Foods'
   },
+  {
+    path: 'forgot-password',
+    loadComponent: () =>
+      import('./auth/forgot-password/forgot-password.component').then(
+        m => m.ForgotPasswordComponent
+      ),
+    canActivate: [guestGuard],
+    title: 'Reset Password • Anaad Foods'
+  },
 
   // Products / Pantry
   {

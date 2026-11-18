@@ -3,28 +3,27 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { API } from '../constants/api-endpoints';
 
-export interface CouponData {
-  code: string;
-  discount_type: 'PERCENTAGE' | 'FIXED';
-  discount_value: number;
-  discount_amount: number;
-  is_user_restricted: boolean;
-}
-
 export interface CouponValidateResponse {
-  status: string;
-  message?: string;
-  coupon?: CouponData;
+  valid: boolean;
+  code: string;
+  description?: string;
+  coupon_type: 'PERCENTAGE' | 'FLAT';
+  discount_percentage?: number | null;
+  discount_amount: number;
+  order_total: number;
+  final_total: number;
+  is_user_locked: boolean;
+  error?: string;
 }
 
 @Injectable({ providedIn: 'root' })
 export class CouponService {
   private readonly http = inject(HttpClient);
 
-  validateCoupon(code: string, cartTotal: number): Observable<CouponValidateResponse> {
+  validateCoupon(code: string, orderTotal: number): Observable<CouponValidateResponse> {
     return this.http.post<CouponValidateResponse>(API.COUPONS.VALIDATE, {
-      code,
-      cart_total: cartTotal,
+      code: code.trim().toUpperCase(),
+      order_total: orderTotal,
     });
   }
 }

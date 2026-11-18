@@ -259,12 +259,18 @@ export class Login implements OnInit, OnDestroy {
       this.returnUrl.startsWith('http://') || this.returnUrl.startsWith('https://');
 
     if (isExternal) {
-      const target = new URL(this.returnUrl);
-      const access = this.authState.accessToken();
-      const refresh = this.authState.refreshToken();
-      if (access) target.searchParams.set('access_token', access);
-      if (refresh) target.searchParams.set('refresh_token', refresh);
-      window.location.href = target.toString();
+      try {
+        const target = new URL(this.returnUrl);
+        const allowedHosts = ['localhost', '127.0.0.1', 'anaadfoods.com', 'web.anaadfoods.com'];
+        if (allowedHosts.includes(target.hostname) || target.hostname.endsWith('.anaadfoods.com')) {
+          // Never pass sensitive tokens in URL query parameters
+          window.location.href = target.origin + target.pathname + target.search;
+          return;
+        }
+      } catch {
+        // Fall back to internal redirect if URL is malformed
+      }
+      this.router.navigateByUrl('/profile');
       return;
     }
 

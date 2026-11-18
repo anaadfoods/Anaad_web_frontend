@@ -27,6 +27,10 @@ import {
   Referral,
   ReferralRewardCount,
   ReferralsSummary,
+  ChangePasswordRequest,
+  ForgotPasswordSendOtpRequest,
+  ForgotPasswordVerifyOtpRequest,
+  ForgotPasswordResetRequest,
 } from '../models/auth.model';
 
 @Injectable({ providedIn: 'root' })
@@ -82,7 +86,7 @@ export class AuthService {
   appleLogin(idToken: string, name?: string): Observable<LoginResponse> {
     const body: AppleLoginRequest = { id_token: idToken, name };
     this.authState.setLoading(true);
-    return this.http.post<LoginResponse>(API.AUTH.APPLE, body).pipe(
+    return this.http.post<LoginResponse>(API.AUTH.APPLE_LOGIN, body).pipe(
       tap(res => {
         this.authState.setTokens(res.access, res.refresh);
         if (res.user) this.authState.setUser(res.user);
@@ -112,8 +116,8 @@ export class AuthService {
 
   // ── Session Initialization ─────────────────
   // Called on app startup to validate the current session.
-  // If the access token is valid, fetches the profile.
-  // If expired, silently refreshes and then fetches the profile.
+  // Directly validates access token against profile API.
+  // If expired (401), silently refreshes and then fetches profile.
   // If refresh also fails, logs the user out cleanly.
 
   initSession(): Observable<boolean> {
@@ -125,59 +129,57 @@ export class AuthService {
       return of(true);
     }
 
-    if (!this.authState.accessToken()) {
-      // No access token but we might have a refresh token — try refreshing
-      if (this.authState.refreshToken()) {
-        return this.refreshToken().pipe(
-          switchMap(res => {
-            if (res.access) {
-              return this.fetchProfile().pipe(
-                map(() => true),
-                catchError(() => of(true)) // Token is valid even if profile fetch fails
-              );
-            }
-            this.authState.logout();
-            return of(false);
-          }),
-          catchError(() => {
-            this.authState.logout();
-            return of(false);
-          })
-        );
-      }
+    const access = this.authState.accessToken();
+    const refresh = this.authState.refreshToken();
+
+    if (!access && !refresh) {
       return of(false);
     }
 
-    // We have an access token — validate it
-    return this.testToken().pipe(
-      switchMap(() => {
-        // Token is valid — fetch profile if not already loaded
-        if (!this.authState.user()) {
-          return this.fetchProfile().pipe(
-            map(() => true),
-            catchError(() => of(true)) // Token valid even if profile fetch has issues
+    if (!access && refresh) {
+      return this.refreshToken().pipe(
+        switchMap(res => {
+          if (res.access) {
+            return this.fetchProfile().pipe(
+              map(() => true),
+              catchError(() => of(true))
+            );
+          }
+          this.authState.logout();
+          return of(false);
+        }),
+        catchError(() => {
+          this.authState.logout();
+          return of(false);
+        })
+      );
+    }
+
+    // We have an access token — validate it against GET /api/auth/profile/
+    return this.fetchProfile().pipe(
+      map(() => true),
+      catchError(err => {
+        // If 401 Unauthorized and refresh token exists, attempt silent refresh
+        if (err.status === 401 && refresh) {
+          return this.refreshToken().pipe(
+            switchMap(res => {
+              if (res.access) {
+                return this.fetchProfile().pipe(
+                  map(() => true),
+                  catchError(() => of(true))
+                );
+              }
+              this.authState.logout();
+              return of(false);
+            }),
+            catchError(() => {
+              this.authState.logout();
+              return of(false);
+            })
           );
         }
-        return of(true);
-      }),
-      catchError(() => {
-        // Access token invalid — try silent refresh
-        return this.refreshToken().pipe(
-          switchMap(res => {
-            if (res.access) {
-              return this.fetchProfile().pipe(
-                map(() => true),
-                catchError(() => of(true))
-              );
-            }
-            this.authState.logout();
-            return of(false);
-          }),
-          catchError(() => {
-            this.authState.logout();
-            return of(false);
-          })
-        );
+        // Non-401 error (e.g. temporary network offline), keep session if tokens exist
+        return of(this.authState.isAuthenticated());
       })
     );
   }
@@ -279,16 +281,54 @@ export class AuthService {
     this.authState.setUser(user);
   }
 
+  // ── Password Management ───────────────────
+
+  changePassword(data: ChangePasswordRequest): Observable<{ message?: string; detail?: string }> {
+    return this.http.post<{ message?: string; detail?: string }>(API.AUTH.CHANGE_PASSWORD, data);
+  }
+
+  forgotPasswordSendOtp(req: ForgotPasswordSendOtpRequest): Observable<{ message: string; type: string }> {
+    return this.http.post<{ message: string; type: string }>(API.AUTH.FORGOT_PASSWORD_SEND_OTP, req);
+  }
+
+  forgotPasswordVerifyOtp(req: ForgotPasswordVerifyOtpRequest): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(API.AUTH.FORGOT_PASSWORD_VERIFY_OTP, req);
+  }
+
+  forgotPasswordReset(req: ForgotPasswordResetRequest): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(API.AUTH.FORGOT_PASSWORD_RESET, req);
+  }
+
   // ── Logout ────────────────────────────────
 
   logout(redirectUrl: string = '/login'): void {
-    if (this.authState.isAuthenticated()) {
-      this.notificationSvc.logoutDevice().subscribe({
-        next: () => this.executeLocalLogout(redirectUrl),
-        error: () => this.executeLocalLogout(redirectUrl)
-      });
-    } else {
+    const refreshToken = this.authState.refreshToken();
+    const accessToken = this.authState.accessToken();
+
+    const doLocalCleanup = () => {
       this.executeLocalLogout(redirectUrl);
+    };
+
+    // If we have a refresh token, notify backend to blacklist/revoke it
+    if (refreshToken && !isDevBypassSession(accessToken, refreshToken)) {
+      this.http.post(API.AUTH.LOGOUT, { refresh: refreshToken }).pipe(
+        catchError(() => of(null)), // Don't block client logout on network failure
+        finalize(() => {
+          this.notificationSvc.logoutDevice().pipe(
+            catchError(() => of(null)),
+            finalize(() => doLocalCleanup())
+          ).subscribe();
+        })
+      ).subscribe();
+    } else {
+      if (this.authState.isAuthenticated()) {
+        this.notificationSvc.logoutDevice().pipe(
+          catchError(() => of(null)),
+          finalize(() => doLocalCleanup())
+        ).subscribe();
+      } else {
+        doLocalCleanup();
+      }
     }
   }
 

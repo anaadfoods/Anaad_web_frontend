@@ -2,6 +2,11 @@ import { HttpInterceptorFn } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 
 export const requestIdInterceptor: HttpInterceptorFn = (req, next) => {
+  // Only attach X-Request-ID if enabled (requires backend to allow 'x-request-id' in CORS_ALLOW_HEADERS)
+  if (!environment.enableRequestIdHeader) {
+    return next(req);
+  }
+
   // Only attach X-Request-ID to internal APIs, avoiding CORS rejection on third-party services
   const isOurApi =
     req.url.startsWith('/api/') ||

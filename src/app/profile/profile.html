@@ -595,80 +595,150 @@
           </ng-container>
 
           <ng-template #addressesContent>
-            <div class="content-section-header">
-              <span class="section-label-tag">Shipping</span>
-              <h2>Saved Address</h2>
+            <div class="content-section-header" style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 16px;">
+              <div>
+                <span class="section-label-tag">Shipping</span>
+                <h2>Saved Delivery Addresses</h2>
+              </div>
+              <button class="action-btn primary add-address-btn" (click)="openAddAddressModal()">
+                <span class="btn-icon">&#43;</span> Add New Address
+              </button>
             </div>
-            <div class="address-grid">
-              <!-- Current Address -->
-              <div class="address-card default">
+
+            <!-- List of Saved Addresses -->
+            <div class="address-grid" *ngIf="addresses().length; else emptyAddresses">
+              <div class="address-card" *ngFor="let addr of addresses()" [class.default]="addr.is_default">
                 <div class="address-card-header">
-                  <span class="address-tag">Default Address</span>
-                  <button *ngIf="getProfileAddress().length" class="micro-btn"
-                    (click)="editAddressMode.set(!editAddressMode())">
-                    {{ editAddressMode() ? 'Cancel' : 'Edit' }}
+                  <div class="address-tags-wrap">
+                    <span class="address-label-badge" [ngClass]="(addr.label || 'home').toLowerCase()">
+                      {{ addr.label || 'HOME' }}
+                    </span>
+                    <span class="address-default-badge" *ngIf="addr.is_default">Default</span>
+                  </div>
+                  <div class="address-card-actions">
+                    <button class="micro-btn" (click)="openEditAddressModal(addr)" title="Edit Address">
+                      Edit
+                    </button>
+                    <button class="micro-btn delete-btn" (click)="deleteUserAddress(addr.id)" title="Delete Address" [disabled]="deletingAddressId() === addr.id">
+                      {{ deletingAddressId() === addr.id ? '...' : 'Delete' }}
+                    </button>
+                  </div>
+                </div>
+
+                <div class="address-card-body">
+                  <div class="address-recipient">
+                    <strong class="recipient-name">{{ addr.full_name }}</strong>
+                    <span class="recipient-phone" *ngIf="addr.phone_number">&bull; {{ addr.phone_number }}</span>
+                  </div>
+                  <div class="address-lines">
+                    <span>{{ addr.address_line_1 }}</span>
+                    <span *ngIf="addr.address_line_2">{{ addr.address_line_2 }}</span>
+                    <span>{{ addr.city }}, {{ addr.state }} - <strong>{{ addr.pincode }}</strong></span>
+                  </div>
+                </div>
+
+                <div class="address-card-footer" *ngIf="!addr.is_default">
+                  <button class="set-default-btn" (click)="setDefaultAddress(addr.id)" [disabled]="settingDefaultId() === addr.id">
+                    {{ settingDefaultId() === addr.id ? 'Setting default...' : 'Set as Default' }}
                   </button>
                 </div>
-                <span class="address-name">{{ profileData()?.first_name }} {{ profileData()?.last_name }}</span>
-                <div class="address-lines" *ngIf="getProfileAddress().length; else noAddress">
-                  @for (line of getProfileAddress(); track $index) {
-                  <span>{{ line }}</span>
-                  }
-                </div>
-                <ng-template #noAddress>
-                  <div class="address-lines muted">No address saved yet.</div>
-                </ng-template>
               </div>
+            </div>
 
-              <!-- Edit Address Form -->
-              <form class="address-card address-form" [formGroup]="addressForm" (ngSubmit)="saveAddress()" novalidate
-                *ngIf="!getProfileAddress().length || editAddressMode()">
-                <div class="address-card-header">
-                  <span class="address-tag">{{ getProfileAddress().length ? 'Edit Shipping Address' : 'Add Shipping
-                    Address' }}</span>
-                </div>
-                <div class="form-field">
-                  <label>Street Address</label>
-                  <input type="text"
-                    [class.field-error]="addressForm.get('address')?.invalid && addressForm.get('address')?.touched"
-                    formControlName="address" placeholder="123 Main Street" />
-                  <span class="field-error-msg"
-                    *ngIf="addressForm.get('address')?.touched && addressForm.get('address')?.invalid">Street address is
-                    required.</span>
-                </div>
-                <div class="addr-row">
-                  <div class="form-field">
-                    <label>City</label>
-                    <input type="text"
-                      [class.field-error]="addressForm.get('city')?.invalid && addressForm.get('city')?.touched"
-                      formControlName="city" placeholder="City" />
-                    <span class="field-error-msg"
-                      *ngIf="addressForm.get('city')?.touched && addressForm.get('city')?.invalid">City is
-                      required.</span>
-                  </div>
-                  <div class="form-field">
-                    <label>State</label>
-                    <input type="text"
-                      [class.field-error]="addressForm.get('state')?.invalid && addressForm.get('state')?.touched"
-                      formControlName="state" placeholder="State" />
-                    <span class="field-error-msg"
-                      *ngIf="addressForm.get('state')?.touched && addressForm.get('state')?.invalid">State is
-                      required.</span>
-                  </div>
-                  <div class="form-field">
-                    <label>Pincode</label>
-                    <input type="text"
-                      [class.field-error]="addressForm.get('pincode')?.invalid && addressForm.get('pincode')?.touched"
-                      formControlName="pincode" placeholder="110001" maxlength="6" />
-                    <span class="field-error-msg"
-                      *ngIf="addressForm.get('pincode')?.touched && addressForm.get('pincode')?.invalid">Valid 6-digit
-                      Pincode required.</span>
-                  </div>
-                </div>
-                <button type="submit" class="action-btn primary" [disabled]="savingAddress()">
-                  {{ savingAddress() ? 'Saving...' : 'Save Address' }}
+            <ng-template #emptyAddresses>
+              <div class="empty-state-card">
+                <div class="empty-icon">&#128205;</div>
+                <h3>No Saved Addresses</h3>
+                <p>You haven't saved any delivery addresses yet. Add one to speed up checkout.</p>
+                <button class="action-btn primary" (click)="openAddAddressModal()">
+                  Add New Address
                 </button>
-              </form>
+              </div>
+            </ng-template>
+
+            <!-- Add / Edit Address Modal -->
+            <div class="modal-backdrop" *ngIf="showAddressModal()" (click)="closeAddressModal()">
+              <div class="address-modal-card" (click)="$event.stopPropagation()">
+                <div class="modal-header">
+                  <h3>{{ editingAddress() ? 'Edit Address' : 'Add New Address' }}</h3>
+                  <button class="close-modal-btn" (click)="closeAddressModal()">&times;</button>
+                </div>
+                <form [formGroup]="userAddressForm" (ngSubmit)="saveUserAddress()" novalidate class="user-address-form">
+                  <!-- Label Selection: Home, Office, Other -->
+                  <div class="form-field">
+                    <label>Address Label</label>
+                    <div class="label-selector-pills">
+                      <button type="button" class="pill-btn" [class.active]="userAddressForm.get('label')?.value === 'HOME'" (click)="userAddressForm.get('label')?.setValue('HOME')">
+                        Home
+                      </button>
+                      <button type="button" class="pill-btn" [class.active]="userAddressForm.get('label')?.value === 'OFFICE'" (click)="userAddressForm.get('label')?.setValue('OFFICE')">
+                        Office
+                      </button>
+                      <button type="button" class="pill-btn" [class.active]="userAddressForm.get('label')?.value === 'OTHER'" (click)="userAddressForm.get('label')?.setValue('OTHER')">
+                        Other
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="form-grid-2">
+                    <div class="form-field">
+                      <label>Full Name *</label>
+                      <input type="text" formControlName="full_name" placeholder="Recipient Name" [class.field-error]="userAddressForm.get('full_name')?.invalid && userAddressForm.get('full_name')?.touched" />
+                      <span class="field-error-msg" *ngIf="userAddressForm.get('full_name')?.touched && userAddressForm.get('full_name')?.invalid">Full name is required.</span>
+                    </div>
+                    <div class="form-field">
+                      <label>Phone Number (10 Digits) *</label>
+                      <input type="tel" formControlName="phone_number" placeholder="10-digit mobile number" maxlength="10" [class.field-error]="userAddressForm.get('phone_number')?.invalid && userAddressForm.get('phone_number')?.touched" />
+                      <span class="field-error-msg" *ngIf="userAddressForm.get('phone_number')?.touched && userAddressForm.get('phone_number')?.invalid">Valid 10-digit phone number required.</span>
+                    </div>
+                  </div>
+
+                  <div class="form-field">
+                    <label>Street Address / House No. *</label>
+                    <input type="text" formControlName="address_line_1" placeholder="Flat / House No., Apartment, Street" [class.field-error]="userAddressForm.get('address_line_1')?.invalid && userAddressForm.get('address_line_1')?.touched" />
+                    <span class="field-error-msg" *ngIf="userAddressForm.get('address_line_1')?.touched && userAddressForm.get('address_line_1')?.invalid">Street address is required.</span>
+                  </div>
+
+                  <div class="form-field">
+                    <label>Area / Landmark (Optional)</label>
+                    <input type="text" formControlName="address_line_2" placeholder="Near landmark, sector, colony" />
+                  </div>
+
+                  <div class="form-grid-3">
+                    <div class="form-field">
+                      <label>City *</label>
+                      <input type="text" formControlName="city" placeholder="City" [class.field-error]="userAddressForm.get('city')?.invalid && userAddressForm.get('city')?.touched" />
+                      <span class="field-error-msg" *ngIf="userAddressForm.get('city')?.touched && userAddressForm.get('city')?.invalid">City is required.</span>
+                    </div>
+                    <div class="form-field">
+                      <label>State *</label>
+                      <input type="text" formControlName="state" placeholder="State" [class.field-error]="userAddressForm.get('state')?.invalid && userAddressForm.get('state')?.touched" />
+                      <span class="field-error-msg" *ngIf="userAddressForm.get('state')?.touched && userAddressForm.get('state')?.invalid">State is required.</span>
+                    </div>
+                    <div class="form-field">
+                      <label>Pincode *</label>
+                      <input type="text" formControlName="pincode" placeholder="6-digit pincode" maxlength="6" [class.field-error]="userAddressForm.get('pincode')?.invalid && userAddressForm.get('pincode')?.touched" />
+                      <span class="field-error-msg" *ngIf="userAddressForm.get('pincode')?.touched && userAddressForm.get('pincode')?.invalid">6 digits required.</span>
+                    </div>
+                  </div>
+
+                  <div class="form-field checkbox-field" *ngIf="!editingAddress()?.is_default">
+                    <label class="checkbox-label">
+                      <input type="checkbox" formControlName="is_default" />
+                      <span>Set as default delivery address</span>
+                    </label>
+                  </div>
+
+                  <div class="modal-actions">
+                    <button type="button" class="action-btn secondary" (click)="closeAddressModal()" [disabled]="savingAddressModal()">
+                      Cancel
+                    </button>
+                    <button type="submit" class="action-btn primary" [disabled]="savingAddressModal()">
+                      {{ savingAddressModal() ? 'Saving...' : (editingAddress() ? 'Update Address' : 'Save Address') }}
+                    </button>
+                  </div>
+                </form>
+              </div>
             </div>
           </ng-template>
         </ng-container>

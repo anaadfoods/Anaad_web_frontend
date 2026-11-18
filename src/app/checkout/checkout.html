@@ -125,6 +125,39 @@
           <div class="form-block-header">
             <h2 class="form-block-title">Shipping Address</h2>
           </div>
+
+          <!-- Multiple Saved Addresses Quick Selector -->
+          <div class="checkout-saved-addresses" *ngIf="savedAddresses().length">
+            <span class="saved-addr-heading">Deliver to saved address:</span>
+            <div class="saved-addr-grid">
+              <div
+                class="saved-addr-card"
+                *ngFor="let addr of savedAddresses()"
+                [class.selected]="selectedAddressId() === addr.id"
+                (click)="selectSavedAddress(addr)">
+                <div class="saved-addr-card-top">
+                  <div class="addr-tag-wrap">
+                    <span class="addr-label-pill" [ngClass]="(addr.label || 'home').toLowerCase()">{{ addr.label || 'HOME' }}</span>
+                    <span class="addr-default-pill" *ngIf="addr.is_default">Default</span>
+                  </div>
+                  <span class="selection-indicator">
+                    <span class="check-dot" *ngIf="selectedAddressId() === addr.id">&#10003;</span>
+                  </span>
+                </div>
+                <strong class="saved-addr-name">{{ addr.full_name }}</strong>
+                <p class="saved-addr-desc">
+                  {{ addr.address_line_1 }}<span *ngIf="addr.address_line_2">, {{ addr.address_line_2 }}</span>,
+                  {{ addr.city }}, {{ addr.state }} - {{ addr.pincode }}
+                </p>
+                <span class="saved-addr-phone" *ngIf="addr.phone_number">&#128222; {{ addr.phone_number }}</span>
+              </div>
+            </div>
+            <div class="different-address-option" *ngIf="selectedAddressId()">
+              <button type="button" class="link-btn" (click)="clearSelectedSavedAddress()">
+                + Edit address or enter a different delivery address
+              </button>
+            </div>
+          </div>
           <div class="field-row full">
             <div class="field-group">
               <label class="field-label">Street Address / Flat, Building *</label>

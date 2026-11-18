@@ -29,6 +29,8 @@ export class NotificationService {
   private socket: WebSocket | null = null;
   private wsReconnectTimer: any = null;
   private isWsConnecting = false;
+  private wsRetryCount = 0;
+  private readonly maxWsRetries = 3;
 
   constructor() {
     // Generate device id and start sync on browser
@@ -542,6 +544,7 @@ export class NotificationService {
 
   connectWebSocket() {
     if (!isPlatformBrowser(this.platformId)) return;
+    if (!environment.enableNotificationsWs) return;
     if (this.socket !== null || this.isWsConnecting) return;
 
     const token = this.authState.accessToken();
@@ -564,6 +567,7 @@ export class NotificationService {
 
       this.socket.onopen = () => {
         this.isWsConnecting = false;
+        this.wsRetryCount = 0;
         console.log('[NotificationService] WebSocket connected successfully!');
         
         // Sync on connection to catch up
@@ -597,8 +601,16 @@ export class NotificationService {
     this.isWsConnecting = false;
     if (this.wsReconnectTimer) clearTimeout(this.wsReconnectTimer);
 
+    if (!environment.enableNotificationsWs) return;
+
+    if (this.wsRetryCount >= this.maxWsRetries) {
+      console.warn(`[NotificationService] WebSocket connection failed after ${this.maxWsRetries} attempts. Stopping reconnect.`);
+      return;
+    }
+
+    this.wsRetryCount++;
     this.wsReconnectTimer = setTimeout(() => {
-      console.log('[NotificationService] Attempting WebSocket reconnect...');
+      console.log(`[NotificationService] Attempting WebSocket reconnect (${this.wsRetryCount}/${this.maxWsRetries})...`);
       this.connectWebSocket();
     }, 5000);
   }

@@ -12,7 +12,8 @@ import { SubscriptionService } from '../core/services/subscription.service';
 import { FavoritesService } from '../core/services/favorites.service';
 import { CartApiService } from '../core/services/cart-api.service';
 import { UserSummaryService, UserSummaryData } from '../core/services/user-summary.service';
-import { ProfileUpdateRequest, UserProfile, ReferralsSummary, ReferralRewardCount } from '../core/models/auth.model';
+import { AddressService } from '../core/services/address.service';
+import { ProfileUpdateRequest, UserProfile, ReferralsSummary, ReferralRewardCount, UserAddress } from '../core/models/auth.model';
 import { RfpService, RfpDelivery } from '../core/services/rfp.service';
 import { Order } from '../core/models/order.model';
 import { Subscription } from '../core/models/subscription.model';
@@ -48,8 +49,16 @@ export class Profile implements OnInit, OnDestroy {
   private readonly platformId = inject(PLATFORM_ID);
   private readonly rfpSvc = inject(RfpService);
   private readonly toastSvc = inject(ToastService);
+  private readonly addressSvc = inject(AddressService);
 
   profileData = signal<UserProfile | null>(null);
+  addresses = signal<UserAddress[]>([]);
+  loadingAddresses = signal<boolean>(false);
+  showAddressModal = signal<boolean>(false);
+  editingAddress = signal<UserAddress | null>(null);
+  savingAddressModal = signal<boolean>(false);
+  deletingAddressId = signal<number | null>(null);
+  settingDefaultId = signal<number | null>(null);
   ordersData = signal<Order[]>([]);
   subscriptionsData = signal<Subscription[]>([]);
   favoritesData = signal<ProductVariant[]>([]);
@@ -115,6 +124,18 @@ export class Profile implements OnInit, OnDestroy {
     city: ['', Validators.required],
     state: ['', Validators.required],
     pincode: ['', [Validators.required, Validators.pattern('^[0-9]{6}$')]],
+  });
+
+  userAddressForm = this.fb.group({
+    label: ['HOME', Validators.required],
+    full_name: ['', Validators.required],
+    phone_number: ['', [Validators.required, Validators.pattern('^[0-9]{10}$')]],
+    address_line_1: ['', Validators.required],
+    address_line_2: [''],
+    city: ['', Validators.required],
+    state: ['', Validators.required],
+    pincode: ['', [Validators.required, Validators.pattern('^[0-9]{6}$')]],
+    is_default: [false],
   });
 
   deactivateForm = this.fb.group({
@@ -270,6 +291,7 @@ export class Profile implements OnInit, OnDestroy {
         this.animateValue('favorites', favorites.length);
 
         if (!profile) this.error.set('We could not load your profile details right now.');
+        this.loadAddresses();
       }
     });
   }
@@ -404,6 +426,147 @@ export class Profile implements OnInit, OnDestroy {
         this.error.set(err.error?.message || 'Could not save address.');
         this.toastSvc.show('Could not save address.', 'error');
       },
+    });
+  }
+
+  loadAddresses() {
+    this.loadingAddresses.set(true);
+    this.addressSvc.getAddresses().pipe(
+      finalize(() => this.loadingAddresses.set(false))
+    ).subscribe({
+      next: (list) => {
+        this.addresses.set(list || []);
+      },
+      error: () => {
+        this.addresses.set([]);
+      }
+    });
+  }
+
+  openAddAddressModal() {
+    this.editingAddress.set(null);
+    const profile = this.profileData();
+    const fullName = profile ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() : '';
+    this.userAddressForm.reset({
+      label: 'HOME',
+      full_name: fullName,
+      phone_number: profile?.phone_number || '',
+      address_line_1: '',
+      address_line_2: '',
+      city: '',
+      state: '',
+      pincode: '',
+      is_default: this.addresses().length === 0,
+    });
+    this.showAddressModal.set(true);
+  }
+
+  openEditAddressModal(addr: UserAddress) {
+    this.editingAddress.set(addr);
+    this.userAddressForm.patchValue({
+      label: addr.label || 'HOME',
+      full_name: addr.full_name || '',
+      phone_number: addr.phone_number || '',
+      address_line_1: addr.address_line_1 || '',
+      address_line_2: addr.address_line_2 || '',
+      city: addr.city || '',
+      state: addr.state || '',
+      pincode: addr.pincode || '',
+      is_default: addr.is_default || false,
+    });
+    this.showAddressModal.set(true);
+  }
+
+  closeAddressModal() {
+    this.showAddressModal.set(false);
+    this.editingAddress.set(null);
+    this.userAddressForm.reset();
+  }
+
+  saveUserAddress() {
+    if (this.userAddressForm.invalid) {
+      this.userAddressForm.markAllAsTouched();
+      return;
+    }
+    this.savingAddressModal.set(true);
+    const raw = this.userAddressForm.getRawValue();
+    const payload = {
+      label: raw.label || 'HOME',
+      full_name: raw.full_name || '',
+      phone_number: raw.phone_number || '',
+      address_line_1: raw.address_line_1 || '',
+      address_line_2: raw.address_line_2 || '',
+      city: raw.city || '',
+      state: raw.state || '',
+      pincode: raw.pincode || '',
+      is_default: !!raw.is_default,
+    };
+
+    const currentEditing = this.editingAddress();
+    if (currentEditing && currentEditing.id) {
+      this.addressSvc.updateAddress(currentEditing.id, payload).pipe(
+        finalize(() => this.savingAddressModal.set(false))
+      ).subscribe({
+        next: () => {
+          this.toastSvc.show('Address updated successfully.', 'success');
+          this.closeAddressModal();
+          this.loadAddresses();
+        },
+        error: (err) => {
+          const msg = err.error?.message || err.error?.detail || 'Could not update address.';
+          this.toastSvc.show(msg, 'error');
+        }
+      });
+    } else {
+      this.addressSvc.createAddress(payload).pipe(
+        finalize(() => this.savingAddressModal.set(false))
+      ).subscribe({
+        next: () => {
+          this.toastSvc.show('Address added successfully.', 'success');
+          this.closeAddressModal();
+          this.loadAddresses();
+        },
+        error: (err) => {
+          const msg = err.error?.message || err.error?.detail || 'Could not add address.';
+          this.toastSvc.show(msg, 'error');
+        }
+      });
+    }
+  }
+
+  deleteUserAddress(id: number) {
+    if (!confirm('Are you sure you want to delete this address?')) return;
+    this.deletingAddressId.set(id);
+    this.addressSvc.deleteAddress(id).pipe(
+      finalize(() => this.deletingAddressId.set(null))
+    ).subscribe({
+      next: () => {
+        this.toastSvc.show('Address deleted successfully.', 'success');
+        this.addresses.update(list => list.filter(a => a.id !== id));
+      },
+      error: () => {
+        this.toastSvc.show('Could not delete address.', 'error');
+      }
+    });
+  }
+
+  setDefaultAddress(id: number) {
+    this.settingDefaultId.set(id);
+    this.addressSvc.setDefaultAddress(id).pipe(
+      finalize(() => this.settingDefaultId.set(null))
+    ).subscribe({
+      next: () => {
+        this.toastSvc.show('Default address updated.', 'success');
+        this.addresses.update(list =>
+          list.map(a => ({
+            ...a,
+            is_default: a.id === id,
+          }))
+        );
+      },
+      error: () => {
+        this.toastSvc.show('Could not set default address.', 'error');
+      }
     });
   }
 
