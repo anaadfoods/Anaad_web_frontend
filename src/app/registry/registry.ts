@@ -5,6 +5,8 @@ import { HttpClient } from '@angular/common/http';
 import { AuthState } from '../core/state/auth.state';
 import { SubscriptionPlansComponent } from '../shared/components/subscription-plans/subscription-plans.component';
 import { RouterLink } from '@angular/router';
+import { environment } from '../../environments/environment';
+import { API } from '../core/constants/api-endpoints';
 
 export interface CropReport {
   title: string;
@@ -73,7 +75,7 @@ export class Registry implements OnInit {
     this.isLoading.set(true);
     this.error.set(null);
     
-    this.http.get<CropListResponse>('https://nwmimvqcoxxdulpmdqvp.supabase.co/functions/v1/crop-list')
+    this.http.get<CropListResponse>(`${environment.sutraBaseUrl}${API.TRACEABILITY.CROP_LIST}`)
       .subscribe({
         next: (response) => {
           if (response && response.success) {

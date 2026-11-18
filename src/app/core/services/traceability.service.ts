@@ -2,6 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { catchError, map, Observable, throwError } from 'rxjs';
 import { API } from '../constants/api-endpoints';
+import { environment } from '../../../environments/environment';
 import {
   TraceabilityJourney,
   TraceApiResponse,
@@ -16,7 +17,7 @@ export class TraceabilityService {
   private readonly http = inject(HttpClient);
 
   getJourney(params: { qrCode?: string; cropId?: string }): Observable<TraceabilityJourney> {
-    let url = API.TRACEABILITY.TRACE;
+    let url = `${environment.sutraBaseUrl}${API.TRACEABILITY.TRACE}`;
     if (params.cropId) {
       url += `?crop_id=${encodeURIComponent(params.cropId)}`;
     } else {

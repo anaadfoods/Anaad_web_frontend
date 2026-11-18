@@ -1,6 +1,6 @@
 // const apiBaseUrl = 'https://bck-dev.anaadfoods.com';
 // // const apiBaseUrl = 'https://educated-carpentry-reverence.ngrok-free.dev';
-
+//test
 // export const environment = {
 //   production: true,
 //   apiBaseUrl,
@@ -32,4 +32,7 @@ export const environment = {
   sutraBaseUrl: 'https://sutra-bck.anaadfoods.com', // Will point to prod sutra when deployed
   enableRequestIdHeader: false, // Set to true once backend includes 'x-request-id' in CORS_ALLOW_HEADERS
   enableNotificationsWs: false, // Set to true once backend WebSocket notifications are deployed
+  // Empty -> code derives ws:// from apiBaseUrl (preserves prior behavior).
+  // TODO(prod): set the real prod WS URL once prod domains are confirmed.
+  wsBaseUrl: '',
 };

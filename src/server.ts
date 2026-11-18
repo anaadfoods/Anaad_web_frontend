@@ -25,10 +25,16 @@ app.use(
           'http://127.0.0.1:8000',
           'http://localhost:8010',
           'http://127.0.0.1:8010',
+          // anaad_backend dev API (dev-web-1: host 8300 -> container 8000)
+          'http://localhost:8300',
+          'http://127.0.0.1:8300',
           'ws://localhost:8000',
           'ws://127.0.0.1:8000',
           'ws://localhost:8010',
           'ws://127.0.0.1:8010',
+          // notifications WebSocket dev server (dev-web-ws-1: host 9300 -> container 9000)
+          'ws://localhost:9300',
+          'ws://127.0.0.1:9300',
           'https://bck.anaadfoods.com',
           'https://bck-dev.anaadfoods.com',
           'https://sutra-bck.anaadfoods.com',
@@ -37,7 +43,6 @@ app.use(
           'wss://sutra-bck.anaadfoods.com',
           'https://accounts.google.com',
           'https://appleid.apple.com',
-          'https://nwmimvqcoxxdulpmdqvp.supabase.co',
           'https://firebaseinstallations.googleapis.com',
           'https://fcmregistrations.googleapis.com',
           'https://www.google-analytics.com',
@@ -49,7 +54,7 @@ app.use(
         ],
         'font-src': ["'self'", 'https://fonts.googleapis.com', 'https://fonts.gstatic.com'],
         'style-src': ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
-        'img-src': ["'self'", 'data:', 'https:', 'http://localhost:8000', 'http://localhost:8010', 'http://127.0.0.1:8000', 'http://127.0.0.1:8010'],
+        'img-src': ["'self'", 'data:', 'https:', 'http://localhost:8000', 'http://localhost:8010', 'http://localhost:8300', 'http://127.0.0.1:8000', 'http://127.0.0.1:8010', 'http://127.0.0.1:8300'],
         'script-src': [
           "'self'",
           "'unsafe-inline'",

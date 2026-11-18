@@ -30,4 +30,7 @@ export const environment = {
   sutraBaseUrl: 'https://sutra-bck.anaadfoods.com', // Will point to prod sutra when deployed
   enableRequestIdHeader: false, // Set to true once backend includes 'x-request-id' in CORS_ALLOW_HEADERS
   enableNotificationsWs: false, // Set to true once backend WebSocket notifications are deployed
+  // Notifications WebSocket server (dev-web-ws-1 maps host 9300 -> container 9000),
+  // which is a different port than the HTTP API (8300).
+  wsBaseUrl: 'ws://localhost:9300',
 };

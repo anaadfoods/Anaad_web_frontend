@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnDestroy, PLATFORM_ID, inject, signal, Output, EventEmitter, AfterViewInit, ViewChildren, QueryList, ElementRef, ViewChild, OnChanges, SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy, PLATFORM_ID, inject, signal, Output, EventEmitter, AfterViewInit, ViewChildren, QueryList, ElementRef, ViewChild, OnChanges, SimpleChanges, ChangeDetectionStrategy, NgZone } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 
 export interface PlanCard {
@@ -31,6 +31,7 @@ export class PlansCarouselComponent implements OnInit, AfterViewInit, OnDestroy,
   highlightedIndex = signal(-1); // -1 means no highlight
   private timer?: any;
   private platformId = inject(PLATFORM_ID);
+  private readonly zone = inject(NgZone);
   
   // For looping carousel
   clonedPlans: PlanCard[] = [];
@@ -106,9 +107,14 @@ export class PlansCarouselComponent implements OnInit, AfterViewInit, OnDestroy,
     this.stopHighlightLoop();
     if (!isPlatformBrowser(this.platformId) || !this.enableAutoHighlight || this.plans.length === 0) return;
     
-    this.timer = setInterval(() => {
-      this.move(1);
-    }, this.intervalMs);
+    // Outside the Angular zone so this recurring timer doesn't block SSR
+    // hydration (NG0506). move() updates the DOM imperatively + a signal, so no
+    // zone-based change detection is required.
+    this.zone.runOutsideAngular(() => {
+      this.timer = setInterval(() => {
+        this.move(1);
+      }, this.intervalMs);
+    });
   }
 
   stopHighlightLoop(): void {
