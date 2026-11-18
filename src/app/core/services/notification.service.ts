@@ -30,6 +30,8 @@ export class NotificationService {
   private socket: WebSocket | null = null;
   private wsReconnectTimer: any = null;
   private isWsConnecting = false;
+  private wsRetryCount = 0;
+  private readonly maxWsRetries = 3;
 
   constructor() {
     // Generate device id and start sync on browser
@@ -555,6 +557,7 @@ export class NotificationService {
 
   connectWebSocket() {
     if (!isPlatformBrowser(this.platformId)) return;
+    if (!environment.enableNotificationsWs) return;
     if (this.socket !== null || this.isWsConnecting) return;
 
     const token = this.authState.accessToken();

@@ -52,7 +52,10 @@
       </div>
 
       <div class="field-group">
-        <label class="field-label" for="password">Password</label>
+        <div class="label-row">
+          <label class="field-label" for="password">Password</label>
+          <a routerLink="/forgot-password" class="forgot-link">Forgot password?</a>
+        </div>
         <div class="password-wrap">
           <input [type]="showPassword ? 'text' : 'password'" id="password" class="field-input"
             [class.field-error]="passwordCtrl.invalid && passwordCtrl.touched" formControlName="password"

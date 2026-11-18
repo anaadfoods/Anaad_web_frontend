@@ -24,6 +24,7 @@ const PUBLIC_URL_FRAGMENTS = [
   '/api/auth/apple/',
   '/api/auth/send-otp/',
   '/api/auth/verify-otp/',
+  '/api/auth/forgot-password/',
   '/api/products/variants',
   '/api/products/categories',
   '/api/products/featured',
@@ -100,7 +101,7 @@ export const authInterceptor: HttpInterceptorFn = (
 
   return next(authReq).pipe(
     catchError((error: HttpErrorResponse): Observable<HttpEvent<unknown>> => {
-      if (error.status === 401 && !isPublicEndpoint(req.url)) {
+      if (error.status === 401 && !isPublicEndpoint(req.url) && !req.url.includes('/api/auth/logout/')) {
         // Dev bypass: never kick user to login from failed API calls
         if (environment.devBypassAuth && isDevBypassToken(authState.accessToken())) {
           return throwError(() => error) as Observable<HttpEvent<unknown>>;
@@ -155,6 +156,10 @@ function handleTokenRefresh(
   const refreshToken = authState.refreshToken();
   if (!refreshToken) {
     isRefreshing = false;
+    const currentSubject = refreshTokenSubject;
+    refreshTokenSubject = new BehaviorSubject<string | null>(null);
+    currentSubject.error(new Error('No refresh token available'));
+
     if (environment.devBypassAuth) {
       return throwError(() => new Error('No refresh token available')) as Observable<HttpEvent<unknown>>;
     }
@@ -167,6 +172,9 @@ function handleTokenRefresh(
 
   if (environment.devBypassAuth && isDevBypassToken(refreshToken)) {
     isRefreshing = false;
+    const currentSubject = refreshTokenSubject;
+    refreshTokenSubject = new BehaviorSubject<string | null>(null);
+    currentSubject.error(new Error('Dev bypass session'));
     return throwError(() => new Error('Dev bypass session')) as Observable<HttpEvent<unknown>>;
   }
 
@@ -194,7 +202,10 @@ function handleTokenRefresh(
     }),
     catchError((refreshError: unknown): Observable<HttpEvent<unknown>> => {
       isRefreshing = false;
-      refreshTokenSubject.next(null);
+      const currentSubject = refreshTokenSubject;
+      refreshTokenSubject = new BehaviorSubject<string | null>(null);
+      currentSubject.error(refreshError);
+
       if (!environment.devBypassAuth) {
         authState.logout();
         if (isPlatformBrowser(platformId)) {

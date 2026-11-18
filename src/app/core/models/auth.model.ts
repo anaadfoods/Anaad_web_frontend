@@ -68,6 +68,37 @@ export interface OtpVerifyRequest {
   type: 'email' | 'phone';
 }
 
+/** POST /api/auth/logout/ */
+export interface LogoutRequest {
+  refresh: string;
+}
+
+/** POST /api/auth/change_password/ */
+export interface ChangePasswordRequest {
+  old_password: string;
+  new_password: string;
+}
+
+/** POST /api/auth/forgot-password/send-otp/ */
+export interface ForgotPasswordSendOtpRequest {
+  identifier: string;
+  type: 'EMAIL' | 'MOBILE';
+}
+
+/** POST /api/auth/forgot-password/verify-otp/ */
+export interface ForgotPasswordVerifyOtpRequest {
+  identifier: string;
+  otp: string;
+  type: 'EMAIL' | 'MOBILE';
+}
+
+/** POST /api/auth/forgot-password/reset/ */
+export interface ForgotPasswordResetRequest {
+  identifier: string;
+  new_password: string;
+  type: 'EMAIL' | 'MOBILE';
+}
+
 /** POST /api/auth/deactivate/ */
 export interface DeactivateRequest {
   password: string;
@@ -95,7 +126,24 @@ export interface UserProfile {
   referral_code: string | null;
   is_email_verified: boolean;
   is_rfp: boolean;
+  addresses?: UserAddress[];
   date_joined?: string;
+}
+
+/** Model for /api/auth/addresses/ */
+export interface UserAddress {
+  id: number;
+  label: 'HOME' | 'OFFICE' | 'OTHER' | string;
+  full_name: string;
+  phone_number: string;
+  address_line_1: string;
+  address_line_2?: string;
+  city: string;
+  state: string;
+  pincode: string;
+  is_default: boolean;
+  created_at?: string;
+  updated_at?: string;
 }
 
 /** PATCH /api/auth/profile/ — partial update */

@@ -16,8 +16,10 @@ import { SubscriptionService } from '../core/services/subscription.service';
 import { SubscriptionPlan } from '../core/models/subscription.model';
 import { ErrorHandlerService } from '../core/services/error-handler.service';
 import { PaymentService } from '../core/services/payment.service';
-import { CouponService, CouponData } from '../core/services/coupon.service';
+import { CouponService, CouponValidateResponse } from '../core/services/coupon.service';
 import { WebAnalyticsService } from '../core/services/web-analytics.service';
+import { AddressService } from '../core/services/address.service';
+import { UserAddress } from '../core/models/auth.model';
 import { finalize } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 
@@ -50,6 +52,10 @@ export class Checkout implements OnInit {
   private readonly paymentSvc = inject(PaymentService);
   private readonly couponSvc = inject(CouponService);
   private readonly analytics = inject(WebAnalyticsService);
+  private readonly addressSvc = inject(AddressService);
+
+  readonly savedAddresses = signal<UserAddress[]>([]);
+  readonly selectedAddressId = signal<number | null>(null);
 
   constructor() {
     effect(() => {
@@ -160,7 +166,7 @@ export class Checkout implements OnInit {
   readonly isValidatingCoupon = signal<boolean>(false);
   readonly couponError = signal<string>('');
   readonly couponSuccess = signal<string>('');
-  readonly appliedCoupon = signal<CouponData | null>(null);
+  readonly appliedCoupon = signal<CouponValidateResponse | null>(null);
 
   readonly couponDiscount = computed(() => {
     const coupon = this.appliedCoupon();
@@ -200,22 +206,22 @@ export class Checkout implements OnInit {
     this.couponSvc.validateCoupon(code, currentTotal).subscribe({
       next: (res) => {
         this.isValidatingCoupon.set(false);
-        if (res.status === 'success' && res.coupon) {
-          this.appliedCoupon.set(res.coupon);
-          this.couponSuccess.set(`Coupon ${res.coupon.code} applied! Saved ₹${res.coupon.discount_amount}`);
+        if (res && res.valid) {
+          this.appliedCoupon.set(res);
+          this.couponSuccess.set(`Coupon ${res.code} applied! Saved ₹${res.discount_amount}`);
           this.analytics.track('coupon_applied', {
-            coupon_code: res.coupon.code,
-            discount_amount: res.coupon.discount_amount,
-            cart_total: currentTotal,
+            coupon_code: res.code,
+            discount_amount: res.discount_amount,
+            order_total: currentTotal,
           });
         } else {
-          this.couponError.set(res.message || 'Invalid coupon code.');
+          this.couponError.set(res?.error || 'Invalid coupon code.');
         }
         this.cdr.markForCheck();
       },
       error: (err) => {
         this.isValidatingCoupon.set(false);
-        const msg = err?.error?.message || 'Invalid or expired coupon.';
+        const msg = err?.error?.error || err?.error?.detail || err?.error?.message || 'Invalid or expired coupon.';
         this.couponError.set(msg);
         this.cdr.markForCheck();
       }
@@ -442,8 +448,44 @@ export class Checkout implements OnInit {
     });
   }
 
+  selectSavedAddress(addr: UserAddress) {
+    this.selectedAddressId.set(addr.id);
+    const [firstName, ...restName] = (addr.full_name || '').split(' ');
+    this.checkoutForm.patchValue({
+      firstName: firstName || this.checkoutForm.get('firstName')?.value || '',
+      lastName: restName.join(' ') || this.checkoutForm.get('lastName')?.value || '',
+      phone: addr.phone_number || this.checkoutForm.get('phone')?.value || '',
+      address: addr.address_line_2 && addr.address_line_2.trim()
+        ? `${addr.address_line_1}, ${addr.address_line_2}`
+        : addr.address_line_1,
+      city: addr.city,
+      state: this.formatState(addr.state),
+      pin: addr.pincode,
+    });
+    this.calculateCharges(addr.pincode);
+    this.cdr.markForCheck();
+  }
+
+  clearSelectedSavedAddress() {
+    this.selectedAddressId.set(null);
+  }
+
   prefillCheckout() {
     this.loadingProfile.set(true);
+
+    this.addressSvc.getAddresses().pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
+      next: addresses => {
+        if (addresses && addresses.length > 0) {
+          this.savedAddresses.set(addresses);
+          const def = addresses.find(a => a.is_default) || addresses[0];
+          this.selectSavedAddress(def);
+        }
+      },
+      error: () => undefined
+    });
+
     this.profileSvc.getProfile().pipe(
       finalize(() => {
         this.loadingProfile.set(false);

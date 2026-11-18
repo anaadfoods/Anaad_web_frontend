@@ -319,3 +319,154 @@ textarea.field-input { resize: vertical; min-height: 80px; font-family: var(--fo
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+
+/* SAVED ADDRESSES SELECTOR IN CHECKOUT */
+.checkout-saved-addresses {
+  margin-bottom: 24px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.4);
+  border: 1px solid rgba(26, 26, 26, 0.1);
+  border-radius: 8px;
+
+  .saved-addr-heading {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: rgba(26, 26, 26, 0.5);
+    margin-bottom: 12px;
+  }
+
+  .saved-addr-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 12px;
+  }
+
+  .saved-addr-card {
+    padding: 14px;
+    border: 1px solid rgba(26, 26, 26, 0.14);
+    border-radius: 6px;
+    background: #fff;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    &:hover {
+      border-color: var(--green-deep, #2c4a1e);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    &.selected {
+      border: 2px solid var(--green-deep, #2c4a1e);
+      background: rgba(44, 74, 30, 0.04);
+    }
+  }
+
+  .saved-addr-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .addr-tag-wrap {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .addr-label-pill {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    border-radius: 3px;
+
+    &.home {
+      background: rgba(44, 74, 30, 0.12);
+      color: var(--green-deep, #2c4a1e);
+    }
+    &.office {
+      background: rgba(30, 64, 175, 0.12);
+      color: #1e40af;
+    }
+    &.other {
+      background: rgba(217, 119, 6, 0.12);
+      color: #b45309;
+    }
+  }
+
+  .addr-default-pill {
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--green-deep, #2c4a1e);
+    background: rgba(44, 74, 30, 0.1);
+    padding: 2px 5px;
+    border-radius: 3px;
+  }
+
+  .selection-indicator {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(26, 26, 26, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    color: var(--bg-parchment, #fff);
+
+    .check-dot {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: var(--green-deep, #2c4a1e);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
+  }
+
+  .saved-addr-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--charcoal, #1a1a1a);
+  }
+
+  .saved-addr-desc {
+    font-size: 12px;
+    color: rgba(26, 26, 26, 0.65);
+    line-height: 1.4;
+    margin: 0;
+  }
+
+  .saved-addr-phone {
+    font-size: 11px;
+    color: rgba(26, 26, 26, 0.55);
+    margin-top: 4px;
+  }
+
+  .different-address-option {
+    margin-top: 12px;
+    .link-btn {
+      background: transparent;
+      border: none;
+      color: var(--green-deep, #2c4a1e);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 0;
+      text-decoration: underline;
+
+      &:hover {
+        opacity: 0.8;
+      }
+    }
+  }
+}
