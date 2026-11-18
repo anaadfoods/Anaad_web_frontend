@@ -1,6 +1,6 @@
 // const apiBaseUrl = 'https://bck-dev.anaadfoods.com';
 // // const apiBaseUrl = 'https://educated-carpentry-reverence.ngrok-free.dev';
-
+//test
 // export const environment = {
 //   production: true,
 //   apiBaseUrl,
@@ -30,4 +30,7 @@ export const environment = {
   appleWebCallbackPath: '/auth/apple/callback',
   externalLoginUrl: 'https://anaadfoods.com/profile',
   sutraBaseUrl: 'http://localhost:8010', // Will point to prod sutra when deployed
+  // Empty -> code derives ws:// from apiBaseUrl (preserves prior behavior).
+  // TODO(prod): set the real prod WS URL once prod domains are confirmed.
+  wsBaseUrl: '',
 };

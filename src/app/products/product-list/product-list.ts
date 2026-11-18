@@ -82,7 +82,7 @@ export class ProductList implements OnInit, OnDestroy {
     this.productSvc.getVariants().subscribe({
       next: (variants) => {
         this.allProducts.set(variants);
-        
+
         // Dynamically extract categories from the loaded variants
         const categoryMap = new Map<number, ProductCategory>();
         variants.forEach(v => {
@@ -100,10 +100,8 @@ export class ProductList implements OnInit, OnDestroy {
         this.applyFilters();
         this.loading.set(false);
       },
-      error: () => this.loading.set(false)
+      error: () => { this.loading.set(false); }
     });
-
-    // Variants already loaded above
   }
 
   resolveCategoryParam(param: string) {

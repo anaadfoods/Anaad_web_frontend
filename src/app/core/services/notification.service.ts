@@ -1,4 +1,4 @@
-import { inject, Injectable, PLATFORM_ID, signal, EffectRef, effect } from '@angular/core';
+import { inject, Injectable, NgZone, PLATFORM_ID, signal, EffectRef, effect } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
@@ -18,6 +18,7 @@ export class NotificationService {
   private readonly router = inject(Router);
   private readonly toastSvc = inject(ToastService);
   private readonly storage = inject(StorageService);
+  private readonly ngZone = inject(NgZone);
 
   // ── State Signals ─────────────────────────
   readonly notifications = signal<NotificationItem[]>([]);
@@ -91,17 +92,24 @@ export class NotificationService {
   // ── Polling & Lifecycle ───────────────────
 
   private initPolling() {
-    // Poll every 30 seconds for new notifications and unread count
-    this.pollInterval = setInterval(() => {
-      this.sync().subscribe();
-      this.fetchUnreadCount().subscribe();
-    }, 30000);
+    // Run the recurring timers OUTSIDE the Angular zone. A persistent in-zone
+    // setInterval keeps ApplicationRef.isStable() from ever emitting, which under
+    // SSR blocks client hydration from completing (NG0506) and leaves pages like
+    // the product list stuck on their server-rendered (empty) state. Signal writes
+    // made from the HTTP responses still trigger change detection on their own.
+    this.ngZone.runOutsideAngular(() => {
+      // Poll every 30 seconds for new notifications and unread count
+      this.pollInterval = setInterval(() => {
+        this.sync().subscribe();
+        this.fetchUnreadCount().subscribe();
+      }, 30000);
 
-    // Initial load
-    setTimeout(() => {
-      this.sync().subscribe();
-      this.fetchUnreadCount().subscribe();
-    }, 1000);
+      // Initial load
+      setTimeout(() => {
+        this.sync().subscribe();
+        this.fetchUnreadCount().subscribe();
+      }, 1000);
+    });
   }
 
   // ── API Methods ───────────────────────────
@@ -527,14 +535,19 @@ export class NotificationService {
       this.connectWebSocket();
     };
 
-    document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible') {
-        handleSync();
-      }
-    });
+    // Register listeners outside the Angular zone so the WebSocket (re)opened
+    // from a focus/visibility event is never created in-zone (which would block
+    // hydration stability). connectWebSocket itself also runs outside the zone.
+    this.ngZone.runOutsideAngular(() => {
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+          handleSync();
+        }
+      });
 
-    window.addEventListener('focus', () => {
-      handleSync();
+      window.addEventListener('focus', () => {
+        handleSync();
+      });
     });
   }
 
@@ -548,7 +561,9 @@ export class NotificationService {
     const anonId = this.getOrCreateAnonymousId();
     const deviceId = this.getOrCreateDeviceId();
 
-    const wsBase = environment.apiBaseUrl.replace(/^http/, 'ws');
+    // Prefer an explicit wsBaseUrl (the WS server runs on its own port, e.g.
+    // :9300 in dev, not the API port). Fall back to deriving from the API URL.
+    const wsBase = environment.wsBaseUrl || environment.apiBaseUrl.replace(/^http/, 'ws');
     let wsUrl = `${wsBase}/ws/notifications/?device_id=${deviceId}&platform=web`;
     if (token) {
       wsUrl += `&token=${token}`;
@@ -559,37 +574,46 @@ export class NotificationService {
     this.isWsConnecting = true;
     console.log('[NotificationService] Connecting to WebSocket:', wsUrl);
 
-    try {
-      this.socket = new WebSocket(wsUrl);
+    // CRITICAL: open the socket OUTSIDE the Angular zone. zone.js patches
+    // WebSocket, so a socket opened in-zone registers long-lived async tasks
+    // that keep ApplicationRef.isStable() from ever emitting → SSR hydration
+    // never completes (NG0506) and pages like the product list stay frozen on
+    // their empty server-rendered state. Handlers re-enter the zone via
+    // ngZone.run() only for the actual UI/state work.
+    this.ngZone.runOutsideAngular(() => {
+      try {
+        this.socket = new WebSocket(wsUrl);
 
-      this.socket.onopen = () => {
+        this.socket.onopen = () => {
+          this.isWsConnecting = false;
+          console.log('[NotificationService] WebSocket connected successfully!');
+          this.ngZone.run(() => {
+            // Sync on connection to catch up
+            this.sync().subscribe();
+            this.fetchUnreadCount().subscribe();
+          });
+        };
+
+        this.socket.onmessage = (event) => {
+          console.log('[NotificationService] WebSocket message:', event.data);
+          this.ngZone.run(() => this.handleWebSocketMessage(event.data));
+        };
+
+        this.socket.onerror = (err) => {
+          console.error('[NotificationService] WebSocket error:', err);
+          this.scheduleWsReconnect();
+        };
+
+        this.socket.onclose = () => {
+          console.log('[NotificationService] WebSocket closed.');
+          this.scheduleWsReconnect();
+        };
+      } catch (e) {
         this.isWsConnecting = false;
-        console.log('[NotificationService] WebSocket connected successfully!');
-        
-        // Sync on connection to catch up
-        this.sync().subscribe();
-        this.fetchUnreadCount().subscribe();
-      };
-
-      this.socket.onmessage = (event) => {
-        console.log('[NotificationService] WebSocket message:', event.data);
-        this.handleWebSocketMessage(event.data);
-      };
-
-      this.socket.onerror = (err) => {
-        console.error('[NotificationService] WebSocket error:', err);
+        console.error('[NotificationService] WebSocket connection exception:', e);
         this.scheduleWsReconnect();
-      };
-
-      this.socket.onclose = () => {
-        console.log('[NotificationService] WebSocket closed.');
-        this.scheduleWsReconnect();
-      };
-    } catch (e) {
-      this.isWsConnecting = false;
-      console.error('[NotificationService] WebSocket connection exception:', e);
-      this.scheduleWsReconnect();
-    }
+      }
+    });
   }
 
   private scheduleWsReconnect() {
@@ -597,10 +621,14 @@ export class NotificationService {
     this.isWsConnecting = false;
     if (this.wsReconnectTimer) clearTimeout(this.wsReconnectTimer);
 
-    this.wsReconnectTimer = setTimeout(() => {
-      console.log('[NotificationService] Attempting WebSocket reconnect...');
-      this.connectWebSocket();
-    }, 5000);
+    // Outside the Angular zone so the recurring reconnect attempts don't keep
+    // the app perpetually unstable (which would block SSR hydration).
+    this.ngZone.runOutsideAngular(() => {
+      this.wsReconnectTimer = setTimeout(() => {
+        console.log('[NotificationService] Attempting WebSocket reconnect...');
+        this.connectWebSocket();
+      }, 5000);
+    });
   }
 
   private handleWebSocketMessage(rawMessage: string) {
