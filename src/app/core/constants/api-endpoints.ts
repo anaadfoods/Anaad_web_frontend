@@ -127,7 +127,9 @@ export const API = {
   },
 
   TRACEABILITY: {
-    TRACE: 'https://nwmimvqcoxxdulpmdqvp.supabase.co/functions/v1/trace',
+    // Sutra backend — Edge-Function-compatible paths, prefixed with environment.sutraBaseUrl
+    TRACE: '/api/public/trace/',
+    CROP_LIST: '/api/public/crop-list/',
   },
 
   CROP_DELIVERY: {

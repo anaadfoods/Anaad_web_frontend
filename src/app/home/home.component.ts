@@ -1,6 +1,6 @@
 import { take } from 'rxjs';
 import { LogService } from '../core/services/log.service';
-import { Component, OnInit, OnDestroy, PLATFORM_ID, inject, signal, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, PLATFORM_ID, inject, signal, ChangeDetectionStrategy, ChangeDetectorRef, NgZone } from '@angular/core';
 import { isPlatformBrowser, CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { Title, Meta } from '@angular/platform-browser';
@@ -37,6 +37,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   private readonly cartSvc = inject(CartApiService);
   private readonly toastSvc = inject(ToastService);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly ngZone = inject(NgZone);
 
   activeSubscriptions = signal<Subscription[]>([]);
 
@@ -148,10 +149,17 @@ export class HomeComponent implements OnInit, OnDestroy {
       if (this.isHovered || this.isDragging) {
         return;
       }
-      this.autoplayInterval = setInterval(() => {
-        this.activeIndex = (this.activeIndex + 1) % this.carouselImages.length;
-        this.cdr.markForCheck();
-      }, 4000);
+      // Timer OUTSIDE the Angular zone so it doesn't block SSR hydration
+      // (NG0506). This component uses markForCheck (not signals), so re-enter
+      // the zone for the actual update so change detection still runs each tick.
+      this.ngZone.runOutsideAngular(() => {
+        this.autoplayInterval = setInterval(() => {
+          this.ngZone.run(() => {
+            this.activeIndex = (this.activeIndex + 1) % this.carouselImages.length;
+            this.cdr.markForCheck();
+          });
+        }, 4000);
+      });
     }
   }
 
