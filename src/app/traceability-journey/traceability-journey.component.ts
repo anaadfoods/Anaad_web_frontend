@@ -4,6 +4,7 @@ import {
   Component,
   ElementRef,
   HostListener,
+  NgZone,
   OnDestroy,
   OnInit,
   PLATFORM_ID,
@@ -99,9 +100,12 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
   @ViewChild('journeyRoot') private journeyRoot?: ElementRef<HTMLElement>;
   @ViewChild('vinePath') private vinePath?: ElementRef<SVGPathElement>;
   @ViewChild('journeyEnd') private journeyEnd?: ElementRef<HTMLElement>;
+  @ViewChild('crawler') private crawlerRef?: ElementRef<SVGGElement>;
+  @ViewChild('progressFill') private progressFillRef?: ElementRef<HTMLElement>;
   @ViewChildren('scene') private sceneRefs?: QueryList<ElementRef<HTMLElement>>;
   @ViewChildren('vineWaypoint') private vineWaypointRefs?: QueryList<ElementRef<HTMLElement>>;
   private readonly platformId = inject(PLATFORM_ID);
+  private readonly ngZone = inject(NgZone);
   private readonly traceabilityService = inject(TraceabilityService);
   private readonly authService = inject(AuthService);
   private readonly route = inject(ActivatedRoute);
@@ -160,14 +164,28 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
   );
 
   /** Disable premium visuals that hurt scroll/mouse performance. */
-  private smoothUi = true;
+  protected readonly smoothUi = true;
   protected readonly prefersReducedMotion = signal(false);
+
+  private cachedRootPageTop = 0;
+  private cachedVh = 0;
+  private lastParallaxY = -1;
+  private lastHeroShift = -1;
 
   private rafId: number | null = null;
   private resizeObserver?: ResizeObserver;
   private stageObserver?: IntersectionObserver;
+  private revealObserver?: IntersectionObserver;
   private sceneListSub?: { unsubscribe(): void };
   private waypointListSub?: { unsubscribe(): void };
+  private routeSub?: { unsubscribe(): void };
+  private journeySub?: { unsubscribe(): void };
+  private authProfileSub?: { unsubscribe(): void };
+  private motionQueryCleanup?: () => void;
+  private loadListener?: () => void;
+  private vineBuildTimer: ReturnType<typeof setTimeout> | null = null;
+  private sandboxTimer: ReturnType<typeof setTimeout> | null = null;
+  private lastBuiltHeight = 0;
   private vineScale = 1;
   private vbH = 4700;
   private vineEndY = 0;
@@ -208,7 +226,11 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
   private pathLength = 0;
   private lastScrollTop = 0;
   private scrollSpeed = 0;
+  private lastWind = 0;
   private flipStampTimer: ReturnType<typeof setTimeout> | null = null;
+  private scrollListener?: () => void;
+  private resizeListener?: () => void;
+  private resizeTimer?: ReturnType<typeof setTimeout>;
 
   // Ambient pollen particles (kept low — hidden in smooth UI mode)
   protected readonly pollenMotes = Array.from({ length: 6 }, (_, i) => ({
@@ -454,12 +476,14 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
     if (isPlatformBrowser(this.platformId)) {
       const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
       this.prefersReducedMotion.set(motionQuery.matches);
-      motionQuery.addEventListener('change', (event) => {
+      const motionListener = (event: MediaQueryListEvent) => {
         this.prefersReducedMotion.set(event.matches);
-      });
+      };
+      motionQuery.addEventListener('change', motionListener);
+      this.motionQueryCleanup = () => motionQuery.removeEventListener('change', motionListener);
     }
 
-    combineLatest([
+    this.routeSub = combineLatest([
       this.route.params,
       this.route.queryParams
     ]).subscribe(([params, queryParams]) => {
@@ -497,7 +521,7 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
         if (unlockedParam === '1') {
           this.isUnlocked.set(true);
         }
-        this.authService.fetchProfile().subscribe({
+        this.authProfileSub = this.authService.fetchProfile().subscribe({
           next: () => this.stripTokensFromUrl(),
           error: () => this.stripTokensFromUrl(),
         });
@@ -840,13 +864,13 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
       apiParams.cropId = this.padCropCycleIdForTrace(apiParams.cropId);
     }
 
-    this.traceabilityService.getJourney(apiParams).subscribe({
+    this.journeySub?.unsubscribe();
+    this.journeySub = this.traceabilityService.getJourney(apiParams).subscribe({
       next: (journey) => {
         this.journey.set(journey);
         this.updateStagesFromApi(journey);
         this.isLoading.set(false);
-        requestAnimationFrame(() => this.buildVine());
-        setTimeout(() => this.buildVine(), 400);
+        this.scheduleBuildVine(80);
       },
       error: (err) => {
         this.traceError.set(err.message || 'Failed to load product journey.');
@@ -1104,13 +1128,14 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
     };
 
     // Simulate small delay for premium loading experience
-    setTimeout(() => {
+    if (this.sandboxTimer) clearTimeout(this.sandboxTimer);
+    this.sandboxTimer = setTimeout(() => {
       this.journey.set(mockJourney);
       this.updateStagesFromApi(mockJourney);
       this.isLoading.set(false);
-      requestAnimationFrame(() => this.buildVine());
-      setTimeout(() => this.buildVine(), 400);
-    }, 600);
+      this.scheduleBuildVine(80);
+      this.sandboxTimer = null;
+    }, 400);
   }
 
   /** Update live data lines on front cards; narrative copy stays in the stages array */
@@ -1389,34 +1414,59 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
     }
   }
 
-ngAfterViewInit(): void {
+  ngAfterViewInit(): void {
     if (!isPlatformBrowser(this.platformId)) return;
 
     this.setupStageObserver();
 
     this.sceneListSub = this.sceneRefs?.changes.subscribe(() => {
-      requestAnimationFrame(() => this.buildVine());
+      this.scheduleBuildVine(120);
     });
     this.waypointListSub = this.vineWaypointRefs?.changes.subscribe(() => {
-      requestAnimationFrame(() => this.buildVine());
+      this.scheduleBuildVine(120);
     });
 
-    // Layout settles after images/fonts load; build then and again on full load.
-    requestAnimationFrame(() => this.buildVine());
-    window.addEventListener('load', () => this.buildVine(), { once: true });
-    setTimeout(() => this.buildVine(), 1200);
+    // Schedule initial vine build once after view mounts
+    this.scheduleBuildVine(60);
+    const onWindowLoad = () => this.scheduleBuildVine(150);
+    window.addEventListener('load', onWindowLoad, { once: true });
+    this.loadListener = () => window.removeEventListener('load', onWindowLoad);
+
+    // Run high-frequency scroll & resize listeners OUTSIDE Angular Zone to eliminate Change Detection lag
+    this.ngZone.runOutsideAngular(() => {
+      const scrollHandler = () => this.schedule();
+      window.addEventListener('scroll', scrollHandler, { passive: true });
+      this.scrollListener = () => window.removeEventListener('scroll', scrollHandler);
+
+      const resizeHandler = () => this.scheduleBuildVine(150);
+      window.addEventListener('resize', resizeHandler, { passive: true });
+      this.resizeListener = () => window.removeEventListener('resize', resizeHandler);
+    });
 
     const root = this.journeyRoot?.nativeElement;
     if (root) {
       let lastHeight = root.offsetHeight;
-      this.resizeObserver = new ResizeObserver(() => {
-        if (Math.abs(root.offsetHeight - lastHeight) > 10) {
-          lastHeight = root.offsetHeight;
-          this.buildVine();
+      this.resizeObserver = new ResizeObserver((entries) => {
+        for (const entry of entries) {
+          const h = entry.contentRect.height;
+          if (Math.abs(h - lastHeight) > 30) {
+            lastHeight = h;
+            this.scheduleBuildVine(150);
+          }
         }
       });
       this.resizeObserver.observe(root);
     }
+  }
+
+  private scheduleBuildVine(delay = 80): void {
+    if (this.vineBuildTimer !== null) {
+      clearTimeout(this.vineBuildTimer);
+    }
+    this.vineBuildTimer = setTimeout(() => {
+      this.vineBuildTimer = null;
+      this.buildVine();
+    }, delay);
   }
 
   /** Rebuilds the vine path so it spans the real page height, bending at every stage. */
@@ -1427,30 +1477,37 @@ ngAfterViewInit(): void {
     const scenes = this.sceneRefs?.toArray() ?? [];
     if (!root || !path || !svg || scenes.length === 0) return;
 
-    const svgWidth = svg.getBoundingClientRect().width || 240;
+    const rootHeight = root.offsetHeight;
+    if (this.lastBuiltHeight > 0 && Math.abs(rootHeight - this.lastBuiltHeight) < 25 && this.cachedPoints.length > 0) {
+      return;
+    }
+    this.lastBuiltHeight = rootHeight;
+
+    const svgWidth = svg.clientWidth || 240;
     this.vineScale = svgWidth / 240;
-    const rootRect = root.getBoundingClientRect();
-    this.vbH = Math.max(root.offsetHeight / this.vineScale, 100);
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    this.cachedRootPageTop = root.getBoundingClientRect().top + scrollTop;
+    this.cachedVh = window.innerHeight || 1;
+    this.vbH = Math.max(rootHeight / this.vineScale, 100);
     svg.setAttribute('viewBox', `0 0 240 ${Math.ceil(this.vbH)}`);
 
     const anchors: { x: number; y: number }[] = [{ x: 120, y: 0 }];
     scenes.forEach((scene, i) => {
-      const r = scene.nativeElement.getBoundingClientRect();
-      const y = (r.top - rootRect.top + r.height / 2) / this.vineScale;
+      const el = scene.nativeElement;
+      const y = (el.offsetTop + el.offsetHeight / 2) / this.vineScale;
       anchors.push({ x: i % 2 === 0 ? 178 : 58, y });
     });
 
     const waypoints = this.vineWaypointRefs?.toArray() ?? [];
     waypoints.forEach((wp, i) => {
-      const r = wp.nativeElement.getBoundingClientRect();
-      const y = (r.top - rootRect.top + r.height / 2) / this.vineScale;
+      const el = wp.nativeElement;
+      const y = (el.offsetTop + el.offsetHeight / 2) / this.vineScale;
       anchors.push({ x: i % 2 === 0 ? 62 : 176, y });
     });
 
     const seedling = this.journeyEnd?.nativeElement;
     if (seedling) {
-      const sr = seedling.getBoundingClientRect();
-      this.vineEndY = (sr.top - rootRect.top) / this.vineScale - 14;
+      this.vineEndY = seedling.offsetTop / this.vineScale - 14;
     } else {
       this.vineEndY = this.vbH;
     }
@@ -1474,17 +1531,24 @@ ngAfterViewInit(): void {
 
     this.decorateVine(path);
 
-    // Pre-calculate points along the path to avoid layout thrashing during scroll/animation
+    // Pre-calculate points along the path with optimized sampling (40 steps)
     this.cachedPoints = [];
-    const stepSize = this.smoothUi ? 12 : 4;
-    const maxSteps = this.smoothUi ? 450 : 1200;
-    const steps = Math.min(Math.ceil(this.pathLength / stepSize), maxSteps);
+    const steps = this.smoothUi ? 40 : 120;
+    const rawPts: DOMPoint[] = [];
     for (let i = 0; i <= steps; i++) {
-      const dist = (i / steps) * this.pathLength;
-      const pt = path.getPointAtLength(dist);
-      const ahead = path.getPointAtLength(Math.min(this.pathLength, dist + 8));
-      const tangent = (Math.atan2(ahead.y - pt.y, ahead.x - pt.x) * 180) / Math.PI;
-      this.cachedPoints.push({ x: pt.x, y: pt.y, angle: tangent + 90 });
+      rawPts.push(path.getPointAtLength((i / steps) * this.pathLength));
+    }
+    for (let i = 0; i <= steps; i++) {
+      const pt = rawPts[i];
+      let angle = 0;
+      if (i < steps) {
+        const next = rawPts[i + 1];
+        angle = (Math.atan2(next.y - pt.y, next.x - pt.x) * 180) / Math.PI + 90;
+      } else if (i > 0) {
+        const prev = rawPts[i - 1];
+        angle = (Math.atan2(pt.y - prev.y, pt.x - prev.x) * 180) / Math.PI + 90;
+      }
+      this.cachedPoints.push({ x: pt.x, y: pt.y, angle });
     }
 
     this.update();
@@ -1494,7 +1558,7 @@ ngAfterViewInit(): void {
   private decorateVine(path: SVGPathElement): void {
     const leaves: VineLeaf[] = [];
     const blossoms: Blossom[] = [];
-    const leafCount = this.smoothUi ? 10 : 24;
+    const leafCount = this.smoothUi ? 8 : 16;
     for (let i = 1; i <= leafCount; i++) {
       const t = i / (leafCount + 1);
       const pt = path.getPointAtLength(this.pathLength * t);
@@ -1508,7 +1572,7 @@ ngAfterViewInit(): void {
         flip,
         t: t * 0.985
       });
-      if (i % (this.smoothUi ? 4 : 3) === 0) {
+      if (i % 3 === 0) {
         blossoms.push({ x: pt.x + (flip ? -16 : 16), y: pt.y - 6, t: t * 0.985 });
       }
     }
@@ -1523,17 +1587,26 @@ ngAfterViewInit(): void {
     }
   }
 
-  @HostListener('window:scroll')
-  onScroll(): void {
-    this.schedule();
-  }
-
-  @HostListener('window:resize')
-  onResize(): void {
-    this.buildVine();
-  }
-
   ngOnDestroy(): void {
+    if (this.vineBuildTimer !== null) {
+      clearTimeout(this.vineBuildTimer);
+      this.vineBuildTimer = null;
+    }
+    if (this.sandboxTimer !== null) {
+      clearTimeout(this.sandboxTimer);
+      this.sandboxTimer = null;
+    }
+    this.loadListener?.();
+    this.routeSub?.unsubscribe();
+    this.journeySub?.unsubscribe();
+    this.authProfileSub?.unsubscribe();
+    this.motionQueryCleanup?.();
+    this.scrollListener?.();
+    this.resizeListener?.();
+    if (this.resizeTimer) {
+      clearTimeout(this.resizeTimer);
+    }
+    this.revealObserver?.disconnect();
     this.stageObserver?.disconnect();
     this.sceneListSub?.unsubscribe();
     this.waypointListSub?.unsubscribe();
@@ -1545,38 +1618,50 @@ ngAfterViewInit(): void {
     this.resizeObserver?.disconnect();
   }
 
-  /** PERF: IntersectionObserver replaces 11├ù getBoundingClientRect per scroll frame.
-   *  Tracks is-live visibility and currentStage with zero layout cost. */
+  /** Stage observer: tracks is-live reveal early (600px margin) and centered stage */
   private setupStageObserver(): void {
     if (!isPlatformBrowser(this.platformId)) return;
     const scenes = this.sceneRefs?.toArray() ?? [];
     if (scenes.length === 0) return;
 
+    // 1. Reveal observer: triggers when the scene is 600px away from entering viewport
+    // Ensures the scene is fully visible and rendered long before the user scrolls to it
+    this.revealObserver = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            const el = entry.target as HTMLElement;
+            el.classList.add('is-live');
+            this.revealObserver?.unobserve(el);
+          }
+        }
+      },
+      { rootMargin: '600px 0px 600px 0px' }
+    );
+
+    // 2. Active Stage observer: tracks current stage centered in viewport
     this.stageObserver = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
-          const el = entry.target as HTMLElement;
-          const idx = scenes.findIndex(s => s.nativeElement === el);
-          if (idx < 0) continue;
+          if (entry.isIntersecting && entry.intersectionRatio > 0.15) {
+            const el = entry.target as HTMLElement;
+            const idx = scenes.findIndex(s => s.nativeElement === el);
+            if (idx < 0) continue;
 
-          // is-live: trigger reveal once
-          if (entry.isIntersecting && !el.classList.contains('is-live')) {
-            el.classList.add('is-live');
-          }
-
-          // currentStage: the scene most centered in viewport
-          if (entry.intersectionRatio > 0.1) {
             const stageId = Number(el.dataset['stageId']) || idx + 1;
             if (stageId !== this.currentStage()) {
-              this.currentStage.set(stageId);
+              this.ngZone.run(() => {
+                this.currentStage.set(stageId);
+              });
             }
           }
         }
       },
-      { threshold: [0, 0.15, 0.6] }
+      { threshold: [0.15, 0.5], rootMargin: '-20% 0px -20% 0px' }
     );
 
     for (const scene of scenes) {
+      this.revealObserver.observe(scene.nativeElement);
       this.stageObserver.observe(scene.nativeElement);
     }
   }
@@ -1595,44 +1680,34 @@ ngAfterViewInit(): void {
     const path = this.vinePath?.nativeElement;
     if (!root || !path || this.pathLength <= 0) return;
 
-    const vh = window.innerHeight || 1;
+    const vh = this.cachedVh || window.innerHeight || 1;
     const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-    const rect = root.getBoundingClientRect();
+    const rectTop = (this.cachedRootPageTop || root.offsetTop) - scrollTop;
 
-    // PERF: Only set if delta > 0.5px to reduce CD cycles
-    const prevParallax = this.parallaxOffset();
-    if (Math.abs(scrollTop - prevParallax) > 0.5) {
-      this.parallaxOffset.set(scrollTop);
+    // Fast CSS custom property updates for parallax — throttled and zero Angular CD cycles!
+    if (Math.abs(scrollTop - this.lastParallaxY) > 1.5) {
+      this.lastParallaxY = scrollTop;
+      root.style.setProperty('--parallax-y', `${scrollTop}px`);
     }
 
     const heroShift = Math.min(scrollTop, vh * 0.92);
-    if (Math.abs(heroShift - this.heroParallax()) > 0.5) {
-      this.heroParallax.set(heroShift);
+    if (this.lastHeroShift !== heroShift) {
+      this.lastHeroShift = heroShift;
+      root.style.setProperty('--hero-shift', `${heroShift}px`);
     }
 
-    // Calculate scroll speed for wind-sway leaf animation and liquid warp
+    // Calculate scroll speed for wind-sway leaf animation — update only on significant change
     const speed = scrollTop - this.lastScrollTop;
     this.lastScrollTop = scrollTop;
     this.scrollSpeed = this.scrollSpeed + (speed - this.scrollSpeed) * 0.12;
     const wind = Math.min(Math.max(this.scrollSpeed * 0.18, -15), 15);
-    root.style.setProperty('--scroll-wind', `${wind}`);
-
-    // PERF: currentStage tracked by IntersectionObserver
-    // is-live reveal: only call getBoundingClientRect on scenes NOT yet revealed
-    const scenes = this.sceneRefs?.toArray() ?? [];
-    for (const scene of scenes) {
-      const el = scene.nativeElement;
-      if (el.classList.contains('is-live')) continue;  // skip BCR on already-revealed scenes
-      const r = el.getBoundingClientRect();
-      const visible = Math.min(r.bottom, vh) - Math.max(r.top, 0);
-      if (visible >= Math.min(r.height || 1, vh) * 0.24) {
-        el.classList.add('is-live');
-      }
+    if (Math.abs(wind - this.lastWind) > 0.8) {
+      this.lastWind = wind;
+      root.style.setProperty('--scroll-wind', `${wind}`);
     }
 
-    // Map scroll probe directly to 0–1 so the creeper reaches the footer even when
-    // stages 10–12 are hidden and the delivery/coming-soon blocks add extra scroll height.
-    const probeY = Math.max((vh * 0.55 - rect.top) / this.vineScale, 0);
+    // Map scroll probe directly to 0–1 so the creeper reaches the footer
+    const probeY = Math.max((vh * 0.55 - rectTop) / this.vineScale, 0);
     const crawlerProgress = Math.min(probeY / this.vineEndProbeY, 1);
 
     // PERF: Only assign if delta > 0.0005 to avoid unnecessary vine RAF spawn
@@ -1797,8 +1872,8 @@ onCardMouseMove(event: MouseEvent, stageId: number, type: 'copy' | 'art'): void 
     this.zoomY.set(50);
   }
 
-  setInteractiveHover(state: boolean): void {
-    this.isHoveringInteractive.set(state);
+  setInteractiveHover(_state: boolean): void {
+    // No-op to eliminate continuous Change Detection on cursor hover over items
   }
 
   private startVineGrowthLoop(): void {
@@ -1829,20 +1904,33 @@ onCardMouseMove(event: MouseEvent, stageId: number, type: 'copy' | 'art'): void 
   private lastSetOrbAngle = -1;
 
   private drawVineAtProgress(prog: number): void {
+    const root = this.journeyRoot?.nativeElement;
     const path = this.vinePath?.nativeElement;
     if (!path || this.pathLength <= 0 || this.cachedPoints.length === 0) return;
 
-    // PERF: Only set progress signal if delta > 0.05% to reduce CD cycles
-    if (Math.abs(prog - this.lastSetProgress) > 0.0005) {
-      this.progress.set(prog);
+    // Direct DOM style updates for 60 FPS animation without Angular change detection churn
+    path.style.strokeDashoffset = `${this.pathLength * (1 - prog)}`;
+    if (this.progressFillRef?.nativeElement) {
+      this.progressFillRef.nativeElement.style.transform = `scaleX(${prog})`;
+    }
+
+    // Only update progress signal when crossing discrete visual thresholds to trigger template state
+    const prev = this.lastSetProgress;
+    const crossedThreshold =
+      (prev < 0.01 && prog >= 0.01) || (prev >= 0.01 && prog < 0.01) ||
+      (prev < 0.02 && prog >= 0.02) || (prev >= 0.02 && prog < 0.02) ||
+      (prev < 0.28 && prog >= 0.28) || (prev >= 0.28 && prog < 0.28) ||
+      this.leaves().some(l => (prev < l.t && prog >= l.t) || (prev >= l.t && prog < l.t)) ||
+      this.blossoms().some(b => (prev < b.t && prog >= b.t) || (prev >= b.t && prog < b.t));
+
+    if (crossedThreshold || Math.abs(prog - prev) > 0.02) {
+      this.ngZone.run(() => {
+        this.progress.set(prog);
+      });
       this.lastSetProgress = prog;
     }
 
-    path.style.strokeDashoffset = `${this.pathLength * (1 - prog)}`;
-
-    // Interpolate the head between the two nearest cached points so the creeper
-    // glides continuously instead of snapping from one pre-sampled point to the
-    // next. Still no getPointAtLength/layout cost inside the animation loop.
+    // Interpolate the head between the two nearest cached points
     const maxIdx = this.cachedPoints.length - 1;
     const exact = Math.min(Math.max(prog * maxIdx, 0), maxIdx);
     const lo = Math.floor(exact);
@@ -1860,18 +1948,22 @@ onCardMouseMove(event: MouseEvent, stageId: number, type: 'copy' | 'art'): void 
     else if (da < -180) da += 360;
     const pa = p0.angle + da * f;
 
-    // Tight thresholds: the interpolated values change smoothly each frame.
-    if (Math.abs(px - this.lastSetOrbX) > 0.05) {
-      this.orbX.set(px);
-      this.lastSetOrbX = px;
-    }
-    if (Math.abs(py - this.lastSetOrbY) > 0.05) {
-      this.orbY.set(py);
-      this.lastSetOrbY = py;
-    }
-    if (Math.abs(pa - this.lastSetOrbAngle) > 0.1) {
-      this.orbAngle.set(pa);
-      this.lastSetOrbAngle = pa;
+    // Mutate the crawler directly on the SVG DOM node for 60fps tracking without CD
+    if (this.crawlerRef?.nativeElement) {
+      this.crawlerRef.nativeElement.setAttribute('transform', `translate(${px} ${py}) rotate(${pa})`);
+    } else {
+      if (Math.abs(px - this.lastSetOrbX) > 0.05) {
+        this.orbX.set(px);
+        this.lastSetOrbX = px;
+      }
+      if (Math.abs(py - this.lastSetOrbY) > 0.05) {
+        this.orbY.set(py);
+        this.lastSetOrbY = py;
+      }
+      if (Math.abs(pa - this.lastSetOrbAngle) > 0.1) {
+        this.orbAngle.set(pa);
+        this.lastSetOrbAngle = pa;
+      }
     }
   }
 }

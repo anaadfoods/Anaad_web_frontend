@@ -26,6 +26,14 @@ import { SubscriptionService } from '../../../core/services/subscription.service
         <div class="coming-soon-overlay" *ngIf="!isActive()">Coming Soon</div>
         <div class="out-of-stock-overlay" *ngIf="isActive() && !hasStock()">Out of Stock</div>
 
+        <!-- Preorder Badge with Extra Discount -->
+        <div class="badge-preorder" *ngIf="variant.is_preorder && isActive() && hasStock()" style="position: absolute; top: 12px; left: 12px; background: var(--amber-harvest, #E09E3E); color: #1a1a1a; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; text-transform: uppercase; z-index: 2; display: flex; align-items: center; gap: 4px;">
+          <span>Preorder</span>
+          <span *ngIf="variant.preorder_extra_savings && +variant.preorder_extra_savings > 0" style="background: #1a1a1a; color: #fff; padding: 1px 4px; border-radius: 2px; font-size: 10px;">
+            {{ variant.preorder_discount_type === 'PERCENTAGE' ? (variant.preorder_discount_value + '% OFF') : ('-₹' + variant.preorder_extra_savings) }}
+          </span>
+        </div>
+
         <!-- Optional Discount Badge -->
         <div class="badge-discount" *ngIf="hasDiscount() && isActive() && hasStock()">
           -{{ discountPercent() }}%
@@ -76,7 +84,7 @@ import { SubscriptionService } from '../../../core/services/subscription.service
             class="btn-product"
             (click)="$event.stopPropagation(); onAddToCart()"
             [disabled]="!hasStock() || !isActive()">
-            {{ !isActive() ? 'Coming Soon' : (!hasStock() ? 'Out of Stock' : 'Add to Cart') }}
+            {{ !isActive() ? 'Coming Soon' : (!hasStock() ? 'Out of Stock' : (variant.is_preorder ? 'Preorder' : 'Add to Cart')) }}
           </button>
           <button
             type="button"
@@ -462,6 +470,10 @@ export class ProductCardComponent implements OnInit {
 
   hasStock(): boolean {
     if (!this.variant) return false;
+    if (this.variant.is_preorder) {
+      const slots = this.variant.preorder_slots_remaining ?? 0;
+      return slots > 0;
+    }
     const stockQty = this.variant.stock ?? (this.variant as any).stock_quantity;
     if (stockQty !== undefined) {
       return stockQty > 0;

@@ -63,6 +63,8 @@ export interface Order {
   shipping_pincode?: string;
   shipping_phone?: string;
   expected_delivery_date?: string;
+  is_preorder_order?: boolean;
+  preorder_release_date?: string;
   notes?: string;
   created_at: string;
   updated_at: string;
@@ -70,6 +72,8 @@ export interface Order {
 
 export type OrderStatus =
   | 'PENDING'
+  | 'PREORDER_PLACED'
+  | 'PLACED'
   | 'CONFIRMED'
   | 'PROCESSING'
   | 'SHIPPED'

@@ -47,6 +47,15 @@ export interface ProductVariant {
   is_featured?: boolean;
   is_bestseller?: boolean;
   crop_cycle_id?: string | null;
+  is_preorder?: boolean;
+  release_date?: string | null;
+  preorder_capacity?: number;
+  preorder_slots_remaining?: number;
+  preorder_message?: string;
+  preorder_discount_type?: 'PERCENTAGE' | 'FIXED';
+  preorder_discount_value?: string | number;
+  preorder_extra_savings?: string | number;
+  regular_discounted_price?: string | number;
   images: ProductImage[];
   product_images?: ProductImage[];
   product_category?: string;
@@ -71,6 +80,10 @@ export interface ProductCardVM {
   isBestseller: boolean;
   category: string;
   isFavorite: boolean;
+  isPreorder?: boolean;
+  releaseDate?: string | null;
+  preorderSlotsRemaining?: number;
+  preorderMessage?: string;
 }
 
 /** GET /api/core/banners/ */

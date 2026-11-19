@@ -24,18 +24,18 @@
   <div class="journey-vignette journey-vignette--right" aria-hidden="true"></div>
 
   <!-- Feature 6: Scroll-Linked Parallax Cloud Washes -->
-  <div class="journey-cloud journey-cloud--1" [style.transform]="'translateY(' + parallaxOffset() * 0.15 + 'px)'" aria-hidden="true"></div>
-  <div class="journey-cloud journey-cloud--2" [style.transform]="'translateY(' + parallaxOffset() * -0.12 + 'px)'" aria-hidden="true"></div>
-  <div class="journey-cloud journey-cloud--3" [style.transform]="'translateY(' + parallaxOffset() * 0.1 + 'px)'" aria-hidden="true"></div>
+  <div class="journey-cloud journey-cloud--1" aria-hidden="true"></div>
+  <div class="journey-cloud journey-cloud--2" aria-hidden="true"></div>
+  <div class="journey-cloud journey-cloud--3" aria-hidden="true"></div>
 
   <!-- Next-Gen 3D Camera Depth Scroll Foreground Elements -->
-  <div class="journey-fore-leaf journey-fore-leaf--1" [style.transform]="'translateY(' + -parallaxOffset() * 0.28 + 'px) rotate(' + parallaxOffset() * 0.04 + 'deg)'" aria-hidden="true"></div>
-  <div class="journey-fore-leaf journey-fore-leaf--2" [style.transform]="'translateY(' + -parallaxOffset() * 0.36 + 'px) rotate(' + -parallaxOffset() * 0.06 + 'deg)'" aria-hidden="true"></div>
-  <div class="journey-fore-leaf journey-fore-leaf--3" [style.transform]="'translateY(' + -parallaxOffset() * 0.24 + 'px) rotate(' + parallaxOffset() * 0.08 + 'deg)'" aria-hidden="true"></div>
+  <div class="journey-fore-leaf journey-fore-leaf--1" aria-hidden="true"></div>
+  <div class="journey-fore-leaf journey-fore-leaf--2" aria-hidden="true"></div>
+  <div class="journey-fore-leaf journey-fore-leaf--3" aria-hidden="true"></div>
 
   <!-- Feature 1: Scroll Progress Bar -->
   <div class="journey-progress" [class.is-scrolled]="progress() > 0.01" [class.is-complete]="journeyComplete()">
-    <div class="journey-progress__fill" [style.transform]="'scaleX(' + progress() + ')'"></div>
+    <div #progressFill class="journey-progress__fill" [style.transform]="'scaleX(' + progress() + ')'"></div>
     <span class="journey-progress__stage">Stage {{ currentStage() }} of 12</span>
     <!-- Tier 1: Stage tick marks on progress bar -->
     <div class="journey-progress__ticks" aria-hidden="true">
@@ -66,21 +66,23 @@
     }
   </nav>
 
-  <!-- Feature 5: Ambient Floating Pollen Particles -->
-  <div class="journey-pollen" aria-hidden="true">
-    @for (p of pollenMotes; track $index) {
-      <span
-        class="journey-pollen__mote"
-        [style.left.%]="p.left"
-        [style.width.px]="p.size"
-        [style.height.px]="p.size"
-        [style.animation-duration.s]="p.dur"
-        [style.animation-delay.s]="p.delay"
-        [style.--pollen-opacity]="p.opacity"
-        [style.--pollen-drift.px]="p.drift"
-      ></span>
-    }
-  </div>
+  <!-- Feature 5: Ambient Floating Pollen Particles (hidden in smoothUi mode) -->
+  @if (!smoothUi) {
+    <div class="journey-pollen" aria-hidden="true">
+      @for (p of pollenMotes; track $index) {
+        <span
+          class="journey-pollen__mote"
+          [style.left.%]="p.left"
+          [style.width.px]="p.size"
+          [style.height.px]="p.size"
+          [style.animation-duration.s]="p.dur"
+          [style.animation-delay.s]="p.delay"
+          [style.--pollen-opacity]="p.opacity"
+          [style.--pollen-drift.px]="p.drift"
+        ></span>
+      }
+    </div>
+  }
 
   <!-- Loading Overlay -->
   @if (isLoading()) {
@@ -161,13 +163,11 @@
     <div class="journey-intro__bg" aria-hidden="true">
       <div
         class="journey-intro__bg-layer journey-intro__bg-layer--sky"
-        [style.transform]="'translate3d(0,' + (heroParallax() * 0.1) + 'px,0) scale(1.12)'"
       >
         <img src="assets/traceability/hero-bg.png" alt="" />
       </div>
       <div
         class="journey-intro__bg-layer journey-intro__bg-layer--field"
-        [style.transform]="'translate3d(0,' + (heroParallax() * 0.26) + 'px,0) scale(1.04)'"
       >
         <img src="assets/traceability/hero-bg.png" alt="" />
       </div>
@@ -253,7 +253,7 @@
           </g>
         }
 
-        <g class="journey__crawler" [attr.transform]="'translate(' + orbX() + ' ' + orbY() + ') rotate(' + orbAngle() + ')'">
+        <g #crawler class="journey__crawler" [attr.transform]="'translate(' + orbX() + ' ' + orbY() + ') rotate(' + orbAngle() + ')'">
           <circle r="26" class="journey__crawler-glow"></circle>
           <circle r="15" class="journey__crawler-glow journey__crawler-glow--inner"></circle>
 
@@ -319,8 +319,6 @@
         <div class="scene__art">
           <figure 
             class="scene__frame" 
-            (mousemove)="onCardMouseMove($event, stage.id, 'art')" 
-            (mouseleave)="onCardMouseLeave()"
             [style.--tilt-x.deg]="activeTiltCard() === stage.id && tiltType() === 'art' ? cardTiltX() : 0"
             [style.--tilt-y.deg]="activeTiltCard() === stage.id && tiltType() === 'art' ? cardTiltY() : 0"
             [style.--zoom-scale]="activeTiltCard() === stage.id && tiltType() === 'art' ? 1.035 : 1"
@@ -782,8 +780,6 @@
 
   <ng-template #copyCard let-stage="stage">
 <div class="scene__copy" 
-               (mousemove)="onCardMouseMove($event, stage.id, 'copy')" 
-               (mouseleave)="onCardMouseLeave()"
                [class.is-flipped]="flippedCard() === stage.id"
                [style.--tilt-x.deg]="activeTiltCard() === stage.id && tiltType() === 'copy' ? cardTiltX() : 0"
                [style.--tilt-y.deg]="activeTiltCard() === stage.id && tiltType() === 'copy' ? cardTiltY() : 0"

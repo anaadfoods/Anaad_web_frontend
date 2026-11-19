@@ -27,6 +27,7 @@ export class CartState {
   readonly deliveryCharge = computed(() => this.totalPrice() > 1200 || this.isEmpty() ? 0 : 150);
   readonly grandTotal = computed(() => +(this.totalPrice() + this.estimatedTax() + this.deliveryCharge()).toFixed(2));
   readonly isEmpty = computed(() => this.itemCount() === 0);
+  readonly isPreorderCart = computed(() => this._cart().items.some(i => i.is_preorder));
 
   constructor() {
     // Hydrate cached cart from localStorage (optimistic display)

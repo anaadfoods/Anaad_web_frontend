@@ -18,6 +18,9 @@ export interface CartItem {
   image?: string;
   weight?: string;
   unit?: string;
+  is_preorder?: boolean;
+  release_date?: string | null;
+  preorder_message?: string | null;
 }
 
 /** GET /api/cart/details/ */

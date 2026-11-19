@@ -108,9 +108,31 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.toastSvc.show(`Added ${variant.product_name} to cart!`, 'success');
       },
       error: (err) => {
-        if (err.message !== 'Limit reached') {
-          this.toastSvc.show(`Failed to add ${variant.product_name} to cart.`, 'error');
+        if (err.message === 'Limit reached') return;
+        const errMsg = err?.error?.message || `Failed to add ${variant.product_name} to cart.`;
+        const isSeparationConflict = errMsg.toLowerCase().includes('separately') || errMsg.toLowerCase().includes('preorder');
+        if (isSeparationConflict && typeof window !== 'undefined') {
+          const proceed = window.confirm(`${errMsg}\n\nWould you like to clear your current cart to proceed with this ${variant.is_preorder ? 'preorder' : 'order'}?`);
+          if (proceed) {
+            this.cartSvc.clearCart().subscribe({
+              next: () => {
+                this.cartSvc.addItem(variant.id, 1, variant).subscribe({
+                  next: () => {
+                    this.toastSvc.show(`Cart cleared. Added ${variant.product_name} to cart!`, 'success');
+                  },
+                  error: (innerErr) => {
+                    this.toastSvc.show(innerErr?.error?.message || `Failed to add ${variant.product_name} to cart.`, 'error');
+                  }
+                });
+              },
+              error: () => {
+                this.toastSvc.show('Failed to clear current cart.', 'error');
+              }
+            });
+            return;
+          }
         }
+        this.toastSvc.show(errMsg, 'error');
       },
     });
   }

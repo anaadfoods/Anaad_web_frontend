@@ -115,6 +115,8 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
   getStatusColor(status: string): string {
     const colorMap: { [key: string]: string } = {
       'PENDING': '#FFA500',
+      'PREORDER_PLACED': '#D97706',
+      'PLACED': '#2C4A1E',
       'CONFIRMED': '#4169E1',
       'PROCESSING': '#FF6347',
       'SHIPPED': '#32CD32',
@@ -124,6 +126,13 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
       'RETURNED': '#FF1493'
     };
     return colorMap[status] || '#999999';
+  }
+
+  formatStatusText(status: string | undefined): string {
+    if (!status) return '';
+    if (status.toUpperCase() === 'PREORDER_PLACED') return 'Pre-order Confirmed';
+    if (status.toUpperCase() === 'PLACED') return 'Order Confirmed';
+    return status;
   }
 
   getPaymentStatusIcon(status: string): string {
@@ -202,7 +211,10 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
 
   canCancelOrder(): boolean {
     const order = this.orderData();
-    return order?.status === 'PENDING' || order?.status === 'CONFIRMED';
+    if (!order) return false;
+    // Decision 1 (Option B): Preorders are locked for harvest allocation and cannot be self-cancelled
+    if (order.status === 'PREORDER_PLACED' || order.is_preorder_order) return false;
+    return order.status === 'PENDING' || order.status === 'CONFIRMED';
   }
 
   getItemName(item: any): string {

@@ -11,7 +11,7 @@
 //   externalLoginUrl: 'https://bck-dev.anaadfoods.com/',
 // };
 // environment.ts (dev)
-const apiBaseUrl = 'https://bck.anaadfoods.com';
+const apiBaseUrl = 'http://localhost:8000';
 // const apiBaseUrl = 'https://educated-carpentry-reverence.ngrok-free.dev';
 
 export const environment = {
@@ -26,7 +26,7 @@ export const environment = {
   appleServiceId: 'com.anaad.foods.ios.signin',
   appleRedirectUri: `${apiBaseUrl}/api/auth/apple/callback/`,
   appleWebCallbackPath: '/auth/apple/callback',
-  externalLoginUrl: 'https://anaadfoods.com/profile',  // ← fixed: now matches frontend, not backend
+  externalLoginUrl: 'https://web.anaadfoods.com/profile',  // ← fixed: now matches frontend, not backend
   sutraBaseUrl: 'https://sutra-bck.anaadfoods.com', // Will point to prod sutra when deployed
   enableRequestIdHeader: false, // Set to true once backend includes 'x-request-id' in CORS_ALLOW_HEADERS
   enableNotificationsWs: false, // Set to true once backend WebSocket notifications are deployed

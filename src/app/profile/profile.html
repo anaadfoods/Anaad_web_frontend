@@ -406,10 +406,10 @@
                 </div>
                 <span class="order-date">{{ parseOrderDate(order.created_at) | date:'dd MMM yyyy' }}</span>
                 <span class="order-total">{{ getOrderTotal(order) | currencyInr }}</span>
-                <span class="status-pill" [class]="getOrderStatusClass(order.status)">{{ order.status }}</span>
+                <span class="status-pill" [class]="getOrderStatusClass(order.status)">{{ formatOrderStatus(order.status) }}</span>
                 <div class="order-actions">
                   <button type="button" class="micro-btn"
-                    *ngIf="order.status !== 'CANCELLED' && order.status !== 'DELIVERED'"
+                    *ngIf="order.status !== 'CANCELLED' && order.status !== 'DELIVERED' && order.status !== 'PREORDER_PLACED'"
                     (click)="$event.stopPropagation(); cancelOrder(order.id)">Cancel</button>
                   <button type="button" class="micro-btn" *ngIf="order.status === 'DELIVERED'"
                     (click)="$event.stopPropagation(); downloadInvoice(order.order_number)">Invoice</button>

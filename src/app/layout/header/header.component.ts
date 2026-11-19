@@ -46,7 +46,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
           this.shouldPopBadge.set(false);
         }, 300);
       }
-    }, { allowSignalWrites: true });
+    });
   }
 
   ngOnInit() {

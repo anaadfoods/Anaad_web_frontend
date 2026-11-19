@@ -84,6 +84,11 @@
             *ngIf="purchaseType() === 'single' && mrpToDisplay !== null && savingsPercentage > 0">
             &#10003; Save {{ savingsPercentage }}% on MRP
           </span>
+          <span class="price-savings"
+            *ngIf="variant()?.is_preorder && (variant()?.preorder_extra_savings || 0) > 0"
+            style="background: #FEF3C7; color: #92400E; border: 1px solid #FCD34D; padding: 4px 8px; border-radius: 4px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; margin-top: 6px;">
+            🏷️ Extra Preorder Discount: {{ variant()?.preorder_discount_type === 'PERCENTAGE' ? (variant()?.preorder_discount_value + '% OFF') : ((variant()?.preorder_extra_savings | currencyInr) + ' OFF') }}
+          </span>
           <span class="price-savings" *ngIf="purchaseType() === 'subscription' && selectedPlanId()">
             &#10003; Subscription Discount Applied
           </span>
@@ -138,6 +143,23 @@
           *Some plans require a minimum order quantity.
         </p>
 
+        <div class="preorder-notice" *ngIf="variant()?.is_preorder"
+          style="background: rgba(224, 158, 62, 0.12); border: 1px solid var(--amber-harvest, #E09E3E); border-radius: 8px; padding: 14px 16px; margin: 16px 0; font-family: var(--font-sans); font-size: 13px; color: var(--charcoal);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <strong style="color: #92400e; font-size: 14px;">Pre-order Special</strong>
+            <span *ngIf="(variant()?.preorder_extra_savings || 0) > 0" style="background: #E09E3E; color: #1a1a1a; font-weight: 700; padding: 2px 8px; border-radius: 4px; font-size: 11px;">
+              Extra {{ variant()?.preorder_discount_type === 'PERCENTAGE' ? (variant()?.preorder_discount_value + '% OFF') : ((variant()?.preorder_extra_savings | currencyInr) + ' OFF') }}
+            </span>
+          </div>
+          <div>{{ variant()?.preorder_message || 'This item will be fulfilled once harvested and released.' }}</div>
+          <div *ngIf="variant()?.release_date" style="margin-top: 4px; font-weight: 500;">
+            Estimated Release Date: {{ variant()?.release_date }}
+          </div>
+          <div *ngIf="(variant()?.preorder_slots_remaining ?? 0) > 0" style="margin-top: 2px; font-size: 12px; opacity: 0.8;">
+            Slots available: {{ variant()?.preorder_slots_remaining }}
+          </div>
+        </div>
+
         <div class="add-row" *ngIf="hasStock() && isActive()">
           <!-- One-time purchase controls (when not already added to cart) -->
           <ng-container *ngIf="purchaseType() === 'single' && cartQuantity === 0">
@@ -146,7 +168,7 @@
             </app-qty-selector>
 
             <button class="btn-add-cart" (click)="addToCart()" [disabled]="addingToCart()">
-              {{ addingToCart() ? 'Adding...' : 'Add to Cart &#8594;' }}
+              {{ addingToCart() ? 'Adding...' : (variant()?.is_preorder ? 'Preorder Now &#8594;' : 'Add to Cart &#8594;') }}
             </button>
           </ng-container>
 

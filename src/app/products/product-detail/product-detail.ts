@@ -196,6 +196,10 @@ export class ProductDetail implements OnInit {
   hasStock(): boolean {
     const v = this.variant();
     if (!v) return false;
+    if (v.is_preorder) {
+      const slots = v.preorder_slots_remaining ?? 0;
+      return slots > 0;
+    }
     const stockQty = v.stock ?? (v as any).stock_quantity;
     if (stockQty !== undefined) {
       return stockQty > 0;
@@ -233,9 +237,37 @@ export class ProductDetail implements OnInit {
       },
       error: (err) => {
         this.addingToCart.set(false);
-        if (err.message !== 'Limit reached') {
-          this.toastSvc.show('Failed to add item to cart.', 'error');
+        if (err.message === 'Limit reached') return;
+        const errMsg = err?.error?.message || 'Failed to add item to cart.';
+        const isSeparationConflict = errMsg.toLowerCase().includes('separately') || errMsg.toLowerCase().includes('preorder');
+        if (isSeparationConflict && typeof window !== 'undefined') {
+          const proceed = window.confirm(`${errMsg}\n\nWould you like to clear your current cart to proceed with this ${v.is_preorder ? 'preorder' : 'order'}?`);
+          if (proceed) {
+            this.addingToCart.set(true);
+            this.cartSvc.clearCart().subscribe({
+              next: () => {
+                this.cartSvc.addItem(v.id, this.quantity(), v).subscribe({
+                  next: () => {
+                    this.addingToCart.set(false);
+                    this.addedToCart.set(true);
+                    this.toastSvc.show(`Cart cleared. Added ${v.product_name} to cart!`, 'success');
+                    setTimeout(() => this.addedToCart.set(false), 2500);
+                  },
+                  error: (innerErr) => {
+                    this.addingToCart.set(false);
+                    this.toastSvc.show(innerErr?.error?.message || 'Failed to add item to cart.', 'error');
+                  }
+                });
+              },
+              error: () => {
+                this.addingToCart.set(false);
+                this.toastSvc.show('Failed to clear current cart.', 'error');
+              }
+            });
+            return;
+          }
         }
+        this.toastSvc.show(errMsg, 'error');
       }
     });
   }

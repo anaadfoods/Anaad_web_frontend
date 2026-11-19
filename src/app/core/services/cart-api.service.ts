@@ -81,7 +81,10 @@ export class CartApiService {
         total_price: (parseFloat(priceVal) * quantity).toFixed(2),
         image: primaryImage,
         weight: variant.weight,
-        unit: unitVal
+        unit: unitVal,
+        is_preorder: variant.is_preorder,
+        release_date: variant.release_date,
+        preorder_message: variant.preorder_message,
       };
       this.cartState.optimisticAdd(cartItem);
     }
@@ -209,6 +212,9 @@ export class CartApiService {
           image: item.image ?? variantObj?.image?.image ?? variantObj?.product_images?.[0]?.image ?? variantObj?.images?.[0]?.image ?? '',
           weight: item.weight ?? variantObj?.weight ?? '',
           unit: item.unit ?? variantObj?.weight_unit ?? variantObj?.unit ?? '',
+          is_preorder: variantObj?.is_preorder ?? (item as any).is_preorder,
+          release_date: variantObj?.release_date ?? (item as any).release_date,
+          preorder_message: variantObj?.preorder_message ?? (item as any).preorder_message,
         };
       }),
       total_price: cart.total_price ?? '0.00',

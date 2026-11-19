@@ -897,8 +897,15 @@ export class Profile implements OnInit, OnDestroy {
       case 'SHIPPED': return 'status-shipped';
       case 'CANCELLED': return 'status-cancelled';
       case 'PENDING': return 'status-pending';
+      case 'PREORDER_PLACED': return 'status-preorder';
       default: return 'status-processing';
     }
+  }
+
+  formatOrderStatus(status: string): string {
+    if (status?.toUpperCase() === 'PREORDER_PLACED') return 'Pre-order Confirmed';
+    if (status?.toUpperCase() === 'PLACED') return 'Order Confirmed';
+    return status;
   }
 
   getOrderItemName(item: any): string {

@@ -205,9 +205,43 @@ export class ProductList implements OnInit, OnDestroy {
         const done = new Set(this.cartAddingIds());
         done.delete(variant.id);
         this.cartAddingIds.set(done);
-        if (err.message !== 'Limit reached') {
-          this.toastSvc.show(`Failed to add ${variant.product_name} to cart.`, 'error');
+        if (err.message === 'Limit reached') return;
+        const errMsg = err?.error?.message || `Failed to add ${variant.product_name} to cart.`;
+        const isSeparationConflict = errMsg.toLowerCase().includes('separately') || errMsg.toLowerCase().includes('preorder');
+        if (isSeparationConflict && typeof window !== 'undefined') {
+          const proceed = window.confirm(`${errMsg}\n\nWould you like to clear your current cart to proceed with this ${variant.is_preorder ? 'preorder' : 'order'}?`);
+          if (proceed) {
+            const addingAgain = new Set(this.cartAddingIds());
+            addingAgain.add(variant.id);
+            this.cartAddingIds.set(addingAgain);
+            this.cartSvc.clearCart().subscribe({
+              next: () => {
+                this.cartSvc.addItem(variant.id, 1, variant).subscribe({
+                  next: () => {
+                    const finish = new Set(this.cartAddingIds());
+                    finish.delete(variant.id);
+                    this.cartAddingIds.set(finish);
+                    this.toastSvc.show(`Cart cleared. Added ${variant.product_name} to cart!`, 'success');
+                  },
+                  error: (innerErr) => {
+                    const finish = new Set(this.cartAddingIds());
+                    finish.delete(variant.id);
+                    this.cartAddingIds.set(finish);
+                    this.toastSvc.show(innerErr?.error?.message || `Failed to add ${variant.product_name} to cart.`, 'error');
+                  }
+                });
+              },
+              error: () => {
+                const finish = new Set(this.cartAddingIds());
+                finish.delete(variant.id);
+                this.cartAddingIds.set(finish);
+                this.toastSvc.show('Failed to clear current cart.', 'error');
+              }
+            });
+            return;
+          }
         }
+        this.toastSvc.show(errMsg, 'error');
       },
     });
   }

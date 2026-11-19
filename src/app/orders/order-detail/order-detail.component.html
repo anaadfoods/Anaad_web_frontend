@@ -32,7 +32,7 @@
           <span class="order-meta-item">{{ orderData()?.items?.length }} items</span>
           <div class="order-meta-sep"></div>
           <span class="status-pill status-delivered" [style.backgroundColor]="getStatusColor(orderData()?.status || '')">
-            {{ orderData()?.status }}
+            {{ formatStatusText(orderData()?.status) }}
           </span>
         </div>
       </div>
@@ -66,6 +66,52 @@
               <span class="order-item-price">{{ getItemTotalPrice(item) | currencyInr }}</span>
             </div>
             }
+          </div>
+        </div>
+
+        <!-- PREORDER LIFECYCLE STEPPER -->
+        <div *ngIf="orderData()?.is_preorder_order || orderData()?.status === 'PREORDER_PLACED'" style="background: #ffffff; border: 1px solid rgba(26,26,26,0.08); border-radius: 12px; padding: 24px; margin-top: 24px;">
+          <span class="section-tag" style="color: #b45309;">Harvest &amp; Fulfillment Journey</span>
+          <h2 class="section-title" style="margin-top: 4px; margin-bottom: 20px;">Pre-order Timeline</h2>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+            <!-- Step 1: Preorder Confirmed -->
+            <div style="border-left: 3px solid #16a34a; padding-left: 12px;">
+              <div style="font-size: 11px; font-weight: 700; color: #16a34a; text-transform: uppercase;">Step 1 &bull; Confirmed</div>
+              <div style="font-weight: 600; font-size: 14px; color: #1a1a1a; margin-top: 2px;">Slot Reserved</div>
+              <div style="font-size: 12px; color: rgba(26,26,26,0.6); margin-top: 2px;">
+                Placed on {{ formatDate(orderData()?.created_at) }}
+              </div>
+            </div>
+
+            <!-- Step 2: Harvest & Stone-Milling -->
+            <div [style.borderLeft]="orderData()?.status === 'PREORDER_PLACED' ? '3px solid #d97706' : '3px solid #16a34a'" style="padding-left: 12px;">
+              <div [style.color]="orderData()?.status === 'PREORDER_PLACED' ? '#d97706' : '#16a34a'" style="font-size: 11px; font-weight: 700; text-transform: uppercase;">
+                {{ orderData()?.status === 'PREORDER_PLACED' ? 'Step 2 &bull; In Progress' : 'Step 2 &bull; Completed' }}
+              </div>
+              <div style="font-weight: 600; font-size: 14px; color: #1a1a1a; margin-top: 2px;">Harvest &amp; Milling</div>
+              <div style="font-size: 12px; color: rgba(26,26,26,0.6); margin-top: 2px;">
+                Est. Release: {{ orderData()?.preorder_release_date ? formatDate(orderData()?.preorder_release_date) : 'Upcoming' }}
+              </div>
+            </div>
+
+            <!-- Step 3: Packing & Quality Check -->
+            <div [style.borderLeft]="orderData()?.status === 'PLACED' ? '3px solid #d97706' : (orderData()?.status === 'SHIPPED' || orderData()?.status === 'DELIVERED' ? '3px solid #16a34a' : '3px solid rgba(26,26,26,0.15)')" style="padding-left: 12px;">
+              <div [style.color]="orderData()?.status === 'PLACED' ? '#d97706' : (orderData()?.status === 'SHIPPED' || orderData()?.status === 'DELIVERED' ? '#16a34a' : 'rgba(26,26,26,0.4)')" style="font-size: 11px; font-weight: 600; text-transform: uppercase;">
+                {{ orderData()?.status === 'PLACED' ? 'Step 3 &bull; In Progress' : (orderData()?.status === 'SHIPPED' || orderData()?.status === 'DELIVERED' ? 'Step 3 &bull; Completed' : 'Step 3 &bull; Scheduled') }}
+              </div>
+              <div style="font-weight: 600; font-size: 14px; color: #1a1a1a; margin-top: 2px;">Batch Packing</div>
+              <div style="font-size: 12px; color: rgba(26,26,26,0.5); margin-top: 2px;">Warehouse intake &amp; packing</div>
+            </div>
+
+            <!-- Step 4: Courier Dispatch -->
+            <div [style.borderLeft]="orderData()?.status === 'SHIPPED' ? '3px solid #d97706' : (orderData()?.status === 'DELIVERED' ? '3px solid #16a34a' : '3px solid rgba(26,26,26,0.15)')" style="padding-left: 12px;">
+              <div [style.color]="orderData()?.status === 'SHIPPED' ? '#d97706' : (orderData()?.status === 'DELIVERED' ? '#16a34a' : 'rgba(26,26,26,0.4)')" style="font-size: 11px; font-weight: 600; text-transform: uppercase;">
+                {{ orderData()?.status === 'SHIPPED' ? 'Step 4 &bull; In Transit' : (orderData()?.status === 'DELIVERED' ? 'Step 4 &bull; Delivered' : 'Step 4 &bull; Scheduled') }}
+              </div>
+              <div style="font-weight: 600; font-size: 14px; color: #1a1a1a; margin-top: 2px;">Doorstep Delivery</div>
+              <div style="font-size: 12px; color: rgba(26,26,26,0.5); margin-top: 2px;">Tracking link sent on dispatch</div>
+            </div>
           </div>
         </div>
 
