@@ -26,6 +26,14 @@ export const serverRoutes: ServerRoute[] = [
     renderMode: RenderMode.Server
   },
   {
+    path: 'traceability/:crop_id',
+    renderMode: RenderMode.Server
+  },
+  {
+    path: 'trace/:crop_id',
+    renderMode: RenderMode.Server
+  },
+  {
     path: 'profile',
     renderMode: RenderMode.Server
   },

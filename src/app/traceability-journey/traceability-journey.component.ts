@@ -102,6 +102,8 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
   @ViewChild('journeyEnd') private journeyEnd?: ElementRef<HTMLElement>;
   @ViewChild('crawler') private crawlerRef?: ElementRef<SVGGElement>;
   @ViewChild('progressFill') private progressFillRef?: ElementRef<HTMLElement>;
+  @ViewChild('parallaxLayer') private parallaxLayer?: ElementRef<HTMLElement>;
+  @ViewChild('heroBg') private heroBg?: ElementRef<HTMLElement>;
   @ViewChildren('scene') private sceneRefs?: QueryList<ElementRef<HTMLElement>>;
   @ViewChildren('vineWaypoint') private vineWaypointRefs?: QueryList<ElementRef<HTMLElement>>;
   private readonly platformId = inject(PLATFORM_ID);
@@ -112,12 +114,18 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
   private readonly router = inject(Router);
   protected readonly authState = inject(AuthState);
 
-  // ΓöÇΓöÇ Traceability API State ΓöÇΓöÇ
+  // Traceability API State
   protected readonly currentQrCode = signal<string>('QR-ANAAD-ATTA5KG-000045');
   protected readonly currentCropId = signal<string | null>(null);
   protected readonly isLoading = signal(true);
   protected readonly traceError = signal<string | null>(null);
   protected readonly journey = signal<TraceabilityJourney | null>(null);
+
+  // Crop Cycle ID Prompt Pop-up State
+  protected readonly showCropIdPrompt = signal(false);
+  protected readonly cropIdInput = signal('');
+  protected readonly cropIdInputError = signal<string | null>(null);
+  protected readonly isSubmittingCropId = signal(false);
 
   // Computed signals for each API section
   protected readonly traceProduct = computed(() => this.journey()?.product ?? null);
@@ -163,6 +171,20 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
     this.traceCropCycle()?.cycleCode ?? this.currentCropId() ?? this.DEFAULT_CROP_ID
   );
 
+  /** Logged-in user's mobile number from their profile */
+  protected readonly userProfilePhone = computed(() => {
+    const raw = this.authState.user()?.phone_number;
+    if (!raw) return '';
+    const clean = raw.replace(/\D/g, '');
+    return clean.length >= 10 ? clean.slice(-10) : clean;
+  });
+
+  /** Whether the error indicates crop cycle not found / does not exist */
+  protected readonly isCropNotFoundError = computed(() => {
+    const err = (this.traceError() || '').toLowerCase();
+    return err.includes('not found') || err.includes('exist') || err.includes('crop cycle');
+  });
+
   /** Disable premium visuals that hurt scroll/mouse performance. */
   protected readonly smoothUi = true;
   protected readonly prefersReducedMotion = signal(false);
@@ -196,7 +218,6 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
   protected readonly currentStage = signal(1);
   protected readonly showRegisteredModal = signal(false);
   protected readonly isRegisteredUser = computed(() => this.authState.isAuthenticated());
-  protected readonly journeyComplete = computed(() => this.currentStage() === 12);
   protected readonly orbX = signal(110);
   protected readonly orbY = signal(0);
   protected readonly orbAngle = signal(0);
@@ -224,9 +245,6 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
   private vineRafId: number | null = null;
   private cachedPoints: { x: number; y: number; angle: number }[] = [];
   private pathLength = 0;
-  private lastScrollTop = 0;
-  private scrollSpeed = 0;
-  private lastWind = 0;
   private flipStampTimer: ReturnType<typeof setTimeout> | null = null;
   private scrollListener?: () => void;
   private resizeListener?: () => void;
@@ -468,6 +486,156 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
     }
   ];
 
+  /** Check if logistics data exists for batch dispatch */
+  protected hasDispatchData(): boolean {
+    if (this.hasDeliveryData()) return true;
+    const log = this.traceLogistics();
+    if (!log) return false;
+    return !!log.carrier || !!log.vehicleNumber || !!log.origin || (log.steps?.length ?? 0) > 0;
+  }
+
+  /** Check if logistics data exists for batch in-transit */
+  protected hasInTransitData(): boolean {
+    if (this.hasDeliveryData()) {
+      const orderTk = this.orderTracking();
+      const subTk = this.subTracking();
+      if (
+        orderTk &&
+        (orderTk.status === 'IN_TRANSIT' ||
+          orderTk.status === 'OUT_FOR_DELIVERY' ||
+          orderTk.status === 'DELIVERED' ||
+          (orderTk.tracking_events?.length ?? 0) > 0)
+      ) {
+        return true;
+      }
+      if (subTk && subTk.length > 0) return true;
+    }
+    const log = this.traceLogistics();
+    if (!log) return false;
+    return (
+      !!log.destination ||
+      (log.steps?.some((s) => s.stepType === 'IN_TRANSIT' || s.stepType === 'DELIVERED') ?? false)
+    );
+  }
+
+  /** Check if logistics or delivery data exists for batch delivered */
+  protected hasDeliveredData(): boolean {
+    if (this.orderTracking()?.status === 'DELIVERED') return true;
+    if (this.subTracking()?.some((s) => s.status === 'DELIVERED')) return true;
+    const log = this.traceLogistics();
+    if (log?.deliveredAt || log?.status === 'DELIVERED') return true;
+    return (this.traceAuthenticity()?.scanCount ?? 0) > 0;
+  }
+
+  /** Checks whether real data is present for each stage ("make sure user will have data that much he have") */
+  hasStageData(stageId: number): boolean {
+    const j = this.journey();
+    if (!j) return false;
+
+    switch (stageId) {
+      case 1: // Know your seed
+        return (
+          !!j.seed?.seedCode ||
+          !!j.seed?.variety ||
+          !!j.seed?.cropName ||
+          !!j.cropCycle?.seedCode ||
+          !!j.cropCycle?.sourceOfSeed
+        );
+
+      case 2: // Know your farmer
+        return !!j.cropCycle?.farmer?.name;
+
+      case 3: // Crop cycle
+        return !!j.cropCycle?.cycleCode || !!j.cropCycle?.cropName;
+
+      case 4: // Field work
+        return (
+          (j.farmingActivities?.length ?? 0) > 0 ||
+          (j.farmland?.workEntries?.length ?? 0) > 0 ||
+          this.hasStageData(5)
+        );
+
+      case 5: // Harvest
+        return (
+          j.harvest !== null &&
+          (!!j.harvest.harvestDate ||
+            !!j.harvest.batchCode ||
+            !!j.harvest.rawQuantity ||
+            !!j.harvest.qualityGrade ||
+            this.hasStageData(6) ||
+            this.hasStageData(7))
+        );
+
+      case 6: // Raw material inventory
+        return (
+          j.harvest !== null &&
+          (!!j.harvest.storedAt ||
+            !!j.harvest.storageFacilityName ||
+            !!j.harvest.storageCondition ||
+            j.harvest.curingDurationDays != null ||
+            this.hasStageData(7))
+        );
+
+      case 7: // Processing
+        return (
+          (Array.isArray(j.processing) && j.processing.length > 0) ||
+          this.hasStageData(8)
+        );
+
+      case 8: // Packaging
+        return (
+          j.packaging !== null &&
+          (!!j.packaging.packagingCode ||
+            !!j.packaging.packagingDate ||
+            !!j.packaging.manufacturingDate ||
+            j.packaging.totalUnits != null ||
+            this.hasStageData(9))
+        );
+
+      case 9: // Finished goods inventory
+        return (
+          j.packaging !== null &&
+          (!!j.packaging.warehouseReceivedAt ||
+            !!j.packaging.warehouseName ||
+            j.packaging.status === 'COMPLETED' ||
+            this.hasDispatchData())
+        );
+
+      case 10: // Dispatched
+        if (!this.isRegisteredUser()) return false;
+        return this.hasDispatchData();
+
+      case 11: // In transit
+        if (!this.isRegisteredUser()) return false;
+        return this.hasInTransitData();
+
+      case 12: // Delivered
+        if (!this.isRegisteredUser()) return false;
+        return this.hasDeliveredData();
+
+      default:
+        return false;
+    }
+  }
+
+  /** Only show stages that have data available ("make sure user will have data that much he have") */
+  protected readonly visibleStages = computed<Stage[]>(() => {
+    if (!this.hasJourney()) return [];
+    return this.stages.filter((s) => this.hasStageData(s.id));
+  });
+
+  protected readonly totalVisibleStages = computed(() => this.visibleStages().length);
+
+  /** Whether the journey has reached Finished Goods Inventory (Stage 9) */
+  protected readonly hasReachedFinishedGoods = computed(() => this.hasStageData(9));
+
+  /** Journey is complete when the last visible stage is reached */
+  protected readonly journeyComplete = computed(() => {
+    const visible = this.visibleStages();
+    if (visible.length === 0) return false;
+    return this.currentStage() === visible[visible.length - 1].id;
+  });
+
   // Default crop ID for tracking (user can override via ?crop_id= or ?qr= URL params)
   private readonly HARDCODED_QR = 'QR-ANAAD-ATTA5KG-000045';
   private readonly DEFAULT_CROP_ID = 'CC-000019';
@@ -496,19 +664,33 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
       if (qrParam === 'mock' || qrParam === 'sandbox' || cropIdParam === 'mock' || cropIdParam === 'sandbox') {
         this.currentQrCode.set('mock');
         this.currentCropId.set(null);
+        this.showCropIdPrompt.set(false);
         this.loadSandboxData();
       } else if (cropIdParam) {
+        const isNewCrop = this.currentCropId() !== cropIdParam;
         this.currentQrCode.set('');
         this.currentCropId.set(cropIdParam);
-        this.fetchJourney({ cropId: cropIdParam });
+        this.showCropIdPrompt.set(false);
+        if (isNewCrop || !this.hasJourney()) {
+          this.fetchJourney({ cropId: cropIdParam });
+        }
       } else if (qrParam) {
         this.currentQrCode.set(qrParam);
         this.currentCropId.set(null);
+        this.showCropIdPrompt.set(false);
         this.fetchJourney({ qrCode: qrParam });
       } else {
+        // No crop cycle ID provided: open the prompt pop-up so user can fill it
         this.currentQrCode.set('');
-        this.currentCropId.set(this.DEFAULT_CROP_ID);
-        this.fetchJourney({ cropId: this.DEFAULT_CROP_ID });
+        this.currentCropId.set(null);
+        this.isLoading.set(false);
+        this.cropIdInput.set('');
+        this.cropIdInputError.set(null);
+        this.showCropIdPrompt.set(true);
+      }
+
+      if (this.authState.isAuthenticated() && !this.unlockPhone() && this.userProfilePhone()) {
+        this.unlockPhone.set(this.userProfilePhone());
       }
 
       // Cross-origin login callback: tokens passed back from web.anaadfoods.com
@@ -560,16 +742,124 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
 
   onDeliveryUnlockClick(): void {
     if (!this.authState.isAuthenticated()) {
-      this.openDeliveryPreviewModal();
+      this.redirectToLogin();
       return;
     }
 
     this.isUnlocked.set(true);
+    if (!this.unlockPhone() && this.userProfilePhone()) {
+      this.unlockPhone.set(this.userProfilePhone());
+    }
     this.scrollToDeliveryGate();
   }
 
   closeRegisteredModal(): void {
     this.closeDeliveryPreviewModal();
+  }
+
+  // ── Crop Cycle ID Prompt Controls ─────────────────────────────────────────
+
+  openCropIdPrompt(): void {
+    this.cropIdInput.set(this.currentCropId() || '');
+    this.cropIdInputError.set(null);
+    this.isSubmittingCropId.set(false);
+    this.showCropIdPrompt.set(true);
+  }
+
+  closeCropIdPrompt(): void {
+    this.showCropIdPrompt.set(false);
+    this.cropIdInputError.set(null);
+    this.isSubmittingCropId.set(false);
+  }
+
+  normalizeCropId(raw: string): string {
+    const trimmed = raw.trim();
+    if (!trimmed) return '';
+    if (trimmed.toLowerCase() === 'mock' || trimmed.toLowerCase() === 'sandbox') {
+      return 'mock';
+    }
+    if (/^\d+$/.test(trimmed)) {
+      const num = parseInt(trimmed, 10);
+      return `CC-${String(num).padStart(6, '0')}`;
+    }
+    const match = trimmed.match(/^CC-?(\d+)$/i);
+    if (match) {
+      const num = parseInt(match[1], 10);
+      return `CC-${String(num).padStart(6, '0')}`;
+    }
+    return trimmed.toUpperCase();
+  }
+
+  submitCropId(overrideId?: string): void {
+    const rawId = (overrideId !== undefined ? overrideId : this.cropIdInput()).trim();
+    if (!rawId) {
+      this.cropIdInputError.set('Please enter a valid Crop Cycle ID (e.g. CC-000019).');
+      return;
+    }
+
+    const cleanId = this.normalizeCropId(rawId);
+    this.cropIdInputError.set(null);
+
+    if (cleanId === 'mock') {
+      this.showCropIdPrompt.set(false);
+      this.currentCropId.set(null);
+      this.currentQrCode.set('mock');
+      this.router.navigate(['/traceability-journey'], { queryParams: { qr: 'mock' } });
+      this.loadSandboxData();
+      return;
+    }
+
+    if (this.currentCropId() === cleanId && this.hasJourney()) {
+      this.showCropIdPrompt.set(false);
+      return;
+    }
+
+    this.isSubmittingCropId.set(true);
+    const apiCropId = this.padCropCycleIdForTrace(cleanId);
+
+    this.traceabilityService.getJourney({ cropId: apiCropId }).subscribe({
+      next: (journey) => {
+        this.isSubmittingCropId.set(false);
+        this.showCropIdPrompt.set(false);
+        this.cropIdInputError.set(null);
+        this.traceError.set(null);
+        this.currentCropId.set(cleanId);
+        this.currentQrCode.set('');
+        this.journey.set(journey);
+        this.updateStagesFromApi(journey);
+        this.isLoading.set(false);
+        this.router.navigate(['/traceability-journey', cleanId]);
+        this.scheduleBuildVine(80);
+      },
+      error: (err) => {
+        this.isSubmittingCropId.set(false);
+        const errMsg = err?.message || '';
+        const displayErr =
+          errMsg.toLowerCase().includes('not found') || errMsg.toLowerCase().includes('exist')
+            ? 'Crop cycle does not exist. Please check the ID and try again.'
+            : (errMsg || 'Crop cycle does not exist. Please check the ID and try again.');
+        this.cropIdInputError.set(displayErr);
+      }
+    });
+  }
+
+  useSampleCropId(id: string = 'CC-000019'): void {
+    this.cropIdInput.set(id);
+    this.submitCropId(id);
+  }
+
+  // ── Login / Register Navigation ───────────────────────────────────────────
+
+  redirectToLogin(): void {
+    const cropId = this.currentCropId() || this.traceCropCycle()?.cycleCode;
+    const targetUrl = cropId ? `/traceability-journey/${cropId}` : (this.router.url || '/traceability-journey');
+    this.router.navigate(['/login'], { queryParams: { returnUrl: targetUrl } });
+  }
+
+  redirectToRegister(): void {
+    const cropId = this.currentCropId() || this.traceCropCycle()?.cycleCode;
+    const targetUrl = cropId ? `/traceability-journey/${cropId}` : (this.router.url || '/traceability-journey');
+    this.router.navigate(['/register'], { queryParams: { returnUrl: targetUrl } });
   }
 
   private scrollToDeliveryGate(): void {
@@ -873,8 +1163,21 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
         this.scheduleBuildVine(80);
       },
       error: (err) => {
-        this.traceError.set(err.message || 'Failed to load product journey.');
         this.isLoading.set(false);
+        const errMsg = err?.message || '';
+        const isNotFound =
+          errMsg.toLowerCase().includes('not found') || errMsg.toLowerCase().includes('exist');
+        const displayErr =
+          isNotFound && params.cropId
+            ? `Crop cycle '${params.cropId}' does not exist.`
+            : errMsg || 'Crop cycle does not exist.';
+        this.traceError.set(displayErr);
+
+        if (params.cropId && isNotFound) {
+          this.cropIdInput.set(params.cropId);
+          this.cropIdInputError.set('Crop cycle does not exist. Please check the ID and try again.');
+          this.showCropIdPrompt.set(true);
+        }
       }
     });
   }
@@ -1650,9 +1953,7 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
 
             const stageId = Number(el.dataset['stageId']) || idx + 1;
             if (stageId !== this.currentStage()) {
-              this.ngZone.run(() => {
-                this.currentStage.set(stageId);
-              });
+              this.currentStage.set(stageId);
             }
           }
         }
@@ -1684,26 +1985,20 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
     const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
     const rectTop = (this.cachedRootPageTop || root.offsetTop) - scrollTop;
 
-    // Fast CSS custom property updates for parallax — throttled and zero Angular CD cycles!
-    if (Math.abs(scrollTop - this.lastParallaxY) > 1.5) {
+    // Fast parallax updates scoped only to dedicated layers — zero root subtree style invalidation!
+    if (this.parallaxLayer?.nativeElement && Math.abs(scrollTop - this.lastParallaxY) > 2) {
       this.lastParallaxY = scrollTop;
-      root.style.setProperty('--parallax-y', `${scrollTop}px`);
+      this.parallaxLayer.nativeElement.style.setProperty('--parallax-y', `${scrollTop}px`);
     }
 
-    const heroShift = Math.min(scrollTop, vh * 0.92);
-    if (this.lastHeroShift !== heroShift) {
-      this.lastHeroShift = heroShift;
-      root.style.setProperty('--hero-shift', `${heroShift}px`);
-    }
-
-    // Calculate scroll speed for wind-sway leaf animation — update only on significant change
-    const speed = scrollTop - this.lastScrollTop;
-    this.lastScrollTop = scrollTop;
-    this.scrollSpeed = this.scrollSpeed + (speed - this.scrollSpeed) * 0.12;
-    const wind = Math.min(Math.max(this.scrollSpeed * 0.18, -15), 15);
-    if (Math.abs(wind - this.lastWind) > 0.8) {
-      this.lastWind = wind;
-      root.style.setProperty('--scroll-wind', `${wind}`);
+    if (scrollTop < vh * 1.1) {
+      const heroShift = Math.min(scrollTop, vh * 0.92);
+      if (this.lastHeroShift !== heroShift) {
+        this.lastHeroShift = heroShift;
+        if (this.heroBg?.nativeElement) {
+          this.heroBg.nativeElement.style.setProperty('--hero-shift', `${heroShift}px`);
+        }
+      }
     }
 
     // Map scroll probe directly to 0–1 so the creeper reaches the footer
@@ -1728,7 +2023,7 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
 
   scrollToStage(id: number): void {
     const scenes = this.sceneRefs?.toArray() ?? [];
-    const targetScene = scenes.find((_, idx) => idx + 1 === id);
+    const targetScene = scenes.find((scene) => Number(scene.nativeElement.dataset['stageId']) === id);
     if (targetScene) {
       targetScene.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
@@ -1923,10 +2218,8 @@ onCardMouseMove(event: MouseEvent, stageId: number, type: 'copy' | 'art'): void 
       this.leaves().some(l => (prev < l.t && prog >= l.t) || (prev >= l.t && prog < l.t)) ||
       this.blossoms().some(b => (prev < b.t && prog >= b.t) || (prev >= b.t && prog < b.t));
 
-    if (crossedThreshold || Math.abs(prog - prev) > 0.02) {
-      this.ngZone.run(() => {
-        this.progress.set(prog);
-      });
+    if (crossedThreshold) {
+      this.progress.set(prog);
       this.lastSetProgress = prog;
     }
 

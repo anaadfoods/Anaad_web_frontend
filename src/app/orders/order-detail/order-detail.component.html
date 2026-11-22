@@ -181,6 +181,14 @@
               delivery will be start from Aug 2026 first week
             </ng-template>
           </p>
+          <p class="delivery-address" *ngIf="orderData()?.is_preorder_order || orderData()?.status === 'PREORDER_PLACED'" style="margin-top: 6px; color: #B45309; font-weight: 500;">
+            <strong>🌾 Harvest Release Date:</strong> 
+            {{ orderData()?.preorder_release_date ? formatDate(orderData()?.preorder_release_date) : 'Upcoming' }}
+          </p>
+          <div *ngIf="(orderData()?.is_preorder_order || orderData()?.status === 'PREORDER_PLACED') && (orderData()?.items?.length || 0) > 1" 
+               style="margin-top: 10px; padding: 10px 12px; background: #FEF3C7; border: 1px solid #FDE68A; border-radius: 6px; font-size: 12px; color: #78350F; line-height: 1.45;">
+            📦 <strong>Consolidated Shipment:</strong> All harvest items will dispatch together once the final harvest batch is released.
+          </div>
         </div>
 
         <div class="delivery-block">

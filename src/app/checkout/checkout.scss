@@ -43,6 +43,69 @@ form { display: flex; flex-direction: column; gap: 56px; }
 .radio-card-name { font-family: var(--font-sans); font-size: 14px; font-weight: 500; color: var(--charcoal); }
 .radio-card-desc { font-family: var(--font-sans); font-size: 12px; font-weight: 300; color: rgba(26, 26, 26, 0.50); }
 .radio-card-badge { font-family: var(--font-sans); font-size: 10px; font-weight: 600; letter-spacing: 0.10em; text-transform: uppercase; color: #3A7A2E; background-color: rgba(58,122,46,0.10); padding: 3px 8px; border-radius: 2px; }
+.radio-card-badge.cod-unavailable { color: #9B2F1A; background-color: rgba(201, 60, 30, 0.08); }
+
+.radio-card.disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  background-color: rgba(26, 26, 26, 0.02);
+  border-style: dashed;
+  user-select: none;
+
+  &:hover {
+    border-color: rgba(26, 26, 26, 0.15);
+  }
+}
+
+.radio-card-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.radio-card-desc.cod-hint {
+  color: #9B2F1A;
+  font-weight: 400;
+}
+
+.subscription-payment-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  background-color: rgba(58, 122, 46, 0.08);
+  border: 1px solid rgba(58, 122, 46, 0.25);
+  border-radius: 8px;
+  font-family: var(--font-sans);
+  color: var(--charcoal);
+
+  .notice-icon {
+    font-size: 16px;
+    line-height: 1.3;
+    flex-shrink: 0;
+  }
+
+  .notice-content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    strong {
+      color: var(--green-deep, #1C3B2B);
+      font-weight: 600;
+      font-size: 13px;
+    }
+
+    p {
+      margin: 0;
+      color: rgba(26, 26, 26, 0.7);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+  }
+}
 
 .card-icons { display: flex; flex-direction: row; gap: 10px; margin-top: 4px; }
 .card-icon { font-family: var(--font-sans); font-size: 10px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(26, 26, 26, 0.40); padding: 5px 10px; border: 1px solid rgba(26, 26, 26, 0.15); }

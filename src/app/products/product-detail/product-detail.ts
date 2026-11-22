@@ -64,6 +64,7 @@ export class ProductDetail implements OnInit {
   selectedPlanId = signal<number | null>(null);
   selectedPlan = computed(() => this.subscriptionPlans().find(p => p.id === this.selectedPlanId()) || null);
   selectedPaymentType = signal<'PAID_FULL' | 'INSTALLMENT'>('PAID_FULL');
+  hasPreorderExtraSavings = computed(() => Number(this.variant()?.preorder_extra_savings || 0) > 0);
 
   constructor() {
     effect(() => {
@@ -193,9 +194,14 @@ export class ProductDetail implements OnInit {
     return v.images?.length ? v.images : (v.product_images ?? []);
   }
 
+  isComingSoon(): boolean {
+    return !!this.variant()?.coming_soon;
+  }
+
   hasStock(): boolean {
     const v = this.variant();
     if (!v) return false;
+    if (this.isComingSoon()) return false;
     if (v.is_preorder) {
       const slots = v.preorder_slots_remaining ?? 0;
       return slots > 0;

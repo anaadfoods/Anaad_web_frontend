@@ -36,21 +36,37 @@
           <div class="form-block-header">
             <h2 class="form-block-title">Payment Method</h2>
           </div>
+
+          <div class="subscription-payment-notice" *ngIf="isSubscription()">
+            <span class="notice-icon">ℹ️</span>
+            <div class="notice-content">
+              <strong>Online Payment Required for Subscriptions</strong>
+              <p>Our subscriptions do not accept Cash on Delivery (COD). Please pay online to activate your subscription.</p>
+            </div>
+          </div>
+
           <div class="field-row">
             <label class="radio-card" [class.selected]="f.paymentMethod.value === 'upi'">
               <input type="radio" formControlName="paymentMethod" value="upi" class="hidden-radio" />
               <div class="radio-dot-outer"><div class="radio-dot-inner"></div></div>
               <div class="radio-card-info">
-                <span class="radio-card-name">Pay Online (UPI)</span>
-                <span class="radio-card-desc">Instant confirmation via UPI</span>
+                <div class="radio-card-title-row">
+                  <span class="radio-card-name">Pay Online (UPI)</span>
+                  <span class="radio-card-badge" *ngIf="isSubscription()">Required for Subscription</span>
+                </div>
+                <span class="radio-card-desc">Instant confirmation via UPI & Online Gateway</span>
               </div>
             </label>
-            <label class="radio-card" [class.selected]="f.paymentMethod.value === 'cod'">
-              <input type="radio" formControlName="paymentMethod" value="cod" class="hidden-radio" />
+            <label class="radio-card" [class.selected]="f.paymentMethod.value === 'cod'" [class.disabled]="isSubscription()" (click)="onCodClick($event)">
+              <input type="radio" formControlName="paymentMethod" value="cod" [disabled]="isSubscription()" class="hidden-radio" />
               <div class="radio-dot-outer"><div class="radio-dot-inner"></div></div>
               <div class="radio-card-info">
-                <span class="radio-card-name">Cash on Delivery</span>
-                <span class="radio-card-desc">No upfront payment needed</span>
+                <div class="radio-card-title-row">
+                  <span class="radio-card-name">Cash on Delivery</span>
+                  <span class="radio-card-badge cod-unavailable" *ngIf="isSubscription()">Not Available</span>
+                </div>
+                <span class="radio-card-desc" *ngIf="!isSubscription()">No upfront payment needed</span>
+                <span class="radio-card-desc cod-hint" *ngIf="isSubscription()">COD is not accepted for subscriptions</span>
               </div>
             </label>
           </div>
@@ -355,7 +371,7 @@
 
       <button type="button" class="btn-place-order" (click)="placeOrder()"
         [disabled]="isSubmitting() || checkoutItems().length === 0">
-        {{ isSubmitting() ? 'PLACING ORDER...' : 'PLACE ORDER' }}
+        {{ isSubmitting() ? 'PROCESSING...' : (isSubscription() ? 'PROCEED TO PAY ONLINE' : 'PLACE ORDER') }}
       </button>
 
       <div class="secure-note">

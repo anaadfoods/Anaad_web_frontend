@@ -25,6 +25,24 @@ export const routes: Routes = [
       ),
     title: 'From Soil to Soul • Anaad Foods'
   },
+  {
+    path: 'traceability',
+    redirectTo: 'traceability-journey',
+    pathMatch: 'full'
+  },
+  {
+    path: 'traceability/:crop_id',
+    redirectTo: 'traceability-journey/:crop_id'
+  },
+  {
+    path: 'trace',
+    redirectTo: 'traceability-journey',
+    pathMatch: 'full'
+  },
+  {
+    path: 'trace/:crop_id',
+    redirectTo: 'traceability-journey/:crop_id'
+  },
 
   // Auth
   { path: 'auth/apple/callback', component: AppleCallbackComponent },

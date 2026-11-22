@@ -39,10 +39,18 @@ export class TraceabilityService {
           return throwError(() => new Error('API Authorization Error (401/403).'));
         }
         if (err.status === 404) {
+          const apiMsg = err.error?.error || err.error?.message;
+          if (apiMsg) {
+            return throwError(() => new Error(apiMsg));
+          }
+          if (params.cropId) {
+            return throwError(() => new Error('Crop cycle does not exist.'));
+          }
           return throwError(() => new Error('Product not found.'));
         }
         if (err.status === 400) {
-          return throwError(() => new Error('Invalid query.'));
+          const apiMsg = err.error?.error || err.error?.message;
+          return throwError(() => new Error(apiMsg || 'Invalid query.'));
         }
         return throwError(() => new Error('Something went wrong. Please try again later.'));
       })

@@ -85,7 +85,7 @@
             &#10003; Save {{ savingsPercentage }}% on MRP
           </span>
           <span class="price-savings"
-            *ngIf="variant()?.is_preorder && (variant()?.preorder_extra_savings || 0) > 0"
+            *ngIf="variant()?.is_preorder && hasPreorderExtraSavings()"
             style="background: #FEF3C7; color: #92400E; border: 1px solid #FCD34D; padding: 4px 8px; border-radius: 4px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; margin-top: 6px;">
             🏷️ Extra Preorder Discount: {{ variant()?.preorder_discount_type === 'PERCENTAGE' ? (variant()?.preorder_discount_value + '% OFF') : ((variant()?.preorder_extra_savings | currencyInr) + ' OFF') }}
           </span>
@@ -147,7 +147,7 @@
           style="background: rgba(224, 158, 62, 0.12); border: 1px solid var(--amber-harvest, #E09E3E); border-radius: 8px; padding: 14px 16px; margin: 16px 0; font-family: var(--font-sans); font-size: 13px; color: var(--charcoal);">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
             <strong style="color: #92400e; font-size: 14px;">Pre-order Special</strong>
-            <span *ngIf="(variant()?.preorder_extra_savings || 0) > 0" style="background: #E09E3E; color: #1a1a1a; font-weight: 700; padding: 2px 8px; border-radius: 4px; font-size: 11px;">
+            <span *ngIf="hasPreorderExtraSavings()" style="background: #E09E3E; color: #1a1a1a; font-weight: 700; padding: 2px 8px; border-radius: 4px; font-size: 11px;">
               Extra {{ variant()?.preorder_discount_type === 'PERCENTAGE' ? (variant()?.preorder_discount_value + '% OFF') : ((variant()?.preorder_extra_savings | currencyInr) + ' OFF') }}
             </span>
           </div>
@@ -209,11 +209,15 @@
           </a>
         </div>
 
-        <div *ngIf="!isActive()"
-          style="color: var(--amber-harvest, #E09E3E); font-family: var(--font-sans); padding: 12px 0; font-weight: 600;">
-          Coming Soon
+        <div *ngIf="isComingSoon()"
+          style="background: #eef5f2; border: 1px solid var(--green-deep, #2B4C3F); border-radius: 8px; color: var(--green-deep, #2B4C3F); font-family: var(--font-sans); padding: 14px 18px; font-weight: 600; margin-top: 14px; display: flex; align-items: center; gap: 8px;">
+          <span>🌱 <strong>Coming Soon</strong> — This heirloom harvest is currently being cultivated and will be available shortly!</span>
         </div>
-        <div *ngIf="isActive() && !hasStock()" style="color: red; font-family: var(--font-sans); padding: 12px 0;">
+        <div *ngIf="!isActive() && !isComingSoon()"
+          style="color: var(--amber-harvest, #E09E3E); font-family: var(--font-sans); padding: 12px 0; font-weight: 600;">
+          Currently Unavailable
+        </div>
+        <div *ngIf="isActive() && !isComingSoon() && !hasStock()" style="color: red; font-family: var(--font-sans); padding: 12px 0;">
           Currently Out of Stock
         </div>
 

@@ -14,7 +14,7 @@
 
 
 // environment.prod.ts — unchanged, already correct
-const apiBaseUrl = 'http://localhost:8000';
+const apiBaseUrl = 'https://bck-dev.anaadfoods.com';
 // const apiBaseUrl = 'https://educated-carpentry-reverence.ngrok-free.dev';
 
 export const environment = {

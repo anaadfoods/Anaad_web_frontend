@@ -23,11 +23,16 @@ import { SubscriptionService } from '../../../core/services/subscription.service
           [alt]="variant.product_name"
         />
         
-        <div class="coming-soon-overlay" *ngIf="!isActive()">Coming Soon</div>
-        <div class="out-of-stock-overlay" *ngIf="isActive() && !hasStock()">Out of Stock</div>
+        <div class="coming-soon-overlay" *ngIf="isComingSoon() || !isActive()">Coming Soon</div>
+        <div class="out-of-stock-overlay" *ngIf="isActive() && !isComingSoon() && !hasStock()">Out of Stock</div>
+
+        <!-- Coming Soon Badge -->
+        <div class="badge-coming-soon" *ngIf="isComingSoon() && isActive()" style="position: absolute; top: 12px; left: 12px; background: #2B4C3F; color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; text-transform: uppercase; z-index: 2; display: flex; align-items: center; gap: 4px;">
+          <span>Coming Soon</span>
+        </div>
 
         <!-- Preorder Badge with Extra Discount -->
-        <div class="badge-preorder" *ngIf="variant.is_preorder && isActive() && hasStock()" style="position: absolute; top: 12px; left: 12px; background: var(--amber-harvest, #E09E3E); color: #1a1a1a; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; text-transform: uppercase; z-index: 2; display: flex; align-items: center; gap: 4px;">
+        <div class="badge-preorder" *ngIf="!isComingSoon() && variant.is_preorder && isActive() && hasStock()" style="position: absolute; top: 12px; left: 12px; background: var(--amber-harvest, #E09E3E); color: #1a1a1a; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; text-transform: uppercase; z-index: 2; display: flex; align-items: center; gap: 4px;">
           <span>Preorder</span>
           <span *ngIf="variant.preorder_extra_savings && +variant.preorder_extra_savings > 0" style="background: #1a1a1a; color: #fff; padding: 1px 4px; border-radius: 2px; font-size: 10px;">
             {{ variant.preorder_discount_type === 'PERCENTAGE' ? (variant.preorder_discount_value + '% OFF') : ('-₹' + variant.preorder_extra_savings) }}
@@ -35,7 +40,7 @@ import { SubscriptionService } from '../../../core/services/subscription.service
         </div>
 
         <!-- Optional Discount Badge -->
-        <div class="badge-discount" *ngIf="hasDiscount() && isActive() && hasStock()">
+        <div class="badge-discount" *ngIf="hasDiscount() && isActive() && hasStock() && !isComingSoon()">
           -{{ discountPercent() }}%
         </div>
         
@@ -83,14 +88,14 @@ import { SubscriptionService } from '../../../core/services/subscription.service
             type="button"
             class="btn-product"
             (click)="$event.stopPropagation(); onAddToCart()"
-            [disabled]="!hasStock() || !isActive()">
-            {{ !isActive() ? 'Coming Soon' : (!hasStock() ? 'Out of Stock' : (variant.is_preorder ? 'Preorder' : 'Add to Cart')) }}
+            [disabled]="isComingSoon() || !hasStock() || !isActive()">
+            {{ isComingSoon() ? 'Coming Soon' : (!isActive() ? 'Coming Soon' : (!hasStock() ? 'Out of Stock' : (variant.is_preorder ? 'Preorder' : 'Add to Cart'))) }}
           </button>
           <button
             type="button"
             class="btn-product secondary"
             (click)="$event.stopPropagation(); onSubscribeNow()"
-            [disabled]="!hasStock() || !isActive()">
+            [disabled]="isComingSoon() || !hasStock() || !isActive()">
             Commit & Buy
           </button>
         </div>
@@ -468,8 +473,13 @@ export class ProductCardComponent implements OnInit {
     return Math.round(((mrp - price) / mrp) * 100);
   }
 
+  isComingSoon(): boolean {
+    return !!this.variant?.coming_soon;
+  }
+
   hasStock(): boolean {
     if (!this.variant) return false;
+    if (this.isComingSoon()) return false;
     if (this.variant.is_preorder) {
       const slots = this.variant.preorder_slots_remaining ?? 0;
       return slots > 0;

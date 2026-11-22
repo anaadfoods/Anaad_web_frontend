@@ -67,11 +67,15 @@ export interface Subscription {
   total_delivery_charges?: number;
   installment_info?: any;
   can_pay_next_installment?: boolean;
+  delivery_status?: string;
+  is_preorder?: boolean;
+  preorder_end_date?: string | null;
+  preorder_release_date?: string | null;
   created_at?: string;
   updated_at?: string;
 }
 
-export type SubscriptionStatus = 'ACTIVE' | 'PAUSED' | 'CANCELLED' | 'PENDING' | 'EXPIRED';
+export type SubscriptionStatus = 'ACTIVE' | 'PAUSED' | 'CANCELLED' | 'PENDING' | 'EXPIRED' | 'HOLD' | 'COMPLETED' | 'PREORDER';
 
 export interface CreateSubscriptionRequest {
   plan: number;

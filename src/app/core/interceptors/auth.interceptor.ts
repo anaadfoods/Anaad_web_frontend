@@ -39,7 +39,30 @@ const PUBLIC_URL_FRAGMENTS = [
   '/api/blog/research-papers',
   '/api/plans',
   '/api/user-queries',
+  '/api/public/',
+  '/api/notifications/',
+  '/api/core/crop-cycle-orders/',
+  '/api/shiprocket/',
+  '/traceability',
 ];
+
+/** Routes that require authentication and should redirect to login if session is expired */
+const PROTECTED_ROUTE_PREFIXES = [
+  '/profile',
+  '/checkout',
+  '/rfp',
+  '/contract-farming',
+  '/aahar-vigyan',
+  '/refer-earn',
+  '/orders',
+  '/subscriptions'
+];
+
+function isProtectedRoute(url: string): boolean {
+  if (!url) return false;
+  const path = url.split('?')[0];
+  return PROTECTED_ROUTE_PREFIXES.some(prefix => path === prefix || path.startsWith(prefix + '/'));
+}
 
 function isPublicEndpoint(url: string): boolean {
   return PUBLIC_URL_FRAGMENTS.some(fragment => url.includes(fragment));
@@ -165,7 +188,10 @@ function handleTokenRefresh(
     }
     authState.logout();
     if (isPlatformBrowser(platformId)) {
-      router.navigate(['/login'], { queryParams: getReturnUrlParams() });
+      const currentUrl = router.url || '';
+      if (isProtectedRoute(currentUrl)) {
+        router.navigate(['/login'], { queryParams: getReturnUrlParams() });
+      }
     }
     return throwError(() => new Error('No refresh token available')) as Observable<HttpEvent<unknown>>;
   }
@@ -209,7 +235,10 @@ function handleTokenRefresh(
       if (!environment.devBypassAuth) {
         authState.logout();
         if (isPlatformBrowser(platformId)) {
-          router.navigate(['/login'], { queryParams: getReturnUrlParams() });
+          const currentUrl = router.url || '';
+          if (isProtectedRoute(currentUrl)) {
+            router.navigate(['/login'], { queryParams: getReturnUrlParams() });
+          }
         }
       }
       return throwError(() => refreshError) as Observable<HttpEvent<unknown>>;

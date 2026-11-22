@@ -46,9 +46,12 @@ export interface ProductVariant {
   is_subscription_eligible?: boolean;
   is_featured?: boolean;
   is_bestseller?: boolean;
+  is_crop_cycle_complete?: boolean;
+  coming_soon?: boolean;
   crop_cycle_id?: string | null;
   is_preorder?: boolean;
   release_date?: string | null;
+  preorder_end_date?: string | null;
   preorder_capacity?: number;
   preorder_slots_remaining?: number;
   preorder_message?: string;
@@ -80,8 +83,10 @@ export interface ProductCardVM {
   isBestseller: boolean;
   category: string;
   isFavorite: boolean;
+  comingSoon?: boolean;
   isPreorder?: boolean;
   releaseDate?: string | null;
+  preorderEndDate?: string | null;
   preorderSlotsRemaining?: number;
   preorderMessage?: string;
 }
@@ -123,5 +128,11 @@ export function toProductCardVM(
     isBestseller: !!variant.is_bestseller,
     category: variant.category?.name ?? variant.product_category ?? 'Uncategorized',
     isFavorite: favoriteIds.has(variant.id),
+    comingSoon: !!variant.coming_soon,
+    isPreorder: !!variant.is_preorder,
+    releaseDate: variant.release_date ?? null,
+    preorderEndDate: variant.preorder_end_date ?? null,
+    preorderSlotsRemaining: variant.preorder_slots_remaining,
+    preorderMessage: variant.preorder_message,
   };
 }

@@ -80,6 +80,16 @@ export class Checkout implements OnInit {
         });
       }
     });
+
+    effect(() => {
+      if (this.isSubscription()) {
+        untracked(() => {
+          if (this.checkoutForm.get('paymentMethod')?.value !== 'upi') {
+            this.checkoutForm.get('paymentMethod')?.setValue('upi');
+          }
+        });
+      }
+    });
   }
 
   checkoutForm = this.fb.group({
@@ -142,6 +152,9 @@ export class Checkout implements OnInit {
   });
 
   readonly deliveryCharge = computed(() => {
+    if (this.isSubscription()) {
+      return this.prepaidCharge();
+    }
     const method = this.checkoutForm.get('paymentMethod')?.value;
     return method === 'cod' ? this.codCharge() : this.prepaidCharge();
   });
@@ -250,7 +263,7 @@ export class Checkout implements OnInit {
         this.directQty.set(Number(params['qty']));
         if (params['plan_id']) {
           this.directPlanId.set(Number(params['plan_id']));
-          this.checkoutForm.get('paymentMethod')?.setValue('cod');
+          this.checkoutForm.get('paymentMethod')?.setValue('upi');
           if (params['payment_type'] === 'INSTALLMENT' || params['payment_type'] === 'PAID_FULL') {
             this.selectedPaymentType.set(params['payment_type']);
           }
@@ -550,6 +563,15 @@ export class Checkout implements OnInit {
     return this.grandTotal();
   }
 
+  onCodClick(event: Event) {
+    if (this.isSubscription()) {
+      event.preventDefault();
+      event.stopPropagation();
+      this.checkoutForm.get('paymentMethod')?.setValue('upi');
+      this.submitError.set('Subscriptions do not accept Cash on Delivery (COD). Please pay online to complete your subscription.');
+    }
+  }
+
   placeOrder() {
     this.submitError.set('');
     if (this.checkoutForm.invalid) {
@@ -563,10 +585,17 @@ export class Checkout implements OnInit {
       return;
     }
 
-    this.isSubmitting.set(true);
     const val = this.checkoutForm.value;
 
-    const paymentMethod: 'COD' | 'UPI' = val.paymentMethod === 'cod' ? 'COD' : 'UPI';
+    if (this.isSubscription() && val.paymentMethod === 'cod') {
+      this.checkoutForm.get('paymentMethod')?.setValue('upi');
+      this.submitError.set('Subscriptions do not accept Cash on Delivery (COD). Please pay online to complete your subscription.');
+      return;
+    }
+
+    this.isSubmitting.set(true);
+
+    const paymentMethod: 'COD' | 'UPI' = (this.isSubscription() || val.paymentMethod !== 'cod') ? 'UPI' : 'COD';
     const deliveryAddress = val.address! + (val.landmark ? `, ${val.landmark}` : '');
 
     // Track payment attempted
@@ -590,7 +619,7 @@ export class Checkout implements OnInit {
 
     const planId = this.directPlanId();
     if (planId) {
-      // Create Subscription
+      // Create Subscription (Only online payment is accepted for subscriptions)
       this.subscriptionSvc.createSubscription({
         plan: planId,
         recipient_name: `${val.firstName} ${val.lastName}`.trim(),
@@ -601,7 +630,7 @@ export class Checkout implements OnInit {
         delivery_phone: val.phone!,
         email: val.email!,
         payment_type: this.selectedPaymentType(),
-        payment_method: paymentMethod,
+        payment_method: 'UPI',
         notes: val.notes || undefined,
         delivery_fee: this.getDeliveryCharge(),
         expected_delivery_date: this.expectedDeliveryDate(),
