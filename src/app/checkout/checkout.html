@@ -6,25 +6,6 @@
     <!-- FORM COLUMN -->
     <div class="form-col">
 
-      <div class="checkout-header">
-        <div class="checkout-stepper">
-          <div class="step completed">
-            <div class="step-circle">&#10003;</div>
-            <span class="step-label">Cart</span>
-          </div>
-          <div class="step-line completed"></div>
-          <div class="step active">
-            <div class="step-circle">2</div>
-            <span class="step-label">Checkout</span>
-          </div>
-          <div class="step-line"></div>
-          <div class="step">
-            <div class="step-circle">3</div>
-            <span class="step-label">Payment</span>
-          </div>
-        </div>
-      </div>
-
       @if (submitError()) {
         <div class="form-error">{{ submitError() }}</div>
       }
@@ -57,7 +38,7 @@
                 <span class="radio-card-desc">Instant confirmation via UPI & Online Gateway</span>
               </div>
             </label>
-            <label class="radio-card" [class.selected]="f.paymentMethod.value === 'cod'" [class.disabled]="isSubscription()" (click)="onCodClick($event)">
+            <label class="radio-card" *ngIf="!isPreorder()" [class.selected]="f.paymentMethod.value === 'cod'" [class.disabled]="isSubscription()" (click)="onCodClick($event)">
               <input type="radio" formControlName="paymentMethod" value="cod" [disabled]="isSubscription()" class="hidden-radio" />
               <div class="radio-dot-outer"><div class="radio-dot-inner"></div></div>
               <div class="radio-card-info">
@@ -240,7 +221,7 @@
 
     <!-- SUMMARY COLUMN -->
     <div class="summary-col">
-      <span class="summary-title">Order Summary</span>
+      <span class="summary-title">{{ isPreorder() ? 'Pre-Booking Summary' : 'Order Summary' }}</span>
 
       <div class="order-items">
         @for (item of checkoutItems(); track item.product_variant || $index) {
@@ -335,6 +316,31 @@
               <span class="summary-total-value">{{ getGrandTotal() | currencyInr }}</span>
             </div>
           }
+        } @else if (isPreorder()) {
+          <!-- PRE-BOOKING breakdown: product price, then the extra pre-booking discount, then payable now -->
+          <div class="summary-row">
+            <span class="summary-label">Product Price</span>
+            <span class="summary-value">{{ preorderRegularTotal() | currencyInr }}</span>
+          </div>
+          <div class="summary-row discount-row" *ngIf="preorderSaving() > 0">
+            <span class="summary-label">{{ preorderDiscountLabel() }}</span>
+            <span class="summary-value discount-value">-{{ preorderSaving() | currencyInr }}</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-label">Delivery Charges</span>
+            <span class="summary-value" [class.free]="getDeliveryCharge() === 0">
+              {{ getDeliveryCharge() === 0 ? 'Free' : (getDeliveryCharge() | currencyInr) }}
+            </span>
+          </div>
+          <div class="summary-row discount-row" *ngIf="appliedCoupon()">
+            <span class="summary-label">Coupon Discount ({{ appliedCoupon()?.code }})</span>
+            <span class="summary-value discount-value">-{{ couponDiscount() | currencyInr }}</span>
+          </div>
+          <div class="summary-divider"></div>
+          <div class="summary-total-row">
+            <span class="summary-total-label">Total Payable Now</span>
+            <span class="summary-total-value">{{ getGrandTotal() | currencyInr }}</span>
+          </div>
         } @else {
           <div class="summary-row">
             <span class="summary-label">Subtotal</span>
@@ -363,7 +369,28 @@
           </div>
         }
         <span class="summary-gst">Inclusive of all taxes</span>
-        <div class="summary-delivery-date">
+
+        <!-- PRE-BOOKING: important dates + reservation note + cancellation support -->
+        <div *ngIf="isPreorder()" class="preorder-summary-extra" style="margin-top: 14px;">
+          <div style="background: rgba(224,158,62,0.1); border: 1px solid rgba(224,158,62,0.4); border-radius: 8px; padding: 12px 14px; font-size: 12.5px; color: var(--charcoal, #1a1a1a); line-height: 1.5;">
+            <div style="display: flex; justify-content: space-between; gap: 8px; margin-bottom: 4px;">
+              <span>📅 Pre-booking closes</span><strong>{{ preorderCloseDate() }}</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; gap: 8px;">
+              <span>🚚 Delivery begins from</span><strong>{{ preorderDeliveryDate() }}</strong>
+            </div>
+          </div>
+          <p style="margin-top: 10px; font-size: 12px; color: rgba(26,26,26,0.7); line-height: 1.5;">
+            This is a pre-booking reservation. Payment is collected now; your product is delivered
+            <strong>after the pre-booking period closes</strong> and the harvest is ready.
+          </p>
+          <p style="margin-top: 6px; font-size: 12px; color: rgba(26,26,26,0.6);">
+            Need to cancel your pre-booking?
+            <a routerLink="/help" style="color: var(--earth-raw, #6B4226); text-decoration: underline;">Contact customer support</a>.
+          </p>
+        </div>
+
+        <div class="summary-delivery-date" *ngIf="!isPreorder()">
           <span class="delivery-date-icon">📅</span>
           <span class="delivery-date-text">Expected Delivery: <strong>{{ deliveryDateMessage() }}</strong></span>
         </div>
@@ -371,7 +398,7 @@
 
       <button type="button" class="btn-place-order" (click)="placeOrder()"
         [disabled]="isSubmitting() || checkoutItems().length === 0">
-        {{ isSubmitting() ? 'PROCESSING...' : (isSubscription() ? 'PROCEED TO PAY ONLINE' : 'PLACE ORDER') }}
+        {{ isSubmitting() ? 'PROCESSING...' : (isPreorder() ? ('Pay ' + (getGrandTotal() | currencyInr) + ' & Confirm Pre-Booking') : (isSubscription() ? 'PROCEED TO PAY ONLINE' : 'PLACE ORDER')) }}
       </button>
 
       <div class="secure-note">

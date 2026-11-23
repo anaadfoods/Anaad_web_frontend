@@ -382,6 +382,50 @@ export class ProductDetail implements OnInit {
     return Math.round(((mrp - price) / mrp) * 100);
   }
 
+  // ---- Pre-booking helpers (only meaningful when variant.is_preorder) ----
+
+  get isPreorder(): boolean {
+    return !!this.variant()?.is_preorder;
+  }
+
+  /** Amount the customer pays now to reserve — the fully-discounted price (final_price). */
+  get preorderPayNow(): number {
+    return this.priceToDisplay;
+  }
+
+  /** Extra ₹ saved specifically by pre-booking (stacked on top of any normal discount). */
+  get preorderSavingAmount(): number {
+    return Number(this.variant()?.preorder_extra_savings || 0);
+  }
+
+  /** The pre-booking discount shown as a percentage (for the "extra X%" label). */
+  get preorderDiscountPercent(): number {
+    const v = this.variant();
+    if (!v || v.preorder_discount_type !== 'PERCENTAGE') return 0;
+    return Number(v.preorder_discount_value || 0);
+  }
+
+  /** Format an ISO date ("2026-11-26") → "26 Nov 2026"; empty → "To be announced". */
+  preorderDate(dateStr: string | null | undefined): string {
+    if (!dateStr) return 'To be announced';
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return 'To be announced';
+    return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+  }
+
+  /** Pre-booking = reserve → pay. Go straight to checkout as a direct buy, no cart step. */
+  preBookNow() {
+    const v = this.variant();
+    if (!v || !this.hasStock()) return;
+    if (!this.authState.isAuthenticated()) {
+      this.router.navigate(['/login'], { queryParams: { returnUrl: `/product/${v.id}` } });
+      return;
+    }
+    this.router.navigate(['/checkout'], {
+      queryParams: { direct_buy: 'true', variant_id: v.id, qty: this.quantity() },
+    });
+  }
+
   isFavorite(): boolean {
     const v = this.variant();
     return v ? this.wishlistState.isFavorite(v.id) : false;

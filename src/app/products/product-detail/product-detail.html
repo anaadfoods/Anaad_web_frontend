@@ -87,12 +87,12 @@
           <span class="price-savings"
             *ngIf="variant()?.is_preorder && hasPreorderExtraSavings()"
             style="background: #FEF3C7; color: #92400E; border: 1px solid #FCD34D; padding: 4px 8px; border-radius: 4px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; margin-top: 6px;">
-            🏷️ Extra Preorder Discount: {{ variant()?.preorder_discount_type === 'PERCENTAGE' ? (variant()?.preorder_discount_value + '% OFF') : ((variant()?.preorder_extra_savings | currencyInr) + ' OFF') }}
+            🏷️ Includes an extra {{ preorderDiscountPercent > 0 ? preorderDiscountPercent + '% ' : '' }}pre-booking discount — you save {{ preorderSavingAmount | currencyInr }}
           </span>
           <span class="price-savings" *ngIf="purchaseType() === 'subscription' && selectedPlanId()">
             &#10003; Subscription Discount Applied
           </span>
-          <div class="arambh-deal" *ngIf="arambhPrice()" style="margin-top: 8px; color: var(--earth-raw, #6B4226); font-family: var(--font-sans); font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 4px;">
+          <div class="arambh-deal" *ngIf="arambhPrice() && !isPreorder" style="margin-top: 8px; color: var(--earth-raw, #6B4226); font-family: var(--font-sans); font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 4px;">
             🔥 Hot deal: go with Aarambh plan for {{ arambhPrice() | currencyInr }}
           </div>
         </div>
@@ -102,7 +102,7 @@
         </div>
 
         <!-- Purchase Type Options from Angular -->
-        <div class="selector-block" *ngIf="hasStock() && isActive() && eligiblePlanIds().length > 0">
+        <div class="selector-block" *ngIf="hasStock() && isActive() && eligiblePlanIds().length > 0 && !isPreorder">
           <span class="selector-label">Purchase Type</span>
           <div class="size-options">
             <button class="size-btn" [class.active]="purchaseType() === 'single'"
@@ -123,7 +123,7 @@
           </div>
         </div>
 
-        <div class="subscription-plans-list" *ngIf="purchaseType() === 'subscription' && eligiblePlanIds().length > 0">
+        <div class="subscription-plans-list" *ngIf="purchaseType() === 'subscription' && eligiblePlanIds().length > 0 && !isPreorder">
           <div class="plan-card" *ngFor="let plan of subscriptionPlans()"
             [class.selected]="selectedPlanId() === plan.id" [class.disabled]="!eligiblePlanIds().includes(plan.id)"
             (click)="eligiblePlanIds().includes(plan.id) && selectedPlanId.set(plan.id)"
@@ -143,24 +143,78 @@
           *Some plans require a minimum order quantity.
         </p>
 
+        <!-- Your pre-booking, explained -->
         <div class="preorder-notice" *ngIf="variant()?.is_preorder"
-          style="background: rgba(224, 158, 62, 0.12); border: 1px solid var(--amber-harvest, #E09E3E); border-radius: 8px; padding: 14px 16px; margin: 16px 0; font-family: var(--font-sans); font-size: 13px; color: var(--charcoal);">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-            <strong style="color: #92400e; font-size: 14px;">Pre-order Special</strong>
-            <span *ngIf="hasPreorderExtraSavings()" style="background: #E09E3E; color: #1a1a1a; font-weight: 700; padding: 2px 8px; border-radius: 4px; font-size: 11px;">
-              Extra {{ variant()?.preorder_discount_type === 'PERCENTAGE' ? (variant()?.preorder_discount_value + '% OFF') : ((variant()?.preorder_extra_savings | currencyInr) + ' OFF') }}
-            </span>
+          style="background: rgba(224, 158, 62, 0.12); border: 1px solid var(--amber-harvest, #E09E3E); border-radius: 8px; padding: 16px; margin: 16px 0; font-family: var(--font-sans); font-size: 13px; color: var(--charcoal);">
+          <strong style="color: #92400e; font-size: 14px; display: block; margin-bottom: 10px;">Your pre-booking, explained</strong>
+          <div class="preorder-explain-row" style="display: flex; gap: 8px; margin-bottom: 6px;">
+            <span style="font-size: 15px; line-height: 1;">💳</span>
+            <span><strong>Pay now:</strong> {{ preorderPayNow | currencyInr }} to confirm your pre-booking.</span>
           </div>
-          <div>{{ variant()?.preorder_message || 'This item will be fulfilled once harvested and released.' }}</div>
-          <div *ngIf="variant()?.release_date" style="margin-top: 4px; font-weight: 500;">
-            Estimated Release Date: {{ variant()?.release_date }}
+          <div class="preorder-explain-row" style="display: flex; gap: 8px; margin-bottom: 6px;">
+            <span style="font-size: 15px; line-height: 1;">📅</span>
+            <span><strong>Pre-booking closes:</strong> {{ preorderDate(variant()?.preorder_end_date) }}</span>
           </div>
-          <div *ngIf="(variant()?.preorder_slots_remaining ?? 0) > 0" style="margin-top: 2px; font-size: 12px; opacity: 0.8;">
-            Slots available: {{ variant()?.preorder_slots_remaining }}
+          <div class="preorder-explain-row" style="display: flex; gap: 8px;">
+            <span style="font-size: 15px; line-height: 1;">🚚</span>
+            <span><strong>Delivery begins:</strong> {{ preorderDate(variant()?.release_date) }}</span>
+          </div>
+          <div style="margin-top: 12px; padding-top: 12px; border-top: 1px dashed rgba(146, 64, 14, 0.3); color: #92400e; line-height: 1.5;">
+            This is a pre-booking, <strong>not an immediate-delivery purchase</strong>. Your product is delivered after
+            the pre-booking period closes and the harvest is ready.
+          </div>
+          <div *ngIf="variant()?.preorder_message" style="margin-top: 8px; font-style: italic; opacity: 0.85;">
+            {{ variant()?.preorder_message }}
           </div>
         </div>
 
-        <div class="add-row" *ngIf="hasStock() && isActive()">
+        <!-- Your pre-booking journey (4-step timeline) -->
+        <div class="preorder-journey" *ngIf="variant()?.is_preorder"
+          style="background: #ffffff; border: 1px solid rgba(26,26,26,0.1); border-radius: 10px; padding: 18px; margin: 16px 0; font-family: var(--font-sans);">
+          <strong style="font-size: 13px; color: var(--green-deep, #2C4A1E); text-transform: uppercase; letter-spacing: 0.05em;">Your pre-booking journey</strong>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin-top: 14px;">
+            <div style="border-left: 3px solid #16a34a; padding-left: 12px;">
+              <div style="font-size: 10.5px; font-weight: 700; color: #16a34a; text-transform: uppercase;">Step 1 · Now</div>
+              <div style="font-weight: 600; font-size: 13.5px; color: #1a1a1a; margin-top: 2px;">Pre-booking open</div>
+              <div style="font-size: 12px; color: rgba(26,26,26,0.6); margin-top: 2px;">Reserve by paying {{ preorderPayNow | currencyInr }}.</div>
+            </div>
+            <div style="border-left: 3px solid #d97706; padding-left: 12px;">
+              <div style="font-size: 10.5px; font-weight: 700; color: #d97706; text-transform: uppercase;">Step 2</div>
+              <div style="font-weight: 600; font-size: 13.5px; color: #1a1a1a; margin-top: 2px;">Pre-booking closes</div>
+              <div style="font-size: 12px; color: rgba(26,26,26,0.6); margin-top: 2px;">{{ preorderDate(variant()?.preorder_end_date) }}</div>
+            </div>
+            <div style="border-left: 3px solid rgba(26,26,26,0.15); padding-left: 12px;">
+              <div style="font-size: 10.5px; font-weight: 700; color: rgba(26,26,26,0.45); text-transform: uppercase;">Step 3</div>
+              <div style="font-weight: 600; font-size: 13.5px; color: #1a1a1a; margin-top: 2px;">Processing</div>
+              <div style="font-size: 12px; color: rgba(26,26,26,0.5); margin-top: 2px;">Your product moves through processing.</div>
+            </div>
+            <div style="border-left: 3px solid rgba(26,26,26,0.15); padding-left: 12px;">
+              <div style="font-size: 10.5px; font-weight: 700; color: rgba(26,26,26,0.45); text-transform: uppercase;">Step 4</div>
+              <div style="font-weight: 600; font-size: 13.5px; color: #1a1a1a; margin-top: 2px;">Delivery begins</div>
+              <div style="font-size: 12px; color: rgba(26,26,26,0.5); margin-top: 2px;">{{ preorderDate(variant()?.release_date) }}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PRE-BOOKING CTA: single button, straight to checkout (reserve → pay) -->
+        <div class="add-row" *ngIf="hasStock() && isActive() && isPreorder">
+          <app-qty-selector [value]="quantity()" [max]="maxAllowedQuantity" (valueChange)="onQuantityChange($event)"
+            class="qty-selector-custom" style="border: 1px solid rgba(26,26,26,0.18);">
+          </app-qty-selector>
+          <button class="btn-add-cart" (click)="preBookNow()"
+            style="background-color: var(--amber-harvest); color: var(--charcoal);">
+            Pre-Book Now – Pay {{ preorderPayNow | currencyInr }} &#8594;
+          </button>
+          <button class="btn-wishlist" [class.active]="isFavorite()" (click)="toggleFavorite()"
+            [disabled]="togglingFavorite()">{{ isFavorite() ? '♥' : '♡' }}</button>
+        </div>
+        <p *ngIf="hasStock() && isActive() && isPreorder"
+          style="margin-top: 8px; font-family: var(--font-sans); font-size: 12px; color: rgba(26,26,26,0.6);">
+          Pay now to reserve · Delivery after pre-booking closes ·
+          <a routerLink="/help" style="color: var(--earth-raw, #6B4226); text-decoration: underline;">Need to cancel?</a>
+        </p>
+
+        <div class="add-row" *ngIf="hasStock() && isActive() && !isPreorder">
           <!-- One-time purchase controls (when not already added to cart) -->
           <ng-container *ngIf="purchaseType() === 'single' && cartQuantity === 0">
             <app-qty-selector [value]="quantity()" [max]="maxAllowedQuantity" (valueChange)="onQuantityChange($event)"
@@ -168,7 +222,7 @@
             </app-qty-selector>
 
             <button class="btn-add-cart" (click)="addToCart()" [disabled]="addingToCart()">
-              {{ addingToCart() ? 'Adding...' : (variant()?.is_preorder ? 'Preorder Now &#8594;' : 'Add to Cart &#8594;') }}
+              {{ addingToCart() ? 'Adding...' : 'Add to Cart &#8594;' }}
             </button>
           </ng-container>
 
@@ -205,7 +259,7 @@
         <div class="trace-row" *ngIf="variant()?.crop_cycle_id" style="margin-top: 16px;">
           <a [routerLink]="['/traceability-journey', variant()?.crop_cycle_id]"
             style="display: block; text-align: center; width: 100%; text-decoration: none; padding: 14px 24px; background-color: var(--earth-raw, #6B4226); color: #fff; font-family: var(--font-sans); font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; border-radius: 8px; transition: background-color 0.2s;">
-            Trace this Batch &#8594;
+            {{ isPreorder ? "Track your product's journey" : 'Trace this Batch' }} &#8594;
           </a>
         </div>
 
@@ -221,7 +275,7 @@
           Currently Out of Stock
         </div>
 
-        <div class="subscribe-nudge" *ngIf="purchaseType() === 'single' && eligiblePlanIds().length > 0">
+        <div class="subscribe-nudge" *ngIf="purchaseType() === 'single' && eligiblePlanIds().length > 0 && !isPreorder">
           <span class="nudge-icon">&#9851;</span>
           <p class="nudge-text">Get this every harvest, automatically. <strong>Subscribers save extra</strong> and get
             first-harvest priority.</p>

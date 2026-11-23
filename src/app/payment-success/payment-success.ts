@@ -57,6 +57,17 @@ export class PaymentSuccess implements OnInit, OnDestroy {
     type: 'order' | 'subscription';
   } | null = null;
 
+  /** True when the confirmed order is a pre-booking — switches copy to a reservation receipt. */
+  isPreorderConfirmation = false;
+  expectedDelivery = '';
+
+  get expectedDeliveryLabel(): string {
+    if (!this.expectedDelivery) return 'After the pre-booking period closes';
+    const d = new Date(this.expectedDelivery);
+    if (isNaN(d.getTime())) return 'After the pre-booking period closes';
+    return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+  }
+
   private redirectTimer: ReturnType<typeof setTimeout> | null = null;
   private countdownInterval: ReturnType<typeof setInterval> | null = null;
   private syncSub?: RxSubscription;
@@ -200,8 +211,13 @@ export class PaymentSuccess implements OnInit, OnDestroy {
                     next: (details) => {
                       if (this.receiptDetails) {
                         this.receiptDetails.amount = details?.total || details?.total_price || '—';
-                        this.cdr.markForCheck();
                       }
+                      this.isPreorderConfirmation = !!(details as any)?.is_preorder_order;
+                      this.expectedDelivery = (details as any)?.preorder_release_date || '';
+                      if (this.isPreorderConfirmation) {
+                        this.statusMessage = `Your pre-booking #${orderNumber} is confirmed.`;
+                      }
+                      this.cdr.markForCheck();
                     },
                     complete: () => {
                       this.startRedirectTimer(resolvedId, isSubscription);

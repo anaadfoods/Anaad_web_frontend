@@ -31,11 +31,11 @@ import { SubscriptionService } from '../../../core/services/subscription.service
           <span>Coming Soon</span>
         </div>
 
-        <!-- Preorder Badge with Extra Discount -->
+        <!-- Pre-booking Badge with Saving -->
         <div class="badge-preorder" *ngIf="!isComingSoon() && variant.is_preorder && isActive() && hasStock()" style="position: absolute; top: 12px; left: 12px; background: var(--amber-harvest, #E09E3E); color: #1a1a1a; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; text-transform: uppercase; z-index: 2; display: flex; align-items: center; gap: 4px;">
-          <span>Preorder</span>
+          <span>Pre-Booking Open</span>
           <span *ngIf="variant.preorder_extra_savings && +variant.preorder_extra_savings > 0" style="background: #1a1a1a; color: #fff; padding: 1px 4px; border-radius: 2px; font-size: 10px;">
-            {{ variant.preorder_discount_type === 'PERCENTAGE' ? (variant.preorder_discount_value + '% OFF') : ('-₹' + variant.preorder_extra_savings) }}
+            {{ variant.preorder_discount_type === 'PERCENTAGE' ? ('Save ' + (+(variant.preorder_discount_value || 0)) + '%') : ('-₹' + variant.preorder_extra_savings) }}
           </span>
         </div>
 
@@ -83,22 +83,49 @@ import { SubscriptionService } from '../../../core/services/subscription.service
           🔥 Hot deal: go with Aarambh plan for {{ arambhPrice() | currencyInr }}
         </div>
         
-        <div class="product-actions">
+        <!-- Pre-booking: single full-width CTA + clarity microcopy -->
+        <ng-container *ngIf="variant.is_preorder; else normalActions">
+          <div class="prebook-slots" *ngIf="!isComingSoon() && isActive() && hasStock() && preorderSlotsRemaining() > 0"
+            [class.low]="isPreorderSlotsLow()">
+            {{ isPreorderSlotsLow()
+                ? ('🔥 Only ' + preorderSlotsRemaining() + ' slots left — pre-book now!')
+                : ('⚡ ' + preorderSlotsRemaining() + ' pre-booking slots remaining') }}
+          </div>
           <button
             type="button"
-            class="btn-product"
-            (click)="$event.stopPropagation(); onAddToCart()"
+            class="btn-product secondary btn-prebook-full"
+            (click)="$event.stopPropagation(); onPreBook()"
             [disabled]="isComingSoon() || !hasStock() || !isActive()">
-            {{ isComingSoon() ? 'Coming Soon' : (!isActive() ? 'Coming Soon' : (!hasStock() ? 'Out of Stock' : (variant.is_preorder ? 'Preorder' : 'Add to Cart'))) }}
+            {{ isComingSoon() ? 'Coming Soon' : (!isActive() ? 'Coming Soon' : (!hasStock() ? 'Fully Booked' : 'Pre-Book Now →')) }}
           </button>
-          <button
-            type="button"
-            class="btn-product secondary"
-            (click)="$event.stopPropagation(); onSubscribeNow()"
-            [disabled]="isComingSoon() || !hasStock() || !isActive()">
-            Commit & Buy
-          </button>
-        </div>
+          <p class="prebook-microcopy" *ngIf="!isComingSoon() && isActive() && hasStock()">
+            Pay now to reserve · Delivery after pre-booking closes
+          </p>
+          <div class="prebook-dates" *ngIf="!isComingSoon() && isActive() && hasStock()">
+            <span>📅 Closes: <strong>{{ fmtPreorderDate(variant.preorder_end_date) }}</strong></span>
+            <span>🚚 Delivery from: <strong>{{ fmtPreorderDate(variant.release_date) }}</strong></span>
+          </div>
+        </ng-container>
+
+        <!-- Normal products: Add to Cart + Commit & Buy (unchanged) -->
+        <ng-template #normalActions>
+          <div class="product-actions">
+            <button
+              type="button"
+              class="btn-product"
+              (click)="$event.stopPropagation(); onAddToCart()"
+              [disabled]="isComingSoon() || !hasStock() || !isActive()">
+              {{ isComingSoon() ? 'Coming Soon' : (!isActive() ? 'Coming Soon' : (!hasStock() ? 'Out of Stock' : 'Add to Cart')) }}
+            </button>
+            <button
+              type="button"
+              class="btn-product secondary"
+              (click)="$event.stopPropagation(); onSubscribeNow()"
+              [disabled]="isComingSoon() || !hasStock() || !isActive()">
+              Commit & Buy
+            </button>
+          </div>
+        </ng-template>
         <button type="button" class="btn-save-row" [class.active]="isFavorite()" (click)="toggleFavorite($event)">
           {{ isFavorite() ? 'Saved to favorites' : 'Add to favorites' }}
         </button>
@@ -353,6 +380,55 @@ import { SubscriptionService } from '../../../core/services/subscription.service
       color: var(--bg-parchment, #F5F0E8);
     }
 
+    .btn-prebook-full {
+      width: 100%;
+    }
+
+    .prebook-microcopy {
+      margin-top: 10px;
+      text-align: center;
+      font-family: var(--font-sans, 'DM Sans', sans-serif);
+      font-size: 11.5px;
+      line-height: 1.4;
+      color: rgba(26, 26, 26, 0.6);
+    }
+
+    .prebook-dates {
+      margin-top: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      align-items: center;
+      font-family: var(--font-sans, 'DM Sans', sans-serif);
+      font-size: 11.5px;
+      line-height: 1.4;
+      color: rgba(26, 26, 26, 0.72);
+    }
+
+    .prebook-dates strong {
+      color: var(--green-deep, #2C4A1E);
+      font-weight: 600;
+    }
+
+    .prebook-slots {
+      margin-bottom: 10px;
+      text-align: center;
+      font-family: var(--font-sans, 'DM Sans', sans-serif);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 10px;
+      border-radius: 6px;
+      background: rgba(224, 158, 62, 0.14);
+      color: #92400e;
+      border: 1px solid rgba(224, 158, 62, 0.35);
+    }
+
+    .prebook-slots.low {
+      background: rgba(220, 38, 38, 0.1);
+      color: #b91c1c;
+      border-color: rgba(220, 38, 38, 0.35);
+    }
+
     .btn-product:hover:not(:disabled) {
       background-color: var(--green-deep, #2C4A1E);
       color: var(--bg-parchment, #F5F0E8);
@@ -506,5 +582,36 @@ export class ProductCardComponent implements OnInit {
     if (this.hasStock()) {
       this.router.navigate(['/product', this.variant.id], { queryParams: { subscribe: 'true' } });
     }
+  }
+
+  fmtPreorderDate(dateStr?: string | null): string {
+    if (!dateStr) return 'To be announced';
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return 'To be announced';
+    return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+  }
+
+  preorderSlotsRemaining(): number {
+    return Math.max(0, Number(this.variant?.preorder_slots_remaining ?? 0));
+  }
+
+  /** Low = few slots left → show an urgent (red) nudge. True when ≤50 left or ≤20% of capacity. */
+  isPreorderSlotsLow(): boolean {
+    const remaining = this.preorderSlotsRemaining();
+    if (remaining <= 0) return false;
+    const capacity = Number(this.variant?.preorder_capacity ?? 0);
+    return remaining <= 50 || (capacity > 0 && remaining / capacity <= 0.2);
+  }
+
+  onPreBook() {
+    if (!this.hasStock()) return;
+    if (!this.authState.isAuthenticated()) {
+      this.router.navigate(['/login'], { queryParams: { returnUrl: `/product/${this.variant.id}` } });
+      return;
+    }
+    // Pre-booking goes straight to checkout as a direct buy (reserve → pay), no cart step.
+    this.router.navigate(['/checkout'], {
+      queryParams: { direct_buy: 'true', variant_id: this.variant.id, qty: 1 },
+    });
   }
 }

@@ -90,6 +90,17 @@ export class Checkout implements OnInit {
         });
       }
     });
+
+    // Pre-bookings are confirmed by paying now via UPI — never COD.
+    effect(() => {
+      if (this.isPreorder()) {
+        untracked(() => {
+          if (this.checkoutForm.get('paymentMethod')?.value !== 'upi') {
+            this.checkoutForm.get('paymentMethod')?.setValue('upi');
+          }
+        });
+      }
+    });
   }
 
   checkoutForm = this.fb.group({
@@ -167,6 +178,44 @@ export class Checkout implements OnInit {
   readonly selectedPaymentType = signal<'PAID_FULL' | 'INSTALLMENT'>('PAID_FULL');
 
   readonly isSubscription = computed(() => !!this.directPlanId());
+
+  // ---- Pre-booking (preorder) state & summary ----
+  readonly isPreorder = computed(() => {
+    if (this.isDirectBuy()) return !!this.directBuyItem()?.is_preorder;
+    return this.cartState.isPreorderCart();
+  });
+
+  /** Per-order pre-booking discount in ₹ (extra saving stacked on top of normal discount). */
+  readonly preorderSaving = computed(() => {
+    const item = this.directBuyItem();
+    if (!item) return 0;
+    return Number(item.unit_preorder_saving || 0) * Number(item.quantity || 1);
+  });
+
+  /** Price before the pre-booking discount (after any normal discount) × qty. */
+  readonly preorderRegularTotal = computed(() => {
+    const item = this.directBuyItem();
+    if (!item) return 0;
+    return Number(item.unit_regular_price || 0) * Number(item.quantity || 1);
+  });
+
+  readonly preorderDiscountLabel = computed(() => {
+    const item = this.directBuyItem();
+    if (item?.preorder_discount_type === 'PERCENTAGE' && Number(item.preorder_discount_value) > 0) {
+      return `Pre-booking discount (extra ${Number(item.preorder_discount_value)}%)`;
+    }
+    return 'Pre-booking discount';
+  });
+
+  readonly preorderCloseDate = computed(() => this.formatPreorderDate(this.directBuyItem()?.preorder_end_date));
+  readonly preorderDeliveryDate = computed(() => this.formatPreorderDate(this.directBuyItem()?.release_date));
+
+  formatPreorderDate(dateStr: string | null | undefined): string {
+    if (!dateStr) return 'To be announced';
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return 'To be announced';
+    return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+  }
   readonly discountedPricePerMonth = computed(() => this.subtotal());
   readonly deliveryChargePerMonth = computed(() => this.deliveryCharge());
   readonly planDurationMonths = computed(() => this.selectedPlan()?.duration_months ?? 1);
@@ -374,7 +423,13 @@ export class Checkout implements OnInit {
             });
           });
         } else {
-          this.directTotalPrice.set(price * this.directQty());
+          // Authoritative sell price = final_price (already stacks the pre-booking discount on
+          // top of any normal discount, and matches what the server recomputes & charges).
+          const finalPrice = parseFloat(String(v.final_price || '0'));
+          const basePrice = parseFloat(String(v.price || '0'));
+          const regularDiscounted = parseFloat(String(v.regular_discounted_price || '0')) || basePrice;
+          const unitPrice = finalPrice > 0 ? finalPrice : basePrice;
+          this.directTotalPrice.set(unitPrice * this.directQty());
           this.directBuyItem.set({
             product_variant: v.id,
             product_name: v.product_name,
@@ -382,7 +437,17 @@ export class Checkout implements OnInit {
             unit: (v as any).unit || (v as any).weight_unit || '',
             quantity: this.directQty(),
             total_price: this.directTotalPrice(),
-            image: v.images?.[0]?.image || v.product_images?.[0]?.image || ''
+            image: v.images?.[0]?.image || v.product_images?.[0]?.image || '',
+            // Pre-booking metadata (only used when is_preorder is true)
+            is_preorder: !!v.is_preorder,
+            preorder_end_date: v.preorder_end_date || null,
+            release_date: v.release_date || null,
+            preorder_discount_type: v.preorder_discount_type || null,
+            preorder_discount_value: Number(v.preorder_discount_value || 0),
+            unit_price: unitPrice,
+            unit_mrp: basePrice,
+            unit_regular_price: regularDiscounted,
+            unit_preorder_saving: Number(v.preorder_extra_savings || 0),
           });
           this.cdr.markForCheck();
         }
