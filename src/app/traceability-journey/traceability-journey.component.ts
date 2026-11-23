@@ -1,5 +1,4 @@
 import {
-  AfterViewInit,
   ChangeDetectionStrategy,
   Component,
   ElementRef,
@@ -96,7 +95,7 @@ interface Blossom {
   styleUrl: './traceability-journey.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDestroy {
+export class TraceabilityJourneyComponent implements OnInit, OnDestroy {
   @ViewChild('journeyRoot') private journeyRoot?: ElementRef<HTMLElement>;
   @ViewChild('vinePath') private vinePath?: ElementRef<SVGPathElement>;
   @ViewChild('journeyEnd') private journeyEnd?: ElementRef<HTMLElement>;
@@ -113,6 +112,7 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   protected readonly authState = inject(AuthState);
+
 
   // Traceability API State
   protected readonly currentQrCode = signal<string>('QR-ANAAD-ATTA5KG-000045');
@@ -649,6 +649,14 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
       };
       motionQuery.addEventListener('change', motionListener);
       this.motionQueryCleanup = () => motionQuery.removeEventListener('change', motionListener);
+
+      // Browser-only setup (observers, scroll/resize listeners, vine drawing) is deferred
+      // via setTimeout rather than run from ngAfterViewInit: when SSR + hydration succeeds,
+      // Angular does not re-run ngAfterViewInit on the client, so logic placed there would
+      // silently never execute. ngOnInit reliably runs client-side (it drives the journey
+      // data fetch below) — see attachViewChildrenWhenReady for how @ViewChildren queries
+      // (which may still be unresolved at this point) are picked up once ready.
+      setTimeout(() => this.initBrowserFeatures(), 0);
     }
 
     this.routeSub = combineLatest([
@@ -1717,17 +1725,8 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
     }
   }
 
-  ngAfterViewInit(): void {
-    if (!isPlatformBrowser(this.platformId)) return;
-
-    this.setupStageObserver();
-
-    this.sceneListSub = this.sceneRefs?.changes.subscribe(() => {
-      this.scheduleBuildVine(120);
-    });
-    this.waypointListSub = this.vineWaypointRefs?.changes.subscribe(() => {
-      this.scheduleBuildVine(120);
-    });
+  private initBrowserFeatures(): void {
+    this.attachViewChildrenWhenReady();
 
     // Schedule initial vine build once after view mounts
     this.scheduleBuildVine(60);
@@ -1744,6 +1743,33 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
       const resizeHandler = () => this.scheduleBuildVine(150);
       window.addEventListener('resize', resizeHandler, { passive: true });
       this.resizeListener = () => window.removeEventListener('resize', resizeHandler);
+    });
+  }
+
+  /**
+   * Under SSR + hydration, @ViewChild/@ViewChildren queries are not guaranteed to be
+   * resolved yet by the time initBrowserFeatures first runs (ngAfterViewInit itself does
+   * not reliably re-fire client-side post-hydration, so this is invoked early via
+   * ngOnInit + setTimeout instead — see initBrowserFeatures caller). Retry on the next
+   * animation frame until Angular has actually populated these queries, then wire up
+   * observers against the real, final QueryList/ElementRef objects.
+   */
+  private attachViewChildrenWhenReady(attempt = 0): void {
+    if (!this.sceneRefs || !this.vineWaypointRefs) {
+      if (attempt > 120) return; // ~2s safety cap at 60fps
+      requestAnimationFrame(() => this.attachViewChildrenWhenReady(attempt + 1));
+      return;
+    }
+
+    this.setupStageObserver();
+    this.checkSceneReveal();
+    this.sceneListSub = this.sceneRefs.changes.subscribe(() => {
+      this.setupStageObserver();
+      this.checkSceneReveal();
+      this.scheduleBuildVine(120);
+    });
+    this.waypointListSub = this.vineWaypointRefs.changes.subscribe(() => {
+      this.scheduleBuildVine(120);
     });
 
     const root = this.journeyRoot?.nativeElement;
@@ -1909,8 +1935,7 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
     if (this.resizeTimer) {
       clearTimeout(this.resizeTimer);
     }
-    this.revealObserver?.disconnect();
-    this.stageObserver?.disconnect();
+    this.teardownStageObserver();
     this.sceneListSub?.unsubscribe();
     this.waypointListSub?.unsubscribe();
     if (this.flipStampTimer) {
@@ -1921,9 +1946,17 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
     this.resizeObserver?.disconnect();
   }
 
+  private teardownStageObserver(): void {
+    this.revealObserver?.disconnect();
+    this.stageObserver?.disconnect();
+    this.revealObserver = undefined;
+    this.stageObserver = undefined;
+  }
+
   /** Stage observer: tracks is-live reveal early (600px margin) and centered stage */
   private setupStageObserver(): void {
     if (!isPlatformBrowser(this.platformId)) return;
+    this.teardownStageObserver();
     const scenes = this.sceneRefs?.toArray() ?? [];
     if (scenes.length === 0) return;
 
@@ -1975,8 +2008,32 @@ export class TraceabilityJourneyComponent implements OnInit, AfterViewInit, OnDe
     });
   }
 
+  /**
+   * Reliable fallback for the IntersectionObserver-based reveal in setupStageObserver.
+   * Under SSR + hydration, zone.js's IntersectionObserver patching combined with
+   * Angular's hydration pending-task/stability tracking has been observed to stop
+   * delivering callback updates after the first one (cards get observed, but never
+   * flip to visible on subsequent scroll). This plain getBoundingClientRect check runs
+   * on every scroll-driven frame via the already-reliable update()/schedule() loop, so
+   * reveal keeps working even if the observer-based path never fires again.
+   */
+  private checkSceneReveal(): void {
+    const scenes = this.sceneRefs?.toArray();
+    if (!scenes?.length) return;
+    const vh = window.innerHeight;
+    for (const scene of scenes) {
+      const el = scene.nativeElement;
+      if (el.classList.contains('is-live')) continue;
+      const rect = el.getBoundingClientRect();
+      if (rect.top < vh + 600 && rect.bottom > -600) {
+        el.classList.add('is-live');
+      }
+    }
+  }
+
   private update(): void {
     if (!isPlatformBrowser(this.platformId)) return;
+    this.checkSceneReveal();
     const root = this.journeyRoot?.nativeElement;
     const path = this.vinePath?.nativeElement;
     if (!root || !path || this.pathLength <= 0) return;
@@ -2165,10 +2222,6 @@ onCardMouseMove(event: MouseEvent, stageId: number, type: 'copy' | 'art'): void 
     this.cardTiltY.set(0);
     this.zoomX.set(50);
     this.zoomY.set(50);
-  }
-
-  setInteractiveHover(_state: boolean): void {
-    // No-op to eliminate continuous Change Detection on cursor hover over items
   }
 
   private startVineGrowthLoop(): void {

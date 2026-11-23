@@ -56,8 +56,6 @@
         class="journey-pills__pill"
         [class.is-active]="currentStage() === s.id"
         (click)="scrollToStage(s.id)"
-        (mouseenter)="setInteractiveHover(true)"
-        (mouseleave)="setInteractiveHover(false)"
         [attr.aria-label]="'Jump to Stage ' + s.id"
       >
         <span class="journey-pills__num">{{ s.id }}</span>
@@ -151,8 +149,6 @@
           type="button"
           class="trace-banner__change-btn"
           (click)="openCropIdPrompt()"
-          (mouseenter)="setInteractiveHover(true)"
-          (mouseleave)="setInteractiveHover(false)"
           aria-label="Enter or change Crop Cycle ID"
         >
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 21h5v-5"/></svg>
@@ -186,7 +182,7 @@
       </div>
     </div>
 
-    <a routerLink="/" class="journey-intro__back" (mouseenter)="setInteractiveHover(true)" (mouseleave)="setInteractiveHover(false)">Back to home</a>
+    <a routerLink="/" class="journey-intro__back">Back to home</a>
     <p class="journey-intro__eyebrow">From Soil to Soul</p>
     <h1 class="journey-intro__title">Every batch carries a story.</h1>
     <div class="journey-intro__rule" aria-hidden="true"></div>
@@ -200,8 +196,6 @@
           type="button"
           class="journey-intro__no-crop-btn"
           (click)="openCropIdPrompt()"
-          (mouseenter)="setInteractiveHover(true)"
-          (mouseleave)="setInteractiveHover(false)"
         >
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
           <span>Enter Crop Cycle ID</span>
@@ -407,8 +401,6 @@
                   type="button"
                   class="journey-login-gate__btn journey-login-gate__btn--primary"
                   (click)="redirectToLogin()"
-                  (mouseenter)="setInteractiveHover(true)"
-                  (mouseleave)="setInteractiveHover(false)"
                 >
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
                   <span>Sign In to Continue</span>
@@ -418,8 +410,6 @@
                   type="button"
                   class="journey-login-gate__btn journey-login-gate__btn--secondary"
                   (click)="redirectToRegister()"
-                  (mouseenter)="setInteractiveHover(true)"
-                  (mouseleave)="setInteractiveHover(false)"
                 >
                   <span>Create Account</span>
                 </button>
@@ -429,8 +419,6 @@
                 type="button"
                 class="journey-login-gate__preview-link"
                 (click)="openDeliveryPreviewModal()"
-                (mouseenter)="setInteractiveHover(true)"
-                (mouseleave)="setInteractiveHover(false)"
               >
                 <span>Learn what stages 10–12 include &rarr;</span>
               </button>
@@ -462,8 +450,7 @@
                 <p class="delivery-gate__sub">Your product's final journey — from our warehouse to your door — is personal. Unlock below to trace it live with your registered mobile number.</p>
                 <button class="delivery-gate__unlock-btn"
                         (click)="onDeliveryUnlockClick()"
-                        (mouseenter)="setInteractiveHover(true)"
-                        (mouseleave)="setInteractiveHover(false)">
+                        >
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                   <span>Unlock Delivery Tracking</span>
                 </button>
@@ -501,14 +488,11 @@
                       [value]="unlockPhone()"
                       (input)="unlockPhone.set($any($event.target).value)"
                       (keyup.enter)="submitPhone()"
-                      (mouseenter)="setInteractiveHover(true)"
-                      (mouseleave)="setInteractiveHover(false)"
                     />
                   </div>
                   <button class="delivery-gate__submit-btn"
                           (click)="submitPhone()"
-                          (mouseenter)="setInteractiveHover(true)"
-                          (mouseleave)="setInteractiveHover(false)">
+                          >
                     Find Orders
                   </button>
                 </div>
@@ -529,8 +513,7 @@
                 <div class="delivery-gate__error">{{ deliveryError() }}</div>
                 <button class="delivery-gate__submit-btn" style="margin-top: 0.75rem;"
                         (click)="resetDeliveryPhone()"
-                        (mouseenter)="setInteractiveHover(true)"
-                        (mouseleave)="setInteractiveHover(false)">
+                        >
                   Try Again
                 </button>
               </div>
@@ -543,16 +526,14 @@
                 <div class="delivery-gate__type-row">
                   <button class="delivery-gate__type-btn"
                           (click)="selectTrackingMode('order')"
-                          (mouseenter)="setInteractiveHover(true)"
-                          (mouseleave)="setInteractiveHover(false)">
+                          >
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 12V22H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
                     <span>One-time Order</span>
                     <small>{{ cropOrders().length }} order(s)</small>
                   </button>
                   <button class="delivery-gate__type-btn"
                           (click)="selectTrackingMode('subscription')"
-                          (mouseenter)="setInteractiveHover(true)"
-                          (mouseleave)="setInteractiveHover(false)">
+                          >
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                     <span>Subscription</span>
                     <small>{{ cropSubscriptions().length }} delivery plan(s)</small>
@@ -577,8 +558,7 @@
                     <div class="delivery-order"
                          [class.delivery-order--selected]="selectedOrderNumber() === order.order_number"
                          (click)="selectOrder(order)"
-                         (mouseenter)="setInteractiveHover(true)"
-                         (mouseleave)="setInteractiveHover(false)">
+                         >
                       <div class="delivery-order__header">
                         <span class="delivery-order__num">{{ order.order_number }}</span>
                         <span class="delivery-order__status" [class.delivery-order__status--done]="order.status === 'DELIVERED'">{{ order.status }}</span>
@@ -614,8 +594,7 @@
                   @if (hasBothTypes()) {
                     <button class="delivery-gate__back-btn"
                             (click)="selectTrackingMode('subscription')"
-                            (mouseenter)="setInteractiveHover(true)"
-                            (mouseleave)="setInteractiveHover(false)">
+                            >
                       Switch to Subscription
                     </button>
                   }
@@ -652,8 +631,7 @@
                     <div class="delivery-order"
                          [class.delivery-order--selected]="selectedSubNumber() === (sub.subscription_number || sub.id.toString())"
                          (click)="selectSubscription(sub)"
-                         (mouseenter)="setInteractiveHover(true)"
-                         (mouseleave)="setInteractiveHover(false)">
+                         >
                       <div class="delivery-order__header">
                         <span class="delivery-order__num">{{ sub.subscription_number || ('SUB-' + sub.id) }}</span>
                         <span class="delivery-order__status" [class.delivery-order__status--done]="sub.status === 'ACTIVE'">{{ sub.status }}</span>
@@ -675,8 +653,7 @@
                   @if (hasBothTypes()) {
                     <button class="delivery-gate__back-btn"
                             (click)="selectTrackingMode('order')"
-                            (mouseenter)="setInteractiveHover(true)"
-                            (mouseleave)="setInteractiveHover(false)">
+                            >
                       Switch to One-time Order
                     </button>
                   }
@@ -696,8 +673,7 @@
             @if (isUnlocked() && deliveryPhoneSubmitted() && !deliveryLoading()) {
               <button class="delivery-gate__reset"
                       (click)="resetDeliveryPhone()"
-                      (mouseenter)="setInteractiveHover(true)"
-                      (mouseleave)="setInteractiveHover(false)">
+                      >
                 Use a different number
               </button>
             }
@@ -776,8 +752,7 @@
 
       <!-- Feature 7: Explore Our Products CTA Button -->
       <a routerLink="/product" class="journey-next__cta-btn" 
-         (mouseenter)="setInteractiveHover(true)" 
-         (mouseleave)="setInteractiveHover(false)">
+         >
         <span>Explore Our Products</span>
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
@@ -799,8 +774,6 @@
         class="journey-nav__dot"
         [class.is-active]="currentStage() === s.id"
         (click)="scrollToStage(s.id)"
-        (mouseenter)="setInteractiveHover(true)"
-        (mouseleave)="setInteractiveHover(false)"
         [attr.aria-label]="'Scroll to Stage ' + s.id + ': ' + s.title"
       >
         <span class="journey-nav__tooltip">{{ s.title }}</span>
@@ -813,8 +786,6 @@
     class="journey-back-top"
     [class.is-visible]="progress() > 0.28"
     (click)="scrollToTop()"
-    (mouseenter)="setInteractiveHover(true)"
-    (mouseleave)="setInteractiveHover(false)"
     aria-label="Scroll back to top"
   >
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
@@ -838,8 +809,6 @@
           target="_blank"
           rel="noopener noreferrer"
           (click)="$event.stopPropagation()"
-          (mouseenter)="setInteractiveHover(true)"
-          (mouseleave)="setInteractiveHover(false)"
         >
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z" fill="currentColor"/></svg>
           View farm on map
@@ -876,8 +845,6 @@
                 
                 <button class="scene__verify-btn" 
                         (click)="toggleFlipCard($event, stage.id)" 
-                        (mouseenter)="setInteractiveHover(true)" 
-                        (mouseleave)="setInteractiveHover(false)" 
                         aria-label="Verify batch proof">
                   <span>Verify batch proof</span>
                   <svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
@@ -886,8 +853,6 @@
                   @if (isRegisteredUser()) {
                     <button class="scene__unlock-btn" 
                             (click)="onDeliveryUnlockClick()" 
-                            (mouseenter)="setInteractiveHover(true)" 
-                            (mouseleave)="setInteractiveHover(false)"
                             aria-label="Unlock delivery tracking">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                       <span>{{ isUnlocked() ? 'Track Your Delivery Below' : 'Unlock Delivery Tracking' }}</span>
@@ -895,8 +860,6 @@
                   } @else {
                     <button class="scene__unlock-btn scene__unlock-btn--login" 
                             (click)="redirectToLogin()" 
-                            (mouseenter)="setInteractiveHover(true)" 
-                            (mouseleave)="setInteractiveHover(false)"
                             aria-label="Sign in to view delivery tracking">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
                       <span>Sign In for Delivery Details</span>
@@ -1164,7 +1127,7 @@
                         <div class="delivery-lock-msg">
                           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                           <span>Unlock delivery tracking to see live transportation data.</span>
-                          <button class="delivery-lock-msg__btn" (click)="onDeliveryUnlockClick()" (mouseenter)="setInteractiveHover(true)" (mouseleave)="setInteractiveHover(false)">Unlock Now</button>
+                          <button class="delivery-lock-msg__btn" (click)="onDeliveryUnlockClick()">Unlock Now</button>
                         </div>
                       }
                     }
@@ -1214,7 +1177,7 @@
                         <div class="delivery-lock-msg">
                           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                           <span>Unlock delivery tracking to see live delivery milestones.</span>
-                          <button class="delivery-lock-msg__btn" (click)="onDeliveryUnlockClick()" (mouseenter)="setInteractiveHover(true)" (mouseleave)="setInteractiveHover(false)">Unlock Now</button>
+                          <button class="delivery-lock-msg__btn" (click)="onDeliveryUnlockClick()">Unlock Now</button>
                         </div>
                       }
                     }
@@ -1253,7 +1216,7 @@
                         </div>
                       } @else if (!isUnlocked()) {
                         <div style="margin-top: 0.75rem; text-align: center;">
-                          <button class="delivery-lock-msg__btn" (click)="onDeliveryUnlockClick()" (mouseenter)="setInteractiveHover(true)" (mouseleave)="setInteractiveHover(false)">Unlock Delivery Tracking</button>
+                          <button class="delivery-lock-msg__btn" (click)="onDeliveryUnlockClick()">Unlock Delivery Tracking</button>
                         </div>
                       }
                     }
@@ -1261,8 +1224,6 @@
                 </div>
                 <button class="scene__verify-btn scene__verify-btn--back" 
                         (click)="toggleFlipCard($event, null)" 
-                        (mouseenter)="setInteractiveHover(true)" 
-                        (mouseleave)="setInteractiveHover(false)" 
                         aria-label="Back to description">
                   <span>Back to description</span>
                   <svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg>
@@ -1343,8 +1304,6 @@
         type="button"
         class="registered-modal__close"
         (click)="closeDeliveryPreviewModal()"
-        (mouseenter)="setInteractiveHover(true)"
-        (mouseleave)="setInteractiveHover(false)"
         aria-label="Close"
       >
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
@@ -1399,8 +1358,6 @@
           type="button"
           class="registered-modal__btn registered-modal__btn--primary"
           (click)="redirectToLogin()"
-          (mouseenter)="setInteractiveHover(true)"
-          (mouseleave)="setInteractiveHover(false)"
         >
           Sign In to Access Delivery Details
         </button>
@@ -1408,8 +1365,6 @@
           type="button"
           class="registered-modal__btn registered-modal__btn--ghost"
           (click)="closeDeliveryPreviewModal()"
-          (mouseenter)="setInteractiveHover(true)"
-          (mouseleave)="setInteractiveHover(false)"
         >
           Got it
         </button>
@@ -1438,8 +1393,6 @@
           type="button"
           class="crop-prompt-modal__close"
           (click)="closeCropIdPrompt()"
-          (mouseenter)="setInteractiveHover(true)"
-          (mouseleave)="setInteractiveHover(false)"
           aria-label="Close"
         >
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
@@ -1471,8 +1424,6 @@
             [value]="cropIdInput()"
             (input)="cropIdInput.set($any($event.target).value)"
             (keyup.enter)="submitCropId()"
-            (mouseenter)="setInteractiveHover(true)"
-            (mouseleave)="setInteractiveHover(false)"
             autocomplete="off"
             spellcheck="false"
           />
@@ -1481,8 +1432,6 @@
             class="crop-prompt-modal__submit-btn"
             [disabled]="isSubmittingCropId()"
             (click)="submitCropId()"
-            (mouseenter)="setInteractiveHover(true)"
-            (mouseleave)="setInteractiveHover(false)"
           >
             @if (isSubmittingCropId()) {
               <svg class="crop-prompt-modal__spinner" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -1509,8 +1458,6 @@
             type="button"
             class="crop-prompt-modal__chip"
             (click)="useSampleCropId('CC-000019')"
-            (mouseenter)="setInteractiveHover(true)"
-            (mouseleave)="setInteractiveHover(false)"
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             <span>CC-000019 (Certified Khapli Wheat)</span>
